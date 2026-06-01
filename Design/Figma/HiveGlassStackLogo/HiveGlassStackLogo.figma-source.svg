@@ -1,0 +1,89 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Hive Stacked Comb Figma Source</title>
+  <desc>Figma-first source for the Hive app icon. The artwork uses SF Symbols-style point-up hexagon geometry: one centered filled glass hexagon repeated at 100%, 75%, and 50% scale, without cast effects.</desc>
+  <metadata>{"concept":"Hive Glass Stack","sfSymbolBaseline":"hexagon.fill","figmaLayerCount":13,"physicalForegroundLayerCount":3,"stackedHexCellCount":3,"hexCellCount":3,"hexScaleRatios":[1.0,0.75,0.5],"allHexCenters":[[512,512],[512,512],[512,512]],"hasShadows":false,"hasSixAppearanceExports":true,"hexCellMasks":[
+            "hex-back-large",
+        "hex-middle-front",
+        "hex-small-front"
+  ],"requiresReflectionArtwork":true}</metadata>
+  <defs>
+    <radialGradient id="honeyDepth" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(306 214) rotate(52) scale(854 884)">
+      <stop stop-color="#FFE0A0"/>
+      <stop offset="0.4" stop-color="#E79D33"/>
+      <stop offset="0.76" stop-color="#7A4215"/>
+      <stop offset="1" stop-color="#1A0B03"/>
+    </radialGradient>
+    <radialGradient id="topReflection" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(286 184) rotate(28) scale(640 480)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="depthVignette" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(790 795) rotate(43) scale(620 690)">
+      <stop offset="0.35" stop-color="#2C1405" stop-opacity="0"/>
+      <stop offset="1" stop-color="#2C1405" stop-opacity="0.62"/>
+    </radialGradient>
+    <radialGradient id="backgroundEmber" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 512) scale(470)">
+      <stop stop-color="#FDAB43" stop-opacity="0.24"/>
+      <stop offset="0.5" stop-color="#C8841A" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#C8841A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cellGlass" x1="260" y1="255" x2="752" y2="804" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.72"/>
+      <stop offset="0.36" stop-color="#FFE3A4" stop-opacity="0.68"/>
+      <stop offset="0.72" stop-color="#C78123" stop-opacity="0.58"/>
+      <stop offset="1" stop-color="#5E2F0D" stop-opacity="0.48"/>
+    </linearGradient>
+    <linearGradient id="edgeRefraction" x1="300" y1="280" x2="730" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.40"/>
+      <stop offset="0.5" stop-color="#FFF1C6" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#6A3510" stop-opacity="0.24"/>
+    </linearGradient>
+    <radialGradient id="ember" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 512) scale(122)">
+      <stop stop-color="#FFF7DE"/>
+      <stop offset="0.36" stop-color="#FDAB43" stop-opacity="0.9"/>
+      <stop offset="0.72" stop-color="#C8841A" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#C8841A" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softReflection" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+  <g id="01-bg-base-honey">
+    <rect width="1024" height="1024" rx="226" fill="url(#honeyDepth)"/>
+  </g>
+  <g id="02-bg-top-reflection-field">
+    <rect width="1024" height="1024" rx="226" fill="url(#topReflection)"/>
+  </g>
+  <g id="03-bg-depth-vignette">
+    <rect width="1024" height="1024" rx="226" fill="url(#depthVignette)"/>
+  </g>
+  <g id="04-bg-ember-glow">
+    <rect width="1024" height="1024" rx="226" fill="url(#backgroundEmber)"/>
+  </g>
+    <g id="05-glass-large-hex">
+  <polygon id="hex-back-large-mask" data-hex-cell-mask="true" data-outer-hex="true" points="512,159 818,335 818,689 512,865 206,689 206,335" fill="url(#cellGlass)" opacity="0.55"/>
+</g>
+<g id="06-glass-medium-hex">
+  <polygon id="hex-middle-front-mask" data-hex-cell-mask="true" data-outer-hex="false" points="512,247 741,380 741,644 512,777 283,644 283,380" fill="url(#cellGlass)" opacity="0.88"/>
+</g>
+<g id="07-glass-small-hex">
+  <polygon id="hex-small-front-mask" data-hex-cell-mask="true" data-outer-hex="false" points="512,335 665,424 665,600 512,689 359,600 359,424" fill="url(#cellGlass)" opacity="0.89"/>
+</g>
+    <g id="08-refraction-large-hex">
+  <polygon id="hex-back-large-edge-refraction" points="512,201 781,357 781,667 512,823 243,667 243,357" fill="url(#edgeRefraction)" opacity="0.05"/>
+</g>
+<g id="09-refraction-medium-hex">
+  <polygon id="hex-middle-front-edge-refraction" points="512,279 714,395 714,629 512,745 310,629 310,395" fill="url(#edgeRefraction)" opacity="0.10"/>
+</g>
+<g id="10-refraction-small-hex">
+  <polygon id="hex-small-front-edge-refraction" points="512,357 647,434 647,590 512,667 377,590 377,434" fill="url(#edgeRefraction)" opacity="0.10"/>
+</g>
+    <g id="11-reflection-large-hex">
+  <ellipse id="hex-back-large-reflection" cx="427" cy="392" rx="113" ry="64" fill="#FFFFFF" fill-opacity="0.07" filter="url(#softReflection)"/>
+</g>
+<g id="12-reflection-medium-hex">
+  <ellipse id="hex-middle-front-reflection" cx="448" cy="422" rx="122" ry="74" fill="#FFFFFF" fill-opacity="0.16" filter="url(#softReflection)"/>
+</g>
+<g id="13-reflection-small-hex">
+  <ellipse id="hex-small-front-reflection" cx="470" cy="452" rx="81" ry="49" fill="#FFFFFF" fill-opacity="0.16" filter="url(#softReflection)"/>
+</g>
+</svg>

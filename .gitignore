@@ -1,0 +1,9 @@
+.build/
+DerivedData/
+Design/AppleResources/downloads/
+*.xcuserstate
+.DS_Store
+*.swp
+*.sqlite-wal
+*.sqlite-shm
+tmp-test-data/

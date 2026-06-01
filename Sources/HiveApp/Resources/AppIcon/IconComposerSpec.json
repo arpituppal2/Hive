@@ -1,0 +1,38 @@
+{
+  "format": "com.apple.iconcomposer.icon",
+  "generator": "scripts/render_app_icon.swift",
+  "product": "Hive",
+  "concept": "Hive Glass Stack: SF Symbols hexagon.fill proportions, one centered point-up glass hex repeated at 100%, 75%, and 50% scale with no shadows.",
+  "figmaSource": "Design/Figma/HiveGlassStackLogo/HiveGlassStackLogo.figma-source.svg",
+  "sourceOfTruth": "Figma foreground hex assets in Design/Figma/HiveGlassStackLogo/IconComposerExports, composed by Hive.icon/icon.json; app-facing previews, icns, and iconset are exported from Icon Composer through ictool.",
+  "previewExportSource": "Icon Composer ictool",
+  "sfSymbolBaseline": "hexagon.fill",
+  "iconComposer": {
+    "tool": "Icon Composer",
+    "executable": "/Applications/Xcode.app/Contents/Applications/Icon Composer.app",
+    "exporter": "ictool",
+    "physicalForegroundGroups": 3
+  },
+  "figmaLayerCount": 13,
+  "physicalForegroundLayerCount": 3,
+  "iconComposerForegroundGroupCount": 3,
+  "stackedHexCellCount": 3,
+  "hexCellCount": 3,
+  "hexScaleRatios": [1.0, 0.75, 0.5],
+  "allHexCenters": [[512, 512], [512, 512], [512, 512]],
+  "hasShadows": false,
+  "hasSixAppearanceExports": true,
+  "appearances": [
+    "normal",
+    "dark",
+    "light-tinted",
+    "dark-tinted",
+    "light-clear",
+    "dark-clear"
+  ],
+  "layers": [
+    "large-glass-hex",
+    "medium-glass-hex",
+    "small-glass-hex"
+  ]
+}

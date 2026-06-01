@@ -1,0 +1,49 @@
+{
+  "appGroupIdentifier": "group.local.hive",
+  "bundleIdentifier": "local.hive.mobile",
+  "deviceFamilies": [
+    "iPhone",
+    "iPad"
+  ],
+  "displayName": "Hive",
+  "inputs": [
+    "multiTouch",
+    "virtualKeyboard",
+    "voiceControl",
+    "shareSheet",
+    "quickActions",
+    "widgets",
+    "spotlight",
+    "shortcuts",
+    "motionSensors",
+    "biometricPrivacy"
+  ],
+  "localAI": {
+    "appleIntelligencePreferred": true,
+    "fallback": "Indexed Wiki"
+  },
+  "minimumOSVersion": "17.0",
+  "permissions": [
+    "microphone",
+    "speechRecognition",
+    "motionSensors"
+  ],
+  "platform": "iOS",
+  "primaryActionPlacement": "bottomReachZone",
+  "requiresFullScreen": false,
+  "supportedInterfaceOrientations": [
+    "portrait",
+    "landscapeLeft",
+    "landscapeRight"
+  ],
+  "systemFeatures": [
+    "widgets",
+    "homeScreenQuickActions",
+    "spotlight",
+    "shortcuts",
+    "activityViews"
+  ],
+  "widgets": [
+    "HiveMemoryWidget"
+  ]
+}

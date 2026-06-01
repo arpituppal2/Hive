@@ -1,0 +1,399 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="5600" height="3600" viewBox="0 0 5600 3600">
+<defs>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#2C2016" flood-opacity="0.12"/></filter>
+  <style>
+    .chrome{font-family:'SF Pro Text','SF Pro',-apple-system,BlinkMacSystemFont,sans-serif; letter-spacing:.02em; fill:#2C2016;}
+    .label{font-family:'SF Pro Text','SF Pro',-apple-system,BlinkMacSystemFont,sans-serif; font-weight:650; letter-spacing:.055em; text-transform:uppercase; fill:#705E49;}
+    .body{font-family:'SF Pro Text','SF Pro',-apple-system,BlinkMacSystemFont,sans-serif; fill:#2C2016;}
+    .serif{font-family:'New York','Source Serif 4',Georgia,serif; fill:#2C2016;}
+    .tiny{font-size:18px;}
+    .small{font-size:22px;}
+    .bodyText{font-size:28px;}
+    .title{font-size:74px;}
+    .h2{font-size:42px;}
+    .mono{font-family:'SF Mono',ui-monospace,monospace; fill:#705E49;}
+  </style>
+</defs>
+<rect width="5600" height="3600" fill="#F6EFE3"/>
+
+<text x="130" y="115" class="serif title" text-anchor="start">Hive UI System Board</text>
+<text x="135" y="160" class="body small" text-anchor="start">Apple-native consistency pass generated from official Apple Design Resources and Figma UI-kit links. Chrome is quiet; the graph is the only spatial object.</text>
+<polygon points="150.6,229.0 135.0,238.0 119.4,229.0 119.4,211.0 135.0,202.0 150.6,211.0" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="1"/>
+<text x="167" y="228" class="label tiny" text-anchor="start">Education</text>
+<polygon points="340.6,229.0 325.0,238.0 309.4,229.0 309.4,211.0 325.0,202.0 340.6,211.0" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="1"/>
+<text x="357" y="228" class="label tiny" text-anchor="start">Projects</text>
+<polygon points="530.6,229.0 515.0,238.0 499.4,229.0 499.4,211.0 515.0,202.0 530.6,211.0" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="1"/>
+<text x="547" y="228" class="label tiny" text-anchor="start">Hardware</text>
+<polygon points="720.6,229.0 705.0,238.0 689.4,229.0 689.4,211.0 705.0,202.0 720.6,211.0" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="1"/>
+<text x="737" y="228" class="label tiny" text-anchor="start">Finance</text>
+<polygon points="910.6,229.0 895.0,238.0 879.4,229.0 879.4,211.0 895.0,202.0 910.6,211.0" fill="#8B3A2A" stroke="#8B3A2A" stroke-width="2" opacity="1"/>
+<text x="927" y="228" class="label tiny" text-anchor="start">Health</text>
+<polygon points="1100.6,229.0 1085.0,238.0 1069.4,229.0 1069.4,211.0 1085.0,202.0 1100.6,211.0" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="1"/>
+<text x="1117" y="228" class="label tiny" text-anchor="start">Relations</text>
+<polygon points="1290.6,229.0 1275.0,238.0 1259.4,229.0 1259.4,211.0 1275.0,202.0 1290.6,211.0" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="1"/>
+<text x="1307" y="228" class="label tiny" text-anchor="start">Identity</text>
+<polygon points="1480.6,229.0 1465.0,238.0 1449.4,229.0 1449.4,211.0 1465.0,202.0 1480.6,211.0" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="1"/>
+<text x="1497" y="228" class="label tiny" text-anchor="start">Unknown</text>
+<rect x="120" y="310" width="1660" height="1350" rx="28" fill="#FBF4E8" stroke="#D9C9B2" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="162" y="384" class="serif title" text-anchor="start">01 App Shell</text>
+<text x="166" y="422" class="body small" text-anchor="start">One shell, one sidebar, one toolbar cluster, one inspector language.</text>
+<rect x="190" y="430" width="190" height="1160" rx="22" fill="#EDE1CF" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="230" y="510" class="mono tiny" text-anchor="start">tray</text>
+<text x="280" y="510" class="chrome small" text-anchor="start">Raw Inputs</text>
+<text x="230" y="602" class="mono tiny" text-anchor="start">book.pages</text>
+<text x="280" y="602" class="chrome small" text-anchor="start">Wiki</text>
+<rect x="210" y="662" width="150" height="56" rx="14" fill="#F6E8CE" stroke="#D4AA4F" stroke-width="1.5" />
+<text x="230" y="694" class="mono tiny" text-anchor="start">graph</text>
+<text x="280" y="694" class="chrome small" text-anchor="start">Hive</text>
+<text x="230" y="786" class="mono tiny" text-anchor="start">bubbles</text>
+<text x="280" y="786" class="chrome small" text-anchor="start">Chat</text>
+<text x="230" y="878" class="mono tiny" text-anchor="start">gear</text>
+<text x="280" y="878" class="chrome small" text-anchor="start">Settings</text>
+<text x="220" y="1520" class="body tiny" text-anchor="start">Local · Indexed memory only</text>
+<rect x="430" y="430" width="1280" height="1020" rx="24" fill="#FFF8EC" stroke="#E0CFB6" stroke-width="1.5" />
+<rect x="1470" y="455" width="90" height="42" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1515.0" y="484.0" class="label tiny" text-anchor="middle">Import</text>
+<rect x="1572" y="455" width="72" height="42" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1608.0" y="484.0" class="label tiny" text-anchor="middle">Chat</text>
+<rect x="1656" y="455" width="92" height="42" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1702.0" y="484.0" class="label tiny" text-anchor="middle">Settings</text>
+<text x="480" y="540" class="serif title" text-anchor="start">Hive</text>
+<text x="484" y="590" class="body small" text-anchor="start">A local graph of your life, with editable articles as the readable layer.</text>
+<text x="520" y="670" class="body small" text-anchor="start">•</text>
+<text x="550" y="670" class="body tiny" text-anchor="start">Primary content column uses SF Pro controls and New York prose.</text>
+<text x="520" y="714" class="body small" text-anchor="start">•</text>
+<text x="550" y="714" class="body tiny" text-anchor="start">Inspectors open from the right and always include Close/Archive/Forget.</text>
+<text x="520" y="758" class="body small" text-anchor="start">•</text>
+<text x="550" y="758" class="body tiny" text-anchor="start">No source filenames, raw domains, or bare nouns on primary surfaces.</text>
+<text x="520" y="802" class="body small" text-anchor="start">•</text>
+<text x="550" y="802" class="body tiny" text-anchor="start">Primary content column uses SF Pro controls and New York prose.</text>
+<text x="520" y="846" class="body small" text-anchor="start">•</text>
+<text x="550" y="846" class="body tiny" text-anchor="start">Inspectors open from the right and always include Close/Archive/Forget.</text>
+<text x="520" y="890" class="body small" text-anchor="start">•</text>
+<text x="550" y="890" class="body tiny" text-anchor="start">No source filenames, raw domains, or bare nouns on primary surfaces.</text>
+<text x="520" y="934" class="body small" text-anchor="start">•</text>
+<text x="550" y="934" class="body tiny" text-anchor="start">Primary content column uses SF Pro controls and New York prose.</text>
+<text x="520" y="978" class="body small" text-anchor="start">•</text>
+<text x="550" y="978" class="body tiny" text-anchor="start">Inspectors open from the right and always include Close/Archive/Forget.</text>
+<text x="520" y="1022" class="body small" text-anchor="start">•</text>
+<text x="550" y="1022" class="body tiny" text-anchor="start">No source filenames, raw domains, or bare nouns on primary surfaces.</text>
+<text x="520" y="1066" class="body small" text-anchor="start">•</text>
+<text x="550" y="1066" class="body tiny" text-anchor="start">Primary content column uses SF Pro controls and New York prose.</text>
+<text x="520" y="1110" class="body small" text-anchor="start">•</text>
+<text x="550" y="1110" class="body tiny" text-anchor="start">Inspectors open from the right and always include Close/Archive/Forget.</text>
+<text x="520" y="1154" class="body small" text-anchor="start">•</text>
+<text x="550" y="1154" class="body tiny" text-anchor="start">No source filenames, raw domains, or bare nouns on primary surfaces.</text>
+<text x="520" y="1198" class="body small" text-anchor="start">•</text>
+<text x="550" y="1198" class="body tiny" text-anchor="start">Primary content column uses SF Pro controls and New York prose.</text>
+<text x="520" y="1242" class="body small" text-anchor="start">•</text>
+<text x="550" y="1242" class="body tiny" text-anchor="start">Inspectors open from the right and always include Close/Archive/Forget.</text>
+<text x="520" y="1286" class="body small" text-anchor="start">•</text>
+<text x="550" y="1286" class="body tiny" text-anchor="start">No source filenames, raw domains, or bare nouns on primary surfaces.</text>
+<text x="520" y="1330" class="body small" text-anchor="start">•</text>
+<text x="550" y="1330" class="body tiny" text-anchor="start">Primary content column uses SF Pro controls and New York prose.</text>
+<rect x="1110" y="650" width="500" height="560" rx="24" fill="#F6EAD6" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1150" y="720" class="serif h2" text-anchor="start">Selection Inspector</text>
+<text x="1152" y="775" class="body tiny" text-anchor="start">Clear close button, evidence path, open wiki, archive, forget.</text>
+<rect x="1160" y="840" width="320" height="46" rx="14" fill="#E9C56C" stroke="#A96E12" stroke-width="1.5" />
+<text x="1320.0" y="871.0" class="label tiny" text-anchor="middle">Open Wiki</text>
+<rect x="1160" y="910" width="320" height="46" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1320.0" y="941.0" class="label tiny" text-anchor="middle">Show Evidence</text>
+<rect x="1160" y="980" width="320" height="46" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1320.0" y="1011.0" class="label tiny" text-anchor="middle">Archive</text>
+<rect x="1160" y="1050" width="320" height="46" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1320.0" y="1081.0" class="label tiny" text-anchor="middle">Forget</text>
+<rect x="1880" y="310" width="1660" height="1350" rx="28" fill="#FBF4E8" stroke="#D9C9B2" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="1922" y="384" class="serif title" text-anchor="start">02 Raw Inputs</text>
+<text x="1926" y="422" class="body small" text-anchor="start">Evidence intake, not a file manager. Default list is clustered by intent.</text>
+<rect x="3210" y="455" width="106" height="42" rx="14" fill="#E9C56C" stroke="#A96E12" stroke-width="1.5" />
+<text x="3263.0" y="484.0" class="label tiny" text-anchor="middle">Import</text>
+<rect x="3328" y="455" width="92" height="42" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="3374.0" y="484.0" class="label tiny" text-anchor="middle">Archive</text>
+<text x="1935" y="540" class="serif title" text-anchor="start">Raw Inputs</text>
+<text x="1940" y="592" class="body small" text-anchor="start">Evidence stays separate from memory. Clusters show intent; details stay in the inspector.</text>
+<rect x="1940" y="650" width="1030" height="150" rx="24" fill="#F8EDDC" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1995" y="725" class="body bodyText" text-anchor="start">Drop, paste, or capture evidence</text>
+<text x="1998" y="765" class="body tiny" text-anchor="start">The app summarizes after extraction; no filenames are primary text.</text>
+<rect x="1940" y="870" width="490" height="110" rx="20" fill="#FFF8EC" stroke="#D9C9B2" stroke-width="1.5" />
+<circle cx="1974" cy="908" r="8" fill="#C8841A"/>
+<text x="1998" y="910" class="body small" text-anchor="start">Mac Studio funding research</text>
+<text x="1998" y="948" class="body tiny" text-anchor="start">Apple/Mac, grants, scholarships, zero budget</text>
+<rect x="2465" y="870" width="490" height="110" rx="20" fill="#FFF8EC" stroke="#D9C9B2" stroke-width="1.5" />
+<circle cx="2499" cy="908" r="8" fill="#B78412"/>
+<text x="2523" y="910" class="body small" text-anchor="start">Current UCLA coursework</text>
+<text x="2523" y="948" class="body tiny" text-anchor="start">classes, deadlines, Gradescope, schedule</text>
+<rect x="1940" y="1020" width="490" height="110" rx="20" fill="#FFF8EC" stroke="#D9C9B2" stroke-width="1.5" />
+<circle cx="1974" cy="1058" r="8" fill="#8C6234"/>
+<text x="1998" y="1060" class="body small" text-anchor="start">Cabin build workflow</text>
+<text x="1998" y="1098" class="body tiny" text-anchor="start">BREV, GPU, 3D, asset pipeline</text>
+<rect x="2465" y="1020" width="490" height="110" rx="20" fill="#FFF8EC" stroke="#D9C9B2" stroke-width="1.5" />
+<circle cx="2499" cy="1058" r="8" fill="#C8841A"/>
+<text x="2523" y="1060" class="body small" text-anchor="start">Hive product work</text>
+<text x="2523" y="1098" class="body tiny" text-anchor="start">memory compiler, wiki, graph, YC demo</text>
+<rect x="1940" y="1170" width="490" height="110" rx="20" fill="#FFF8EC" stroke="#D9C9B2" stroke-width="1.5" />
+<circle cx="1974" cy="1208" r="8" fill="#B78412"/>
+<text x="1998" y="1210" class="body small" text-anchor="start">LAMT operations</text>
+<text x="1998" y="1248" class="body tiny" text-anchor="start">tournament, problem systems, logistics</text>
+<rect x="3010" y="650" width="440" height="690" rx="24" fill="#F4E7D4" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="3050" y="720" class="serif h2" text-anchor="start">Cluster Inspector</text>
+<text x="3052" y="780" class="body tiny" text-anchor="start">Shows hidden raw pages only after selection.</text>
+<rect x="3050" y="850" width="310" height="46" rx="14" fill="#E9C56C" stroke="#A96E12" stroke-width="1.5" />
+<text x="3205.0" y="881.0" class="label tiny" text-anchor="middle">What Hive learned</text>
+<rect x="3050" y="922" width="310" height="46" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="3205.0" y="953.0" class="label tiny" text-anchor="middle">Evidence trail</text>
+<rect x="3050" y="994" width="310" height="46" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="3205.0" y="1025.0" class="label tiny" text-anchor="middle">Archive cluster</text>
+<rect x="3050" y="1066" width="310" height="46" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="3205.0" y="1097.0" class="label tiny" text-anchor="middle">Forget raw source</text>
+<rect x="3640" y="310" width="1660" height="1350" rx="28" fill="#FBF4E8" stroke="#D9C9B2" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="3682" y="384" class="serif title" text-anchor="start">03 Wiki</text>
+<text x="3686" y="422" class="body small" text-anchor="start">Editable authored articles. User edits are canonical truth.</text>
+<text x="3695" y="540" class="serif title" text-anchor="start">UCLA Student</text>
+<rect x="5040" y="470" width="126" height="42" rx="14" fill="#E9C56C" stroke="#A96E12" stroke-width="1.5" />
+<text x="5103.0" y="499.0" class="label tiny" text-anchor="middle">Show in Hive</text>
+<rect x="5180" y="470" width="70" height="42" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="5215.0" y="499.0" class="label tiny" text-anchor="middle">Edit</text>
+<text x="3700" y="610" class="serif bodyText" text-anchor="start">The user is a UCLA mathematics student. The article merges identity, coursework, and active academic constraints into one readable page.</text>
+<text x="3700" y="720" class="label small" text-anchor="start">Current context</text>
+<text x="3700" y="772" class="serif bodyText" text-anchor="start">The user is managing UCLA coursework and needs current classes, deadlines, and academic identity treated as active memory.</text>
+<text x="3700" y="930" class="label small" text-anchor="start">Related concepts</text>
+<text x="3700" y="982" class="serif bodyText" text-anchor="start">Mathematics · LAMT · Gradescope · UConsulting</text>
+<text x="3700" y="1140" class="label small" text-anchor="start">Open questions</text>
+<text x="3700" y="1192" class="serif bodyText" text-anchor="start">Only appears when the hive needs clarification, not as source clutter.</text>
+<rect x="4880" y="640" width="350" height="600" rx="24" fill="#F4E7D4" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="4920" y="710" class="serif h2" text-anchor="start">Article Tools</text>
+<rect x="4920" y="780" width="230" height="42" rx="14" fill="#E9C56C" stroke="#A96E12" stroke-width="1.5" />
+<text x="5035.0" y="809.0" class="label tiny" text-anchor="middle">Show in Hive</text>
+<rect x="4920" y="848" width="230" height="42" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="5035.0" y="877.0" class="label tiny" text-anchor="middle">Resolve conflict</text>
+<rect x="4920" y="916" width="230" height="42" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="5035.0" y="945.0" class="label tiny" text-anchor="middle">Archive article</text>
+<rect x="4920" y="984" width="230" height="42" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="5035.0" y="1013.0" class="label tiny" text-anchor="middle">Close</text>
+<rect x="120" y="1750" width="1660" height="1450" rx="28" fill="#FBF4E8" stroke="#D9C9B2" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="162" y="1824" class="serif title" text-anchor="start">04 Hive Graph</text>
+<text x="166" y="1862" class="body small" text-anchor="start">Base graph is wordless. Hover/selection opens meaning; edges are straight.</text>
+<rect x="190" y="1880" width="1520" height="1120" rx="24" fill="#FCF6EA" stroke="#E1D2BD" stroke-width="1.5" />
+<line x1="1220.1" y1="2509.9" x2="1052.5" y2="2708.9" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="733.7" y1="2896.1" x2="588.4" y2="2623.7" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1059.9" y1="2288.6" x2="1052.5" y2="2708.9" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1608.8" y1="2351.6" x2="1179.8" y2="2432.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1512.7" y1="2526.0" x2="1417.1" y2="2371.8" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="993.6" y1="2165.5" x2="641.1" y2="2245.9" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="878.7" y1="2011.6" x2="1151.8" y2="1971.4" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="744.0" y1="2011.1" x2="818.4" y2="2320.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="775.6" y1="2297.0" x2="579.4" y2="2565.0" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="963.7" y1="2210.0" x2="973.2" y2="2265.8" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="533.6" y1="2568.5" x2="628.3" y2="2210.9" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="724.8" y1="2401.4" x2="533.6" y2="2568.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="839.9" y1="2674.2" x2="818.4" y2="2320.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1048.5" y1="2554.6" x2="1088.0" y2="2532.4" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1054.4" y1="2478.0" x2="1261.5" y2="2619.3" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1608.8" y1="2351.6" x2="1179.8" y2="2432.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="878.7" y1="2011.6" x2="691.0" y2="2321.9" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="533.6" y1="2568.5" x2="901.2" y2="2619.3" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1102.3" y1="2709.5" x2="1059.9" y2="2288.6" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="423.7" y1="2332.0" x2="738.7" y2="2257.2" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1004.1" y1="2307.7" x2="945.7" y2="2618.8" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="643.1" y1="2803.8" x2="752.7" y2="2567.6" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="702.1" y1="2614.2" x2="970.9" y2="2615.4" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1314.4" y1="2827.5" x2="1140.6" y2="2798.0" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1009.2" y1="2146.5" x2="818.4" y2="2320.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1160.6" y1="2258.1" x2="993.6" y2="2165.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1023.3" y1="2397.5" x2="1059.9" y2="2288.6" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="954.5" y1="2379.4" x2="895.2" y2="2404.2" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="979.1" y1="2434.2" x2="702.1" y2="2614.2" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1048.5" y1="2554.6" x2="1102.3" y2="2709.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1535.8" y1="2492.0" x2="1385.1" y2="2571.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="945.7" y1="2618.8" x2="1165.7" y2="2725.4" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="901.2" y1="2619.3" x2="530.0" y2="2664.3" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1000.3" y1="2687.1" x2="1137.2" y2="2629.6" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="674.9" y1="2510.3" x2="495.6" y2="2409.6" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="674.9" y1="2510.3" x2="988.6" y2="2635.4" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="744.0" y1="2011.1" x2="729.4" y2="2228.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="769.4" y1="2069.9" x2="691.0" y2="2321.9" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1417.1" y1="2371.8" x2="1054.4" y2="2478.0" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1045.2" y1="2582.1" x2="1385.1" y2="2571.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="495.6" y1="2409.6" x2="895.2" y2="2404.2" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1023.3" y1="2397.5" x2="979.1" y2="2434.2" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1023.3" y1="2397.5" x2="979.1" y2="2434.2" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="641.1" y1="2245.9" x2="496.9" y2="1923.2" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1054.4" y1="2478.0" x2="556.1" y2="2481.0" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="628.3" y1="2210.9" x2="954.5" y2="2379.4" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1088.0" y1="2532.4" x2="1385.1" y2="2571.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="954.5" y1="2379.4" x2="1000.3" y2="2687.1" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1220.1" y1="2509.9" x2="990.5" y2="2330.2" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1000.3" y1="2687.1" x2="1023.3" y2="2397.5" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1054.7" y1="2550.5" x2="752.7" y2="2567.6" stroke="#C8B99F" stroke-width="1" opacity="0.18"/>
+<line x1="1744.1" y1="2771.2" x2="496.9" y2="1923.2" stroke="#C8841A" stroke-width="3" opacity="0.88"/>
+<line x1="1744.1" y1="2771.2" x2="1608.8" y2="2351.6" stroke="#C8841A" stroke-width="3" opacity="0.88"/>
+<line x1="1744.1" y1="2771.2" x2="679.6" y2="2554.1" stroke="#C8841A" stroke-width="3" opacity="0.88"/>
+<line x1="1744.1" y1="2771.2" x2="641.1" y2="2245.9" stroke="#C8841A" stroke-width="3" opacity="0.88"/>
+<line x1="1744.1" y1="2771.2" x2="1417.1" y2="2371.8" stroke="#C8841A" stroke-width="3" opacity="0.88"/>
+<line x1="1744.1" y1="2771.2" x2="1160.6" y2="2258.1" stroke="#C8841A" stroke-width="3" opacity="0.88"/>
+<polygon points="500.0,2478.4 487.5,2485.6 475.1,2478.4 475.1,2464.0 487.5,2456.8 500.0,2464.0" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="0.78"/>
+<polygon points="170.0,2930.9 155.5,2939.3 140.9,2930.9 140.9,2914.1 155.5,2905.7 170.0,2914.1" fill="#8B3A2A" stroke="#8B3A2A" stroke-width="2" opacity="0.78"/>
+<polygon points="739.8,2234.5 729.4,2240.5 719.0,2234.5 719.0,2222.5 729.4,2216.5 739.8,2222.5" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="869.7,2323.8 855.2,2332.2 840.6,2323.8 840.6,2307.0 855.2,2298.6 869.7,2307.0" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="1322.8,2832.3 1314.4,2837.1 1306.1,2832.3 1306.1,2822.7 1314.4,2817.9 1322.8,2822.7" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="1397.6,2578.7 1385.1,2585.9 1372.6,2578.7 1372.6,2564.3 1385.1,2557.1 1397.6,2564.3" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="998.9,2335.0 990.5,2339.8 982.2,2335.0 982.2,2325.4 990.5,2320.6 998.9,2325.4" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="1758.6,2779.6 1744.1,2788.0 1729.5,2779.6 1729.5,2762.8 1744.1,2754.4 1758.6,2762.8" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="0.78"/>
+<polygon points="509.4,1930.4 496.9,1937.6 484.5,1930.4 484.5,1916.0 496.9,1908.8 509.4,1916.0" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="0.78"/>
+<polygon points="1619.2,2357.6 1608.8,2363.6 1598.5,2357.6 1598.5,2345.6 1608.8,2339.6 1619.2,2345.6" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="0.78"/>
+<polygon points="694.2,2562.5 679.6,2570.9 665.1,2562.5 665.1,2545.7 679.6,2537.3 694.2,2545.7" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="649.4,2250.7 641.1,2255.5 632.8,2250.7 632.8,2241.1 641.1,2236.3 649.4,2241.1" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="1429.6,2379.0 1417.1,2386.2 1404.7,2379.0 1404.7,2364.6 1417.1,2357.4 1429.6,2364.6" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="1173.0,2265.3 1160.6,2272.5 1148.1,2265.3 1148.1,2250.9 1160.6,2243.7 1173.0,2250.9" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="0.78"/>
+<polygon points="958.2,2626.0 945.7,2633.2 933.2,2626.0 933.2,2611.6 945.7,2604.4 958.2,2611.6" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="0.78"/>
+<polygon points="1550.4,2500.4 1535.8,2508.8 1521.3,2500.4 1521.3,2483.6 1535.8,2475.2 1550.4,2483.6" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="739.3,2409.8 724.8,2418.2 710.2,2409.8 710.2,2393.0 724.8,2384.6 739.3,2393.0" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="538.3,2669.1 530.0,2673.9 521.7,2669.1 521.7,2659.5 530.0,2654.7 538.3,2659.5" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="1174.0,2730.2 1165.7,2735.0 1157.4,2730.2 1157.4,2720.6 1165.7,2715.8 1174.0,2720.6" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="909.5,2624.1 901.2,2628.9 892.9,2624.1 892.9,2614.5 901.2,2609.7 909.5,2614.5" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="767.3,2576.0 752.7,2584.4 738.2,2576.0 738.2,2559.2 752.7,2550.8 767.3,2559.2" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="754.4,2017.1 744.0,2023.1 733.6,2017.1 733.6,2005.1 744.0,1999.1 754.4,2005.1" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="0.78"/>
+<polygon points="566.5,2487.0 556.1,2493.0 545.7,2487.0 545.7,2475.0 556.1,2469.0 566.5,2475.0" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="981.6,2270.6 973.2,2275.4 964.9,2270.6 964.9,2261.0 973.2,2256.2 981.6,2261.0" fill="#8B3A2A" stroke="#8B3A2A" stroke-width="2" opacity="0.78"/>
+<polygon points="1456.4,2225.6 1446.1,2231.6 1435.7,2225.6 1435.7,2213.6 1446.1,2207.6 1456.4,2213.6" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="1065.6,2176.7 1055.2,2182.7 1044.8,2176.7 1044.8,2164.7 1055.2,2158.7 1065.6,2164.7" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="0.78"/>
+<polygon points="2108.1,2345.5 2097.7,2351.5 2087.3,2345.5 2087.3,2333.5 2097.7,2327.5 2108.1,2333.5" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="1556.5,2227.1 1544.1,2234.3 1531.6,2227.1 1531.6,2212.7 1544.1,2205.5 1556.5,2212.7" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="0.78"/>
+<polygon points="1014.8,2695.5 1000.3,2703.9 985.7,2695.5 985.7,2678.7 1000.3,2670.3 1014.8,2678.7" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="790.1,2305.4 775.6,2313.8 761.0,2305.4 761.0,2288.6 775.6,2280.2 790.1,2288.6" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="0.78"/>
+<polygon points="537.8,2521.2 529.5,2526.0 521.2,2521.2 521.2,2511.6 529.5,2506.8 537.8,2511.6" fill="#8B3A2A" stroke="#8B3A2A" stroke-width="2" opacity="0.78"/>
+<polygon points="657.6,2812.2 643.1,2820.6 628.5,2812.2 628.5,2795.4 643.1,2787.0 657.6,2795.4" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="919.4,2159.2 911.1,2164.0 902.7,2159.2 902.7,2149.6 911.1,2144.8 919.4,2149.6" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="904.0,2317.4 891.5,2324.6 879.0,2317.4 879.0,2303.0 891.5,2295.8 904.0,2303.0" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="1102.6,2540.8 1088.0,2549.2 1073.5,2540.8 1073.5,2524.0 1088.0,2515.6 1102.6,2524.0" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="545.8,2313.9 533.4,2321.1 520.9,2313.9 520.9,2299.5 533.4,2292.3 545.8,2299.5" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="594.0,2573.4 579.4,2581.8 564.9,2573.4 564.9,2556.6 579.4,2548.2 594.0,2556.6" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="703.5,2329.1 691.0,2336.3 678.6,2329.1 678.6,2314.7 691.0,2307.5 703.5,2314.7" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="905.6,2410.2 895.2,2416.2 884.8,2410.2 884.8,2398.2 895.2,2392.2 905.6,2398.2" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="1166.3,1979.8 1151.8,1988.2 1137.2,1979.8 1137.2,1963.0 1151.8,1954.6 1166.3,1963.0" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="1034.4,2216.3 1026.1,2221.1 1017.7,2216.3 1017.7,2206.7 1026.1,2201.9 1034.4,2206.7" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="1059.7,2590.5 1045.2,2598.9 1030.6,2590.5 1030.6,2573.7 1045.2,2565.3 1059.7,2573.7" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="0.78"/>
+<polygon points="1067.1,2717.3 1052.5,2725.7 1038.0,2717.3 1038.0,2700.5 1052.5,2692.1 1067.1,2700.5" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="1228.4,2514.7 1220.1,2519.5 1211.8,2514.7 1211.8,2505.1 1220.1,2500.3 1228.4,2505.1" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="1050.1,2501.7 1037.6,2508.9 1025.2,2501.7 1025.2,2487.3 1037.6,2480.1 1050.1,2487.3" fill="#8B3A2A" stroke="#8B3A2A" stroke-width="2" opacity="0.78"/>
+<polygon points="784.0,2078.3 769.4,2086.7 754.9,2078.3 754.9,2061.5 769.4,2053.1 784.0,2061.5" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="1063.1,2563.0 1048.5,2571.4 1034.0,2563.0 1034.0,2546.2 1048.5,2537.8 1063.1,2546.2" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="1166.3,2722.0 1153.9,2729.2 1141.4,2722.0 1141.4,2707.6 1153.9,2700.4 1166.3,2707.6" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="981.2,2621.4 970.9,2627.4 960.5,2621.4 960.5,2609.4 970.9,2603.4 981.2,2609.4" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="1258.3,2378.7 1247.9,2384.7 1237.5,2378.7 1237.5,2366.7 1247.9,2360.7 1258.3,2366.7" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="850.3,2680.2 839.9,2686.2 829.5,2680.2 829.5,2668.2 839.9,2662.2 850.3,2668.2" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="1147.6,2635.6 1137.2,2641.6 1126.8,2635.6 1126.8,2623.6 1137.2,2617.6 1147.6,2623.6" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="351.8,2534.5 341.4,2540.5 331.1,2534.5 331.1,2522.5 341.4,2516.5 351.8,2522.5" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="438.3,2340.4 423.7,2348.8 409.2,2340.4 409.2,2323.6 423.7,2315.2 438.3,2323.6" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="517.9,1923.0 505.5,1930.2 493.0,1923.0 493.0,1908.6 505.5,1901.4 517.9,1908.6" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="969.0,2387.8 954.5,2396.2 939.9,2387.8 939.9,2371.0 954.5,2362.6 969.0,2371.0" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="833.0,2328.9 818.4,2337.3 803.9,2328.9 803.9,2312.1 818.4,2303.7 833.0,2312.1" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="1018.6,2316.1 1004.1,2324.5 989.5,2316.1 989.5,2299.3 1004.1,2290.9 1018.6,2299.3" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="689.5,2518.7 674.9,2527.1 660.4,2518.7 660.4,2501.9 674.9,2493.5 689.5,2501.9" fill="#8B3A2A" stroke="#8B3A2A" stroke-width="2" opacity="0.78"/>
+<polygon points="463.9,2714.1 451.4,2721.3 438.9,2714.1 438.9,2699.7 451.4,2692.5 463.9,2699.7" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="0.78"/>
+<polygon points="1286.7,2652.2 1272.1,2660.6 1257.6,2652.2 1257.6,2635.4 1272.1,2627.0 1286.7,2635.4" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="546.1,2575.7 533.6,2582.9 521.2,2575.7 521.2,2561.3 533.6,2554.1 546.1,2561.3" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="1008.2,2173.9 993.6,2182.3 979.1,2173.9 979.1,2157.1 993.6,2148.7 1008.2,2157.1" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="0.78"/>
+<polygon points="1067.1,2557.7 1054.7,2564.9 1042.2,2557.7 1042.2,2543.3 1054.7,2536.1 1067.1,2543.3" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="0.78"/>
+<polygon points="1341.1,2376.4 1332.8,2381.2 1324.5,2376.4 1324.5,2366.8 1332.8,2362.0 1341.1,2366.8" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="1665.5,2365.7 1655.2,2371.7 1644.8,2365.7 1644.8,2353.7 1655.2,2347.7 1665.5,2353.7" fill="#8B3A2A" stroke="#8B3A2A" stroke-width="2" opacity="0.78"/>
+<polygon points="1068.2,2293.4 1059.9,2298.2 1051.5,2293.4 1051.5,2283.8 1059.9,2279.0 1068.2,2283.8" fill="#8B3A2A" stroke="#8B3A2A" stroke-width="2" opacity="0.78"/>
+<polygon points="1523.1,2532.0 1512.7,2538.0 1502.3,2532.0 1502.3,2520.0 1512.7,2514.0 1523.1,2520.0" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="0.78"/>
+<polygon points="1151.0,2804.0 1140.6,2810.0 1130.2,2804.0 1130.2,2792.0 1140.6,2786.0 1151.0,2792.0" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="0.78"/>
+<polygon points="1017.5,2151.3 1009.2,2156.1 1000.9,2151.3 1000.9,2141.7 1009.2,2136.9 1017.5,2141.7" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="0.78"/>
+<polygon points="712.5,2620.2 702.1,2626.2 691.7,2620.2 691.7,2608.2 702.1,2602.2 712.5,2608.2" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="989.5,2440.2 979.1,2446.2 968.7,2440.2 968.7,2428.2 979.1,2422.2 989.5,2428.2" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="510.1,2418.0 495.6,2426.4 481.0,2418.0 481.0,2401.2 495.6,2392.8 510.1,2401.2" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="753.3,2265.6 738.7,2274.0 724.2,2265.6 724.2,2248.8 738.7,2240.4 753.3,2248.8" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="904.0,2252.5 893.6,2258.5 883.2,2252.5 883.2,2240.5 893.6,2234.5 904.0,2240.5" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="972.0,2214.8 963.7,2219.6 955.3,2214.8 955.3,2205.2 963.7,2200.4 972.0,2205.2" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="180.2,2257.0 167.7,2264.2 155.3,2257.0 155.3,2242.6 167.7,2235.4 180.2,2242.6" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="0.78"/>
+<polygon points="1047.7,2326.7 1039.4,2331.5 1031.1,2326.7 1031.1,2317.1 1039.4,2312.3 1047.7,2317.1" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="1062.7,2482.8 1054.4,2487.6 1046.1,2482.8 1046.1,2473.2 1054.4,2468.4 1062.7,2473.2" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="1031.6,2402.3 1023.3,2407.1 1015.0,2402.3 1015.0,2392.7 1023.3,2387.9 1031.6,2392.7" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="467.5,2219.6 457.1,2225.6 446.7,2219.6 446.7,2207.6 457.1,2201.6 467.5,2207.6" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="976.8,2196.5 964.4,2203.7 951.9,2196.5 951.9,2182.1 964.4,2174.9 976.8,2182.1" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="0.78"/>
+<polygon points="600.8,2630.9 588.4,2638.1 575.9,2630.9 575.9,2616.5 588.4,2609.3 600.8,2616.5" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="0.78"/>
+<polygon points="1505.4,2396.0 1492.9,2403.2 1480.4,2396.0 1480.4,2381.6 1492.9,2374.4 1505.4,2381.6" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="0.78"/>
+<polygon points="744.1,2902.1 733.7,2908.1 723.3,2902.1 723.3,2890.1 733.7,2884.1 744.1,2890.1" fill="#8B3A2A" stroke="#8B3A2A" stroke-width="2" opacity="0.78"/>
+<polygon points="1194.3,2440.9 1179.8,2449.3 1165.3,2440.9 1165.3,2424.1 1179.8,2415.7 1194.3,2424.1" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="891.2,2018.8 878.7,2026.0 866.3,2018.8 866.3,2004.4 878.7,1997.2 891.2,2004.4" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="512.1,2219.8 497.6,2228.2 483.0,2219.8 483.0,2203.0 497.6,2194.6 512.1,2203.0" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="1114.8,2716.7 1102.3,2723.9 1089.8,2716.7 1089.8,2702.3 1102.3,2695.1 1114.8,2702.3" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="0.78"/>
+<polygon points="999.0,2641.4 988.6,2647.4 978.2,2641.4 978.2,2629.4 988.6,2623.4 999.0,2629.4" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="956.8,2260.8 942.3,2269.2 927.7,2260.8 927.7,2244.0 942.3,2235.6 956.8,2244.0" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="0.78"/>
+<polygon points="1276.1,2627.7 1261.5,2636.1 1247.0,2627.7 1247.0,2610.9 1261.5,2602.5 1276.1,2610.9" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="0.78"/>
+<polygon points="841.3,2524.5 828.8,2531.7 816.3,2524.5 816.3,2510.1 828.8,2502.9 841.3,2510.1" fill="#E2B761" stroke="#E2B761" stroke-width="2" opacity="0.78"/>
+<polygon points="803.5,2610.1 791.1,2617.3 778.6,2610.1 778.6,2595.7 791.1,2588.5 803.5,2595.7" fill="#B8A78E" stroke="#B8A78E" stroke-width="2" opacity="0.78"/>
+<polygon points="1364.3,2559.2 1353.9,2565.2 1343.6,2559.2 1343.6,2547.2 1353.9,2541.2 1364.3,2547.2" fill="#9A5A4B" stroke="#9A5A4B" stroke-width="2" opacity="0.78"/>
+<polygon points="638.7,2216.9 628.3,2222.9 617.9,2216.9 617.9,2204.9 628.3,2198.9 638.7,2204.9" fill="#8B3A2A" stroke="#8B3A2A" stroke-width="2" opacity="0.78"/>
+<polygon points="1766.6,2784.2 1744.1,2797.2 1721.6,2784.2 1721.6,2758.2 1744.1,2745.2 1766.6,2758.2" fill="#C8841A" stroke="#2C2016" stroke-width="4" opacity="1"/>
+<rect x="1240" y="2000" width="390" height="520" rx="24" fill="#F4E7D4" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1280" y="2070" class="serif h2" text-anchor="start">Mac Studio Funding</text>
+<text x="1280" y="2128" class="body tiny" text-anchor="start">The user is researching grants and scholarships for a more powerful Mac.</text>
+<rect x="1280" y="2200" width="240" height="40" rx="14" fill="#E9C56C" stroke="#A96E12" stroke-width="1.5" />
+<text x="1400.0" y="2228.0" class="label tiny" text-anchor="middle">Open Wiki</text>
+<rect x="1280" y="2262" width="240" height="40" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1400.0" y="2290.0" class="label tiny" text-anchor="middle">Focus Path</text>
+<rect x="1280" y="2324" width="240" height="40" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1400.0" y="2352.0" class="label tiny" text-anchor="middle">Mark Important</text>
+<rect x="1280" y="2386" width="240" height="40" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1400.0" y="2414.0" class="label tiny" text-anchor="middle">Close</text>
+<text x="230" y="2940" class="body tiny" text-anchor="start">Search temporarily reveals labels; clearing search returns to wordless graph.</text>
+<rect x="1880" y="1750" width="1660" height="1450" rx="28" fill="#FBF4E8" stroke="#D9C9B2" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="1922" y="1824" class="serif title" text-anchor="start">05 Chat, Command, Settings</text>
+<text x="1926" y="1862" class="body small" text-anchor="start">Same controls, same status language, no raw dumps.</text>
+<rect x="1950" y="1900" width="640" height="880" rx="24" fill="#FFF8EC" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="1990" y="1970" class="serif h2" text-anchor="start">Chat Sheet</text>
+<text x="1990" y="2030" class="label tiny" text-anchor="start">Indexed memory only</text>
+<text x="1990" y="2090" class="body small" text-anchor="start">What Mac am I trying to buy?</text>
+<rect x="1990" y="2130" width="520" height="170" rx="18" fill="#F6E8D0" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="2020" y="2190" class="serif bodyText" text-anchor="start">You are looking for funding to buy a more powerful Mac, preferably an M3 Ultra Mac Studio with 512GB RAM.</text>
+<rect x="1990" y="2350" width="160" height="42" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="2070.0" y="2379.0" class="label tiny" text-anchor="middle">Show evidence</text>
+<rect x="2160" y="2350" width="148" height="42" rx="14" fill="#F7ECD9" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="2234.0" y="2379.0" class="label tiny" text-anchor="middle">Show in Hive</text>
+<rect x="2650" y="1900" width="780" height="350" rx="24" fill="#FFF8EC" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="2690" y="1970" class="serif h2" text-anchor="start">Command Palette</text>
+<rect x="2690" y="2020" width="690" height="58" rx="18" fill="#F6EAD6" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="2720" y="2058" class="body small" text-anchor="start">Search memory, actions, articles…</text>
+<text x="2720" y="2135" class="body tiny" text-anchor="start">Import evidence</text>
+<text x="2720" y="2177" class="body tiny" text-anchor="start">Open selected Wiki article</text>
+<text x="2720" y="2219" class="body tiny" text-anchor="start">Recenter graph</text>
+<text x="2720" y="2261" class="body tiny" text-anchor="start">Archive selected source</text>
+<rect x="2650" y="2300" width="780" height="620" rx="24" fill="#FFF8EC" stroke="#D8C8AE" stroke-width="1.5" />
+<text x="2690" y="2370" class="serif h2" text-anchor="start">Settings</text>
+<text x="2690" y="2440" class="body small" text-anchor="start">Connect ideas: Cautious / Balanced / Aggressive</text>
+<text x="2690" y="2512" class="body small" text-anchor="start">What should Hive never learn about?</text>
+<text x="2690" y="2584" class="body small" text-anchor="start">Privacy: browser, files, calendar</text>
+<text x="2690" y="2656" class="body small" text-anchor="start">Retention: 7 / 14 / 30 / Forever</text>
+<rect x="3640" y="1750" width="1660" height="1450" rx="28" fill="#FBF4E8" stroke="#D9C9B2" stroke-width="1.5" filter="url(#shadow)"/>
+<text x="3682" y="1824" class="serif title" text-anchor="start">06 Motion &amp; States</text>
+<text x="3686" y="1862" class="body small" text-anchor="start">Animations explain cause: import, synthesize, select, navigate.</text>
+<rect x="3710" y="2060" width="230" height="270" rx="22" fill="#FFF8EC" stroke="#D8C8AE" stroke-width="1.5" />
+<polygon points="3849.2,2154.0 3825.0,2168.0 3800.8,2154.0 3800.8,2126.0 3825.0,2112.0 3849.2,2126.0" fill="#B78412" stroke="#B78412" stroke-width="2" opacity="1"/>
+<text x="3745" y="2215" class="label small" text-anchor="start">1 Import</text>
+<text x="3745" y="2260" class="body tiny" text-anchor="start">symbol bounce, source row slides in</text>
+<rect x="4010" y="2060" width="230" height="270" rx="22" fill="#FFF8EC" stroke="#D8C8AE" stroke-width="1.5" />
+<polygon points="4149.2,2154.0 4125.0,2168.0 4100.8,2154.0 4100.8,2126.0 4125.0,2112.0 4149.2,2126.0" fill="#C8841A" stroke="#C8841A" stroke-width="2" opacity="1"/>
+<text x="4045" y="2215" class="label small" text-anchor="start">2 Synthesize</text>
+<text x="4045" y="2260" class="body tiny" text-anchor="start">sparkles variable only while active</text>
+<rect x="4310" y="2060" width="230" height="270" rx="22" fill="#FFF8EC" stroke="#D8C8AE" stroke-width="1.5" />
+<polygon points="4449.2,2154.0 4425.0,2168.0 4400.8,2154.0 4400.8,2126.0 4425.0,2112.0 4449.2,2126.0" fill="#8C6234" stroke="#8C6234" stroke-width="2" opacity="1"/>
+<text x="4345" y="2215" class="label small" text-anchor="start">3 Promote</text>
+<text x="4345" y="2260" class="body tiny" text-anchor="start">claim fades into Wiki and graph node appears</text>
+<rect x="4610" y="2060" width="230" height="270" rx="22" fill="#FFF8EC" stroke="#D8C8AE" stroke-width="1.5" />
+<polygon points="4749.2,2154.0 4725.0,2168.0 4700.8,2154.0 4700.8,2126.0 4725.0,2112.0 4749.2,2126.0" fill="#6D7338" stroke="#6D7338" stroke-width="2" opacity="1"/>
+<text x="4645" y="2215" class="label small" text-anchor="start">4 Select graph</text>
+<text x="4645" y="2260" class="body tiny" text-anchor="start">selected node + first-order neighbors brighten</text>
+<rect x="4910" y="2060" width="230" height="270" rx="22" fill="#FFF8EC" stroke="#D8C8AE" stroke-width="1.5" />
+<polygon points="5049.2,2154.0 5025.0,2168.0 5000.8,2154.0 5000.8,2126.0 5025.0,2112.0 5049.2,2126.0" fill="#8B3A2A" stroke="#8B3A2A" stroke-width="2" opacity="1"/>
+<text x="4945" y="2215" class="label small" text-anchor="start">5 Navigate</text>
+<text x="4945" y="2260" class="body tiny" text-anchor="start">Wiki Show in Hive centers and selects node</text>
+<line x1="3945" y1="2140" x2="4005" y2="2140" stroke="#A96E12" stroke-width="3" opacity=".55"/>
+<line x1="4245" y1="2140" x2="4305" y2="2140" stroke="#A96E12" stroke-width="3" opacity=".55"/>
+<line x1="4545" y1="2140" x2="4605" y2="2140" stroke="#A96E12" stroke-width="3" opacity=".55"/>
+<line x1="4845" y1="2140" x2="4905" y2="2140" stroke="#A96E12" stroke-width="3" opacity=".55"/>
+<text x="3710" y="2500" class="serif bodyText" text-anchor="start">Reduced motion keeps ordering and final state through opacity/tint changes. No idle animation, no graph mouse-following.</text>
+<text x="3710" y="2600" class="body small" text-anchor="start">Figma import checklist: add Apple iOS/iPadOS 26, macOS 26, watchOS 26, visionOS 26 libraries; map these frames to live components; replace placeholder labels with Apple UI-kit controls.</text>
+</svg>

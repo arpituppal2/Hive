@@ -1,0 +1,70 @@
+{
+  "product": "Hive",
+  "concept": "Hive Glass Stack",
+  "source": "Figma first: import HiveGlassStackLogo.figma-source.svg into Figma, keep the named construction layers editable, export three centered foreground hex assets for Icon Composer.",
+  "sfSymbolBaseline": "hexagon.fill",
+  "iconComposerInput": "../../Sources/HiveApp/Resources/AppIcon/Hive.icon",
+  "figmaLayerCount": 13,
+  "physicalForegroundLayerCount": 3,
+  "iconComposerForegroundGroupCount": 3,
+  "stackedHexCellCount": 3,
+  "hexCellCount": 3,
+  "hexScaleRatios": [1.0, 0.75, 0.5],
+  "allHexCenters": [[512, 512], [512, 512], [512, 512]],
+  "hasShadows": false,
+  "hasSixAppearanceExports": true,
+  "hexCellMasks": [
+            "hex-back-large",
+        "hex-middle-front",
+        "hex-small-front"
+  ],
+  "iconComposerForegroundGroups": [
+    "large-glass-hex",
+    "medium-glass-hex",
+    "small-glass-hex"
+  ],
+  "figmaLayers": [
+            "01-bg-base-honey",
+        "02-bg-top-reflection-field",
+        "03-bg-depth-vignette",
+        "04-bg-ember-glow",
+        "05-glass-large-hex",
+        "06-glass-medium-hex",
+        "07-glass-small-hex",
+        "08-refraction-large-hex",
+        "09-refraction-medium-hex",
+        "10-refraction-small-hex",
+        "11-reflection-large-hex",
+        "12-reflection-medium-hex",
+        "13-reflection-small-hex"
+  ],
+  "exportedPNGLayers": [
+            "IconComposerExports/large-glass-hex.png",
+        "IconComposerExports/medium-glass-hex.png",
+        "IconComposerExports/small-glass-hex.png"
+  ],
+  "figmaConstructionPNGLayers": [
+            "FigmaLayerExports/01-bg-base-honey.png",
+        "FigmaLayerExports/02-bg-top-reflection-field.png",
+        "FigmaLayerExports/03-bg-depth-vignette.png",
+        "FigmaLayerExports/04-bg-ember-glow.png",
+        "FigmaLayerExports/05-glass-large-hex.png",
+        "FigmaLayerExports/06-glass-medium-hex.png",
+        "FigmaLayerExports/07-glass-small-hex.png",
+        "FigmaLayerExports/08-refraction-large-hex.png",
+        "FigmaLayerExports/09-refraction-medium-hex.png",
+        "FigmaLayerExports/10-refraction-small-hex.png",
+        "FigmaLayerExports/11-reflection-large-hex.png",
+        "FigmaLayerExports/12-reflection-medium-hex.png",
+        "FigmaLayerExports/13-reflection-small-hex.png"
+  ],
+  "requiredMaterialSignals": [
+    "one centered point-up glass hex repeated three times",
+    "100 percent scale back hex",
+    "75 percent scale middle hex",
+    "50 percent scale front hex",
+    "SF Symbols hexagon.fill proportions",
+    "soft reflections",
+    "edge refraction"
+  ]
+}

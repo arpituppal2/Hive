@@ -1,0 +1,494 @@
+[
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1527721578857867021/ios-and-ipados-26",
+    "filename": "ios-and-ipados-26"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/f63aa308-1f82-498c-8019-530f3b846db9",
+    "filename": "f63aa308-1f82-498c-8019-530f3b846db9"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/0ee52d20-8daf-49ef-b335-14020af3b060",
+    "filename": "0ee52d20-8daf-49ef-b335-14020af3b060"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, Illustrator",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/iOS-26-Icon-Templates-Photoshop-Illustrator.dmg",
+    "filename": "iOS-26-Icon-Templates-Photoshop-Illustrator.dmg"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1514335373494164156/app-icon-template",
+    "filename": "app-icon-template"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/bb57439f-19da-4c7a-bfd2-a196cf51f766",
+    "filename": "bb57439f-19da-4c7a-bfd2-a196cf51f766"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Sketch",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/iOS-18-Design-Templates-Sketch.dmg",
+    "filename": "iOS-18-Design-Templates-Sketch.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Sketch",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/iOS-18-Production-Templates-Sketch.dmg",
+    "filename": "iOS-18-Production-Templates-Sketch.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/iOS-18-Production-Templates-Photoshop.dmg",
+    "filename": "iOS-18-Production-Templates-Photoshop.dmg"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1387687009990313744/ios-18-and-ipados-18-app-icon-production-templates",
+    "filename": "ios-18-and-ipados-18-app-icon-production-templates"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Keynote",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Thumbnail-Bezel-Keynote_2x.dmg",
+    "filename": "Thumbnail-Bezel-Keynote_2x.dmg"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1543337041090580818/apple-design-resources-macos-26",
+    "filename": "apple-design-resources-macos-26"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/7e5d41a8-dbde-4372-abf1-59792d73bc7c",
+    "filename": "7e5d41a8-dbde-4372-abf1-59792d73bc7c"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "sketch://add-library?url=https%3A%2F%2Fdeveloper.apple.com%2Fdesign%2Fdownloads%2Fsketch-macOS.rss",
+    "filename": "sketch"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1251588934545918753/apple-design-resources-macos",
+    "filename": "apple-design-resources-macos"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Sketch",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/macOS-Sequoia-Design-Templates-Sketch.dmg",
+    "filename": "macOS-Sequoia-Design-Templates-Sketch.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Sketch",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/macOS-Sequoia-Production-Templates-Sketch.dmg",
+    "filename": "macOS-Sequoia-Production-Templates-Sketch.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/macOS-Sequoia-Production-Templates-Photoshop.dmg",
+    "filename": "macOS-Sequoia-Production-Templates-Photoshop.dmg"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "sketch://add-library?url=https%3A%2F%2Fdeveloper.apple.com%2Fdesign%2Fdownloads%2Fsketch-tvOS.rss",
+    "filename": "sketch"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Sketch",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/tvOS-18-Design-Templates-Sketch.dmg",
+    "filename": "tvOS-18-Design-Templates-Sketch.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Sketch",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/tvOS-18-Production-Templates-Sketch.dmg",
+    "filename": "tvOS-18-Production-Templates-Sketch.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/tvOS-18-Production-Templates-Photoshop.dmg",
+    "filename": "tvOS-18-Production-Templates-Photoshop.dmg"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1540060090060216489/watchos-26",
+    "filename": "watchos-26"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/2b12618d-596c-41fd-8488-132bff9535e7",
+    "filename": "2b12618d-596c-41fd-8488-132bff9535e7"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1540071341298017505/visionos-26",
+    "filename": "visionos-26"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/eb13bfe1-2ddb-4f87-b92c-740a36abed7a",
+    "filename": "eb13bfe1-2ddb-4f87-b92c-740a36abed7a"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "sketch://add-library?url=https%3A%2F%2Fdeveloper.apple.com%2Fdesign%2Fdownloads%2Fsketch-visionOS.rss",
+    "filename": "sketch"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1253443272911187215/apple-design-resources-visionos",
+    "filename": "apple-design-resources-visionos"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Sketch",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/visionOS-2-Design-Templates-Sketch.dmg",
+    "filename": "visionOS-2-Design-Templates-Sketch.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "PNG, PDF, SVG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Glyph-Add-Apple-Watch-Face.dmg",
+    "filename": "Glyph-Add-Apple-Watch-Face.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "PDF",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Glyph-AirPlay.dmg",
+    "filename": "Glyph-AirPlay.dmg"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1367914571662801866/app-clips",
+    "filename": "app-clips"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/e6ed1af0-508c-4fd5-bc6f-05f7ccb91c6e",
+    "filename": "e6ed1af0-508c-4fd5-bc6f-05f7ccb91c6e"
+  },
+  {
+    "kind": "direct-download",
+    "label": "PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Icon-Apple-Health.dmg",
+    "filename": "Icon-Apple-Health.dmg"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1367915141082663884/apple-pay",
+    "filename": "apple-pay"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/b0fa95e1-e12d-4694-895f-a70f39b8f313",
+    "filename": "b0fa95e1-e12d-4694-895f-a70f39b8f313"
+  },
+  {
+    "kind": "direct-download",
+    "label": "PDF",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Glyph-ARKit.dmg",
+    "filename": "Glyph-ARKit.dmg"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/85a0f9d2-d76c-42f9-b681-6225882d8024",
+    "filename": "85a0f9d2-d76c-42f9-b681-6225882d8024"
+  },
+  {
+    "kind": "direct-download",
+    "label": "PNG, PDF",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Icon-Game-Center.dmg",
+    "filename": "Icon-Game-Center.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "PNG, PDF",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Icon-HomeKit.dmg",
+    "filename": "Icon-HomeKit.dmg"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1367915437752334285/live-activities",
+    "filename": "live-activities"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/d1e8992f-14c2-4eef-b29d-24a32c0c0ef9",
+    "filename": "d1e8992f-14c2-4eef-b29d-24a32c0c0ef9"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1367916269438172112/imessage-apps-and-stickers",
+    "filename": "imessage-apps-and-stickers"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/d6cd3d23-7aec-43d5-acb9-52f720ff48b7",
+    "filename": "d6cd3d23-7aec-43d5-acb9-52f720ff48b7"
+  },
+  {
+    "kind": "direct-download",
+    "label": "PNG, PDF, SVG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Logo-Sign-in-with-Apple.dmg",
+    "filename": "Logo-Sign-in-with-Apple.dmg"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1367916685468040146/sign-in-with-apple",
+    "filename": "sign-in-with-apple"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/7cd7dbf4-41b2-4e90-bb00-2796ced3cf2b",
+    "filename": "7cd7dbf4-41b2-4e90-bb00-2796ced3cf2b"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1367916969551216595/siri-app-shortcuts",
+    "filename": "siri-app-shortcuts"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/84ba051b-c6ad-48c5-8106-28185947754a",
+    "filename": "84ba051b-c6ad-48c5-8106-28185947754a"
+  },
+  {
+    "kind": "direct-download",
+    "label": "PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Icon-Siri.dmg",
+    "filename": "Icon-Siri.dmg"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1367917199004804052/tap-to-pay-on-iphone",
+    "filename": "tap-to-pay-on-iphone"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/fbd2fa90-fadd-403a-b319-0f4d7c04ae5f",
+    "filename": "fbd2fa90-fadd-403a-b319-0f4d7c04ae5f"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1367917705471226837/tipkit",
+    "filename": "tipkit"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/b99f22e1-235e-481b-9ccd-aa7d8f31fedc",
+    "filename": "b99f22e1-235e-481b-9ccd-aa7d8f31fedc"
+  },
+  {
+    "kind": "figma-community",
+    "label": "Figma",
+    "url": "https://www.figma.com/community/file/1367917956770293718/wallet",
+    "filename": "wallet"
+  },
+  {
+    "kind": "sketch-library",
+    "label": "Sketch",
+    "url": "https://sketch.com/s/dd2ce40a-097e-486b-9053-b60088e1d6c3",
+    "filename": "dd2ce40a-097e-486b-9053-b60088e1d6c3"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Download SF Pro",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/SF-Pro.dmg",
+    "filename": "SF-Pro.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Download SF Compact",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/SF-Compact.dmg",
+    "filename": "SF-Compact.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Download SF Mono",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/SF-Mono.dmg",
+    "filename": "SF-Mono.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Download New York",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/NY.dmg",
+    "filename": "NY.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Download SF Arabic",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/SF-Arabic.dmg",
+    "filename": "SF-Arabic.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Download SF Armenian",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/SF-Armenian.dmg",
+    "filename": "SF-Armenian.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Download SF Georgian",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/SF-Georgian.dmg",
+    "filename": "SF-Georgian.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Download SF Hebrew",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/SF-Hebrew.dmg",
+    "filename": "SF-Hebrew.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Download SF\u00a0Symbols 7",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/SF-Symbols-7.dmg?2",
+    "filename": "SF-Symbols-7.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Download SF\u00a0Symbols 6",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/SF-Symbols-6.dmg",
+    "filename": "SF-Symbols-6.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-Apple-TV.dmg",
+    "filename": "Bezel-Apple-TV.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-Apple-Watch-Ultra-3-2025.dmg",
+    "filename": "Bezel-Apple-Watch-Ultra-3-2025.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-Apple-Watch-Ultra-2-2024.dmg",
+    "filename": "Bezel-Apple-Watch-Ultra-2-2024.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-Apple-Watch-Series-11-2025.dmg",
+    "filename": "Bezel-Apple-Watch-Series-11-2025.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-Studio-Displays.dmg",
+    "filename": "Bezel-Studio-Displays.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-iMac-M4.dmg",
+    "filename": "Bezel-iMac-M4.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-iPad-(A16).dmg",
+    "filename": "Bezel-iPad-(A16).dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-iPad-Air-(M4).dmg",
+    "filename": "Bezel-iPad-Air-(M4).dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-iPad-mini-(A17-Pro).dmg",
+    "filename": "Bezel-iPad-mini-(A17-Pro).dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-iPad-Pro-(M5).dmg",
+    "filename": "Bezel-iPad-Pro-(M5).dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-iPhone-17.dmg",
+    "filename": "Bezel-iPhone-17.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-iPhone-16.dmg",
+    "filename": "Bezel-iPhone-16.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-MacBook-Air-M5.dmg",
+    "filename": "Bezel-MacBook-Air-M5.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-MacBook-Pro-M5.dmg",
+    "filename": "Bezel-MacBook-Pro-M5.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Photoshop, PNG",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Bezel-MacBook-Neo.dmg",
+    "filename": "Bezel-MacBook-Neo.dmg"
+  },
+  {
+    "kind": "direct-download",
+    "label": "Keynote",
+    "url": "https://devimages-cdn.apple.com/design/resources/download/Keynote-Live-Video-Product-Bezel.dmg",
+    "filename": "Keynote-Live-Video-Product-Bezel.dmg"
+  }
+]

@@ -1,0 +1,2119 @@
+<!DOCTYPE html>
+<html xmlns="https://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr" prefix="og: http://ogp.me/ns#">
+<head>
+
+		<meta charset="utf-8" />
+<meta name="Author" content="Apple Inc." />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="icon" href="/favicon.ico" />
+<link rel="mask-icon" href="/apple-logo.svg" color="#333333">
+
+<link rel="stylesheet" href="/assets/styles/global.dist.css?51172657083" type="text/css" />
+<link rel="stylesheet" href="/assets/styles/dark-mode.css?54232608030" type="text/css" media="(prefers-color-scheme: dark)" data-color-scheme="dark" />
+<link rel="stylesheet" href="/assets/styles/localization.css?56212624135" type="text/css" />
+
+<script src="/assets/scripts/lib/jquery/jquery-3.6.0.min.js?45232608030"></script>
+<script src="/assets/scripts/settings.js?45232608030"></script>
+<script src="/assets/scripts/language-locales.js?45232608030"></script>
+<script src="/assets/scripts/DeveloperBreadcrumbs.js?45232608030"></script>
+<script src="/assets/metrics/scripts/analytics-module.js?32212643147"></script>
+
+<script async src="/assets/scripts/retinate.js?45232608030"></script>
+<script src="/assets/scripts/global-logout.js?45232608030"></script>
+
+<script async crossorigin src="https://sfss.cdn-apple.com/2.0.0-beta.2/sf-symbol.js?54012608148"></script>
+<link rel="stylesheet" href="https://sf-saas.cdn-apple.com/2.4.0-beta.0/animations/all.css" type="text/css" />
+
+
+
+
+
+		<link rel="stylesheet" href="https://www.apple.com/wss/fonts?families=SF+Pro,v3|SF+Pro+Icons,v3">
+<link rel="stylesheet" href="https://www.apple.com/wss/fonts?family=SF+Mono&v=2" type="text/css" />
+<link rel="stylesheet" href="https://www.apple.com/wss/fonts?family=Apple+Icons&v=1" type="text/css" />
+		<title>Apple Design Resources - Apple Developer</title>
+		<meta name="omni_page" content="Apple Design Resources - (English)" />
+		<meta name="Description" content="Design apps accurately and quickly using official Apple design templates, icon production templates, color guides, and more." />
+
+		<meta property="og:locale" content="en_US" />
+		<meta property="og:site_name" content="Apple Developer" />
+		<meta property="og:type" content="website" />
+		<meta property="og:image" content="https://developer.apple.com/news/images/og/design-resources-hero-s-og.jpg?3" />
+		<meta property="og:title" content="Apple Design Resources" />
+		<meta property="og:description" content="Design apps accurately and quickly using official Apple design templates, icon production templates, color guides, and more." />
+		<meta property="og:url" content="https://developer.apple.com/design/resources/" />
+
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:image" content="https://developer.apple.com/news/images/og/design-resources-hero-s-og-twitter.jpg?3" />
+		<meta name="twitter:description" content="Design apps accurately and quickly using official Apple design templates, icon production templates, color guides, and more." />
+		<meta name="twitter:title" content="Apple Design Resources" />
+		<meta name="twitter:url" content="https://developer.apple.com/design/resources/" />
+
+		<link rel="stylesheet" href="/assets/styles/chapternav.css?Friday, 30-Jan-2026 23:08:54 UTC1" type="text/css" />
+		<link rel="stylesheet" href="/design/resources/styles/resources-alt.css?Thursday, 21-May-2026 00:17:55 UTC1" type="text/css" />
+
+		<link rel="alternate" href="https://developer.apple.com/kr/design/resources/" hreflang="ko-KR" />
+		<link rel="alternate" href="https://developer.apple.com/jp/design/resources/" hreflang="ja-JP" />
+		<link rel="alternate" href="https://developer.apple.com/cn/design/resources/" hreflang="zh-CN" />
+		<link rel="alternate" href="https://developer.apple.com/design/resources/" hreflang="en" />
+		<link rel="canonical" href="https://developer.apple.com/design/resources/" />
+
+	</head>
+
+<body class="nav-design">
+	<script>
+	// Execute immediately to avoid UI flash
+	(function () {
+		// Prevent React dev mode from running this multiple times
+		if (window.__didRunColorThemeScript) {
+			return;
+		}
+		window.__didRunColorThemeScript = true;
+
+		const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+		const body = document.body;
+
+		// If theme-dark or theme-light is already applied, do nothing and lock it
+		if (body.classList.contains("theme-dark") || body.classList.contains("theme-light")) {
+
+			// Set the data-color-scheme attribute based on the existing theme
+			body.setAttribute('data-color-scheme', body.classList.contains("theme-dark") ? "dark" : "light");
+
+			// Prevent future modifications
+			window.__disableColorScheme = true;
+
+			// Hide the color picker immediately
+			const style = document.createElement('style');
+			style.textContent = '.color-scheme-toggle { display: none !important; }';
+			document.head.appendChild(style);
+
+			return;
+		}
+
+		// Otherwise, set theme normally based on user settings or system preference
+		if (window.Settings && window.Settings.preferredColorScheme) {
+			const colorTheme = (window.Settings.preferredColorScheme === 'auto') && !prefersDark ? 'light'
+				: (window.Settings.preferredColorScheme === 'light') ? 'light' : 'dark';
+			body.setAttribute('data-color-scheme', colorTheme);
+			colorTheme === "dark" ? body.classList.add("theme-dark") : body.classList.add("theme-light");
+		} else {
+			const colorTheme = prefersDark ? 'dark' : 'light';
+			body.setAttribute('data-color-scheme', colorTheme);
+			prefersDark ? body.classList.add("theme-dark") : body.classList.add("theme-light");
+		}
+	})();
+</script>
+
+
+<link rel="stylesheet" href="/assets/styles/suggest-lang.css?54232608030" type="text/css" />
+<div id="suggest-lang" class="ribbon hide" lang="en">
+	<div class="ribbon-content-wrapper">
+		<div class="ribbon-content row">
+			<div class="column large-12 large-centered">
+				<p><a href="#" id="suggest-link" class="ribbon-link more">View in English</a></p>
+				<button id="suggest-closer" class="icon icon-after icon-reset" aria-label="Dismiss language suggestion" tabindex="0"></button>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="/assets/scripts/suggest-lang.js?03162626057"></script>
+<link rel="stylesheet" href="/assets/styles/globalnav.css?48212635068" type="text/css" />
+<nav id="globalnav" lang="en-US" dir="ltr" aria-label="Global" class="globalnav js" style="--r-globalnav-text-zoom-scale: 1;">
+	<div class="globalnav-content">
+		<div class="globalnav-item globalnav-menuback"><button aria-label="Main menu" class="globalnav-menuback-button"><span class="globalnav-chevron-icon"><svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+						<path d="m1.5618 24.0621 6.5581-6.4238c.2368-.2319.2407-.6118.0088-.8486-.2324-.2373-.6123-.2407-.8486-.0088l-7 6.8569c-.1157.1138-.1807.2695-.1802.4316.001.1621.0674.3174.1846.4297l7 6.7241c.1162.1118.2661.1675.4155.1675.1577 0 .3149-.062.4326-.1846.2295-.2388.2222-.6187-.0171-.8481z"></path>
+					</svg></span></button></div>
+		<ul id="globalnav-list" class="globalnav-list">
+			<li class="
+	globalnav-item
+	globalnav-item-apple
+	ac-gn-item
+	ac-gn-apple
+">
+				<a href="/" aria-label="Apple Developer" class="globalnav-link globalnav-link-apple ac-gn-link ac-gn-link-apple-developer" id="ac-gn-firstfocus-small">
+					<span class="ac-gn-link-text globalnav-link-text">Apple Developer</span>
+				</a>
+			</li>
+			<li class="globalnav-item globalnav-menu">
+				<div class="globalnav-flyout" style="--r-globalnav-flyout-item-total: 0; --r-globalnav-flyout-group-number: 0;">
+					<div class="globalnav-menu-list" style="--r-globalnav-flyout-item-total: 7;">
+						<div class="
+    globalnav-item
+    globalnav-item-getting-started
+    globalnav-item-menu
+    globalnav-item-submenu
+" style="--r-globalnav-flyout-item-number: 0;">
+							<ul class="globalnav-submenu-trigger-group">
+								<li class="globalnav-submenu-trigger-item">
+									<a href="/get-started/" data-topnav-flyout-trigger-compact="true" aria-label="Get Started" class="globalnav-link globalnav-submenu-trigger-link globalnav-link-getting-started">
+										<span class="globalnav-link-text-container">
+											<span class="globalnav-link-text">Get Started</span>
+										</span>
+										<span class="globalnav-link-chevron">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m8.1155 30.358a.6.6 0 1 1 -.831.8653l-7-6.7242a.6.6 0 0 1 -.0045-.8613l7-6.8569a.6.6 0 1 1 .84.8574l-6.5582 6.4238z"></path>
+											</svg>
+										</span>
+									</a>
+								</li>
+								<li class="globalnav-submenu-trigger-item">
+									<button id="globalnav-menubutton-link-getting-started" class="globalnav-submenu-trigger-button" aria-expanded="false" aria-controls="globalnav-submenu-link-getting-started" aria-label="Get Started menu" data-topnav-flyout-trigger-regular="true">
+										<span class="globalnav-image-regular globalnav-submenu-button-icon">
+											<svg height="10" viewBox="0 0 10 10" width="10" xmlns="http://www.w3.org/2000/svg">
+												<path d="m4.6725 6.635-2.655-2.667a.445.445 0 0 1 -.123-.304.4331.4331 0 0 1 .427-.439h.006a.447.447 0 0 1 .316.135l2.357 2.365 2.356-2.365a.458.458 0 0 1 .316-.135.433.433 0 0 1 .433.433v.006a.4189.4189 0 0 1 -.123.3l-2.655 2.671a.4451.4451 0 0 1 -.327.14.464.464 0 0 1 -.328-.14z"></path>
+											</svg>
+										</span>
+										<span class="globalnav-image-compact globalnav-submenu-button-icon">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m7.4382 24.0621-6.5581-6.4238c-.2368-.2319-.2407-.6118-.0088-.8486.2324-.2373.6123-.2407.8486-.0088l7 6.8569c.1157.1138.1807.2695.1802.4316-.001.1621-.0674.3174-.1846.4297l-7 6.7242c-.1162.1118-.2661.1675-.4155.1675-.1577 0-.3149-.062-.4326-.1846-.2295-.2388-.2222-.6187.0171-.8481l6.5537-6.2959z"></path>
+											</svg>
+										</span>
+									</button>
+								</li>
+							</ul>
+							<div id="globalnav-submenu-link-getting-started" class="globalnav-flyout globalnav-submenu" aria-labelledby="globalnav-menubutton-link-getting-started" style="--r-globalnav-flyout-item-total: 0; --r-globalnav-flyout-group-number: 0; --r-globalnav-flyout-height: auto; --r-globalnav-flyout-rate: 240ms;">
+								<div class="globalnav-flyout-scroll-container">
+									<div class="globalnav-flyout-content globalnav-submenu-content" style="--r-globalnav-flyout-elevated-group-count: 1; --r-globalnav-flyout-group-total: 2; --r-globalnav-flyout-item-total: 4;">
+										<div class="globalnav-submenu-group globalnav-submenu-group-elevated" style="--r-globalnav-flyout-group-number: 0;">
+
+											<h2 class="globalnav-submenu-header" id="apple-getting-started-heading" style="--r-globalnav-flyout-item-number: 1;">Explore Get Started</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="apple-getting-started-heading">
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 2;"><a href="/get-started/" class="globalnav-submenu-link">Overview</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 3;"><a href="/learn/" class="globalnav-submenu-link">Learn</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 4;"><a href="/programs/" class="globalnav-submenu-link">Apple Developer Program</a></li>
+											</ul>
+										</div>
+										<div class="globalnav-submenu-group" style="--r-globalnav-flyout-group-number: 1;">
+
+											<h2 class="globalnav-submenu-header" id="apple-learn-heading" style="--r-globalnav-flyout-item-number: 1;">Stay Updated</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="apple-learn-heading">
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 2;"><a href="/news/" class="globalnav-submenu-link">Latest News</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 3;"><a href="/hello/" class="globalnav-submenu-link">Hello Developer</a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="
+  globalnav-item
+  globalnav-item-platforms
+  globalnav-item-menu
+  globalnav-item-submenu
+" style="--r-globalnav-flyout-item-number: 1;">
+							<ul class="globalnav-submenu-trigger-group">
+								<li class="globalnav-submenu-trigger-item">
+									<a href="/platforms/" aria-label="Platforms" class="globalnav-link globalnav-submenu-trigger-link globalnav-link-platforms">
+										<span class="globalnav-link-text-container">
+											<span class="globalnav-link-text">Platforms</span>
+										</span>
+										<span class="globalnav-link-chevron">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m8.1155 30.358a.6.6 0 1 1 -.831.8653l-7-6.7242a.6.6 0 0 1 -.0045-.8613l7-6.8569a.6.6 0 1 1 .84.8574l-6.5582 6.4238z"></path>
+											</svg>
+										</span>
+									</a>
+								</li>
+								<li class="globalnav-submenu-trigger-item">
+									<button id="globalnav-menubutton-link-platforms" class="globalnav-submenu-trigger-button" aria-expanded="false" aria-controls="globalnav-submenu-link-platforms" aria-label="Platforms menu">
+										<span class="globalnav-image-regular globalnav-submenu-button-icon">
+											<svg height="10" viewBox="0 0 10 10" width="10" xmlns="http://www.w3.org/2000/svg">
+												<path d="m4.6725 6.635-2.655-2.667a.445.445 0 0 1 -.123-.304.4331.4331 0 0 1 .427-.439h.006a.447.447 0 0 1 .316.135l2.357 2.365 2.356-2.365a.458.458 0 0 1 .316-.135.433.433 0 0 1 .433.433v.006a.4189.4189 0 0 1 -.123.3l-2.655 2.671a.4451.4451 0 0 1 -.327.14.464.464 0 0 1 -.328-.14z"></path>
+											</svg>
+										</span>
+										<span class="globalnav-image-compact globalnav-submenu-button-icon">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m7.4382 24.0621-6.5581-6.4238c-.2368-.2319-.2407-.6118-.0088-.8486.2324-.2373.6123-.2407.8486-.0088l7 6.8569c.1157.1138.1807.2695.1802.4316-.001.1621-.0674.3174-.1846.4297l-7 6.7242c-.1162.1118-.2661.1675-.4155.1675-.1577 0-.3149-.062-.4326-.1846-.2295-.2388-.2222-.6187.0171-.8481l6.5537-6.2959z"></path>
+											</svg>
+										</span>
+									</button>
+								</li>
+							</ul>
+							<div id="globalnav-submenu-link-platforms" class="globalnav-flyout globalnav-submenu" aria-labelledby="globalnav-menubutton-link-platforms" style="--r-globalnav-flyout-item-total: 0; --r-globalnav-flyout-group-number: 0; --r-globalnav-flyout-height: auto; --r-globalnav-flyout-rate: 240ms;">
+								<div class="globalnav-flyout-scroll-container">
+									<div class="globalnav-flyout-content globalnav-submenu-content" style="--r-globalnav-flyout-elevated-group-count: 1; --r-globalnav-flyout-group-total: 2; --r-globalnav-flyout-item-total: 9;">
+										<!-- Explore -->
+										<div class="globalnav-submenu-group globalnav-submenu-group-elevated" style="--r-globalnav-flyout-group-number: 0;">
+
+											<h2 class="globalnav-submenu-header" id="platforms-apple-heading" style="--r-globalnav-flyout-item-number: 1;">Explore Platforms</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="platforms-apple-heading">
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 2;"><a href="/platforms/" class="globalnav-submenu-link">Apple Platforms</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 3;"><a href="/ios/" class="globalnav-submenu-link">iOS</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 4;"><a href="/ipados/" class="globalnav-submenu-link">iPadOS</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 5;"><a href="/macos/" class="globalnav-submenu-link">macOS</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 6;"><a href="/tvos/" class="globalnav-submenu-link">tvOS</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 7;"><a href="/visionos/" class="globalnav-submenu-link">visionOS</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 8;"><a href="/watchos/" class="globalnav-submenu-link">watchOS</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 9;"><a href="/app-store/" class="globalnav-submenu-link">App Store</a></li>
+											</ul>
+										</div>
+										<!-- Featured -->
+										<div class="globalnav-submenu-group" style="--r-globalnav-flyout-group-number: 1;">
+
+											<h2 class="globalnav-submenu-header" id="platforms-learn-heading" style="--r-globalnav-flyout-item-number: 1;">Featured</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="platforms-learn-heading">
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 2;"><a href="/design/" class="globalnav-submenu-link">Design</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 3;"><a href="/distribute/" class="globalnav-submenu-link">Distribution</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 4;"><a href="/games/" class="globalnav-submenu-link">Games</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 5;"><a href="/accessories/" class="globalnav-submenu-link">Accessories</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 6;"><a href="/safari/" class="globalnav-submenu-link">Web<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 7;"><a href="/apple-home/" class="globalnav-submenu-link">Home</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 8;"><a href="/carplay/" class="globalnav-submenu-link">CarPlay</a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="
+  globalnav-item
+  globalnav-item-technologies
+  globalnav-item-menu
+  globalnav-item-submenu
+" style="--r-globalnav-flyout-item-number: 2;">
+							<ul class="globalnav-submenu-trigger-group">
+								<li class="globalnav-submenu-trigger-item">
+									<a href="/technologies/" aria-label="Technologies" class="globalnav-link globalnav-submenu-trigger-link globalnav-link-technologies">
+										<span class="globalnav-link-text-container">
+											<span class="globalnav-link-text">Technologies</span>
+										</span>
+										<span class="globalnav-link-chevron">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m8.1155 30.358a.6.6 0 1 1 -.831.8653l-7-6.7242a.6.6 0 0 1 -.0045-.8613l7-6.8569a.6.6 0 1 1 .84.8574l-6.5582 6.4238z"></path>
+											</svg>
+										</span>
+									</a>
+								</li>
+								<li class="globalnav-submenu-trigger-item">
+									<button id="globalnav-menubutton-link-technologies" class="globalnav-submenu-trigger-button" aria-expanded="false" aria-controls="globalnav-submenu-link-technologies" aria-label="Technologies menu">
+										<span class="globalnav-image-regular globalnav-submenu-button-icon">
+											<svg height="10" viewBox="0 0 10 10" width="10" xmlns="http://www.w3.org/2000/svg">
+												<path d="m4.6725 6.635-2.655-2.667a.445.445 0 0 1 -.123-.304.4331.4331 0 0 1 .427-.439h.006a.447.447 0 0 1 .316.135l2.357 2.365 2.356-2.365a.458.458 0 0 1 .316-.135.433.433 0 0 1 .433.433v.006a.4189.4189 0 0 1 -.123.3l-2.655 2.671a.4451.4451 0 0 1 -.327.14.464.464 0 0 1 -.328-.14z"></path>
+											</svg>
+										</span>
+										<span class="globalnav-image-compact globalnav-submenu-button-icon">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m7.4382 24.0621-6.5581-6.4238c-.2368-.2319-.2407-.6118-.0088-.8486.2324-.2373.6123-.2407.8486-.0088l7 6.8569c.1157.1138.1807.2695.1802.4316-.001.1621-.0674.3174-.1846.4297l-7 6.7242c-.1162.1118-.2661.1675-.4155.1675-.1577 0-.3149-.062-.4326-.1846-.2295-.2388-.2222-.6187.0171-.8481l6.5537-6.2959z"></path>
+											</svg>
+										</span>
+									</button>
+								</li>
+							</ul>
+							<div id="globalnav-submenu-link-technologies" class="globalnav-flyout globalnav-submenu" aria-labelledby="globalnav-menubutton-link-technologies" style="--r-globalnav-flyout-item-total: 0; --r-globalnav-flyout-group-number: 0; --r-globalnav-flyout-height: auto; --r-globalnav-flyout-rate: 254ms;">
+								<div class="globalnav-flyout-scroll-container">
+									<div class="globalnav-flyout-content globalnav-submenu-content" style="--r-globalnav-flyout-elevated-group-count: 1; --r-globalnav-flyout-group-total: 2; --r-globalnav-flyout-item-total: 8;">
+										<!-- Explore -->
+										<div class="globalnav-submenu-group globalnav-submenu-group-elevated" style="--r-globalnav-flyout-group-number: 0;">
+
+											<h2 class="globalnav-submenu-header" id="technologies-learn-heading" style="--r-globalnav-flyout-item-number: 1;">Explore Technologies</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="technologies-learn-heading">
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 2;"><a href="/technologies/" class="globalnav-submenu-link">Overview</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 3;"><a href="/xcode/" class="globalnav-submenu-link">Xcode</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 4;"><a href="/swift/" class="globalnav-submenu-link">Swift</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 5;"><a href="/swiftui/" class="globalnav-submenu-link">SwiftUI</a></li>
+											</ul>
+										</div>
+										<!-- Featured -->
+										<div class="globalnav-submenu-group" style="--r-globalnav-flyout-group-number: 1;">
+
+											<h2 class="globalnav-submenu-header" id="technologies-featured-heading" style="--r-globalnav-flyout-item-number: 1;">Featured</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="technologies-featured-heading">
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 2;"><a href="/documentation/accessibility" class="globalnav-submenu-link">Accessibility<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 3;"><a href="/documentation/appintents" class="globalnav-submenu-link">App Intents<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 4;"><a href="/apple-intelligence/" class="globalnav-submenu-link">Apple Intelligence</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 5;"><a href="/games/" class="globalnav-submenu-link">Games</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 6;"><a href="/machine-learning/" class="globalnav-submenu-link">Machine Learning &amp; AI</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 7;"><a href="/security/" class="globalnav-submenu-link">Security</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 8;"><a href="/xcode-cloud/" class="globalnav-submenu-link">Xcode Cloud</a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="
+  globalnav-item
+  globalnav-item-community
+  globalnav-item-menu
+  globalnav-item-submenu
+" style="--r-globalnav-flyout-item-number: 3;">
+							<ul class="globalnav-submenu-trigger-group">
+								<li class="globalnav-submenu-trigger-item">
+									<a href="/community/" aria-label="Community" class="globalnav-link globalnav-submenu-trigger-link globalnav-link-community">
+										<span class="globalnav-link-text-container">
+											<span class="globalnav-link-text">Community</span>
+										</span>
+										<span class="globalnav-link-chevron">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m8.1155 30.358a.6.6 0 1 1 -.831.8653l-7-6.7242a.6.6 0 0 1 -.0045-.8613l7-6.8569a.6.6 0 1 1 .84.8574l-6.5582 6.4238z"></path>
+											</svg>
+										</span>
+									</a>
+								</li>
+								<li class="globalnav-submenu-trigger-item">
+									<button id="globalnav-menubutton-link-community" class="globalnav-submenu-trigger-button" aria-expanded="false" aria-controls="globalnav-submenu-link-community" aria-label="Community menu">
+										<span class="globalnav-image-regular globalnav-submenu-button-icon">
+											<svg height="10" viewBox="0 0 10 10" width="10" xmlns="http://www.w3.org/2000/svg">
+												<path d="m4.6725 6.635-2.655-2.667a.445.445 0 0 1 -.123-.304.4331.4331 0 0 1 .427-.439h.006a.447.447 0 0 1 .316.135l2.357 2.365 2.356-2.365a.458.458 0 0 1 .316-.135.433.433 0 0 1 .433.433v.006a.4189.4189 0 0 1 -.123.3l-2.655 2.671a.4451.4451 0 0 1 -.327.14.464.464 0 0 1 -.328-.14z"></path>
+											</svg>
+										</span>
+										<span class="globalnav-image-compact globalnav-submenu-button-icon">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m7.4382 24.0621-6.5581-6.4238c-.2368-.2319-.2407-.6118-.0088-.8486.2324-.2373.6123-.2407.8486-.0088l7 6.8569c.1157.1138.1807.2695.1802.4316-.001.1621-.0674.3174-.1846.4297l-7 6.7242c-.1162.1118-.2661.1675-.4155.1675-.1577 0-.3149-.062-.4326-.1846-.2295-.2388-.2222-.6187.0171-.8481l6.5537-6.2959z"></path>
+											</svg>
+										</span>
+									</button>
+								</li>
+							</ul>
+							<div id="globalnav-submenu-link-community" class="globalnav-flyout globalnav-submenu" aria-labelledby="globalnav-menubutton-link-community" style="--r-globalnav-flyout-item-total: 0; --r-globalnav-flyout-group-number: 0; --r-globalnav-flyout-height: auto; --r-globalnav-flyout-rate: 240ms;">
+								<div class="globalnav-flyout-scroll-container">
+									<div class="globalnav-flyout-content globalnav-submenu-content" style="--r-globalnav-flyout-elevated-group-count: 1; --r-globalnav-flyout-group-total: 2; --r-globalnav-flyout-item-total: 7;">
+										<!-- Explore -->
+										<div class="globalnav-submenu-group globalnav-submenu-group-elevated" style="--r-globalnav-flyout-group-number: 0;">
+
+											<h2 class="globalnav-submenu-header" id="community-engage-heading" style="--r-globalnav-flyout-item-number: 1;">Explore Community</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="community-engage-heading">
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 2;"><a href="/community/" class="globalnav-submenu-link">Overview</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 3;"><a href="/events/" class="globalnav-submenu-link">Meet with Apple events</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 4;"><a href="/community/events/" class="globalnav-submenu-link">Community-driven events</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 5;"><a href="/forums/" class="globalnav-submenu-link">Developer Forums<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 6;"><a href="https://opensource.apple.com" class="globalnav-submenu-link">Open Source<span class="loc-en-only"></span></a></li>
+											</ul>
+										</div>
+										<!-- Featured -->
+										<div class="globalnav-submenu-group" style="--r-globalnav-flyout-group-number: 1;">
+
+											<h2 class="globalnav-submenu-header" id="community-contribute-heading" style="--r-globalnav-flyout-item-number: 1;">Featured</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="community-contribute-heading">
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 2;"><a href="/wwdc/" class="globalnav-submenu-link">WWDC</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 3;"><a href="/swift-student-challenge/" class="globalnav-submenu-link">Swift Student Challenge</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 4;"><a href="/developer-stories/" class="globalnav-submenu-link">Developer Stories</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 5;"><a href="/app-store/app-store-awards/" class="globalnav-submenu-link">App Store Awards<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 6;"><a href="/design/awards/" class="globalnav-submenu-link">Apple Design Awards</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 7;"><a href="/events/developer-centers/" class="globalnav-submenu-link">Apple Developer Centers</a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="
+							    globalnav-item
+							    globalnav-item-documentation
+							    globalnav-item-menu
+							    globalnav-item-submenu
+							" style="--r-globalnav-flyout-item-number: 4;">
+							<ul class="globalnav-submenu-trigger-group">
+								<li class="globalnav-submenu-trigger-item">
+									<a href="/documentation/" aria-label="Documentation" class="globalnav-link globalnav-submenu-trigger-link globalnav-link-documentation">
+										<span class="globalnav-link-text-container">
+											<span class="globalnav-link-text">Documentation<span class="loc-en-only"></span></span>
+										</span>
+										<span class="globalnav-link-chevron">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m8.1155 30.358a.6.6 0 1 1 -.831.8653l-7-6.7242a.6.6 0 0 1 -.0045-.8613l7-6.8569a.6.6 0 1 1 .84.8574l-6.5582 6.4238z"></path>
+											</svg>
+										</span>
+									</a>
+								</li>
+								<li class="globalnav-submenu-trigger-item">
+									<button id="globalnav-menubutton-link-documentation" class="globalnav-submenu-trigger-button" aria-expanded="false" aria-controls="globalnav-submenu-link-documentation" aria-label="Documentation menu">
+										<span class="globalnav-image-regular globalnav-submenu-button-icon">
+											<svg height="10" viewBox="0 0 10 10" width="10" xmlns="http://www.w3.org/2000/svg">
+												<path d="m4.6725 6.635-2.655-2.667a.445.445 0 0 1 -.123-.304.4331.4331 0 0 1 .427-.439h.006a.447.447 0 0 1 .316.135l2.357 2.365 2.356-2.365a.458.458 0 0 1 .316-.135.433.433 0 0 1 .433.433v.006a.4189.4189 0 0 1 -.123.3l-2.655 2.671a.4451.4451 0 0 1 -.327.14.464.464 0 0 1 -.328-.14z"></path>
+											</svg>
+										</span>
+										<span class="globalnav-image-compact globalnav-submenu-button-icon">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m7.4382 24.0621-6.5581-6.4238c-.2368-.2319-.2407-.6118-.0088-.8486.2324-.2373.6123-.2407.8486-.0088l7 6.8569c.1157.1138.1807.2695.1802.4316-.001.1621-.0674.3174-.1846.4297l-7 6.7242c-.1162.1118-.2661.1675-.4155.1675-.1577 0-.3149-.062-.4326-.1846-.2295-.2388-.2222-.6187.0171-.8481l6.5537-6.2959z"></path>
+											</svg>
+										</span>
+									</button>
+								</li>
+							</ul>
+							<div id="globalnav-submenu-link-documentation" class="globalnav-flyout globalnav-submenu" aria-labelledby="globalnav-menubutton-link-documentation" style="--r-globalnav-flyout-item-total: 0; --r-globalnav-flyout-group-number: 0; --r-globalnav-flyout-height: auto; --r-globalnav-flyout-rate: 240ms;">
+								<div class="globalnav-flyout-scroll-container">
+									<div class="globalnav-flyout-content globalnav-submenu-content" style="--r-globalnav-flyout-elevated-group-count: 1; --r-globalnav-flyout-group-total: 2; --r-globalnav-flyout-item-total: 9;">
+										<!-- Explore -->
+										<div class="globalnav-submenu-group globalnav-submenu-group-elevated" style="--r-globalnav-flyout-group-number: 0;">
+
+											<h2 class="globalnav-submenu-header" id="docs-explore" style="--r-globalnav-flyout-item-number: 1;">Explore Documentation</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="docs-explore">
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 2;"><a href="/documentation/" class="globalnav-submenu-link">Documentation Library<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 3;"><a href="/documentation/TechnologyOverviews" class="globalnav-submenu-link">Technology Overviews<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 4;"><a href="/documentation/SampleCode" class="globalnav-submenu-link">Sample Code<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 5;"><a href="/design/human-interface-guidelines/" class="globalnav-submenu-link">Human Interface Guidelines</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 6;"><a href="/videos/" class="globalnav-submenu-link">Videos</a></li>
+											</ul>
+										</div>
+										<!-- Release Notes -->
+										<div class="globalnav-submenu-group" style="--r-globalnav-flyout-group-number: 1;">
+
+											<h2 class="globalnav-submenu-header" id="docs-release-notes" style="--r-globalnav-flyout-item-number: 1;">Release Notes</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="docs-release-notes">
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 2;"><a href="/documentation/Updates" class="globalnav-submenu-link">Featured Updates<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 3;"><a href="/documentation/ios-ipados-release-notes" class="globalnav-submenu-link">iOS<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 4;"><a href="/documentation/ios-ipados-release-notes" class="globalnav-submenu-link">iPadOS<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 5;"><a href="/documentation/macos-release-notes" class="globalnav-submenu-link">macOS<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 6;"><a href="/documentation/watchos-release-notes" class="globalnav-submenu-link">watchOS<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 7;"><a href="/documentation/visionos-release-notes/" class="globalnav-submenu-link">visionOS<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 8;"><a href="/documentation/tvos-release-notes" class="globalnav-submenu-link">tvOS<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 9;"><a href="/documentation/Updates/xcode" class="globalnav-submenu-link">Xcode<span class="loc-en-only"></span></a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="
+  globalnav-item
+  globalnav-item-downloads
+  globalnav-item-menu
+  globalnav-item-submenu
+" style="--r-globalnav-flyout-item-number: 5;">
+							<ul class="globalnav-submenu-trigger-group">
+								<li class="globalnav-submenu-trigger-item">
+									<a href="/download/" aria-label="Downloads" class="globalnav-link globalnav-submenu-trigger-link globalnav-link-downloads">
+										<span class="globalnav-link-text-container">
+											<span class="globalnav-link-text">Downloads</span>
+										</span>
+										<span class="globalnav-link-chevron">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m8.1155 30.358a.6.6 0 1 1 -.831.8653l-7-6.7242a.6.6 0 0 1 -.0045-.8613l7-6.8569a.6.6 0 1 1 .84.8574l-6.5582 6.4238z"></path>
+											</svg>
+										</span>
+									</a>
+								</li>
+								<li class="globalnav-submenu-trigger-item">
+									<button id="globalnav-menubutton-link-downloads" class="globalnav-submenu-trigger-button" aria-expanded="false" aria-controls="globalnav-submenu-link-downloads" aria-label="Downloads menu">
+										<span class="globalnav-image-regular globalnav-submenu-button-icon">
+											<svg height="10" viewBox="0 0 10 10" width="10" xmlns="http://www.w3.org/2000/svg">
+												<path d="m4.6725 6.635-2.655-2.667a.445.445 0 0 1 -.123-.304.4331.4331 0 0 1 .427-.439h.006a.447.447 0 0 1 .316.135l2.357 2.365 2.356-2.365a.458.458 0 0 1 .316-.135.433.433 0 0 1 .433.433v.006a.4189.4189 0 0 1 -.123.3l-2.655 2.671a.4451.4451 0 0 1 -.327.14.464.464 0 0 1 -.328-.14z"></path>
+											</svg>
+										</span>
+										<span class="globalnav-image-compact globalnav-submenu-button-icon">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m7.4382 24.0621-6.5581-6.4238c-.2368-.2319-.2407-.6118-.0088-.8486.2324-.2373.6123-.2407.8486-.0088l7 6.8569c.1157.1138.1807.2695.1802.4316-.001.1621-.0674.3174-.1846.4297l-7 6.7242c-.1162.1118-.2661.1675-.4155.1675-.1577 0-.3149-.062-.4326-.1846-.2295-.2388-.2222-.6187.0171-.8481l6.5537-6.2959z"></path>
+											</svg>
+										</span>
+									</button>
+								</li>
+							</ul>
+							<div id="globalnav-submenu-link-downloads" class="globalnav-flyout globalnav-submenu" aria-labelledby="globalnav-menubutton-link-downloads" style="--r-globalnav-flyout-item-total: 0; --r-globalnav-flyout-group-number: 0; --r-globalnav-flyout-height: auto; --r-globalnav-flyout-rate: 240ms;">
+								<div class="globalnav-flyout-scroll-container">
+									<div class="globalnav-flyout-content globalnav-submenu-content" style="--r-globalnav-flyout-elevated-group-count: 1; --r-globalnav-flyout-group-total: 2; --r-globalnav-flyout-item-total: 6;">
+										<!-- Explore -->
+										<div class="globalnav-submenu-group globalnav-submenu-group-elevated" style="--r-globalnav-flyout-group-number: 0;">
+
+											<h2 class="globalnav-submenu-header" id="downloads-explore-heading" style="--r-globalnav-flyout-item-number: 1;">Explore Downloads</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="downloads-explore-heading">
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 2;"><a href="/download/" class="globalnav-submenu-link">All Downloads</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 3;"><a href="/download/os/" class="globalnav-submenu-link">Operating Systems<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 4;"><a href="/download/applications/" class="globalnav-submenu-link">Applications<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 5;"><a href="/design/resources/" class="globalnav-submenu-link">Design Resources</a></li>
+											</ul>
+										</div>
+										<!-- Featured -->
+										<div class="globalnav-submenu-group" style="--r-globalnav-flyout-group-number: 1;">
+
+											<h2 class="globalnav-submenu-header" id="downloads-featured-heading" style="--r-globalnav-flyout-item-number: 1;">Featured</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="downloads-featured-heading">
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 2;"><a href="/xcode/" class="globalnav-submenu-link">Xcode</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 3;"><a href="/testflight/" class="globalnav-submenu-link">TestFlight</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 4;"><a href="/fonts/" class="globalnav-submenu-link">Fonts</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 5;"><a href="/sf-symbols/" class="globalnav-submenu-link">SF Symbols</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 6;"><a href="/icon-composer/" class="globalnav-submenu-link">Icon Composer</a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="
+  globalnav-item
+  globalnav-item-support
+  globalnav-item-menu
+  globalnav-item-submenu
+" style="--r-globalnav-flyout-item-number: 6;">
+							<ul class="globalnav-submenu-trigger-group">
+								<li class="globalnav-submenu-trigger-item">
+									<a href="/support/" aria-label="Support" class="globalnav-link globalnav-submenu-trigger-link globalnav-link-support">
+										<span class="globalnav-link-text-container">
+											<span class="globalnav-link-text">Support</span>
+										</span>
+										<span class="globalnav-link-chevron">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m8.1155 30.358a.6.6 0 1 1 -.831.8653l-7-6.7242a.6.6 0 0 1 -.0045-.8613l7-6.8569a.6.6 0 1 1 .84.8574l-6.5582 6.4238z"></path>
+											</svg>
+										</span>
+									</a>
+								</li>
+								<li class="globalnav-submenu-trigger-item">
+									<button id="globalnav-menubutton-link-support" class="globalnav-submenu-trigger-button" aria-expanded="false" aria-controls="globalnav-submenu-link-support" aria-label="Support menu">
+										<span class="globalnav-image-regular globalnav-submenu-button-icon">
+											<svg height="10" viewBox="0 0 10 10" width="10" xmlns="http://www.w3.org/2000/svg">
+												<path d="m4.6725 6.635-2.655-2.667a.445.445 0 0 1 -.123-.304.4331.4331 0 0 1 .427-.439h.006a.447.447 0 0 1 .316.135l2.357 2.365 2.356-2.365a.458.458 0 0 1 .316-.135.433.433 0 0 1 .433.433v.006a.4189.4189 0 0 1 -.123.3l-2.655 2.671a.4451.4451 0 0 1 -.327.14.464.464 0 0 1 -.328-.14z"></path>
+											</svg>
+										</span>
+										<span class="globalnav-image-compact globalnav-submenu-button-icon">
+											<svg height="48" viewBox="0 0 9 48" width="9" xmlns="http://www.w3.org/2000/svg">
+												<path d="m7.4382 24.0621-6.5581-6.4238c-.2368-.2319-.2407-.6118-.0088-.8486.2324-.2373.6123-.2407.8486-.0088l7 6.8569c.1157.1138.1807.2695.1802.4316-.001.1621-.0674.3174-.1846.4297l-7 6.7242c-.1162.1118-.2661.1675-.4155.1675-.1577 0-.3149-.062-.4326-.1846-.2295-.2388-.2222-.6187.0171-.8481l6.5537-6.2959z"></path>
+											</svg>
+										</span>
+									</button>
+								</li>
+							</ul>
+							<div id="globalnav-submenu-link-support" class="globalnav-flyout globalnav-submenu" aria-labelledby="globalnav-menubutton-link-support" style="--r-globalnav-flyout-item-total: 0; --r-globalnav-flyout-group-number: 0; --r-globalnav-flyout-height: auto; --r-globalnav-flyout-rate: 240ms;">
+								<div class="globalnav-flyout-scroll-container">
+									<div class="globalnav-flyout-content globalnav-submenu-content" style="--r-globalnav-flyout-elevated-group-count: 1; --r-globalnav-flyout-group-total: 2; --r-globalnav-flyout-item-total: 7;">
+										<!-- Explore -->
+										<div class="globalnav-submenu-group globalnav-submenu-group-elevated" style="--r-globalnav-flyout-group-number: 0;">
+
+											<h2 class="globalnav-submenu-header" id="explore-support" style="--r-globalnav-flyout-item-number: 1;">Explore Support</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="explore-support">
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 2;"><a href="/support/" class="globalnav-submenu-link">Overview</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 3;"><a href="/help/" class="globalnav-submenu-link">Help Guides</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 4;"><a href="/forums/" class="globalnav-submenu-link">Developer Forums<span class="loc-en-only"></span></a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 5;"><a href="/feedback-assistant/" class="globalnav-submenu-link">Feedback Assistant</a></li>
+												<li class="globalnav-submenu-list-item-elevated" style="--r-globalnav-flyout-item-number: 6;"><a href="/contact/" class="globalnav-submenu-link">Contact Us</a></li>
+											</ul>
+										</div>
+										<!-- Featured -->
+										<div class="globalnav-submenu-group" style="--r-globalnav-flyout-group-number: 1;">
+
+											<h2 class="globalnav-submenu-header" id="support-help" style="--r-globalnav-flyout-item-number: 1;">Featured</h2>
+											<ul class="globalnav-submenu-list" aria-labelledby="support-help">
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 2;"><a href="/help/account/" class="globalnav-submenu-link">Account Help</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 3;"><a href="/app-store/review/guidelines/" class="globalnav-submenu-link">App Review Guidelines</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 4;"><a href="/help/app-store-connect/" class="globalnav-submenu-link">App Store Connect Help</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 5;"><a href="/news/upcoming-requirements/" class="globalnav-submenu-link">Upcoming Requirements</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 6;"><a href="/support/terms/" class="globalnav-submenu-link">Agreements and Guidelines</a></li>
+												<li class="globalnav-submenu-list-item" style="--r-globalnav-flyout-item-number: 7;"><a href="/system-status/" class="globalnav-submenu-link">System Status<span class="loc-en-only"></span></a></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</li>
+			<!-- Search -->
+			<li data-topnav-flyout-label="Search" class="globalnav-item globalnav-search shift-0-1" data-globalnav-iconflyout-enabled="true">
+				<a role="button" id="globalnav-menubutton-link-search" href="/search/" data-topnav-flyout-trigger-regular="true" data-topnav-flyout-trigger-compact="true" aria-label="Search" class="globalnav-link globalnav-link-search">
+					<span class="globalnav-image-regular">
+						<svg xmlns="http://www.w3.org/2000/svg" width="15px" height="44px" viewBox="0 0 15 44">
+							<path d="M14.298,27.202l-3.87-3.87c0.701-0.929,1.122-2.081,1.122-3.332c0-3.06-2.489-5.55-5.55-5.55c-3.06,0-5.55,2.49-5.55,5.55 c0,3.061,2.49,5.55,5.55,5.55c1.251,0,2.403-0.421,3.332-1.122l3.87,3.87c0.151,0.151,0.35,0.228,0.548,0.228 s0.396-0.076,0.548-0.228C14.601,27.995,14.601,27.505,14.298,27.202z M1.55,20c0-2.454,1.997-4.45,4.45-4.45 c2.454,0,4.45,1.997,4.45,4.45S8.454,24.45,6,24.45C3.546,24.45,1.55,22.454,1.55,20z"></path>
+						</svg>
+					</span>
+					<span class="globalnav-image-compact">
+						<svg height="48" viewBox="0 0 17 48" width="17" xmlns="http://www.w3.org/2000/svg">
+							<path d="m16.2294 29.9556-4.1755-4.0821a6.4711 6.4711 0 1 0 -1.2839 1.2625l4.2005 4.1066a.9.9 0 1 0 1.2588-1.287zm-14.5294-8.0017a5.2455 5.2455 0 1 1 5.2455 5.2527 5.2549 5.2549 0 0 1 -5.2455-5.2527z"></path>
+						</svg>
+					</span>
+				</a>
+				<div id="globalnav-submenu-search" aria-labelledby="globalnav-menubutton-link-search" class="globalnav-flyout globalnav-submenu" style="--r-globalnav-flyout-item-total: 0; --r-globalnav-flyout-group-number: 0; --r-globalnav-flyout-height: 388px; --r-globalnav-flyout-rate: 240ms;">
+					<div class="globalnav-flyout-scroll-container">
+						<div class="globalnav-flyout-content globalnav-submenu-content">
+							<form action="/search/" method="get" class="globalnav-searchfield">
+								<div class="globalnav-searchfield-wrapper">
+									<input placeholder="Search" name="q" aria-label="Search" autocorrect="off" autocapitalize="off" autocomplete="off" spellcheck="false" class="globalnav-searchfield-input">
+									<input id="globalnav-searchfield-src" type="hidden" name="src" value="globalnav">
+									<button aria-label="Clear search" tabindex="-1" type="button" class="globalnav-searchfield-reset" disabled="" aria-hidden="true">
+										<span class="globalnav-image-regular">
+											<svg height="14" viewBox="0 0 14 14" width="14" xmlns="http://www.w3.org/2000/svg">
+												<path d="m7 .0339a6.9661 6.9661 0 1 0 6.9661 6.9661 6.9661 6.9661 0 0 0 -6.9661-6.9661zm2.798 8.9867a.55.55 0 0 1 -.778.7774l-2.02-2.02-2.02 2.02a.55.55 0 0 1 -.7784-.7774l2.0206-2.0206-2.0204-2.02a.55.55 0 0 1 .7782-.7778l2.02 2.02 2.02-2.02a.55.55 0 0 1 .778.7778l-2.0203 2.02z"></path>
+											</svg>
+										</span>
+										<span class="globalnav-image-compact">
+											<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+												<path d="m0 8a8.0474 8.0474 0 0 1 7.9922-8 8.0609 8.0609 0 0 1 8.0078 8 8.0541 8.0541 0 0 1 -8 8 8.0541 8.0541 0 0 1 -8-8zm5.6549 3.2863 2.3373-2.353 2.3451 2.353a.6935.6935 0 0 0 .4627.1961.6662.6662 0 0 0 .6667-.6667.6777.6777 0 0 0 -.1961-.4706l-2.3451-2.3373 2.3529-2.3607a.5943.5943 0 0 0 .1961-.4549.66.66 0 0 0 -.6667-.6589.6142.6142 0 0 0 -.447.1961l-2.3686 2.3606-2.353-2.3527a.6152.6152 0 0 0 -.447-.1883.6529.6529 0 0 0 -.6667.651.6264.6264 0 0 0 .1961.4549l2.3451 2.3529-2.3451 2.353a.61.61 0 0 0 -.1961.4549.6661.6661 0 0 0 .6667.6667.6589.6589 0 0 0 .4627-.1961z"></path>
+											</svg>
+										</span>
+									</button>
+									<button aria-label="Submit search" tabindex="-1" aria-hidden="true" type="submit" class="globalnav-searchfield-submit" disabled="">
+										<span class="globalnav-image-regular">
+											<svg height="32" viewBox="0 0 30 32" width="30" xmlns="http://www.w3.org/2000/svg">
+												<path d="m23.3291 23.3066-4.35-4.35c-.0105-.0105-.0247-.0136-.0355-.0235a6.8714 6.8714 0 1 0 -1.5736 1.4969c.0214.0256.03.0575.0542.0815l4.35 4.35a1.1 1.1 0 1 0 1.5557-1.5547zm-15.4507-8.582a5.6031 5.6031 0 1 1 5.603 5.61 5.613 5.613 0 0 1 -5.603-5.61z"></path>
+											</svg>
+										</span>
+										<span class="globalnav-image-compact">
+											<svg width="38" height="40" viewBox="0 0 38 40" xmlns="http://www.w3.org/2000/svg">
+												<path d="m28.6724 27.8633-5.07-5.07c-.0095-.0095-.0224-.0122-.032-.0213a7.9967 7.9967 0 1 0 -1.8711 1.7625c.0254.03.0357.0681.0642.0967l5.07 5.07a1.3 1.3 0 0 0 1.8389-1.8379zm-18.0035-10.0033a6.5447 6.5447 0 1 1 6.545 6.5449 6.5518 6.5518 0 0 1 -6.545-6.5449z"></path>
+											</svg>
+										</span>
+									</button>
+								</div>
+							</form>
+							<div class="globalnav-searchresults">
+								<div class="globalnav-searchresults-current">
+									<div class="globalnav-searchresults-container" style="--r-globalnav-flyout-group-number: 0;">
+
+										<h2 class="globalnav-searchresults-header" style="--r-globalnav-flyout-item-number: 0;">Quick Links</h2>
+										<ul class="globalnav-searchresults-list" role="list">
+											<li class="globalnav-searchresults-list-item" role="listitem" style="--r-globalnav-flyout-item-number: 1;">
+												<a class="globalnav-searchresults-list-link" href="/events/" data-query="no keyword" data-section="quicklinks" data-items="5" data-index="0" data-label="Events">
+													<span class="globalnav-searchresults-list-icon">
+														<span class="globalnav-image-regular globalnav-link-image">
+															<svg height="16" viewBox="0 0 9 16" width="9" xmlns="http://www.w3.org/2000/svg">
+																<path d="m8.6124 8.1035-2.99 2.99a.5.5 0 0 1 -.7071-.7071l2.1366-2.1364h-6.316a.5.5 0 0 1 0-1h6.316l-2.1368-2.1367a.5.5 0 0 1 .7071-.7071l2.99 2.99a.5.5 0 0 1 .0002.7073z"></path>
+															</svg>
+														</span>
+														<span class="globalnav-image-compact globalnav-link-image">
+															<svg height="25" viewBox="0 0 13 25" width="13" xmlns="http://www.w3.org/2000/svg">
+																<path d="m12.3577 13.4238-4.4444 4.4444a.6.6 0 0 1 -.8486-.8477l3.37-3.37h-9.3231a.65.65 0 0 1 0-1.3008h9.3232l-3.37-3.37a.6.6 0 0 1 .8486-.8477l4.4444 4.4444a.5989.5989 0 0 1 -.0001.8474z"></path>
+															</svg>
+														</span>
+													</span>
+													<span class="globalnav-searchresults-list-text">Events</span>
+												</a>
+											</li>
+											<li class="globalnav-searchresults-list-item" role="listitem" style="--r-globalnav-flyout-item-number: 2;">
+												<a class="globalnav-searchresults-list-link" href="/news/" data-query="no keyword" data-section="quicklinks" data-items="5" data-index="1" data-label="News">
+													<span class="globalnav-searchresults-list-icon">
+														<span class="globalnav-image-regular globalnav-link-image">
+															<svg height="16" viewBox="0 0 9 16" width="9" xmlns="http://www.w3.org/2000/svg">
+																<path d="m8.6124 8.1035-2.99 2.99a.5.5 0 0 1 -.7071-.7071l2.1366-2.1364h-6.316a.5.5 0 0 1 0-1h6.316l-2.1368-2.1367a.5.5 0 0 1 .7071-.7071l2.99 2.99a.5.5 0 0 1 .0002.7073z"></path>
+															</svg>
+														</span>
+														<span class="globalnav-image-compact globalnav-link-image">
+															<svg height="25" viewBox="0 0 13 25" width="13" xmlns="http://www.w3.org/2000/svg">
+																<path d="m12.3577 13.4238-4.4444 4.4444a.6.6 0 0 1 -.8486-.8477l3.37-3.37h-9.3231a.65.65 0 0 1 0-1.3008h9.3232l-3.37-3.37a.6.6 0 0 1 .8486-.8477l4.4444 4.4444a.5989.5989 0 0 1 -.0001.8474z"></path>
+															</svg>
+														</span>
+													</span>
+													<span class="globalnav-searchresults-list-text">News</span>
+												</a>
+											</li>
+											<li class="globalnav-searchresults-list-item" role="listitem" style="--r-globalnav-flyout-item-number: 3;">
+												<a class="globalnav-searchresults-list-link" href="/forums/" data-query="no keyword" data-section="quicklinks" data-items="5" data-index="2" data-label="Forums">
+													<span class="globalnav-searchresults-list-icon">
+														<span class="globalnav-image-regular globalnav-link-image">
+															<svg height="16" viewBox="0 0 9 16" width="9" xmlns="http://www.w3.org/2000/svg">
+																<path d="m8.6124 8.1035-2.99 2.99a.5.5 0 0 1 -.7071-.7071l2.1366-2.1364h-6.316a.5.5 0 0 1 0-1h6.316l-2.1368-2.1367a.5.5 0 0 1 .7071-.7071l2.99 2.99a.5.5 0 0 1 .0002.7073z"></path>
+															</svg>
+														</span>
+														<span class="globalnav-image-compact globalnav-link-image">
+															<svg height="25" viewBox="0 0 13 25" width="13" xmlns="http://www.w3.org/2000/svg">
+																<path d="m12.3577 13.4238-4.4444 4.4444a.6.6 0 0 1 -.8486-.8477l3.37-3.37h-9.3231a.65.65 0 0 1 0-1.3008h9.3232l-3.37-3.37a.6.6 0 0 1 .8486-.8477l4.4444 4.4444a.5989.5989 0 0 1 -.0001.8474z"></path>
+															</svg>
+														</span>
+													</span>
+													<span class="globalnav-searchresults-list-text">Forums<span class="loc-en-only"></span></span>
+												</a>
+											</li>
+											<li class="globalnav-searchresults-list-item" role="listitem" style="--r-globalnav-flyout-item-number: 4;">
+												<a class="globalnav-searchresults-list-link" href="/documentation/samplecode/" data-query="no keyword" data-section="quicklinks" data-items="5" data-index="3" data-label="Sample Code">
+													<span class="globalnav-searchresults-list-icon">
+														<span class="globalnav-image-regular globalnav-link-image">
+															<svg height="16" viewBox="0 0 9 16" width="9" xmlns="http://www.w3.org/2000/svg">
+																<path d="m8.6124 8.1035-2.99 2.99a.5.5 0 0 1 -.7071-.7071l2.1366-2.1364h-6.316a.5.5 0 0 1 0-1h6.316l-2.1368-2.1367a.5.5 0 0 1 .7071-.7071l2.99 2.99a.5.5 0 0 1 .0002.7073z"></path>
+															</svg>
+														</span>
+														<span class="globalnav-image-compact globalnav-link-image">
+															<svg height="25" viewBox="0 0 13 25" width="13" xmlns="http://www.w3.org/2000/svg">
+																<path d="m12.3577 13.4238-4.4444 4.4444a.6.6 0 0 1 -.8486-.8477l3.37-3.37h-9.3231a.65.65 0 0 1 0-1.3008h9.3232l-3.37-3.37a.6.6 0 0 1 .8486-.8477l4.4444 4.4444a.5989.5989 0 0 1 -.0001.8474z"></path>
+															</svg>
+														</span>
+													</span>
+													<span class="globalnav-searchresults-list-text">Sample Code<span class="loc-en-only"></span></span>
+												</a>
+											</li>
+											<li class="globalnav-searchresults-list-item" role="listitem" style="--r-globalnav-flyout-item-number: 5;">
+												<a class="globalnav-searchresults-list-link" href="/videos/" data-query="no keyword" data-section="quicklinks" data-items="5" data-index="4" data-label="Videos">
+													<span class="globalnav-searchresults-list-icon">
+														<span class="globalnav-image-regular globalnav-link-image">
+															<svg height="16" viewBox="0 0 9 16" width="9" xmlns="http://www.w3.org/2000/svg">
+																<path d="m8.6124 8.1035-2.99 2.99a.5.5 0 0 1 -.7071-.7071l2.1366-2.1364h-6.316a.5.5 0 0 1 0-1h6.316l-2.1368-2.1367a.5.5 0 0 1 .7071-.7071l2.99 2.99a.5.5 0 0 1 .0002.7073z"></path>
+															</svg>
+														</span>
+														<span class="globalnav-image-compact globalnav-link-image">
+															<svg height="25" viewBox="0 0 13 25" width="13" xmlns="http://www.w3.org/2000/svg">
+																<path d="m12.3577 13.4238-4.4444 4.4444a.6.6 0 0 1 -.8486-.8477l3.37-3.37h-9.3231a.65.65 0 0 1 0-1.3008h9.3232l-3.37-3.37a.6.6 0 0 1 .8486-.8477l4.4444 4.4444a.5989.5989 0 0 1 -.0001.8474z"></path>
+															</svg>
+														</span>
+													</span>
+													<span class="globalnav-searchresults-list-text">Videos</span>
+												</a>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</li>
+			<!-- Account -->
+			<li id="globalnav-account" class="globalnav-item globalnav-account">
+				<div class="globalnav-account-wrapper">
+					<a href="/account/" aria-label="Account" class="globalnav-link globalnav-link-account">
+						<span class="globalnav-image-regular globalnav-link-image" aria-hidden="true">
+							<svg width="17" height="47" viewBox="0 0 117.045 120" xmlns="http://www.w3.org/2000/svg" focusable="false" preserveAspectRatio="xMidYMid meet">
+								<path fill="currentColor" d="M58.496,109.742c27.503,0 49.825,-22.271 49.825,-49.774c0,-27.503 -22.322,-49.773 -49.825,-49.773c-27.451,0 -49.773,22.27 -49.773,49.773c0,27.503 22.322,49.774 49.773,49.774zM58.496,101.474c-22.945,0 -41.465,-18.561 -41.465,-41.506c0,-22.944 18.52,-41.506 41.465,-41.506c22.945,0 41.506,18.562 41.506,41.506c0,22.945 -18.561,41.506 -41.506,41.506zM91.931,92.156l-0.156,-0.549c-2.433,-7.174 -15.338,-15.037 -33.279,-15.037c-17.92,0 -30.773,7.852 -33.227,15.005l-0.156,0.581c8.825,8.692 23.891,13.762 33.394,13.762c9.575,0 24.525,-5.028 33.424,-13.762zM58.496,68.304c9.398,0.103 16.759,-7.924 16.759,-18.421c0,-9.875 -7.393,-18.048 -16.759,-18.048c-9.314,0 -16.769,8.173 -16.707,18.048c0.052,10.497 7.31,18.317 16.707,18.421z" />
+							</svg>
+						</span>
+						<span class="globalnav-image-compact globalnav-link-image" aria-hidden="true">
+							<svg width="20" height="51" viewBox="0 0 117.045 120" xmlns="http://www.w3.org/2000/svg" focusable="false" preserveAspectRatio="xMidYMid meet">
+								<path fill="currentColor" d="M58.496,109.742c27.503,0 49.825,-22.271 49.825,-49.774c0,-27.503 -22.322,-49.773 -49.825,-49.773c-27.451,0 -49.773,22.27 -49.773,49.773c0,27.503 22.322,49.774 49.773,49.774zM58.496,101.474c-22.945,0 -41.465,-18.561 -41.465,-41.506c0,-22.944 18.52,-41.506 41.465,-41.506c22.945,0 41.506,18.562 41.506,41.506c0,22.945 -18.561,41.506 -41.506,41.506zM91.931,92.156l-0.156,-0.549c-2.433,-7.174 -15.338,-15.037 -33.279,-15.037c-17.92,0 -30.773,7.852 -33.227,15.005l-0.156,0.581c8.825,8.692 23.891,13.762 33.394,13.762c9.575,0 24.525,-5.028 33.424,-13.762zM58.496,68.304c9.398,0.103 16.759,-7.924 16.759,-18.421c0,-9.875 -7.393,-18.048 -16.759,-18.048c-9.314,0 -16.769,8.173 -16.707,18.048c0.052,10.497 7.31,18.317 16.707,18.421z" />
+							</svg>
+						</span>
+					</a>
+				</div>
+			</li>
+		</ul>
+		<div class="globalnav-menutrigger">
+			<button id="globalnav-menutrigger-button" aria-controls="globalnav-list" aria-label="Menu" class="globalnav-menutrigger-button"><svg width="18" height="18" viewBox="0 0 18 18">
+					<polyline id="globalnav-menutrigger-bread-bottom" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" points="2 12, 16 12" class="globalnav-menutrigger-bread globalnav-menutrigger-bread-bottom">
+						<animate id="globalnav-anim-menutrigger-bread-bottom-open" attributeName="points" keyTimes="0;0.5;1" dur="0.24s" begin="indefinite" fill="freeze" calcMode="spline" keySplines="0.42, 0, 1, 1;0, 0, 0.58, 1" values=" 2 12, 16 12; 2 9, 16 9; 3.5 15, 15 3.5"></animate>
+						<animate id="globalnav-anim-menutrigger-bread-bottom-close" attributeName="points" keyTimes="0;0.5;1" dur="0.24s" begin="indefinite" fill="freeze" calcMode="spline" keySplines="0.42, 0, 1, 1;0, 0, 0.58, 1" values=" 3.5 15, 15 3.5; 2 9, 16 9; 2 12, 16 12"></animate>
+					</polyline>
+					<polyline id="globalnav-menutrigger-bread-top" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" points="2 5, 16 5" class="globalnav-menutrigger-bread globalnav-menutrigger-bread-top">
+						<animate id="globalnav-anim-menutrigger-bread-top-open" attributeName="points" keyTimes="0;0.5;1" dur="0.24s" begin="indefinite" fill="freeze" calcMode="spline" keySplines="0.42, 0, 1, 1;0, 0, 0.58, 1" values=" 2 5, 16 5; 2 9, 16 9; 3.5 3.5, 15 15"></animate>
+						<animate id="globalnav-anim-menutrigger-bread-top-close" attributeName="points" keyTimes="0;0.5;1" dur="0.24s" begin="indefinite" fill="freeze" calcMode="spline" keySplines="0.42, 0, 1, 1;0, 0, 0.58, 1" values=" 3.5 3.5, 15 15; 2 9, 16 9; 2 5, 16 5"></animate>
+					</polyline>
+				</svg>
+			</button>
+		</div>
+	</div>
+	<span style="visibility: hidden; position: absolute; top: 0px; z-index: -1;">&nbsp;</span>
+</nav>
+<!-- <div class="globalnav-placeholder"></div> -->
+<script src="/assets/scripts/ac-globalnav.built.js?01172638057"></script>
+	<!-- metrics -->
+<script>
+	/* RSID: */
+	var s_account="awdappledeveloper"
+</script>	
+<script src="/assets/metrics/scripts/analytics.js"></script>
+<script>
+	s_sections = [
+		{
+			"pattern": "^/documentation",
+			"channel": "www.documentation.developer"
+		},
+		{
+			"pattern": "^/library",
+			"channel": "www.documentation.developer"
+		},
+		{
+			"pattern": "^/tutorials",
+			"channel": "www.documentation.developer"
+		},	
+		{
+			"pattern": "human\\-interface\\-guidelines",
+			"channel": "www.hig.developer"
+		},
+		{
+			"pattern": "/testflight/",
+			"channel": "www.appstoreconnect.developer"
+		},
+		{
+			"pattern": "/app\\-store\\-connect/",
+			"channel": "www.appstoreconnect.developer"
+		},
+		{
+			"pattern": "/support/app\\-store\\-connect/",
+			"channel": "www.appstoreconnect.developer"
+		},
+		{
+			"pattern": "/help/app\\-store\\-connect/",
+			"channel": "www.appstoreconnect.developer"
+		},
+		{
+			"pattern": "/wwdc/",
+			"channel": "www.wwdc.developer"
+		},
+		{
+			"pattern": "/wwdc\\d{2}/",
+			"channel": "www.wwdc.developer"
+		},
+		{
+			"pattern": "/videos/",
+			"channel": "www.videos.developer"
+		},
+		{
+			"pattern": "^/account",
+			"channel": "www.account.developer"
+		},
+		{
+			"pattern": "downloads?",
+			"channel": "www.download.developer"
+		},
+		{
+			"pattern": "/localization/",
+			"channel": "www.appstore.developer"
+		},	
+		{
+			"pattern": "/app\\-store/",
+			"channel": "www.appstore.developer"
+		},
+		{
+			"pattern": "/in\\-app\\-purchase/",
+			"channel": "www.appstore.developer"
+		},
+		{
+			"pattern": "/cn/",
+			"channel": "www.cn.developer"
+		},
+		{
+			"pattern": "/jp/",
+			"channel": "www.jp.developer"
+		},
+		{
+			"pattern": "/kr/",
+			"channel": "www.kr.developer"
+		},
+		{
+			"pattern": "/de/",
+			"channel": "www.de.developer"
+		},
+		{
+			"pattern": "/la/",
+			"channel": "www.la.developer"
+		},
+		{
+			"pattern": "/fr/",
+			"channel": "www.fr.developer"
+		},
+		{
+			"pattern": "/it/",
+			"channel": "www.it.developer"
+		},
+		{
+			"pattern": "/br/",
+			"channel": "www.br.developer"
+		}
+	];
+	
+	s.pageName= AC && AC.Tracking && AC.Tracking.pageName();
+	s.channel="www.en.developer";
+	
+	s_sections.forEach((s_section) => {
+		var regex = new RegExp(s_section.pattern);
+		
+		if(location.pathname.search(regex) !== -1) {
+			s.channel=s_section.channel;
+		}
+	});
+	
+	/************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+	var s_code=s.t();if(s_code)document.write(s_code)
+</script>
+<!-- /metrics -->
+	<link rel="stylesheet" property="stylesheet" href="/assets/styles/localnav.css" type="text/css" />
+<input type="checkbox" id="localnav-menustate" class="localnav-menustate"/>
+<nav id="localnav" class="localnav localnav-scrim" data-sticky role="navigation">
+    <div class="localnav-wrapper">
+        <div class="localnav-background"></div>
+        <div class="localnav-content">
+            <h2 class="localnav-title">
+                <a class="ac-ln-title-logo" href="/design/" data-analytics-title="product index">Design</a>
+            </h2>
+
+            <div class="localnav-menu">
+                <a href="#localnav-menustate" class="localnav-menucta-anchor localnav-menucta-anchor-open" id="localnav-menustate-open">
+                    <span class="localnav-menucta-anchor-label">Open Menu</span>
+                </a>
+                <a href="#" class="localnav-menucta-anchor localnav-menucta-anchor-close" id="localnav-menustate-close">
+                    <span class="localnav-menucta-anchor-label">Close Menu</span>
+                </a>
+                <div class="localnav-menu-tray">
+					<ul class="localnav-menu-items">
+						<li class="localnav-menu-item">
+							<a href="/design/" class="localnav-menu-link">Overview</a>
+						</li>
+						<li class="localnav-menu-item">
+							<a href="/design/whats-new/" class="localnav-menu-link">What’s New</a>
+						</li>
+						<li class="localnav-menu-item">
+							<a href="/design/get-started/" class="localnav-menu-link">Get Started</a>
+						</li>
+						<li class="localnav-menu-item">
+							<a href="/design/human-interface-guidelines/" class="localnav-menu-link">Guidelines</a>
+						</li>
+						<li class="localnav-menu-item">
+							<a href="/design/resources/" class="localnav-menu-link">Resources</a>
+						</li>
+
+					</ul>
+				</div>
+				<div class="localnav-actions">
+					<div class="localnav-action localnav-action-menucta" aria-hidden="true">
+						<label for="localnav-menustate" class="localnav-menucta">
+							<span class="localnav-menucta-chevron"></span>
+						</label>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</nav>
+<label id="localnav-curtain" for="localnav-menustate"></label>
+<script src="/assets/scripts/ac-localnav.built.js"></script>
+<script type="text/javascript" src="/assets/scripts/localnav.js"></script>
+
+	<main id="main" class="main" role="main">
+		<header role="presentation" class="section section-header">
+			<div class="section-content">
+				<div class="row">
+					<div class="column large-8 large-centered medium-9 small-12 text-center">
+
+						<h1 class="typography-hero-headline">Apple Design Resources</h1>
+						<p class="typography-intro">Design apps accurately and quickly using official Apple design templates, icon production templates, color guides, and&nbsp;more.</p>
+					</div>
+				</div>
+				<nav id="chapternav" class="chapternav">
+					<div class="chapternav-wrapper">
+						<ul class="chapternav-items">
+							<li class="chapternav-item chapternav-item-ios">
+								<a class="chapternav-link" href="#ios-apps">
+									<figure class="chapternav-icon platform-icon chapternav-icon platform-icon-ios"></figure>
+									<span class="chapternav-label nowrap">iOS &amp; iPadOS</span>
+								</a>
+							</li>
+							<li class="chapternav-item chapternav-item-ipados">
+								<a class="chapternav-link" href="#macos-apps">
+									<figure class="chapternav-icon platform-icon chapternav-icon platform-icon-macos"></figure>
+									<span class="chapternav-label nowrap">macOS</span>
+								</a>
+							</li>
+							<li class="chapternav-item chapternav-item-tvos">
+								<a class="chapternav-link" href="#tvos-apps">
+									<figure class="chapternav-icon platform-icon chapternav-icon platform-icon-tvos"></figure>
+									<span class="chapternav-label nowrap">tvOS</span>
+								</a>
+							</li>
+							<li class="chapternav-item chapternav-item-macos">
+								<a class="chapternav-link" href="#watchos-apps">
+									<figure class="chapternav-icon platform-icon chapternav-icon platform-icon-watchos"></figure>
+									<span class="chapternav-label nowrap">watchOS</span>
+								</a>
+							</li>
+							<li class="chapternav-item chapternav-item-visionos">
+								<a class="chapternav-link" href="#visionos-apps">
+									<figure class="chapternav-icon platform-icon chapternav-icon platform-icon-visionos"></figure>
+									<span class="chapternav-label nowrap">visionOS</span>
+								</a>
+							</li>
+							<li class="chapternav-item chapternav-item-program">
+								<a class="chapternav-link" href="#technologies">
+									<figure class="chapternav-icon platform-icon chapternav-icon platform-icon-tech"></figure>
+									<span class="chapternav-label nowrap">Technologies</span>
+								</a>
+							</li>
+							<li class="chapternav-item chapternav-item-app-store">
+								<a class="chapternav-link" href="#fonts">
+									<figure class="chapternav-icon platform-icon chapternav-icon platform-icon-fonts"></figure>
+									<span class="chapternav-label nowrap">Fonts</span>
+								</a>
+							</li>
+							<li class="chapternav-item chapternav-item-watchos">
+								<a class="chapternav-link" href="#tools">
+									<figure class="chapternav-icon platform-icon chapternav-icon platform-icon-symbols"></figure>
+									<span class="chapternav-label nowrap">Tools</span>
+								</a>
+							</li>
+							<li class="chapternav-item chapternav-item-program">
+								<a class="chapternav-link" href="#product-bezels">
+									<figure class="chapternav-icon platform-icon chapternav-icon platform-icon-marketing"></figure>
+									<span class="chapternav-label nowrap">Product Bezels</span>
+								</a>
+							</li>
+						</ul>
+						<div class="chapternav-paddles">
+							<button class="chapternav-paddle chapternav-paddle-left" aria-hidden="true" disabled=""></button>
+							<button class="chapternav-paddle chapternav-paddle-right" aria-hidden="true" disabled=""></button>
+						</div>
+					</div>
+				</nav>
+			</div>
+		</header>
+
+		<section class="section section-ios section-download bg-light" id="ios-apps">
+			<div class="section-content">
+
+				<h2 class="typography-section-headline">iOS and iPadOS</h2>
+
+				<h4 class="margin-top-small">iOS&nbsp;26 and iPadOS&nbsp;26</h4>
+				<div class="grid grid-gutterless">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-UIKit-iOS26_2x.png" width="100%" class="download-image" alt="" />
+						<h5>UI Kit</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1527721578857867021/ios-and-ipados-26" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/f63aa308-1f82-498c-8019-530f3b846db9" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-App-Icon-Template_2x.png" width="100%" class="download-image" alt="" />
+						<h5>App Icon Template</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://sketch.com/s/0ee52d20-8daf-49ef-b335-14020af3b060" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/iOS-26-Icon-Templates-Photoshop-Illustrator.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, Illustrator</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1514335373494164156/app-icon-template" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<hr>
+
+				<h4>iOS&nbsp;18 and iPadOS&nbsp;18</h4>
+				<div class="grid grid-gutterless">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/iOS16-Sketch-Library-small_2x.png" width="100%" class="download-image" alt="" />
+						<h5>UI Kit</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://sketch.com/s/bb57439f-19da-4c7a-bfd2-a196cf51f766" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/iOS18-Design-Templates_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Templates</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/iOS-18-Design-Templates-Sketch.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/iOS18-Production-Templates_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Production Templates</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/iOS-18-Production-Templates-Sketch.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Sketch</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/iOS-18-Production-Templates-Photoshop.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1387687009990313744/ios-18-and-ipados-18-app-icon-production-templates" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<hr />
+
+				<h4>iOS 16</h4>
+				<div class="grid grid-gutterless">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/iOS16-Design-Templates-Keynote-small_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Templates</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Thumbnail-Bezel-Keynote_2x.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Keynote</b></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section section-macos section-download" id="macos-apps">
+			<div class="section-content">
+
+				<h2 class="typography-section-headline">macOS</h2>
+
+				<h4 class="margin-top-small">macOS 26</h4>
+				<div class="grid grid-gutterless">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-UIKit-macOS26_2x.png" width="100%" class="download-image" alt="" />
+						<h5>UI Kit</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1543337041090580818/apple-design-resources-macos-26" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/7e5d41a8-dbde-4372-abf1-59792d73bc7c" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<hr>
+
+				<h4>macOS Sequoia</h4>
+				<div class="grid grid-gutterless">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/macOS12-Sketch-Library-small_2x.png" width="100%" class="download-image" alt="" />
+						<h5>UI Kit</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="sketch://add-library?url=https%3A%2F%2Fdeveloper.apple.com%2Fdesign%2Fdownloads%2Fsketch-macOS.rss" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Sketch</b></a>
+								<p class="typography-caption-headline download-text-description">Note: Sketch must be installed to download</p>
+							</div>
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1251588934545918753/apple-design-resources-macos" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/macOS-Sequoia-Design-Templates_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Templates</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/macOS-Sequoia-Design-Templates-Sketch.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/macOS12-Production-Templates-small_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Production Templates</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/macOS-Sequoia-Production-Templates-Sketch.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Sketch</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/macOS-Sequoia-Production-Templates-Photoshop.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop</b></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section section-tvos section-download bg-light" id="tvos-apps">
+			<div class="section-content">
+
+				<h2 class="typography-section-headline">tvOS</h2>
+
+				<h4 class="margin-top-small">tvOS 18</h4>
+				<div class="grid grid-gutterless">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/tvOS14-Sketch-Library-small_2x.png" width="100%" class="download-image" alt="" />
+						<h5>UI Kit</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="sketch://add-library?url=https%3A%2F%2Fdeveloper.apple.com%2Fdesign%2Fdownloads%2Fsketch-tvOS.rss" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Sketch</b></a>
+								<p class="typography-caption-headline download-text-description">Note: Sketch must be installed to download</p>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/tvOS18-Design-Templates_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Templates</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/tvOS-18-Design-Templates-Sketch.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/tvOS14-Production-Templates-small_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Production Templates</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/tvOS-18-Production-Templates-Sketch.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Sketch</b></a>
+								<p class="typography-caption-headline download-text-description">427 KB</p>
+							</div>
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/tvOS-18-Production-Templates-Photoshop.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop</b></a>
+								<p class="typography-caption-headline download-text-description">238 KB</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section section-watchos section-download" id="watchos-apps">
+			<div class="section-content">
+
+				<h2 class="typography-section-headline">watchOS</h2>
+
+				<h4 class="margin-top-small">watchOS 26</h4>
+				<div class="grid grid-gutterless">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/watchOS8-Sketch-Library-small_2x.png" width="100%" class="download-image" alt="" />
+						<h5>UI Kit</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1540060090060216489/watchos-26" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/2b12618d-596c-41fd-8488-132bff9535e7" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section section-visionos section-download bg-light" id="visionos-apps">
+			<div class="section-content">
+
+				<h2 class="typography-section-headline">visionOS</h2>
+
+				<h4 class="margin-top-small">visionOS 26</h4>
+				<div class="grid grid-gutterless margin-top-small">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-UIKit-visionS26_2x.png" width="100%" class="download-image" alt="" />
+						<h5>UI Kit</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1540071341298017505/visionos-26" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/eb13bfe1-2ddb-4f87-b92c-740a36abed7a" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<hr>
+
+				<h4 class="margin-top-small">visionOS 2</h4>
+				<div class="grid grid-gutterless margin-top-small">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/visionOS-2-Design-Templates_2x.png" width="100%" class="download-image" alt="" />
+						<h5>UI Kit</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="sketch://add-library?url=https%3A%2F%2Fdeveloper.apple.com%2Fdesign%2Fdownloads%2Fsketch-visionOS.rss" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Sketch</b></a>
+								<p class="typography-caption-headline download-text-description">Note: Sketch must be installed to download</p>
+							</div>
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1253443272911187215/apple-design-resources-visionos" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/visionOS-Design-Templates-small_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Templates</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/visionOS-2-Design-Templates-Sketch.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section section-technologies section-download" id="technologies">
+			<div class="section-content">
+
+				<h2 class="typography-section-headline">Technologies</h2>
+				<div class="grid grid-gutterless margin-top-small">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-Add-Apple-Watch-Face_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Add Apple&nbsp;Watch Face</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Glyph-Add-Apple-Watch-Face.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>PNG, PDF, SVG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-AirPlay_2x.png" width="100%" class="download-image" alt="" />
+						<h5>AirPlay</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Glyph-AirPlay.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>PDF</b></a>
+							</div>
+							<div class="row-download">
+								<a href="/design/human-interface-guidelines/airplay/" class="download-text-link list-icon-document"><b>Design Guidelines</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-App-Clips_2x.png" width="100%" class="download-image" alt="" />
+						<h5>App Clips Design&nbsp;Template</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1367914571662801866/app-clips" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/e6ed1af0-508c-4fd5-bc6f-05f7ccb91c6e" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-Apple-Health-Icon_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Apple Health Icon</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Icon-Apple-Health.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>PNG</b></a>
+							</div>
+							<div class="row-download">
+								<a href="/design/human-interface-guidelines/healthkit/" class="download-text-link list-icon-document"><b>Design Guidelines</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-Apple-Pay_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Apple Pay Design&nbsp;Template</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1367915141082663884/apple-pay" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/b0fa95e1-e12d-4694-895f-a70f39b8f313" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-ARKit-Badge-and-Glyph_2x.png" width="100%" class="download-image" alt="" />
+						<h5>ARKit Badge and&nbsp;Glyph</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Glyph-ARKit.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>PDF</b></a>
+							</div>
+							<div class="row-download">
+								<a href="/design/human-interface-guidelines/augmented-reality/" class="download-text-link list-icon-document"><b>Design Guidelines</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-Camera-Control_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Camera Control</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://sketch.com/s/85a0f9d2-d76c-42f9-b681-6225882d8024" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-Games-and-Game-Center_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Games and Game Center</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Icon-Game-Center.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>PNG, PDF</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-HomeKit-Icon-and-Glyph_2x.png" width="100%" class="download-image" alt="" />
+						<h5>HomeKit Icon and&nbsp;Glyph</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Icon-HomeKit.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>PNG, PDF</b></a>
+							</div>
+							<div class="row-download">
+								<a href="/design/human-interface-guidelines/homekit/" class="download-text-link list-icon-document"><b>Design Guidelines</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-Live-Activities_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Live Activities Template</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1367915437752334285/live-activities" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/d1e8992f-14c2-4eef-b29d-24a32c0c0ef9" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-Message-Template_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Messages Template</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1367916269438172112/imessage-apps-and-stickers" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/d6cd3d23-7aec-43d5-acb9-52f720ff48b7" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-SIWA-Logo_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Sign in with Apple Logo</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Logo-Sign-in-with-Apple.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>PNG, PDF, SVG</b></a>
+							</div>
+							<div class="row-download">
+								<a href="/design/human-interface-guidelines/sign-in-with-apple/" class="download-text-link list-icon-document"><b>Design Guidelines</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-SIWA-Buttons_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Sign in with Apple Buttons</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1367916685468040146/sign-in-with-apple" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/7cd7dbf4-41b2-4e90-bb00-2796ced3cf2b" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-Siri-and-App-Shortcuts_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Siri and App Shortcuts Template</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1367916969551216595/siri-app-shortcuts" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/84ba051b-c6ad-48c5-8106-28185947754a" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-Siri-Icons_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Siri Icons</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Icon-Siri.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-Tap-to-Pay_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Tap to Pay on iPhone Template</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1367917199004804052/tap-to-pay-on-iphone" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/fbd2fa90-fadd-403a-b319-0f4d7c04ae5f" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-TipKit_2x.png" width="100%" class="download-image" alt="" />
+						<h5>TipKit Template</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1367917705471226837/tipkit" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/b99f22e1-235e-481b-9ccd-aa7d8f31fedc" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Tech-Wallet_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Wallet Template</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://www.figma.com/community/file/1367917956770293718/wallet" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Figma</b></a>
+							</div>
+							<div class="row-download">
+								<a href="https://sketch.com/s/dd2ce40a-097e-486b-9053-b60088e1d6c3" class="download-text-link"><span class="icon icon-before icon-external icon-blue"></span><b>Sketch</b></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section section-technologies section-download bg-light" id="fonts">
+			<div class="section-content">
+
+				<h2 class="typography-section-headline">Fonts</h2>
+				<div class="grid grid-gutterless margin-top-small">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Font-SF-Pro_2x.png" width="100%" class="download-image" alt="" />
+						<h5>SF Pro</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/SF-Pro.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download SF Pro</b></a>
+								<p class="typography-caption-headline download-text-description">System font for iOS, iPadOS, macOS and tvOS.</p>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Font-SF-Compact_2x.png" width="100%" class="download-image" alt="" />
+						<h5>SF Compact</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/SF-Compact.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download SF Compact</b></a>
+								<p class="typography-caption-headline download-text-description">System font for watchOS, optimized for small sizes and narrow columns.</p>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Font-SF-Mono_2x.png" width="100%" class="download-image" alt="" />
+						<h5>SF Mono</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/SF-Mono.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download SF Mono</b></a>
+								<p class="typography-caption-headline download-text-description">Used in Xcode, enables alignment between rows and columns of text.</p>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Font-NY_2x.png" width="100%" class="download-image" alt="" />
+						<h5>New York</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/NY.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download New York</b></a>
+								<p class="typography-caption-headline download-text-description">Performs as a traditional reading face at small sizes and a graphic display face at larger sizes.</p>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Font-SF-Arabic_2x.png" width="100%" class="download-image" alt="" />
+						<h5>SF Arabic</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/SF-Arabic.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download SF Arabic</b></a>
+								<p class="typography-caption-headline download-text-description">Arabic system font on Apple platforms.</p>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Font-SF-Armenian_2x.png" width="100%" class="download-image" alt="" />
+						<h5>SF Armenian</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/SF-Armenian.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download SF Armenian</b></a>
+								<p class="typography-caption-headline download-text-description">Designed with proportions that have been adjusted for a better visual balance in multilingual typesetting.</p>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Font-SF-Georgian_2x.png" width="100%" class="download-image" alt="" />
+						<h5>SF Georgian</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/SF-Georgian.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download SF Georgian</b></a>
+								<p class="typography-caption-headline download-text-description">Supports modern Georgian, Mkhedruli, and Mtavruli uppercase forms.</p>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Font-SF-Hebrew_2x.png" width="100%" class="download-image" alt="" />
+						<h5>SF Hebrew</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/SF-Hebrew.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download SF Hebrew</b></a>
+								<p class="typography-caption-headline download-text-description">With full support of the Niqqud diacritical marks.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section section-sf-symbols section-download" id="tools">
+			<div class="section-content">
+
+				<h2 class="typography-section-headline">SF Symbols</h2>
+				<p class="large-10 medium-12">SF Symbols&nbsp;7 is a library of over 6,900 symbols designed to integrate seamlessly with San&nbsp;Francisco, the system font for Apple platforms. Symbols come in nine weights and three scales, automatically align with text, and can be exported and edited using vector graphics tools to create custom symbols with shared design characteristics and accessibility features. SF Symbols 7 introduces Draw animations and variable rendering, enhanced Magic Replace, gradients, and hundreds of new&nbsp;symbols.</p>
+				<p><a href="/sf-symbols/" class="more">Learn more</a></p>
+				<div class="grid grid-gutterless align-items-center margin-top">
+					<div class="grid-item large-span-5 medium-span-6 small-span-12 download-column-text">
+						<div class="download-grid">
+							<div class="download-icon">
+								<img class="image-file" src="/assets/elements/icons/sf-symbols-7/sf-symbols-7-48x48_2x.png" width="48" height="48" alt="" />
+							</div>
+							<div class="download-content">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/SF-Symbols-7.dmg?2"><span class="icon icon-after icon-arrowdowncircle">Download SF&nbsp;Symbols 7</span></a>
+								<p class="typography-caption">Requires macOS&nbsp;Sonoma or later.</p>
+							</div>
+							<div class="download-icon">
+								<img class="image-file" src="/assets/elements/icons/sf-symbols-7/sf-symbols-7-48x48_2x.png" width="48" height="48" alt="" />
+							</div>
+							<div class="download-content">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/SF-Symbols-6.dmg"><span class="icon icon-after icon-arrowdowncircle">Download SF&nbsp;Symbols 6</span></a>
+								<p class="typography-caption">Requires macOS&nbsp;Ventura or later.</p>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-7 medium-span-6 small-span-12 download-column">
+						<picture class="theme-light-image">
+							<img src="/design/resources/images/sf-symbols-7-light_2x.png" width="100%" alt="">
+						</picture>
+						<picture class="theme-dark-image">
+							<img src="/design/resources/images/sf-symbols-7-dark_2x.png" width="100%" alt="">
+						</picture>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section section-sf-symbols section-download bg-light">
+			<div class="section-content">
+
+				<h2 class="typography-section-headline">Icon Composer</h2>
+				<p class="large-10 medium-12">Icon Composer lets you create layered icons out of Liquid Glass from a single design for iPhone, iPad, Mac, and Apple&nbsp;Watch. With a new multi-layer icon format, you can easily adjust Liquid&nbsp;Glass properties, preview with dynamic lighting effects, and annotate across appearance modes. Icon&nbsp;Composer is designed to work seamlessly with Xcode, and also provides the option to export a flattened version of your icon for marketing and communication&nbsp;needs.</p>
+				<p><a href="/icon-composer/" class="more">Learn more</a></p>
+				<div class="grid grid-gutterless align-items-center margin-top">
+					<div class="grid-item large-span-5 medium-span-6 small-span-12 download-column-text">
+						<div class="download-grid">
+							<div class="download-icon">
+								<img class="image-file" src="/assets/elements/icons/icon-composer/icon-composer-48x48_2x.png" width="48" height="48" alt="" />
+							</div>
+							<div class="download-content">
+								<a href="/download/all/?q=Icon%20Composer"><span class="icon icon-after icon-arrowdowncircle">Download Icon Composer</span></a>
+								<p class="typography-caption">Requires macOS&nbsp;Sequoia or later.</p>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-7 medium-span-6 small-span-12 download-column">
+						<picture class="theme-light-image">
+							<source srcset="/icon-composer/images/poster-annotate-1_2x.webp" type="image/webp" />
+							<img src="/icon-composer/images/poster-annotate-1_2x.png" width="100%" alt="">
+						</picture>
+						<picture class="theme-dark-image">
+							<source srcset="/icon-composer/images/poster-annotate-2_2x.webp" type="image/webp" />
+							<img src="/icon-composer/images/poster-annotate-2_2x.png" width="100%" alt="">
+						</picture>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section section-technologies section-download" id="parallax-previewer">
+			<div class="section-content">
+
+				<h2 class="typography-section-headline">Parallax image tools</h2>
+				<p class="large-10 medium-12">Use Parallax Previewer and Parallax Exporter Plug-In for Adobe Photoshop to deliver parallax visual effects that transform static images into dynamic and immersive experiences on tvOS and&nbsp;visionOS.</p>
+				<div class="grid grid-gutterless margin-top-small">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/tvOS-Parallax-Previewer-App-small_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Parallax Previewer App</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://itunespartner.apple.com/assets/downloads/Parallax%20Previewer.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download version&nbsp;2 for macOS</b></a>
+								<p class="typography-caption-headline download-text-description">Requires macOS 13.5 or later.</p>
+							</div>
+							<div class="row-download">
+								<a href="https://itunespartner.apple.com/assets/downloads/Parallax%20Previewer_1_0.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download version&nbsp;1 for macOS</b></a>
+								<p class="typography-caption-headline download-text-description">Requires macOS 10.10.5 or later.</p>
+							</div>
+							<div class="row-download">
+								<a href="https://help.apple.com/itc/parallaxpreviewer/" class="download-text-link list-icon-document"><b>User Guide</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/tvOS-Parallax-Previewer-plugin-small_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Parallax Exporter Plug-In for Adobe&nbsp;Photoshop</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://itunespartner.apple.com/assets/downloads/ParallaxExporter_Apps.zip" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download for macOS</b></a>
+								<p class="typography-caption-headline download-text-description">Requires Adobe Photoshop 2023 (v24.1) or later and macOS&nbsp;12.4.0 or&nbsp;later.</p>
+							</div>
+							<div class="row-download">
+								<a href="https://itunespartner.apple.com/assets/downloads/ParallaxExporter_Windows.zip" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Download for Windows</b></a>
+								<p class="typography-caption-headline download-text-description">Requires Adobe Photoshop 2023 (v24.1) or later and Microsoft Windows 10 64-bit (version 22H2) or&nbsp;later.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section section-technologies section-download bg-light" id="product-bezels">
+			<div class="section-content">
+
+				<h2 class="typography-section-headline">Product Bezels</h2>
+				<p class="large-10 medium-12">When using product bezels in your marketing materials, be sure to review these <a href="/app-store/marketing/guidelines/#section-products">Marketing Resources and Identity Guidelines</a>.</p>
+				<div class="grid grid-gutterless margin-top-small">
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-AppleTV_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Apple TV</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-Apple-TV.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-AW-Ultra3_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Apple Watch Ultra 3 (2025)</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-Apple-Watch-Ultra-3-2025.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-AW-Ultra2_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Apple Watch Ultra 2 (2024)</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-Apple-Watch-Ultra-2-2024.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-AW-Series11_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Apple Watch Series&nbsp;11</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-Apple-Watch-Series-11-2025.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-Studio-Displays_2x.png" width="100%" class="download-image" alt="" />
+						<h5>Studio Displays</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-Studio-Displays.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-iMac_2x.png" width="100%" class="download-image" alt="" />
+						<h5>iMac</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-iMac-M4.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-iPad_2x.png" width="100%" class="download-image" alt="" />
+						<h5>iPad (A16)</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-iPad-(A16).dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-iPad-Air_2x.png" width="100%" class="download-image" alt="" />
+						<h5>iPad Air (M4)</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-iPad-Air-(M4).dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-iPad-mini_2x.png" width="100%" class="download-image" alt="" />
+						<h5>iPad mini (A17 Pro)</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-iPad-mini-(A17-Pro).dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-iPad-Pro_2x.png" width="100%" class="download-image" alt="" />
+						<h5>iPad Pro (M5)</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-iPad-Pro-(M5).dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-iPhone17_2x.png" width="100%" class="download-image" alt="" />
+						<h5>iPhone 17</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-iPhone-17.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-iPhone16_2x.png" width="100%" class="download-image" alt="" />
+						<h5>iPhone 16</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-iPhone-16.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-MacBook-Air-M5_2x.png" width="100%" class="download-image" alt="" />
+						<h5>MacBook Air M5</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-MacBook-Air-M5.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-MacBook-Pro-M5_2x.png" width="100%" class="download-image" alt="" />
+						<h5>MacBook Pro M5</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-MacBook-Pro-M5.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-MacBook-Neo_2x.png" width="100%" class="download-image" alt="" />
+						<h5>MacBook Neo</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Bezel-MacBook-Neo.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Photoshop, PNG</b></a>
+							</div>
+						</div>
+					</div>
+					<div class="grid-item large-span-4 medium-span-6 small-span-12">
+						<img src="/design/resources/images/thumbnails/Thumbnail-Bezel-Keynote_2x.png" width="100%" class="download-image" alt="" />
+						<h5>iPhone and iPad for Keynote Live&nbsp;Video</h5>
+						<div class="download-container">
+							<div class="row-download">
+								<a href="https://devimages-cdn.apple.com/design/resources/download/Keynote-Live-Video-Product-Bezel.dmg" class="download-text-link"><span class="icon icon-before icon-arrowdowncircle icon-blue"></span><b>Keynote</b></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section bg-alt">
+			<div class="section-content">
+				<div class="row">
+					<div class="column large-6 small-12">
+
+						<h2 class="typography-section-headline">Badges and Logos</h2>
+						<p>Find badges and logos for Apple technologies, such as Apple&nbsp;Health, Apple&nbsp;Wallet, Apple&nbsp;Music, and Apple&nbsp;Pay, that can be used in your app’s marketing material.</p>
+						<a href="/licensing-trademarks/" class="more">View Apple Badges and&nbsp;Logos</a>
+					</div>
+					<div class="column large-5 small-8 large-offset-1 small-offset-0">
+						<picture>
+							<img src="/design/resources/images/thumbnails/Marketing-Imagery-Badges_2x.png" width="100%" style="border-radius: 10px" alt="" />
+						</picture>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+	<link rel="stylesheet" href="/assets/styles/footer.dist.css?54232608030">
+<footer id="footer" class="footer" role="contentinfo" aria-labelledby="footer-label">
+    <div class="footer-content">
+        <h2 class="footer-label" id="footer-label">Developer Footer</h2>
+
+	<developer-breadcrumbs>
+		<li><a href="/design/">Design</a></li>
+		<li>Resources</li>
+	</developer-breadcrumbs>
+	        <nav class="footer-directory" aria-label="Apple Developer Directory" role="navigation">
+	<!--googleoff: all-->
+	<div class="footer-directory-column">
+		<input class="footer-directory-column-section-state" type="checkbox" id="footer-directory-column-section-state-platform" />
+		<div class="footer-directory-column-section">
+			<label class="footer-directory-column-section-label" for="footer-directory-column-section-state-platform">
+				<h3 class="footer-directory-column-section-title">Platforms</h3>
+			</label>
+			<a href="#footer-directory-column-section-state-platform" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-open"> <span class="footer-directory-column-section-anchor-label">Open Menu</span> </a>
+			<a href="#" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-close"> <span class="footer-directory-column-section-anchor-label">Close Menu</span> </a>
+			<ul class="footer-directory-column-section-list">
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/ios/">iOS</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/ipados/">iPadOS</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/macos/">macOS</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/tvos/">tvOS</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/visionos/">visionOS</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/watchos/">watchOS</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/app-store/">App Store</a></li>
+			</ul>
+		</div>
+
+		<input class="footer-directory-column-section-state" type="checkbox" id="footer-directory-column-section-state-tools" />
+		<div class="footer-directory-column-section">
+			<label class="footer-directory-column-section-label" for="footer-directory-column-section-state-tools">
+				<h3 class="footer-directory-column-section-title">Tools</h3>
+			</label>
+			<a href="#footer-directory-column-section-state-tools" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-open"> <span class="footer-directory-column-section-anchor-label">Open Menu</span> </a>
+			<a href="#" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-close"> <span class="footer-directory-column-section-anchor-label">Close Menu</span> </a>
+			<ul class="footer-directory-column-section-list">
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/swift/">Swift</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/swiftui/">SwiftUI</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/swift-playground/">Swift Playground</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/testflight/">TestFlight</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/xcode/">Xcode</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/xcode-cloud/">Xcode Cloud</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/icon-composer/">Icon Composer</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/sf-symbols/">SF Symbols</a></li>
+
+			</ul>
+		</div>
+	</div>
+
+	<div class="footer-directory-column">
+		<input class="footer-directory-column-section-state" type="checkbox" id="footer-directory-column-section-state-topics" />
+		<div class="footer-directory-column-section">
+			<label class="footer-directory-column-section-label" for="footer-directory-column-section-state-topics">
+				<h3 class="footer-directory-column-section-title">Technologies</h3>
+			</label>
+			<a href="#footer-directory-column-section-state-topics" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-open"> <span class="footer-directory-column-section-anchor-label">Open Menu</span> </a>
+			<a href="#" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-close"> <span class="footer-directory-column-section-anchor-label">Close Menu</span> </a>
+			<ul class="footer-directory-column-section-list">
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/accessibility/">Accessibility</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/accessories/">Accessories</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/apple-intelligence/">Apple Intelligence</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/audio/">Audio &amp; Video</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/augmented-reality/">Augmented Reality</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/business/">Business</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/design/">Design</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/distribute/">Distribution</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/education/">Education</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/games/">Games</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/health-fitness/">Health &amp; Fitness</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/in-app-purchase/">In-App Purchase</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/localization/">Localization</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/maps/">Maps &amp; Location</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/machine-learning/">Machine Learning & AI</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/security/">Security</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/safari/">Safari &amp; Web</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="footer-directory-column">
+		<input class="footer-directory-column-section-state" type="checkbox" id="footer-directory-column-section-state-resources" />
+		<div class="footer-directory-column-section">
+			<label class="footer-directory-column-section-label" for="footer-directory-column-section-state-resources">
+				<h3 class="footer-directory-column-section-title">Resources</h3>
+			</label>
+			<a href="#footer-directory-column-section-state-resources" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-open"> <span class="footer-directory-column-section-anchor-label">Open Menu</span> </a>
+			<a href="#" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-close"> <span class="footer-directory-column-section-anchor-label">Close Menu</span> </a>
+			<ul class="footer-directory-column-section-list">
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/documentation/">Documentation</a></li>
+<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/download/">Downloads</a></li>
+		<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/documentation/samplecode">Sample Code</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/videos/">Videos</a></li>
+			</ul>
+		</div>
+
+		<input class="footer-directory-column-section-state" type="checkbox" id="footer-directory-column-section-state-support" />
+		<div class="footer-directory-column-section">
+			<label class="footer-directory-column-section-label" for="footer-directory-column-section-state-support">
+				<h3 class="footer-directory-column-section-title">Support</h3>
+			</label>
+			<a href="#footer-directory-column-section-state-support" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-open"> <span class="footer-directory-column-section-anchor-label">Open Menu</span> </a>
+			<a href="#" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-close"> <span class="footer-directory-column-section-anchor-label">Close Menu</span> </a>
+			<ul class="footer-directory-column-section-list">
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/help/">Help Guides & Articles</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/contact/">Contact Us</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/forums/">Forums</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/bug-reporting/">Feedback & Bug Reporting</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/system-status/">System Status</a></li>
+			</ul>
+		</div>
+
+		<input class="footer-directory-column-section-state" type="checkbox" id="footer-directory-column-section-state-account" />
+		<div class="footer-directory-column-section">
+			<label class="footer-directory-column-section-label" for="footer-directory-column-section-state-account">
+				<h3 class="footer-directory-column-section-title">Account</h3>
+			</label>
+			<a href="#footer-directory-column-section-state-account" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-open"> <span class="footer-directory-column-section-anchor-label">Open Menu</span> </a>
+			<a href="#" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-close"> <span class="footer-directory-column-section-anchor-label">Close Menu</span> </a>
+			<ul class="footer-directory-column-section-list">
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/account/">Apple Developer</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="https://appstoreconnect.apple.com/">App Store Connect</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/account/ios/certificate/">Certificates, IDs, &amp; Profiles</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="https://feedbackassistant.apple.com/">Feedback Assistant</a></li>
+			</ul>
+		</div>
+	</div>
+	
+	<div class="footer-directory-column">
+		<input class="footer-directory-column-section-state" type="checkbox" id="footer-directory-column-section-state-programs" />
+		<div class="footer-directory-column-section">
+			<label class="footer-directory-column-section-label" for="footer-directory-column-section-state-programs">
+				<h3 class="footer-directory-column-section-title">Programs</h3>
+			</label>
+			<a href="#footer-directory-column-section-state-programs" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-open"> <span class="footer-directory-column-section-anchor-label">Open Menu</span> </a>
+			<a href="#" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-close"> <span class="footer-directory-column-section-anchor-label">Close Menu</span> </a>
+			<ul class="footer-directory-column-section-list">
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/programs/">Apple Developer Program</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/programs/enterprise/">Apple Developer Enterprise Program</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/app-store/small-business-program/">App Store Small Business Program</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="https://mfi.apple.com/">MFi Program</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/programs/mini-apps-partner/">Mini Apps Partner Program</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/programs/news-partner/">News Partner Program</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/programs/video-partner/">Video Partner Program</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/security-bounty/">Security Bounty Program</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/programs/security-research-device/">Security Research Device Program</a></li>
+			</ul>
+		</div>
+
+		<input class="footer-directory-column-section-state" type="checkbox" id="footer-directory-column-section-state-events" />
+		<div class="footer-directory-column-section">
+			<label class="footer-directory-column-section-label" for="footer-directory-column-section-state-events">
+				<h3 class="footer-directory-column-section-title">Events</h3>
+			</label>
+			<a href="#footer-directory-column-section-state-events" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-open"> <span class="footer-directory-column-section-anchor-label">Open Menu</span> </a>
+			<a href="#" class="footer-directory-column-section-anchor footer-directory-column-section-anchor-close"> <span class="footer-directory-column-section-anchor-label">Close Menu</span> </a>
+			<ul class="footer-directory-column-section-list">
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/events/">Meet with Apple</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/events/developer-centers/">Apple Developer Centers</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/app-store/app-store-awards/">App Store Awards</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/design/awards/">Apple Design Awards</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/academies/">Apple Developer Academies</a></li>
+				<li class="footer-directory-column-section-item"><a class="footer-directory-column-section-link" href="/wwdc/">WWDC</a></li>
+			</ul>
+		</div>
+	</div>
+	<!--googleon: all-->
+</nav>
+        <section class="footer-mini" vocab="http://schema.org/" typeof="Organization">
+	<div class="footer-mini-news">
+		<div class="copy">
+			<div class="footer-mini-legal-link">Read the <a href="/news/">latest news</a>.</div> Get the <a href="https://apps.apple.com/us/app/apple-developer/id640199958">Apple Developer app</a>.
+		</div>
+		<div class="content">
+			<div class="color-scheme-toggle"
+				role="radiogroup"
+				tabindex="0"
+				aria-label="Select a color scheme preference">
+
+				<label data-color-scheme-option="light">
+
+					<input type="radio" value="light" autocomplete="off"
+						onchange="window.setPreferredColorScheme(event.target.value)" />
+
+					<div class="text">Light</div>
+
+				</label>
+
+				<label data-color-scheme-option="dark">
+
+					<input type="radio" value="dark" autocomplete="off"
+						onchange="window.setPreferredColorScheme(event.target.value)" />
+
+					<div class="text">Dark</div>
+
+				</label>
+
+				<label data-color-scheme-option="auto">
+
+					<input type="radio" value="auto" autocomplete="off"
+						onchange="window.setPreferredColorScheme(event.target.value)" />
+
+					<div class="text">Auto</div>
+
+				</label>
+
+			</div>
+			<script async src="/assets/scripts/color-scheme-toggle.js"></script>
+		</div>
+	</div>
+	<link rel="stylesheet" href="/assets/styles/language-dropdown.css?54232608030">
+	<div class="language-dropdown dropdown-container legacy-form hidden">
+		<select class="dropdown" aria-label="Language Dropdown"></select>
+		<span class="dropdown-icon icon icon-chevrondown" aria-hidden="true"></span>
+	</div>
+	<script src="/assets/scripts/language-dropdown.js?45232608030"></script>
+	<div class="footer-mini-legal">
+		<div class="footer-mini-legal-copyright">Copyright ©  2026 <a href="https://www.apple.com">Apple Inc.</a> All rights reserved.</div>
+		<div class="footer-mini-legal-links">
+			<a class="footer-mini-legal-link" href="https://www.apple.com/legal/internet-services/terms/site.html" class="first">Terms of Use</a>
+			<a class="footer-mini-legal-link" href="https://www.apple.com/legal/privacy/">Privacy Policy</a>
+			<a class="footer-mini-legal-link" href="/support/terms/">Agreements and Guidelines</a>
+		</div>
+	</div>
+</section>
+    </div>
+</footer>
+
+	<script src="/assets/scripts/chapternav.js"></script>
+</body>
+</html>

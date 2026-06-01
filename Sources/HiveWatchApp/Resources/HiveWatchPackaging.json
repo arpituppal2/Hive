@@ -1,0 +1,23 @@
+{
+  "name": "Hive Watch",
+  "minimumWatchOSVersion": "10.0",
+  "appBundleIdentifier": "local.hive.watch",
+  "extensionBundleIdentifier": "local.hive.watch.extension",
+  "companionBundleIdentifier": "local.hive.mobile",
+  "supportsIndependentOperation": true,
+  "supportsComplications": true,
+  "supportsNotifications": true,
+  "supportsVoiceCapture": true,
+  "localAIAvailableOnWatch": false,
+  "navigation": {
+    "primaryInput": "digitalCrown",
+    "orientation": "vertical",
+    "touchFallback": true,
+    "crownPressReservedForSystem": true
+  },
+  "complications": {
+    "families": ["circular", "inline", "rectangular", "corner"],
+    "maximumRefreshWindowMinutes": 5,
+    "redactsPrivateContentOnAlwaysOn": true
+  }
+}

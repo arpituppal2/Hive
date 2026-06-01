@@ -1,0 +1,43 @@
+{
+  "appGroupIdentifier": "group.local.hive",
+  "bundleIdentifier": "local.hive.mobile",
+  "deviceFamilies": [
+    "iPhone",
+    "iPad"
+  ],
+  "displayName": "Hive",
+  "inputs": [
+    "multiTouch",
+    "virtualKeyboard",
+    "hardwareKeyboard",
+    "pointer",
+    "applePencil",
+    "voice",
+    "dragAndDrop"
+  ],
+  "interAppCapabilities": [
+    "shareSheet",
+    "dragAndDrop",
+    "openInPlace",
+    "widgets"
+  ],
+  "localAI": {
+    "appleIntelligencePreferred": true,
+    "fallback": "Indexed Wiki"
+  },
+  "minimumOSVersion": "17.0",
+  "platform": "iPadOS",
+  "requiresFullScreen": false,
+  "supportedInterfaceOrientations": [
+    "portrait",
+    "portraitUpsideDown",
+    "landscapeLeft",
+    "landscapeRight"
+  ],
+  "supportsExternalDisplay": true,
+  "supportsMultipleWindows": true,
+  "supportsStageManager": true,
+  "widgets": [
+    "HiveMemoryWidget"
+  ]
+}
