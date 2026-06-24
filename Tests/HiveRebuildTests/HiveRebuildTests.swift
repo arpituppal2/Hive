@@ -1929,7 +1929,7 @@ final class HiveRebuildTests: XCTestCase {
         XCTAssertTrue(speechInput.contains("private static let sharedSynthesizer = AVSpeechSynthesizer()"))
         XCTAssertTrue(speechInput.contains("synthesizer.stopSpeaking(at: .immediate)"))
         XCTAssertTrue(speechInput.contains("appendStreamingToken"))
-        XCTAssertTrue(speechInput.contains("speakStreamingResponse<Tokens: AsyncSequence>"))
+        XCTAssertTrue(speechInput.contains("speakStreamingResponse<Tokens: AsyncSequence & Sendable>"))
         XCTAssertTrue(speechInput.contains("finishStreamingResponse"))
         XCTAssertTrue(speechInput.contains("utterance.rate = 0.52"))
         XCTAssertTrue(speechInput.contains("AVSpeechSynthesisVoice(identifier: identifier)"))
