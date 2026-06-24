@@ -7,3 +7,4 @@ Design/AppleResources/downloads/
 *.sqlite-wal
 *.sqlite-shm
 tmp-test-data/
+node_modules/
