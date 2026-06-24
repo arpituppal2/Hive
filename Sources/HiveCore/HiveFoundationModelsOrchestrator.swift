@@ -1215,11 +1215,12 @@ public actor HiveFoundationModelsOrchestrator {
     }
 
     private func onlineSourcePrompt(sourceID: String, url: URL, capturedText: String, userPrompt: String?) -> String {
+        let resolvedPrompt = userPrompt.flatMap { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : $0 } ?? "Fold durable knowledge into existing Colony articles."
         budget.trimPrompt("""
         Summarize one user-approved online source capture.
         Source ID: \(sourceID)
         Approved URL: \(url.absoluteString)
-        User prompt: \(userPrompt?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false ? userPrompt! : "Fold durable knowledge into existing Colony articles.")
+        User prompt: \(resolvedPrompt)
 
         Captured text:
         \(budget.trimRaw(capturedText))

@@ -25,9 +25,8 @@ public struct WikiArticleConsolidator: Sendable {
         let selected = pages.filter { requested.contains($0.id) && $0.isUserVisibleArticle }
         guard selected.count >= 2 else { return nil }
 
-        let primary = primaryPageID
-            .flatMap { id in selected.first { $0.id == id } }
-            ?? selected.sorted { $0.updatedAt > $1.updatedAt }.first!
+        guard let primary = primaryPageID.flatMap({ id in selected.first { $0.id == id } })
+            ?? selected.sorted { $0.updatedAt > $1.updatedAt }.first else { return nil }
         let secondary = selected.filter { $0.id != primary.id }
             .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
 

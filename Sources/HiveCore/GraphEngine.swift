@@ -202,7 +202,8 @@ public struct GraphEngine: Sendable {
         }
 
         for loop in analysis.loops.prefix(learningSettings.maximumMarkovLoopCount) {
-            let pairs = zip(loop.nodeIDs, loop.nodeIDs.dropFirst() + [loop.nodeIDs[0]])
+            guard let firstNodeID = loop.nodeIDs.first else { continue }
+            let pairs = zip(loop.nodeIDs, loop.nodeIDs.dropFirst() + [firstNodeID])
             for (fromID, toID) in pairs {
                 guard fromID != toID else { continue }
                 let key = "\(fromID)|\(RelationshipPredicate.markovLoop.rawValue)|\(toID)"

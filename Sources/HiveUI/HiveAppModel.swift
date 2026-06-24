@@ -541,7 +541,14 @@ public final class HiveAppModel: ObservableObject {
         } catch {
             let fallback = HivePaths(root: FileManager.default.temporaryDirectory.appendingPathComponent("Hive", isDirectory: true))
             self.paths = fallback
-            self.store = try! HiveStore(databaseURL: fallback.database)
+            if let fileStore = try? HiveStore(databaseURL: fallback.database) {
+                self.store = fileStore
+            } else if let memoryStore = try? HiveStore(databaseURL: URL(fileURLWithPath: ":memory:")) {
+                self.store = memoryStore
+                self.errorText = "Hive could not open its database file and is running in temporary memory mode. Your data will not be saved until this is resolved."
+            } else {
+                self.store = try! HiveStore(databaseURL: URL(fileURLWithPath: ":memory:"))
+            }
             self.controlPlane = ControlPlane(store: store, paths: fallback)
             self.ingestionEngine = IngestionCoordinator(paths: fallback, store: store)
             self.knowledgeLoop = KnowledgeLoop(store: store, paths: fallback)
@@ -1139,9 +1146,9 @@ public final class HiveAppModel: ObservableObject {
             appendSwarmMessage(
                 threadID: threadID,
                 speaker: .swarm,
-                text: "That needs online information. Paste a link for Field to capture, or save a Cloud key for explicit online Ask. I will not browse or crawl without one of those.",
+                text: "I can answer from your local memory, or pull this in from the web once you add a Cloud key in Settings or paste a link for Field to capture.",
                 citations: references,
-                note: "Online source needed"
+                note: "Local memory"
             )
             return
         }

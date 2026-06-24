@@ -43,8 +43,9 @@ public struct WikiMarpDeckExporter: Sendable {
         var fileURL: URL?
         if let destinationDirectory {
             try FileManager.default.createDirectory(at: destinationDirectory, withIntermediateDirectories: true)
-            fileURL = destinationDirectory.appendingPathComponent("\(slug).marp.md")
-            try markdown.write(to: fileURL!, atomically: true, encoding: .utf8)
+            let destinationFile = destinationDirectory.appendingPathComponent("\(slug).marp.md")
+            try markdown.write(to: destinationFile, atomically: true, encoding: .utf8)
+            fileURL = destinationFile
         }
         let page = WikiPageRecord(
             id: id,
