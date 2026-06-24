@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BRANCH="${HIVE_SYNC_BRANCH:-arpituppal2/hive-production-rebuild-82c2}"
+KEEP_LOCAL_CHANGES="${HIVE_KEEP_LOCAL_CHANGES:-0}"
 
 cd "$ROOT"
 
@@ -14,15 +15,24 @@ if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "==> Fetching origin"
-git fetch origin
+echo "==> Fetching origin/$BRANCH"
+git fetch origin "$BRANCH"
+
+if [[ "$KEEP_LOCAL_CHANGES" == "1" ]]; then
+  echo "==> Stashing local changes before sync"
+  git stash push -u -m "hive-sync-backup $(date +%Y-%m-%dT%H%M%S)" || true
+fi
 
 echo "==> Checking out $BRANCH"
-git checkout "$BRANCH"
-git pull --ff-only origin "$BRANCH"
+if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
+  git checkout "$BRANCH"
+else
+  git checkout -B "$BRANCH" "origin/$BRANCH"
+fi
 
-echo "==> Restoring canonical Sources/HiveMacApp from git"
-git checkout HEAD -- Sources/HiveMacApp/
+echo "==> Resetting working tree to origin/$BRANCH"
+git reset --hard "origin/$BRANCH"
+git clean -fd
 
 echo "==> Removing known local-only files that break macOS builds"
 rm -f \
@@ -41,10 +51,11 @@ rm -rf ~/Library/Developer/Xcode/DerivedData/Hive-*
 rm -rf ~/Library/Caches/org.swift.swiftpm
 xattr -cr "$ROOT" 2>/dev/null || true
 
-echo "==> Expected HiveMacApp sources:"
+echo "==> HiveMacApp sources:"
 ls -1 Sources/HiveMacApp
 
 echo
-echo "Done. Next:"
+echo "Synced to $(git rev-parse --short HEAD) on $BRANCH"
+echo "Next:"
 echo "  open Package.swift"
 echo "In Xcode: File > Packages > Reset Package Caches, then Product > Clean Build Folder, then build HiveApp."

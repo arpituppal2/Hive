@@ -24,18 +24,25 @@ Swift requires `var` for computed properties. This file is **not referenced anyw
 
 ## Fastest fix (Downloads copy)
 
-Run this in Terminal:
+If `git pull` fails with "local changes would be overwritten", hard-reset first:
 
 ```bash
 cd /Users/arpituppal/Downloads/Hive
+git fetch origin arpituppal2/hive-production-rebuild-82c2
+git checkout arpituppal2/hive-production-rebuild-82c2 2>/dev/null || git checkout -B arpituppal2/hive-production-rebuild-82c2 origin/arpituppal2/hive-production-rebuild-82c2
+git reset --hard origin/arpituppal2/hive-production-rebuild-82c2
+git clean -fd
+./scripts/sync-macos-build.sh
+open Package.swift
+```
 
-# Option A — delete the unused broken file (fastest)
+Manual cleanup only (if you cannot reset yet):
+
+```bash
+cd /Users/arpituppal/Downloads/Hive
 rm -f Sources/HiveCore/ReindexEngine.swift
-
-# Option B — replace with the fixed version from the branch
-# git fetch origin arpituppal2/hive-production-rebuild-82c2
-# git checkout origin/arpituppal2/hive-production-rebuild-82c2 -- Sources/HiveCore/ReindexEngine.swift
-
+rm -f Sources/HiveMacApp/HiveAppModel.swift Sources/HiveMacApp/HivePrompt10AppKit.swift
+rm -f Sources/HiveDesignSystem/AnimationKit.swift
 rm -rf ~/Library/Developer/Xcode/DerivedData/Hive-*
 open Package.swift
 ```

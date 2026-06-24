@@ -30,9 +30,36 @@ Local-only files that must be deleted:
 
 ## Fix
 
-`Package.swift` now lists an explicit `sources` allowlist for `HiveMacApp`, so stray files like `HiveAppModel.swift` are ignored even if they remain on disk. You still need the canonical `HiveMacRootView.swift` from git — run the sync script if that file was edited locally.
+`Package.swift` lists an explicit `sources` allowlist for `HiveMacApp`, so stray files like `HiveAppModel.swift` are ignored after sync. You still need the canonical branch tree — local edits in Downloads will block `git pull`.
 
-From the repo root:
+### If git says "local changes would be overwritten"
+
+Your Downloads copy has drifted. Discard it and match the branch exactly:
+
+```bash
+cd /Users/arpituppal/Downloads/Hive
+git fetch origin arpituppal2/hive-production-rebuild-82c2
+git checkout arpituppal2/hive-production-rebuild-82c2 || git checkout -B arpituppal2/hive-production-rebuild-82c2 origin/arpituppal2/hive-production-rebuild-82c2
+git reset --hard origin/arpituppal2/hive-production-rebuild-82c2
+git clean -fd
+./scripts/sync-macos-build.sh
+open Package.swift
+```
+
+Or as a one-liner after `cd` into the repo:
+
+```bash
+git fetch origin arpituppal2/hive-production-rebuild-82c2 && git checkout arpituppal2/hive-production-rebuild-82c2 2>/dev/null || git checkout -B arpituppal2/hive-production-rebuild-82c2 origin/arpituppal2/hive-production-rebuild-82c2; git reset --hard origin/arpituppal2/hive-production-rebuild-82c2 && git clean -fd && ./scripts/sync-macos-build.sh && open Package.swift
+```
+
+To keep a backup of local edits first:
+
+```bash
+HIVE_KEEP_LOCAL_CHANGES=1 ./scripts/sync-macos-build.sh
+git stash list
+```
+
+### Normal sync (already on branch, clean tree)
 
 ```bash
 git pull origin arpituppal2/hive-production-rebuild-82c2
