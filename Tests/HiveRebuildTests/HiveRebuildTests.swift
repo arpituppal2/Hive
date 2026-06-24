@@ -4465,6 +4465,8 @@ final class HiveRebuildTests: XCTestCase {
         XCTAssertTrue(appModel.contains("public func processSettledUploadBatch()"))
         XCTAssertTrue(appModel.contains("public func configureStartupSourcePlugins("))
         XCTAssertTrue(appModel.contains("@Published public var sourcePluginStatusText"))
+        XCTAssertFalse(appModel.contains("Online source needed"), "Swarm must not surface the forbidden 'Online source needed' error note")
+        XCTAssertFalse(appModel.contains("try! HiveStore(databaseURL: fallback.database)"), "HiveAppModel.init must not force-try the file store and risk a launch crash")
         XCTAssertTrue(appModel.contains("HiveStartupSourcePluginBackend().execute"))
         XCTAssertTrue(appModel.contains("uploadedURLs: uploadedURLs"))
         XCTAssertTrue(appModel.contains("browserHistoryURLs: browserHistoryURLs"))
