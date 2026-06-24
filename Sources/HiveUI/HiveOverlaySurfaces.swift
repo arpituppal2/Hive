@@ -1458,7 +1458,7 @@ public struct HiveSettingsSurface: View {
             if !showInDock && !menuBarExtraVisible {
                 Text("Either Dock or menu bar visibility must stay enabled.")
                     .font(HiveTypography.chromeFootnote)
-                    .foregroundStyle(HiveColorToken.signalCritical.color)
+                    .foregroundStyle(HiveColorToken.conflict.color)
             }
             Text("Menu bar controls stay focused on capture, Live, and opening Hive.")
                 .font(HiveTypography.chromeFootnote)
