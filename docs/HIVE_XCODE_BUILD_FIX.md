@@ -94,36 +94,67 @@ dyld: Library not loaded: @rpath/BuildServerProtocol.framework/...
 Referenced from: .../CommandLineTools/usr/bin/swift-package
 ```
 
-Cause: `swift` on your PATH is the **standalone Command Line Tools** build, which is missing SwiftPM frameworks that ship with full Xcode.
+or:
 
-Fix:
+```text
+xcode-select: error: invalid developer directory '/Applications/Xcode.app/Contents/Developer'
+/Library/Developer/CommandLineTools
+```
+
+Cause: only **Command Line Tools** are installed. Hive is a macOS SwiftUI app and needs **full Xcode**, not CLT alone. CLT’s `swift-package` is missing `BuildServerProtocol.framework`.
+
+### Step 1 — Install Xcode
+
+1. Open the **Mac App Store**
+2. Search for **Xcode**
+3. Install it (large download)
+4. Open **Xcode** once and finish setup (license, components)
+
+Verify:
+
+```bash
+ls /Applications/Xcode.app/Contents/Developer
+```
+
+### Step 2 — Point the toolchain at Xcode
 
 ```bash
 sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 xcode-select -p
-which swift
-xcrun --find swift
-./scripts/run_hive_app.sh
 ```
 
-Expected `xcode-select -p`:
+Expected:
 
 ```text
 /Applications/Xcode.app/Contents/Developer
 ```
 
-If `which swift` still points at `/Library/Developer/CommandLineTools/...`, either:
-
-- run via `xcrun swift run HiveApp`, or
-- open `Package.swift` in Xcode and use **Product → Run**
-
-If the error persists after switching `xcode-select`, open Xcode once, accept the license, and install any offered components. As a last resort:
+### Step 3 — Build and run Hive
 
 ```bash
-sudo rm -rf /Library/Developer/CommandLineTools
-xcode-select --install
-sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+cd /Users/arpituppal/Downloads/Hive
+git pull origin arpituppal2/hive-production-rebuild-82c2
+open Package.swift
 ```
+
+In Xcode: **Product → Run** (⌘R)
+
+Or from Terminal:
+
+```bash
+./scripts/run_hive_app.sh
+```
+
+### If Xcode is installed somewhere else
+
+```bash
+mdfind "kMDItemCFBundleIdentifier == 'com.apple.dt.Xcode'" 
+sudo xcode-select -s "/path/to/Xcode.app/Contents/Developer"
+```
+
+### CLT-only Macs cannot build Hive
+
+Command Line Tools alone are not enough for this project. Do not rely on bare `swift run HiveApp` until full Xcode is installed.
 
 ## Local copy drift (many HiveMacApp errors)
 
