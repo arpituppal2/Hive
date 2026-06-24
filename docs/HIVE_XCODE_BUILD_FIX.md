@@ -10,34 +10,66 @@ Xcode reports cascading errors such as:
 
 ## Root cause
 
-These are usually cascade failures after `HiveCore` fails to compile first.
+These are cascade failures after `HiveCore` fails to compile first.
 
-A common concrete blocker is invalid Swift in `Sources/HiveCore/ReindexEngine.swift`, for example:
+The real blocker is usually invalid Swift in a **local** file:
+
+`Sources/HiveCore/ReindexEngine.swift` at lines 76–78:
 
 ```swift
 let phase: ReindexEnginePhase { ... } // invalid: computed properties cannot use `let`
 ```
 
-## Fix
+Swift requires `var` for computed properties. This file is **not referenced anywhere** in the repo; re-index uses `HiveReindexTrustCoordinator` directly. A broken local copy is enough to block the entire build.
 
-1. Pull latest branch containing the corrected `Sources/HiveCore/ReindexEngine.swift`.
-2. Open the package directly:
-   - `open Package.swift`
-3. Do **not** open a stale generated `.xcodeproj` unless it is regenerated from the package.
-4. Clean build folder in Xcode (`Product > Clean Build Folder`).
-5. Delete stale DerivedData if needed:
-   - `rm -rf ~/Library/Developer/Xcode/DerivedData/Hive-*`
-6. Build scheme `HiveApp` for macOS.
+## Fastest fix (Downloads copy)
+
+Run this in Terminal:
+
+```bash
+cd /Users/arpituppal/Downloads/Hive
+
+# Option A — delete the unused broken file (fastest)
+rm -f Sources/HiveCore/ReindexEngine.swift
+
+# Option B — replace with the fixed version from the branch
+# git fetch origin arpituppal2/hive-production-rebuild-82c2
+# git checkout origin/arpituppal2/hive-production-rebuild-82c2 -- Sources/HiveCore/ReindexEngine.swift
+
+rm -rf ~/Library/Developer/Xcode/DerivedData/Hive-*
+open Package.swift
+```
+
+In Xcode: **Product → Clean Build Folder**, then build scheme **HiveApp** for macOS.
+
+## Full sync (recommended)
+
+If this folder is a git clone:
+
+```bash
+cd /Users/arpituppal/Downloads/Hive
+git fetch origin
+git checkout arpituppal2/hive-production-rebuild-82c2
+git pull origin arpituppal2/hive-production-rebuild-82c2
+rm -rf ~/Library/Developer/Xcode/DerivedData/Hive-*
+open Package.swift
+```
+
+Open `Package.swift` directly. Do **not** open a stale generated `.xcodeproj`.
 
 ## Expected result
 
 - `HiveCore` compiles first.
 - Dependent modules (`HiveDesignSystem`, `HiveUI`, `HiveMacApp`, etc.) resolve normally.
-- Remaining mlx-swift C++17 warnings in dependencies are non-blocking.
+- mlx-swift C++17 warnings in dependencies are non-blocking.
 
 ## Verify from terminal
 
 ```bash
-cd /path/to/Hive
+cd /Users/arpituppal/Downloads/Hive
 xcodebuild -scheme HiveApp -destination 'platform=macOS' build
 ```
+
+## If errors persist
+
+Share only the **first** compile error under the `HiveCore` target (ignore downstream "Unable to resolve module dependency" messages).
