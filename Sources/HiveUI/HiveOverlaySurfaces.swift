@@ -1132,377 +1132,28 @@ public struct HiveSettingsSurface: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            HStack(alignment: .top, spacing: 16) {
-                    VStack(alignment: .leading, spacing: 6) {
-                    Text("Hive Settings")
-                        .font(HiveTypography.chromeTitle)
-                    Text("Set defaults once. Day-to-day work stays in Field, The Colony, and The Hive.")
-                        .font(HiveTypography.chromeBody)
-                        .foregroundStyle(HiveColorToken.nectarMuted.color)
-                    }
-                    Spacer()
-                Button("Done", action: onClose)
-                    .buttonStyle(HiveGlassButtonStyle(active: true))
-                    .tint(HiveColorToken.waxAmber.color)
-                        .keyboardShortcut(.escape, modifiers: [])
-            }
-            .padding(.horizontal, 28)
-            .padding(.top, 24)
-            .padding(.bottom, 12)
-
+            settingsHeader
             ScrollView {
-            Form {
-                Section("Learning") {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("How aggressively should Hive connect ideas?")
-                        Slider(value: connectionAggressionBinding, in: 0...1) {
-                            Text("Connection strength")
-                        } minimumValueLabel: {
-                            Text("Cautious")
-                        } maximumValueLabel: {
-                            Text("Aggressive")
-                        }
-                        HStack {
-                            Text(learningSettings.connectionAggressionLabel)
-                                .font(HiveTypography.chromeFootnoteEmphasized)
-                                .foregroundStyle(HiveColorToken.nectarText.color)
-                            Spacer()
-                            Button {
-                                onCommand(.reviewMemory)
-                            } label: {
-                                HStack(spacing: 6) {
-                                    HiveSymbol(.synthesizing, size: 13, active: commandAvailability(.reviewMemory).isEnabled)
-                                        .accessibilityHidden(true)
-                                    Text("Update The Hive")
-                                }
-                            }
-                            .buttonStyle(HiveGlassButtonStyle(active: commandAvailability(.reviewMemory).isEnabled, compact: true))
-                            .disabled(!commandAvailability(.reviewMemory).isEnabled)
-                            .accessibilityLabel("Update The Hive")
-                            .help("Rebuild current Colony and Hive connections")
-                        }
-                        Text("New Field items use this automatically.")
-                            .font(HiveTypography.chromeFootnote)
-                            .foregroundStyle(HiveColorToken.nectarMuted.color)
-                    }
-                    TextField("Topics Hive should never learn about", text: sensitiveTopicsBinding)
-                        .hivePlainFieldChrome(focused: false)
+                Form {
+                    learningSection
+                    automationsSection
+                    fieldRetentionSection
+                    sourcePluginsSection
+                    accountSection
+                    iCloudSection
+                    askSection
+                    swarmLiveSection
+                    privacySection
+                    menuBarSection
+                    appearanceSection
+                    advancedSection
                 }
-
-                Section("Automations") {
-                    AutomationReadinessCard(
-                        report: automationReadiness,
-                        onRunNow: {
-                            onRunMorningBriefing()
-                            refreshAutomationReadiness()
-                        }
-                    )
-                    Toggle("Morning Briefing", isOn: $dailyMaintenanceEnabled)
-                        .toggleStyle(.switch)
-                        .tint(HiveColorToken.waxAmber.color)
-                    Picker("Briefing hour", selection: $dailyMaintenanceHour) {
-                        ForEach(0..<24, id: \.self) { hour in
-                            Text(Self.hourLabel(hour)).tag(hour)
-                        }
-                    }
-                    .disabled(!dailyMaintenanceEnabled)
-                    Picker("Briefing minute", selection: $dailyMaintenanceMinute) {
-                        Text(":00").tag(0)
-                        Text(":15").tag(15)
-                        Text(":30").tag(30)
-                        Text(":45").tag(45)
-                    }
-                    .disabled(!dailyMaintenanceEnabled)
-                    Text("Runs locally each morning. Hive gathers approved new sources, reviews Field items from the last 24 hours, checks open actions, updates The Colony and The Hive, then writes a Swarm-only briefing page.")
-                        .font(HiveTypography.chromeFootnote)
-                        .foregroundStyle(HiveColorToken.nectarMuted.color)
-                        .fixedSize(horizontal: false, vertical: true)
-                    if !automationReadiness.settings.customAutomations.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Saved custom automations")
-                                .font(HiveTypography.chromeFootnoteEmphasized)
-                                .foregroundStyle(HiveColorToken.nectarText.color)
-                            ForEach(automationReadiness.settings.customAutomations) { automation in
-                                CustomAutomationSummaryRow(automation: automation)
-                            }
-                        }
-                    }
-                    Button {
-                        withAnimation(HiveMotion.panel) {
-                            customAutomationGuideVisible.toggle()
-                        }
-                    } label: {
-                        HStack(spacing: 8) {
-                            HiveSymbol(.runMaintenance, size: 13, active: true)
-                            Text("Create Automation")
-                        }
-                    }
-                    .buttonStyle(HiveGlassButtonStyle(active: true))
-                    if customAutomationGuideVisible {
-                        CustomAutomationGuide(
-                            goal: $customAutomationGoal,
-                            sources: $customAutomationSources,
-                            cadence: $customAutomationCadence,
-                            frequency: $customAutomationFrequency,
-                            preferredTime: $customAutomationTime,
-                            duration: $customAutomationDuration,
-                            output: $customAutomationOutput,
-                            onCreate: createCustomAutomationRequest
-                        )
-                    }
-                }
-
-                fieldRetentionSection
-                sourcePluginsSection
-
-                Section("Account") {
-                    HiveAppleAccountSection(onAccountChanged: onAppleAccountChanged)
-                }
-
-                Section("iCloud") {
-                    Toggle("Use iCloud for Hive", isOn: iCloudEnabledBinding)
-                        .toggleStyle(.switch)
-                        .tint(HiveColorToken.waxAmber.color)
-                    VStack(alignment: .leading, spacing: 6) {
-                        LabeledContent(iCloudStatus.title, value: iCloudEnabled ? "On" : "Off")
-                        Text(iCloudStatus.message)
-                            .font(HiveTypography.chromeFootnote)
-                            .foregroundStyle(HiveColorToken.nectarMuted.color)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Text("Hive keeps your Field, The Colony, The Hive map, and app state together. Models and temporary work stay on this device.")
-                            .font(HiveTypography.chromeFootnote)
-                            .foregroundStyle(HiveColorToken.nectarMuted.color)
-                            .fixedSize(horizontal: false, vertical: true)
-                        if iCloudEnabled {
-                            Text(HiveCloudContentPlan().deletionWarning)
-                                .font(HiveTypography.chromeFootnote)
-                                .foregroundStyle(HiveColorToken.conflict.color)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                    }
-                }
-
-                Section("Ask") {
-                    Toggle("Use online Ask when local memory is not enough", isOn: $onlineAskEnabled)
-                        .toggleStyle(.switch)
-                        .tint(HiveColorToken.waxAmber.color)
-                    Toggle("Review before sending Colony context", isOn: $onlineAskRequiresReview)
-                        .toggleStyle(.switch)
-                        .tint(HiveColorToken.waxAmber.color)
-                        .disabled(!onlineAskEnabled)
-                    Text("Hive answers from The Colony first. Online Ask stays off-device only after you choose a key and allow the relevant question and Colony context to leave this Mac.")
-                        .font(HiveTypography.chromeFootnote)
-                        .foregroundStyle(HiveColorToken.nectarMuted.color)
-                        .fixedSize(horizontal: false, vertical: true)
-                    LabeledContent("Helper name") {
-                        TextField("Online helper", text: $onlineProviderName)
-                            .hivePlainFieldChrome(focused: false)
-                    }
-                    LabeledContent("API key") {
-                        SecureField("Paste key", text: $cloudAPIKeyDraft)
-                            .hivePlainFieldChrome(focused: false)
-                    }
-                    HStack(spacing: 10) {
-                        Button("Save Key") {
-                            saveOnlineAskKey()
-                        }
-                        .buttonStyle(HiveGlassButtonStyle(active: !cloudAPIKeyDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
-                        .disabled(cloudAPIKeyDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                        Button("Remove Key") {
-                            CloudInferenceKeyStore.delete()
-                            cloudAPIKeyDraft = ""
-                            refreshOnlineAskKeyStatus()
-                        }
-                        .buttonStyle(HiveGlassButtonStyle())
-                        Spacer()
-                        Text(cloudKeyStatus)
-                            .font(HiveTypography.chromeFootnoteEmphasized)
-                            .foregroundStyle(CloudInferenceKeyStore.hasKey() ? HiveColorToken.sealed.color : HiveColorToken.scaffoldGray.color)
-                    }
-                    Text("If the service is unavailable, Hive falls back to local memory without blocking the conversation.")
-                        .font(HiveTypography.chromeFootnote)
-                        .foregroundStyle(HiveColorToken.nectarMuted.color)
-                }
-
-                Section("Swarm Live") {
-                    Picker("Voice", selection: $selectedSwarmVoiceIdentifier) {
-                        Text("System Voice").tag("")
-                        ForEach(swarmVoiceOptions) { option in
-                            Text(option.displayName).tag(option.identifier)
-                        }
-                    }
-                    Text(swarmVoiceOptions.isEmpty
-                        ? "Hive uses Apple speech output when high-quality English voices are not installed."
-                        : "Live Mode uses Apple speech recognition for input and queues short spoken clauses with this on-device voice.")
-                        .font(HiveTypography.chromeFootnote)
-                        .foregroundStyle(HiveColorToken.nectarMuted.color)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text("Starting dictation interrupts Swarm speech immediately.")
-                        .font(HiveTypography.chromeFootnote)
-                        .foregroundStyle(HiveColorToken.nectarMuted.color)
-                }
-
-                Section("Privacy") {
-                    Toggle("Learn from browser captures", isOn: learnsFromBrowserCapturesBinding)
-                        .toggleStyle(.switch)
-                        .tint(HiveColorToken.waxAmber.color)
-                    Toggle("Learn from files", isOn: learnsFromFilesBinding)
-                        .toggleStyle(.switch)
-                        .tint(HiveColorToken.waxAmber.color)
-                    Toggle("Learn from calendar", isOn: learnsFromCalendarBinding)
-                        .toggleStyle(.switch)
-                        .tint(HiveColorToken.waxAmber.color)
-                }
-
-                Section("Menu Bar") {
-                    MenuBarPreview(enabled: menuBarExtraVisible)
-                    Toggle("Show Hive in Dock", isOn: $showInDock)
-                        .toggleStyle(.switch)
-                        .tint(HiveColorToken.waxAmber.color)
-                        .onChange(of: showInDock) { _, isOn in
-                            if !isOn && !menuBarExtraVisible {
-                                menuBarExtraVisible = true
-                            }
-                        }
-                    Toggle("Show Hive in the menu bar", isOn: $menuBarExtraVisible)
-                        .toggleStyle(.switch)
-                        .tint(HiveColorToken.waxAmber.color)
-                        .onChange(of: menuBarExtraVisible) { _, isOn in
-                            if !isOn && !showInDock {
-                                showInDock = true
-                            }
-                        }
-                    Toggle("Show quick capture", isOn: $menuBarQuickCaptureEnabled)
-                        .toggleStyle(.switch)
-                        .tint(HiveColorToken.waxAmber.color)
-                        .disabled(!menuBarExtraVisible)
-                    if !showInDock && !menuBarExtraVisible {
-                        Text("Either Dock or menu bar visibility must stay enabled.")
-                            .font(HiveTypography.chromeFootnote)
-                            .foregroundStyle(HiveColorToken.signalCritical.color)
-                    }
-                    Text("Menu bar controls stay focused on capture, Live, and opening Hive.")
-                        .font(HiveTypography.chromeFootnote)
-                        .foregroundStyle(HiveColorToken.nectarMuted.color)
-                }
-
-                Section("Appearance") {
-                    HiveSettingsSegmentedControl(
-                        title: "Appearance",
-                        selection: $appearanceMode,
-                        options: HiveAppearanceMode.allCases.map { ($0.rawValue, $0.label) }
-                    )
-                }
-
-                Section("Advanced") {
-                    DisclosureGroup("Shortcuts, tools, and axes", isExpanded: $advancedSettingsVisible) {
-                        VStack(alignment: .leading, spacing: 18) {
-                            advancedSettingsHeading("Command Shortcuts")
-                            ForEach(HiveCommand.allCases) { command in
-                                CommandShortcutEditorRow(
-                                    command: command,
-                                    availability: commandAvailability(command),
-                                    onRun: { onCommand(command) }
-                                )
-                            }
-
-                            #if canImport(AppIntents)
-                            advancedSettingsHeading("System Shortcuts")
-                            ForEach(HiveAppShortcutCatalog.orderedShortcuts.prefix(5), id: \.route) { shortcut in
-                                AppShortcutDiscoveryRow(shortcut: shortcut)
-                            }
-                            #endif
-
-                            advancedSettingsHeading("Files and Links")
-                            SettingsCommandActionRow(
-                                command: .downloadAttachments,
-                                availability: commandAvailability(.downloadAttachments),
-                                detail: attachmentPathDescription,
-                                action: { onCommand(.downloadAttachments) }
-                            )
-
-                            advancedSettingsHeading("Colony Tools")
-                            SettingsCommandActionRow(
-                                command: .reviewMemory,
-                                availability: commandAvailability(.reviewMemory),
-                                detail: "Review new sources and propose organized updates.",
-                                action: { onCommand(.reviewMemory) }
-                            )
-                            SettingsCommandActionRow(
-                                command: .wiki,
-                                availability: commandAvailability(.wiki),
-                                detail: "Open the organized pages Hive maintains.",
-                                action: { onCommand(.wiki) }
-                            )
-                            SettingsCommandActionRow(
-                                command: .createSlideDeck,
-                                availability: commandAvailability(.createSlideDeck),
-                                detail: "Build a presentation from the current article.",
-                                action: { onCommand(.createSlideDeck) }
-                            )
-                            LabeledContent("AI status", value: aiStatusLabel)
-
-                            advancedSettingsHeading("First Run Guide")
-                            Button("Replay Tutorial", action: onReplayTutorial)
-                                .buttonStyle(HiveGlassButtonStyle())
-
-                            advancedSettingsHeading("Hive Axes")
-                            Toggle("Use AppKit graph canvas (preview)", isOn: $graphUsesAppKitCanvas)
-                                .toggleStyle(.switch)
-                                .tint(HiveColorToken.waxAmber.color)
-                            HiveText("Switches The Hive graph to NSScrollView + AppKit canvas path for migration validation.", role: .scaffoldBody)
-                                .foregroundStyle(HiveColorToken.nectarMuted.color)
-                            Grid(horizontalSpacing: 12, verticalSpacing: 10) {
-                                GridRow {
-                                    Text("Top")
-                                    TextField(GraphAxisVocabulary.default.top, text: $axisTop)
-                                        .hivePlainFieldChrome(focused: false)
-                                    TextField(GraphAxisVocabulary.default.bottom, text: $axisBottom)
-                                        .hivePlainFieldChrome(focused: false)
-                                    Text("Bottom")
-                                }
-                                GridRow {
-                                    Text("Left")
-                                    TextField(GraphAxisVocabulary.default.left, text: $axisLeft)
-                                        .hivePlainFieldChrome(focused: false)
-                                    TextField(GraphAxisVocabulary.default.right, text: $axisRight)
-                                        .hivePlainFieldChrome(focused: false)
-                                    Text("Right")
-                                }
-                            }
-                            .font(HiveTypography.chromeBody)
-                            let axisReview = GraphAxisVocabulary(top: axisTop, bottom: axisBottom, right: axisRight, left: axisLeft).review
-                            HStack(spacing: 8) {
-                                HiveSymbol(axisReview.isApproved ? .confirmed : .conflict, size: 14, active: true)
-                                Text(axisConfirmationMessage ?? axisReview.message)
-                                    .font(HiveTypography.chromeFootnote)
-                            }
-                            .foregroundStyle(axisReview.isApproved ? HiveColorToken.sealed.color : HiveColorToken.conflict.color)
-                            HStack(spacing: 10) {
-                                Button("Confirm and Re-Index") {
-                                    confirmAxesAndReindex()
-                                }
-                                .buttonStyle(HiveGlassButtonStyle(active: axisReview.isApproved))
-                                Button("Reset Hive Axes") {
-                                    axisTop = GraphAxisVocabulary.default.top
-                                    axisBottom = GraphAxisVocabulary.default.bottom
-                                    axisRight = GraphAxisVocabulary.default.right
-                                    axisLeft = GraphAxisVocabulary.default.left
-                                    axisConfirmationMessage = nil
-                                }
-                                .buttonStyle(HiveGlassButtonStyle())
-                            }
-                        }
-                        .padding(.top, 8)
-                    }
-                }
-            }
-            .formStyle(.grouped)
-            .tint(HiveColorToken.waxAmber.color)
-            .accentColor(HiveColorToken.waxAmber.color)
-            .scrollContentBackground(.hidden)
-            .padding(.horizontal, 14)
-            .padding(.bottom, 32)
+                .formStyle(.grouped)
+                .tint(HiveColorToken.waxAmber.color)
+                .accentColor(HiveColorToken.waxAmber.color)
+                .scrollContentBackground(.hidden)
+                .padding(.horizontal, 14)
+                .padding(.bottom, 32)
             }
             .scrollIndicators(.automatic)
         }
@@ -1530,6 +1181,431 @@ public struct HiveSettingsSurface: View {
         .onChange(of: dailyMaintenanceEnabled) { _, _ in persistAutomationSchedule() }
         .onChange(of: dailyMaintenanceHour) { _, _ in persistAutomationSchedule() }
         .onChange(of: dailyMaintenanceMinute) { _, _ in persistAutomationSchedule() }
+    }
+
+    private var settingsHeader: some View {
+        HStack(alignment: .top, spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Hive Settings")
+                    .font(HiveTypography.chromeTitle)
+                Text("Set defaults once. Day-to-day work stays in Field, The Colony, and The Hive.")
+                    .font(HiveTypography.chromeBody)
+                    .foregroundStyle(HiveColorToken.nectarMuted.color)
+            }
+            Spacer()
+            Button("Done", action: onClose)
+                .buttonStyle(HiveGlassButtonStyle(active: true))
+                .tint(HiveColorToken.waxAmber.color)
+                .keyboardShortcut(.escape, modifiers: [])
+        }
+        .padding(.horizontal, 28)
+        .padding(.top, 24)
+        .padding(.bottom, 12)
+    }
+
+    @ViewBuilder
+    private var learningSection: some View {
+        Section("Learning") {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("How aggressively should Hive connect ideas?")
+                Slider(value: connectionAggressionBinding, in: 0...1) {
+                    Text("Connection strength")
+                } minimumValueLabel: {
+                    Text("Cautious")
+                } maximumValueLabel: {
+                    Text("Aggressive")
+                }
+                HStack {
+                    Text(learningSettings.connectionAggressionLabel)
+                        .font(HiveTypography.chromeFootnoteEmphasized)
+                        .foregroundStyle(HiveColorToken.nectarText.color)
+                    Spacer()
+                    Button {
+                        onCommand(.reviewMemory)
+                    } label: {
+                        HStack(spacing: 6) {
+                            HiveSymbol(.synthesizing, size: 13, active: commandAvailability(.reviewMemory).isEnabled)
+                                .accessibilityHidden(true)
+                            Text("Update The Hive")
+                        }
+                    }
+                    .buttonStyle(HiveGlassButtonStyle(active: commandAvailability(.reviewMemory).isEnabled, compact: true))
+                    .disabled(!commandAvailability(.reviewMemory).isEnabled)
+                    .accessibilityLabel("Update The Hive")
+                    .help("Rebuild current Colony and Hive connections")
+                }
+                Text("New Field items use this automatically.")
+                    .font(HiveTypography.chromeFootnote)
+                    .foregroundStyle(HiveColorToken.nectarMuted.color)
+            }
+            TextField("Topics Hive should never learn about", text: sensitiveTopicsBinding)
+                .hivePlainFieldChrome(focused: false)
+        }
+    }
+
+    @ViewBuilder
+    private var automationsSection: some View {
+        Section("Automations") {
+            AutomationReadinessCard(
+                report: automationReadiness,
+                onRunNow: {
+                    onRunMorningBriefing()
+                    refreshAutomationReadiness()
+                }
+            )
+            Toggle("Morning Briefing", isOn: $dailyMaintenanceEnabled)
+                .toggleStyle(.switch)
+                .tint(HiveColorToken.waxAmber.color)
+            briefingHourPicker
+            briefingMinutePicker
+            Text("Runs locally each morning. Hive gathers approved new sources, reviews Field items from the last 24 hours, checks open actions, updates The Colony and The Hive, then writes a Swarm-only briefing page.")
+                .font(HiveTypography.chromeFootnote)
+                .foregroundStyle(HiveColorToken.nectarMuted.color)
+                .fixedSize(horizontal: false, vertical: true)
+            if !automationReadiness.settings.customAutomations.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Saved custom automations")
+                        .font(HiveTypography.chromeFootnoteEmphasized)
+                        .foregroundStyle(HiveColorToken.nectarText.color)
+                    ForEach(automationReadiness.settings.customAutomations) { automation in
+                        CustomAutomationSummaryRow(automation: automation)
+                    }
+                }
+            }
+            Button {
+                withAnimation(HiveMotion.panel) {
+                    customAutomationGuideVisible.toggle()
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    HiveSymbol(.runMaintenance, size: 13, active: true)
+                    Text("Create Automation")
+                }
+            }
+            .buttonStyle(HiveGlassButtonStyle(active: true))
+            if customAutomationGuideVisible {
+                CustomAutomationGuide(
+                    goal: $customAutomationGoal,
+                    sources: $customAutomationSources,
+                    cadence: $customAutomationCadence,
+                    frequency: $customAutomationFrequency,
+                    preferredTime: $customAutomationTime,
+                    duration: $customAutomationDuration,
+                    output: $customAutomationOutput,
+                    onCreate: createCustomAutomationRequest
+                )
+            }
+        }
+    }
+
+    private var briefingHourPicker: some View {
+        Picker("Briefing hour", selection: $dailyMaintenanceHour) {
+            ForEach(0..<24, id: \.self) { hour in
+                Text(Self.hourLabel(hour)).tag(hour)
+            }
+        }
+        .disabled(!dailyMaintenanceEnabled)
+    }
+
+    private var briefingMinutePicker: some View {
+        Picker("Briefing minute", selection: $dailyMaintenanceMinute) {
+            Text(":00").tag(0)
+            Text(":15").tag(15)
+            Text(":30").tag(30)
+            Text(":45").tag(45)
+        }
+        .disabled(!dailyMaintenanceEnabled)
+    }
+
+    @ViewBuilder
+    private var accountSection: some View {
+        Section("Account") {
+            HiveAppleAccountSection(onAccountChanged: onAppleAccountChanged)
+        }
+    }
+
+    @ViewBuilder
+    private var iCloudSection: some View {
+        Section("iCloud") {
+            Toggle("Use iCloud for Hive", isOn: iCloudEnabledBinding)
+                .toggleStyle(.switch)
+                .tint(HiveColorToken.waxAmber.color)
+            VStack(alignment: .leading, spacing: 6) {
+                LabeledContent(iCloudStatus.title, value: iCloudEnabled ? "On" : "Off")
+                Text(iCloudStatus.message)
+                    .font(HiveTypography.chromeFootnote)
+                    .foregroundStyle(HiveColorToken.nectarMuted.color)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Hive keeps your Field, The Colony, The Hive map, and app state together. Models and temporary work stay on this device.")
+                    .font(HiveTypography.chromeFootnote)
+                    .foregroundStyle(HiveColorToken.nectarMuted.color)
+                    .fixedSize(horizontal: false, vertical: true)
+                if iCloudEnabled {
+                    Text(HiveCloudContentPlan().deletionWarning)
+                        .font(HiveTypography.chromeFootnote)
+                        .foregroundStyle(HiveColorToken.conflict.color)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var askSection: some View {
+        Section("Ask") {
+            Toggle("Use online Ask when local memory is not enough", isOn: $onlineAskEnabled)
+                .toggleStyle(.switch)
+                .tint(HiveColorToken.waxAmber.color)
+            Toggle("Review before sending Colony context", isOn: $onlineAskRequiresReview)
+                .toggleStyle(.switch)
+                .tint(HiveColorToken.waxAmber.color)
+                .disabled(!onlineAskEnabled)
+            Text("Hive answers from The Colony first. Online Ask stays off-device only after you choose a key and allow the relevant question and Colony context to leave this Mac.")
+                .font(HiveTypography.chromeFootnote)
+                .foregroundStyle(HiveColorToken.nectarMuted.color)
+                .fixedSize(horizontal: false, vertical: true)
+            LabeledContent("Helper name") {
+                TextField("Online helper", text: $onlineProviderName)
+                    .hivePlainFieldChrome(focused: false)
+            }
+            LabeledContent("API key") {
+                SecureField("Paste key", text: $cloudAPIKeyDraft)
+                    .hivePlainFieldChrome(focused: false)
+            }
+            HStack(spacing: 10) {
+                Button("Save Key") {
+                    saveOnlineAskKey()
+                }
+                .buttonStyle(HiveGlassButtonStyle(active: !cloudAPIKeyDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
+                .disabled(cloudAPIKeyDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                Button("Remove Key") {
+                    CloudInferenceKeyStore.delete()
+                    cloudAPIKeyDraft = ""
+                    refreshOnlineAskKeyStatus()
+                }
+                .buttonStyle(HiveGlassButtonStyle())
+                Spacer()
+                Text(cloudKeyStatus)
+                    .font(HiveTypography.chromeFootnoteEmphasized)
+                    .foregroundStyle(CloudInferenceKeyStore.hasKey() ? HiveColorToken.sealed.color : HiveColorToken.scaffoldGray.color)
+            }
+            Text("If the service is unavailable, Hive falls back to local memory without blocking the conversation.")
+                .font(HiveTypography.chromeFootnote)
+                .foregroundStyle(HiveColorToken.nectarMuted.color)
+        }
+    }
+
+    @ViewBuilder
+    private var swarmLiveSection: some View {
+        Section("Swarm Live") {
+            Picker("Voice", selection: $selectedSwarmVoiceIdentifier) {
+                Text("System Voice").tag("")
+                ForEach(swarmVoiceOptions) { option in
+                    Text(option.displayName).tag(option.identifier)
+                }
+            }
+            Text(swarmVoiceOptions.isEmpty
+                ? "Hive uses Apple speech output when high-quality English voices are not installed."
+                : "Live Mode uses Apple speech recognition for input and queues short spoken clauses with this on-device voice.")
+                .font(HiveTypography.chromeFootnote)
+                .foregroundStyle(HiveColorToken.nectarMuted.color)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Starting dictation interrupts Swarm speech immediately.")
+                .font(HiveTypography.chromeFootnote)
+                .foregroundStyle(HiveColorToken.nectarMuted.color)
+        }
+    }
+
+    @ViewBuilder
+    private var privacySection: some View {
+        Section("Privacy") {
+            Toggle("Learn from browser captures", isOn: learnsFromBrowserCapturesBinding)
+                .toggleStyle(.switch)
+                .tint(HiveColorToken.waxAmber.color)
+            Toggle("Learn from files", isOn: learnsFromFilesBinding)
+                .toggleStyle(.switch)
+                .tint(HiveColorToken.waxAmber.color)
+            Toggle("Learn from calendar", isOn: learnsFromCalendarBinding)
+                .toggleStyle(.switch)
+                .tint(HiveColorToken.waxAmber.color)
+        }
+    }
+
+    @ViewBuilder
+    private var menuBarSection: some View {
+        Section("Menu Bar") {
+            MenuBarPreview(enabled: menuBarExtraVisible)
+            Toggle("Show Hive in Dock", isOn: $showInDock)
+                .toggleStyle(.switch)
+                .tint(HiveColorToken.waxAmber.color)
+                .onChange(of: showInDock) { _, isOn in
+                    if !isOn && !menuBarExtraVisible {
+                        menuBarExtraVisible = true
+                    }
+                }
+            Toggle("Show Hive in the menu bar", isOn: $menuBarExtraVisible)
+                .toggleStyle(.switch)
+                .tint(HiveColorToken.waxAmber.color)
+                .onChange(of: menuBarExtraVisible) { _, isOn in
+                    if !isOn && !showInDock {
+                        showInDock = true
+                    }
+                }
+            Toggle("Show quick capture", isOn: $menuBarQuickCaptureEnabled)
+                .toggleStyle(.switch)
+                .tint(HiveColorToken.waxAmber.color)
+                .disabled(!menuBarExtraVisible)
+            if !showInDock && !menuBarExtraVisible {
+                Text("Either Dock or menu bar visibility must stay enabled.")
+                    .font(HiveTypography.chromeFootnote)
+                    .foregroundStyle(HiveColorToken.signalCritical.color)
+            }
+            Text("Menu bar controls stay focused on capture, Live, and opening Hive.")
+                .font(HiveTypography.chromeFootnote)
+                .foregroundStyle(HiveColorToken.nectarMuted.color)
+        }
+    }
+
+    @ViewBuilder
+    private var appearanceSection: some View {
+        Section("Appearance") {
+            HiveSettingsSegmentedControl(
+                title: "Appearance",
+                selection: $appearanceMode,
+                options: HiveAppearanceMode.allCases.map { ($0.rawValue, $0.label) }
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var advancedSection: some View {
+        Section("Advanced") {
+            DisclosureGroup("Shortcuts, tools, and axes", isExpanded: $advancedSettingsVisible) {
+                advancedSettingsContent
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var advancedSettingsContent: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            advancedSettingsHeading("Command Shortcuts")
+            ForEach(HiveCommand.allCases) { command in
+                CommandShortcutEditorRow(
+                    command: command,
+                    availability: commandAvailability(command),
+                    onRun: { onCommand(command) }
+                )
+            }
+
+            #if canImport(AppIntents)
+            advancedSettingsHeading("System Shortcuts")
+            ForEach(HiveAppShortcutCatalog.orderedShortcuts.prefix(5), id: \.route) { shortcut in
+                AppShortcutDiscoveryRow(shortcut: shortcut)
+            }
+            #endif
+
+            advancedSettingsHeading("Files and Links")
+            SettingsCommandActionRow(
+                command: .downloadAttachments,
+                availability: commandAvailability(.downloadAttachments),
+                detail: attachmentPathDescription,
+                action: { onCommand(.downloadAttachments) }
+            )
+
+            advancedSettingsHeading("Colony Tools")
+            SettingsCommandActionRow(
+                command: .reviewMemory,
+                availability: commandAvailability(.reviewMemory),
+                detail: "Review new sources and propose organized updates.",
+                action: { onCommand(.reviewMemory) }
+            )
+            SettingsCommandActionRow(
+                command: .wiki,
+                availability: commandAvailability(.wiki),
+                detail: "Open the organized pages Hive maintains.",
+                action: { onCommand(.wiki) }
+            )
+            SettingsCommandActionRow(
+                command: .createSlideDeck,
+                availability: commandAvailability(.createSlideDeck),
+                detail: "Build a presentation from the current article.",
+                action: { onCommand(.createSlideDeck) }
+            )
+            LabeledContent("AI status", value: aiStatusLabel)
+
+            advancedSettingsHeading("First Run Guide")
+            Button("Replay Tutorial", action: onReplayTutorial)
+                .buttonStyle(HiveGlassButtonStyle())
+
+            advancedSettingsHeading("Hive Axes")
+            Toggle("Use AppKit graph canvas (preview)", isOn: $graphUsesAppKitCanvas)
+                .toggleStyle(.switch)
+                .tint(HiveColorToken.waxAmber.color)
+            HiveText("Switches The Hive graph to NSScrollView + AppKit canvas path for migration validation.", role: .scaffoldBody)
+                .foregroundStyle(HiveColorToken.nectarMuted.color)
+            hiveAxesEditor
+            hiveAxesReviewRow
+            hiveAxesActions
+        }
+        .padding(.top, 8)
+    }
+
+    @ViewBuilder
+    private var hiveAxesEditor: some View {
+        Grid(horizontalSpacing: 12, verticalSpacing: 10) {
+            GridRow {
+                Text("Top")
+                TextField(GraphAxisVocabulary.default.top, text: $axisTop)
+                    .hivePlainFieldChrome(focused: false)
+                TextField(GraphAxisVocabulary.default.bottom, text: $axisBottom)
+                    .hivePlainFieldChrome(focused: false)
+                Text("Bottom")
+            }
+            GridRow {
+                Text("Left")
+                TextField(GraphAxisVocabulary.default.left, text: $axisLeft)
+                    .hivePlainFieldChrome(focused: false)
+                TextField(GraphAxisVocabulary.default.right, text: $axisRight)
+                    .hivePlainFieldChrome(focused: false)
+                Text("Right")
+            }
+        }
+        .font(HiveTypography.chromeBody)
+    }
+
+    private var currentAxisReview: GraphAxisVocabularyReview {
+        GraphAxisVocabulary(top: axisTop, bottom: axisBottom, right: axisRight, left: axisLeft).review
+    }
+
+    @ViewBuilder
+    private var hiveAxesReviewRow: some View {
+        let axisReview = currentAxisReview
+        HStack(spacing: 8) {
+            HiveSymbol(axisReview.isApproved ? .confirmed : .conflict, size: 14, active: true)
+            Text(axisConfirmationMessage ?? axisReview.message)
+                .font(HiveTypography.chromeFootnote)
+        }
+        .foregroundStyle(axisReview.isApproved ? HiveColorToken.sealed.color : HiveColorToken.conflict.color)
+    }
+
+    @ViewBuilder
+    private var hiveAxesActions: some View {
+        let axisReview = currentAxisReview
+        HStack(spacing: 10) {
+            Button("Confirm and Re-Index") {
+                confirmAxesAndReindex()
+            }
+            .buttonStyle(HiveGlassButtonStyle(active: axisReview.isApproved))
+            Button("Reset Hive Axes") {
+                axisTop = GraphAxisVocabulary.default.top
+                axisBottom = GraphAxisVocabulary.default.bottom
+                axisRight = GraphAxisVocabulary.default.right
+                axisLeft = GraphAxisVocabulary.default.left
+                axisConfirmationMessage = nil
+            }
+            .buttonStyle(HiveGlassButtonStyle())
+        }
     }
 
     private var iCloudEnabled: Bool {
