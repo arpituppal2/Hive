@@ -36,7 +36,7 @@
     "id": "2026-05-25-shopping-high-memory-mac",
     "observedAt": "2026-05-25T12:00:00Z",
     "category": "Shopping",
-    "statement": "The user needs an M3 Ultra or M5 Max with at least 128GB of RAM for their projects.",
+    "statement": "The user needs a high-performance workstation with at least 128GB of RAM for their projects.",
     "confidence": 0.95,
     "sourceLabel": "User-provided Hive memory seed",
     "sensitivity": "normal",

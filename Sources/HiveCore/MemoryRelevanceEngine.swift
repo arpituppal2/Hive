@@ -597,9 +597,8 @@ public struct MemoryRelevanceEngine: Sendable {
     ]
 
     private let activeProjectTerms = [
-        "project", "working on", "building", "app", "startup", "yc", "cabin", "hive",
-        "lamt", "locus", "brev", "gpu", "quant", "model", "python", "uconsulting",
-        "ucla", "course", "class", "current"
+        "project", "working on", "building", "app", "startup", "gpu", "quant",
+        "model", "python", "course", "class", "current"
     ]
 
     private let recurringTerms = [

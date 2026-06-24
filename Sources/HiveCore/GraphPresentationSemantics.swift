@@ -55,10 +55,10 @@ public struct GraphLifeDomainClassifier: Sendable {
         if containsAny(text, ["finance", "grant", "money", "cash", "shopping", "buy", "funding", "scholarship", "alpaca", "stock", "quant"]) {
             return .finance
         }
-        if containsAny(text, ["cabin", "hive", "lamt", "locus", "ultimate tracker", "local computer", "app", "startup", "project", "swiftui", "react", "vercel", "railway"]) {
+        if containsAny(text, ["app", "startup", "project", "swiftui", "react", "vercel", "railway"]) {
             return .projects
         }
-        if containsAny(text, ["macbook", "m4", "a6000", "gpu", "ram", "hardware", "brev", "ollama", "chrome", "comet", "playwright", "battery", "fan"]) {
+        if containsAny(text, ["laptop", "workstation", "gpu", "ram", "hardware", "ollama", "chrome", "playwright", "battery", "fan"]) {
             return .hardware
         }
         if containsAny(text, ["health", "sleep", "workout", "weight", "male", "height", "body", "dental", "root canal", "creatine", "swim"]) {
@@ -376,7 +376,7 @@ public struct GraphCoordinateClassifier: Sendable {
         ]
         let concreteWorkMarkers = [
             "react", "swift", "swiftui", "metal", "shader", "rendering", "3d", "software",
-            "engineering", "code", "algorithm", "data", "model", "cabin"
+            "engineering", "code", "algorithm", "data", "model"
         ]
         guard projectMarkers.contains(where: { text.contains($0) }),
               concreteWorkMarkers.contains(where: { text.contains($0) }) else {
@@ -473,7 +473,7 @@ public struct GraphCoordinateClassifier: Sendable {
 
     private let analyticalTerms = [
         "analysis", "analytical", "algorithm", "algorithms", "architecture", "code",
-        "consulting", "uconsulting",
+        "consulting",
         "coding", "competitive", "computer science", "data", "debugging", "developed",
         "development", "engineering", "financial",
         "figures", "math", "mathematics", "metrics", "model", "performance", "python",
@@ -493,9 +493,8 @@ public struct GraphCoordinateClassifier: Sendable {
         "academic", "achievement", "achievements", "certification", "certifications",
         "client", "company", "companies", "degree", "director", "employment",
         "institution", "institutions", "industry", "job", "published", "role", "roles",
-        "skill", "skills", "tools", "tournament director", "ucla", "work", "career",
-        "professional", "project", "software", "development", "developed", "engineering", "lamt", "cabin",
-        "consulting", "uconsulting"
+        "skill", "skills", "tools", "work", "career", "professional", "project",
+        "software", "development", "developed", "engineering", "consulting"
     ]
 
     private let personalTerms = [
@@ -507,7 +506,7 @@ public struct GraphCoordinateClassifier: Sendable {
 
     private let strongAxisTerms: Set<String> = [
         "algorithm", "algorithms", "code", "debugging", "engineering", "mathematics",
-        "metal", "react", "rendering", "shader", "swiftui", "development", "ucla", "employment",
+        "metal", "react", "rendering", "shader", "swiftui", "development", "employment",
         "director", "tournament director", "certification", "degree", "client",
         "design", "writing", "music", "art", "swimming", "health", "fitness",
         "personal", "professional"
@@ -517,8 +516,6 @@ public struct GraphCoordinateClassifier: Sendable {
         "app",
         "application",
         "battery",
-        "brev",
-        "cabin",
         "class",
         "content",
         "course",
@@ -529,10 +526,7 @@ public struct GraphCoordinateClassifier: Sendable {
         "gpu",
         "grant",
         "hardware",
-        "hive",
         "interface",
-        "lamt",
-        "mac studio",
         "project",
         "projects",
         "ram",
@@ -541,7 +535,6 @@ public struct GraphCoordinateClassifier: Sendable {
         "scholarship",
         "task",
         "tools",
-        "ucla",
         "ui",
         "ux",
         "visual",

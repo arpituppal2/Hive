@@ -343,8 +343,8 @@ public struct SourcePresentationModel: Identifiable, Hashable, Sendable {
         if isBrowserLike,
            Date().timeIntervalSince(source.observedAt) > 48 * 3_600,
            !containsAny(lowerRaw, [
-                "ucla", "class", "course", "deadline", "application", "grant", "scholarship",
-                "cabin", "hive", "lamt", "brev", "gpu", "mac studio", "m3 ultra", "512gb"
+                "class", "course", "deadline", "application", "grant", "scholarship",
+                "project", "research", "design", "engineering", "documentation"
            ]) {
             return .incidental
         }
@@ -693,13 +693,6 @@ public struct RawInputSemanticClusterer: Sendable {
     private func semanticDescriptor(for source: SourcePresentationModel) -> SemanticDescriptor? {
         guard source.sourceKind == .browserHistory || source.sourceKind == .browserBookmark else { return nil }
         let text = normalized("\(source.title) \(source.sourceName)")
-        if isMacHardwareFundingTrail(text) {
-            return SemanticDescriptor(
-                id: "semantic:mac-studio-funding",
-                title: "Mac Studio funding research",
-                summary: "Apple hardware, used/refurbished options, and upgrade funding grouped for review."
-            )
-        }
         if isGrantScholarshipTrail(text) {
             return SemanticDescriptor(
                 id: "semantic:grant-scholarship-applications",
@@ -707,38 +700,31 @@ public struct RawInputSemanticClusterer: Sendable {
                 summary: "Funding opportunities and application work grouped into one intake trail."
             )
         }
-        if containsAny(text, ["ucla", "class", "course", "math", "gradescope", "homework", "syllabus"]) {
+        if containsAny(text, ["class", "course", "education", "assignment", "homework", "syllabus"]) {
             return SemanticDescriptor(
-                id: "semantic:current-ucla-coursework",
-                title: "Current UCLA coursework",
-                summary: "Coursework, classes, assignments, and student context grouped for review."
+                id: "semantic:coursework",
+                title: "Coursework",
+                summary: "Coursework, classes, and assignments grouped for review."
             )
         }
-        if containsAny(text, ["cabin", "focusflight", "aircraft", "polaris", "3d", "blender", "cesium"]) {
+        if containsAny(text, ["project", "roadmap", "prototype", "milestone", "implementation"]) {
             return SemanticDescriptor(
-                id: "semantic:cabin-build-workflow",
-                title: "Cabin build workflow",
-                summary: "Cabin app references, 3D assets, and build workflow evidence grouped together."
+                id: "semantic:project-work",
+                title: "Project work",
+                summary: "Project references and build workflow evidence grouped together."
             )
         }
-        if containsAny(text, ["hive", "memory", "wiki", "graph", "second brain"]) {
+        if containsAny(text, ["memory", "wiki", "graph", "knowledge", "notes"]) {
             return SemanticDescriptor(
-                id: "semantic:hive-product-work",
-                title: "Hive product work",
-                summary: "Hive product, memory, graph, and wiki design evidence grouped together."
+                id: "semantic:knowledge-system-work",
+                title: "Knowledge-system work",
+                summary: "Knowledge, graph, and wiki design evidence grouped together."
             )
         }
-        if containsAny(text, ["lamt", "los angeles math tournament", "tournament", "prose"]) {
+        if containsAny(text, ["gpu", "compute", "cuda", "instance", "rendering"]) {
             return SemanticDescriptor(
-                id: "semantic:lamt-work",
-                title: "LAMT work",
-                summary: "Tournament, PROSE, and LAMT operations evidence grouped together."
-            )
-        }
-        if containsAny(text, ["brev", "a6000", "gpu", "cuda", "instance"]) {
-            return SemanticDescriptor(
-                id: "semantic:brev-gpu-workflow",
-                title: "BREV GPU workflow",
+                id: "semantic:compute-workflow",
+                title: "Compute workflow",
                 summary: "GPU instance, billing, and compute workflow evidence grouped together."
             )
         }
@@ -749,7 +735,7 @@ public struct RawInputSemanticClusterer: Sendable {
                 summary: "AI writing, rewriting, and detector-evasion tool references grouped for review."
             )
         }
-        if containsAny(text, ["susquehanna", "assessment", "follow up", "application status", "recruiting"]) {
+        if containsAny(text, ["assessment", "follow up", "application status", "recruiting", "interview"]) {
             return SemanticDescriptor(
                 id: "semantic:application-follow-ups",
                 title: "Application follow-ups",
@@ -767,23 +753,10 @@ public struct RawInputSemanticClusterer: Sendable {
         let containsAny: ([String]) -> Bool = { fragments in
             fragments.contains { text.contains($0) }
         }
-        let hasAppleHardware = containsAny([
-            "apple", "mac", "macbook", "macbook pro", "mac studio", "m3 ultra", "m4 max",
-            "m5 max", "refurbished", "amazon", "ebay"
-        ])
-        let hasUpgradeIntent = containsAny([
-            "512gb", "512 gb", "128gb", "128 gb", "ram", "ultra", "studio", "buy",
-            "deals", "products", "discount", "refurbished"
-        ])
-        return (hasAppleHardware && hasUpgradeIntent)
-            || containsAny(["grant", "grants", "scholarship", "scholarships", "funding", "application", "applications", "fellowship", "cash"])
-            || containsAny(["ucla", "class", "course", "math", "gradescope", "homework", "syllabus"])
-            || containsAny(["cabin", "focusflight", "aircraft", "polaris", "3d", "blender", "cesium"])
-            || containsAny(["hive", "memory", "wiki", "graph", "second brain"])
-            || containsAny(["lamt", "los angeles math tournament", "tournament", "prose"])
-            || containsAny(["brev", "a6000", "gpu", "cuda", "instance"])
-            || containsAny(["humanizer", "humanize", "undetectable", "gpthuman", "grammarly", "phrasy", "ai text"])
-            || containsAny(["susquehanna", "assessment", "follow up", "application status", "recruiting"])
+        return containsAny(["grant", "grants", "scholarship", "scholarships", "funding", "application", "applications", "fellowship", "cash"])
+            || containsAny(["class", "course", "assignment", "homework", "syllabus", "curriculum"])
+            || containsAny(["project", "roadmap", "design", "engineering", "implementation", "documentation"])
+            || containsAny(["recruiting", "assessment", "interview", "application status", "career"])
     }
 
     private static func isLowInformationBrowserTrail(_ value: String) -> Bool {
@@ -828,18 +801,6 @@ public struct RawInputSemanticClusterer: Sendable {
         default:
             return nil
         }
-    }
-
-    private func isMacHardwareFundingTrail(_ text: String) -> Bool {
-        let hasAppleHardware = containsAny(text, [
-            "apple", "mac", "macbook", "macbook pro", "mac studio", "m3 ultra", "m4 max",
-            "m5 max", "refurbished", "amazon", "ebay"
-        ])
-        let hasUpgradeIntent = containsAny(text, [
-            "512gb", "512 gb", "128gb", "128 gb", "ram", "ultra", "studio", "buy",
-            "deals", "products", "discount", "refurbished"
-        ])
-        return hasAppleHardware && hasUpgradeIntent
     }
 
     private func isGrantScholarshipTrail(_ text: String) -> Bool {

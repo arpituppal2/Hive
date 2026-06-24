@@ -343,7 +343,7 @@ public struct MemorySeedImporter: Sendable {
             .split(separator: " ")
             .map { word in
                 let lower = word.lowercased()
-                if ["ai", "llm", "lamt", "ucla", "brev", "gpu", "ap", "amc", "aime"].contains(lower) {
+                if ["ai", "llm", "gpu", "ap", "amc", "aime"].contains(lower) {
                     return lower.uppercased()
                 }
                 return lower.prefix(1).uppercased() + lower.dropFirst()

@@ -95,12 +95,12 @@ public struct MemoryNodeLayerClassifier: Sendable {
 
     private func semanticColorKey(for text: String, layer: MemoryNodeLayer) -> String? {
         let lower = text.lowercased()
-        if containsAny(lower, ["ucla", "mathematics", "student", "education", "school"]) { return "education" }
+        if containsAny(lower, ["mathematics", "student", "education", "school"]) { return "education" }
         if containsAny(lower, ["iq", "smart", "debate", "argument", "cognitive"]) { return "cognitive" }
         if containsAny(lower, ["male", "height", "6'", "6 ft", "indian", "body", "health"]) { return "body-identity" }
         if containsAny(lower, ["help", "volunteer", "eagle scout", "others", "service"]) { return "service" }
-        if containsAny(lower, ["cabin", "hive", "locus", "local-computer", "ultimate-tracker", "project"]) { return "projects" }
-        if containsAny(lower, ["money", "finance", "grant", "hardware", "macbook", "gpu"]) { return "constraints" }
+        if containsAny(lower, ["project", "product", "application", "prototype", "feature"]) { return "projects" }
+        if containsAny(lower, ["money", "finance", "grant", "hardware", "device", "gpu"]) { return "constraints" }
         return layer == .definingTrait ? WikiPageRecord.slugify(text) : nil
     }
 
@@ -115,7 +115,7 @@ public struct MemoryNodeLayerClassifier: Sendable {
     ]
 
     private let importantSignals = [
-        "ucla", "mathematics", "student at", "majoring", "bs/ma", "bsma", "founder",
+        "mathematics", "student at", "majoring", "bs/ma", "bsma", "founder",
         "co-directed", "active software developer", "zero money", "100% local", "major project",
         "eagle scout", "a6000", "m4 macbook", "startup", "career", "consulting"
     ]

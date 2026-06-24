@@ -217,13 +217,7 @@ public enum MemoryQualityPolicy {
         "blender",
         "canva",
         "github",
-        "google drive",
-        "macbook",
-        "macbook pro",
-        "m4 macbook",
-        "m4 macbook pro",
-        "mac studio",
-        "m3 ultra mac studio"
+        "google drive"
     ]
 
     private static let generatedMetadataPrefixes: Set<String> = [

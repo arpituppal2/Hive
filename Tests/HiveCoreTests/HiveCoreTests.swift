@@ -4092,6 +4092,36 @@ final class HiveCoreTests: XCTestCase {
         let afterCount = try store.fetchAuditEvents().count
         XCTAssertEqual(beforeCount, afterCount)
     }
+
+    func testProductionLogicContainsNoPrivilegedTopicInjectionStrings() throws {
+        let root = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let productionFiles = [
+            "Sources/HiveCore/MemorySelfHealingEngine.swift",
+            "Sources/HiveCore/PresentationAdapters.swift",
+            "Sources/HiveCore/GraphPresentationSemantics.swift",
+            "Sources/HiveCore/MemoryNodeLayerClassifier.swift"
+        ]
+        let banned = [
+            "entity-mac-studio-funding-goal",
+            "claim-mac-studio-funding-goal",
+            "Mac Studio Funding Goal",
+            "M3 Ultra Mac Studio"
+        ]
+
+        for relativePath in productionFiles {
+            let fileURL = root.appendingPathComponent(relativePath)
+            let contents = try String(contentsOf: fileURL)
+            for marker in banned {
+                XCTAssertFalse(
+                    contents.localizedCaseInsensitiveContains(marker),
+                    "\(relativePath) still contains privileged topic marker: \(marker)"
+                )
+            }
+        }
+    }
 }
 
 private struct Harness {
