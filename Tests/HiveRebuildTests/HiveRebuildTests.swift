@@ -4757,6 +4757,19 @@ final class HiveRebuildTests: XCTestCase {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
+        let packageManifest = try String(contentsOf: root.appendingPathComponent("Package.swift"))
+        XCTAssertTrue(
+            packageManifest.contains("name: \"HiveMacApp\""),
+            "Package.swift must define HiveMacApp target"
+        )
+        XCTAssertTrue(
+            packageManifest.contains("HiveMacRootView.swift"),
+            "HiveMacApp target must use an explicit sources allowlist"
+        )
+        XCTAssertFalse(
+            packageManifest.contains("HiveAppModel.swift"),
+            "HiveMacApp target must not compile HiveAppModel.swift"
+        )
         let macAppDirectory = root.appendingPathComponent("Sources/HiveMacApp", isDirectory: true)
         let swiftFiles = try FileManager.default.contentsOfDirectory(at: macAppDirectory, includingPropertiesForKeys: nil)
             .filter { $0.pathExtension == "swift" }
