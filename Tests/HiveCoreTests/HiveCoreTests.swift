@@ -4122,6 +4122,34 @@ final class HiveCoreTests: XCTestCase {
             }
         }
     }
+
+    func testTopicDominanceWarningTriggersAtThreshold() {
+        let claims = (0..<20).map { index in
+            ClaimRecord(
+                id: "claim-\(index)",
+                statement: index < 4 ? "Swimming maintenance checklist item \(index)" : "Programming study note \(index)",
+                sourceRefs: ["source-\(index % 3)"],
+                confidence: 0.8,
+                uncertaintyReason: "fixture"
+            )
+        }
+        let warning = HiveReindexTrustCoordinator.topicDominanceWarning(for: claims)
+        XCTAssertNotNil(warning)
+        XCTAssertEqual(warning?.topic, "programming")
+    }
+
+    func testTopicDominanceWarningDoesNotTriggerBelowThreshold() {
+        let claims = (0..<20).map { index in
+            ClaimRecord(
+                id: "claim-low-\(index)",
+                statement: "Topic \(index) independent statement",
+                sourceRefs: ["source-a"],
+                confidence: 0.7,
+                uncertaintyReason: "fixture"
+            )
+        }
+        XCTAssertNil(HiveReindexTrustCoordinator.topicDominanceWarning(for: claims))
+    }
 }
 
 private struct Harness {

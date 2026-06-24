@@ -130,7 +130,12 @@ public struct HiveMacRootView: View {
                 if let runtimeNotice {
                     HiveRuntimeStatusBanner(
                         notice: runtimeNotice,
-                        onDismiss: { model.errorText = nil },
+                        onDismiss: {
+                            model.errorText = nil
+                            if model.topicDominanceWarning != nil {
+                                model.dismissTopicDominanceWarningForSession()
+                            }
+                        },
                         onOpenSettings: {
                             model.chatVisible = false
                             model.commandPaletteVisible = false
@@ -483,6 +488,17 @@ public struct HiveMacRootView: View {
                 message: "Hive is reading the Field and refreshing The Hive.",
                 actionTitle: nil,
                 dismissible: false
+            )
+        }
+        if model.selectedSurface == .rawInputs,
+           !model.topicDominanceDismissedForSession,
+           let warning = model.topicDominanceWarning {
+            return HiveRuntimeStatusNotice(
+                symbol: .conflict,
+                title: "Topic dominance detected",
+                message: "\(warning.topic) has \(warning.claimCount) of \(warning.totalClaims) claims (\(Int((warning.ratio * 100).rounded()))%). Add broader sources to reduce answer skew.",
+                actionTitle: nil,
+                dismissible: true
             )
         }
         return nil

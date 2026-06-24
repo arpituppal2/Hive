@@ -475,6 +475,8 @@ public final class HiveAppModel: ObservableObject {
     @Published public var errorText: String?
     @Published public var isWorking = false
     @Published public var sourcePluginStatusText = ""
+    @Published public var topicDominanceWarning: TopicDominanceWarning?
+    @Published public var topicDominanceDismissedForSession = false
     @Published public private(set) var learningSettings = HiveLearningSettingsStore.load()
     @Published public var rawSourcesAuditVisible = false
     @Published public var sourcePreview: RawSourcePreview?
@@ -506,6 +508,7 @@ public final class HiveAppModel: ObservableObject {
     private var swarmDraftSessionID = UUID()
     private var swarmAttachmentRefreshTask: Task<Void, Never>?
     private var quickSwarmLastDismissedAt: Date?
+    private var trustedReindexInProgress = false
     private var appleCredentialRevocationObserver: NSObjectProtocol?
     private let knowledgeMutationQueue = DispatchQueue(label: "local.hive.knowledge-mutations", qos: .userInitiated)
 
@@ -2239,12 +2242,58 @@ public final class HiveAppModel: ObservableObject {
 
     public func requestHiveReindex() {
         guard requireAppleAuthentication() else { return }
+        guard !trustedReindexInProgress else {
+            sourcePluginStatusText = "Re-index already in progress."
+            return
+        }
         commandText = ""
         commandPaletteVisible = false
         chatVisible = false
         settingsVisible = false
         selectedSurface = .graph
         graphReindexRequestID = UUID()
+        runTrustedReindex()
+    }
+
+    public func dismissTopicDominanceWarningForSession() {
+        topicDominanceDismissedForSession = true
+    }
+
+    private func runTrustedReindex() {
+        guard !trustedReindexInProgress else { return }
+        trustedReindexInProgress = true
+        topicDominanceDismissedForSession = false
+        isWorking = true
+        sourcePluginStatusText = "Re-indexing Hive..."
+        DispatchQueue.global(qos: .userInitiated).async { [store, ingestionEngine, knowledgeLoop, paths] in
+            let result = Result {
+                try HiveReindexTrustCoordinator(
+                    store: store,
+                    ingestion: ingestionEngine,
+                    knowledgeLoop: knowledgeLoop,
+                    paths: paths
+                ).run()
+            }
+            DispatchQueue.main.async {
+                self.trustedReindexInProgress = false
+                self.isWorking = false
+                switch result {
+                case .success(let report):
+                    self.topicDominanceWarning = report.topicDominance
+                    let warningText: String
+                    if let warning = report.topicDominance {
+                        warningText = " Dominant topic: \(warning.topic) (\(Int((warning.ratio * 100).rounded()))%)."
+                    } else {
+                        warningText = ""
+                    }
+                    self.sourcePluginStatusText = "Re-index complete. \(report.filesProcessed) files, \(report.claimsExtracted) claims, \(report.duplicatesCollapsed) duplicates collapsed.\(warningText)"
+                    self.refreshFromStore()
+                case .failure(let error):
+                    self.errorText = error.localizedDescription
+                    self.sourcePluginStatusText = "Re-index failed."
+                }
+            }
+        }
     }
 
     public func ingest(urls: [URL]) {
