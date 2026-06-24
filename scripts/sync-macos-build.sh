@@ -51,6 +51,12 @@ rm -rf ~/Library/Developer/Xcode/DerivedData/Hive-*
 rm -rf ~/Library/Caches/org.swift.swiftpm
 xattr -cr "$ROOT" 2>/dev/null || true
 
+if command -v xcrun >/dev/null 2>&1; then
+  echo "==> Resolving Swift package dependencies"
+  env DEVELOPER_DIR="${DEVELOPER_DIR:-$(xcode-select -p 2>/dev/null || true)}" \
+    xcrun --sdk macosx swift package resolve || true
+fi
+
 echo "==> HiveMacApp sources:"
 ls -1 Sources/HiveMacApp
 

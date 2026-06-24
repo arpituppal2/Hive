@@ -967,7 +967,7 @@ public struct HiveSettingsSurface: View {
     @State private var automationReadiness = HiveAutomationReadinessReport.current()
     @AppStorage("hive.graph.useAppKitCanvas") private var graphUsesAppKitCanvas = false
     public var attachmentPathDescription: String
-    public var sourcePluginStatusText: String
+    @Binding public var sourcePluginStatusText: String
     public var onReplayTutorial: () -> Void
     public var onRunMorningBriefing: () -> Void
     public var onConfigureSourcePlugins: (HiveStartupSourcePluginRequest) -> Void
@@ -980,7 +980,7 @@ public struct HiveSettingsSurface: View {
 
     public init(
         attachmentPathDescription: String = "Saved article images stay on this Mac.",
-        sourcePluginStatusText: String = "",
+        sourcePluginStatusText: Binding<String> = .constant(""),
         learningSettings: Binding<HiveLearningSettings> = .constant(.defaultValue),
         appearanceMode: Binding<String>,
         showInDock: Binding<Bool> = .constant(true),
@@ -1000,7 +1000,7 @@ public struct HiveSettingsSurface: View {
         onClose: @escaping () -> Void
     ) {
         self.attachmentPathDescription = attachmentPathDescription
-        self.sourcePluginStatusText = sourcePluginStatusText
+        self._sourcePluginStatusText = sourcePluginStatusText
         self._learningSettings = learningSettings
         self.onReplayTutorial = onReplayTutorial
         self.onRunMorningBriefing = onRunMorningBriefing
@@ -1051,6 +1051,83 @@ public struct HiveSettingsSurface: View {
             get: { learningSettings.learnsFromCalendar },
             set: { learningSettings.learnsFromCalendar = $0 }
         )
+    }
+
+    @ViewBuilder
+    private var fieldRetentionSection: some View {
+        Section("Field") {
+            LabeledContent("Raw source files") {
+                Text(HiveRawSourceRetention.fixedRawFileRetention.label)
+                    .font(HiveTypography.chromeFootnoteEmphasized)
+                    .foregroundStyle(HiveColorToken.nectarText.color)
+            }
+            Text("Hive keeps copied raw files briefly, then keeps durable extracted memory, citations, and undo history.")
+                .font(HiveTypography.chromeFootnote)
+                .foregroundStyle(HiveColorToken.nectarMuted.color)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    @ViewBuilder
+    private var sourcePluginsSection: some View {
+        Section("Source Plugins") {
+            HiveStartupSourcePluginSetup(
+                selections: $sourcePluginRequest.selections,
+                pasteLocation: $sourcePluginRequest.pasteLocation,
+                prompt: $sourcePluginRequest.prompt,
+                compact: true,
+                onToggleChange: { kind, enabled in
+                    handlePluginToggle(kind: kind, enabled: enabled)
+                },
+                onPasteSubmit: {
+                    submitSourcePluginPaste()
+                }
+            )
+            sourcePluginActionRow
+            if !sourcePluginStatusText.isEmpty {
+                Text(sourcePluginStatusText)
+                    .font(HiveTypography.chromeFootnote)
+                    .foregroundStyle(HiveColorToken.nectarMuted.color)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var sourcePluginActionRow: some View {
+        HStack(spacing: 10) {
+            Button("Add to Field") {
+                let request = HiveStartupSourcePluginCatalog.sanitizedRequest(sourcePluginRequest)
+                sourcePluginRequest = request
+                if request.hasBrowserHistoryIntent && !request.hasUserInstruction {
+                    onChooseBrowserHistory(request)
+                } else {
+                    onConfigureSourcePlugins(request)
+                }
+            }
+            .buttonStyle(HiveGlassButtonStyle(active: sourcePluginRequest.canRunWithoutPicker))
+            .disabled(!sourcePluginRequest.canRunWithoutPicker)
+            Button("Choose Files...") {
+                var request = HiveStartupSourcePluginCatalog.sanitizedRequest(sourcePluginRequest)
+                request.selections = request.selections.map { selection in
+                    HiveStartupSourcePluginSelection(kind: selection.kind, isEnabled: selection.kind == .uploads ? true : selection.isEnabled)
+                }
+                sourcePluginRequest = request
+                onChooseSourcePluginFiles(request)
+            }
+            .buttonStyle(HiveGlassButtonStyle(active: true))
+            if sourcePluginRequest.hasBrowserHistoryIntent {
+                Button("Choose Browser History...") {
+                    var request = HiveStartupSourcePluginCatalog.sanitizedRequest(sourcePluginRequest)
+                    request.selections = request.selections.map { selection in
+                        HiveStartupSourcePluginSelection(kind: selection.kind, isEnabled: selection.kind == .browserHistory ? true : selection.isEnabled)
+                    }
+                    sourcePluginRequest = request
+                    onChooseBrowserHistory(request)
+                }
+                .buttonStyle(HiveGlassButtonStyle(active: true))
+            }
+            Spacer(minLength: 0)
+        }
     }
 
     public var body: some View {
@@ -1175,71 +1252,8 @@ public struct HiveSettingsSurface: View {
                     }
                 }
 
-                Section("Field") {
-                    LabeledContent("Raw source files") {
-                        Text(HiveRawSourceRetention.fixedRawFileRetention.label)
-                            .font(HiveTypography.chromeFootnoteEmphasized)
-                            .foregroundStyle(HiveColorToken.nectarText.color)
-                    }
-                    Text("Hive keeps copied raw files briefly, then keeps durable extracted memory, citations, and undo history.")
-                        .font(HiveTypography.chromeFootnote)
-                        .foregroundStyle(HiveColorToken.nectarMuted.color)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Section("Source Plugins") {
-                    HiveStartupSourcePluginSetup(
-                        selections: $sourcePluginRequest.selections,
-                        pasteLocation: $sourcePluginRequest.pasteLocation,
-                        prompt: $sourcePluginRequest.prompt,
-                        compact: true,
-                        onToggleChange: { kind, enabled in
-                            handlePluginToggle(kind: kind, enabled: enabled)
-                        },
-                        onPasteSubmit: {
-                            submitSourcePluginPaste()
-                        }
-                    )
-                    HStack(spacing: 10) {
-                        Button("Add to Field") {
-                            let request = HiveStartupSourcePluginCatalog.sanitizedRequest(sourcePluginRequest)
-                            sourcePluginRequest = request
-                            if request.hasBrowserHistoryIntent && !request.hasUserInstruction {
-                                onChooseBrowserHistory(request)
-                            } else {
-                                onConfigureSourcePlugins(request)
-                            }
-                        }
-                        .buttonStyle(HiveGlassButtonStyle(active: sourcePluginRequest.canRunWithoutPicker))
-                        .disabled(!sourcePluginRequest.canRunWithoutPicker)
-                        Button("Choose Files...") {
-                            var request = HiveStartupSourcePluginCatalog.sanitizedRequest(sourcePluginRequest)
-                            request.selections = request.selections.map { selection in
-                                HiveStartupSourcePluginSelection(kind: selection.kind, isEnabled: selection.kind == .uploads ? true : selection.isEnabled)
-                            }
-                            sourcePluginRequest = request
-                            onChooseSourcePluginFiles(request)
-                        }
-                        .buttonStyle(HiveGlassButtonStyle(active: true))
-                        if sourcePluginRequest.hasBrowserHistoryIntent {
-                            Button("Choose Browser History...") {
-                                var request = HiveStartupSourcePluginCatalog.sanitizedRequest(sourcePluginRequest)
-                                request.selections = request.selections.map { selection in
-                                    HiveStartupSourcePluginSelection(kind: selection.kind, isEnabled: selection.kind == .browserHistory ? true : selection.isEnabled)
-                                }
-                                sourcePluginRequest = request
-                                onChooseBrowserHistory(request)
-                            }
-                            .buttonStyle(HiveGlassButtonStyle(active: true))
-                        }
-                        Spacer(minLength: 0)
-                    }
-                    if !sourcePluginStatusText.isEmpty {
-                        Text(sourcePluginStatusText)
-                            .font(HiveTypography.chromeFootnote)
-                            .foregroundStyle(HiveColorToken.nectarMuted.color)
-                    }
-                }
+                fieldRetentionSection
+                sourcePluginsSection
 
                 Section("Account") {
                     HiveAppleAccountSection(onAccountChanged: onAppleAccountChanged)

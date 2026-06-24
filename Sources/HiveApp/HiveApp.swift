@@ -104,7 +104,7 @@ private struct HiveSettingsWindowContent: View {
             } else {
                 HiveSettingsSurface(
                     attachmentPathDescription: "Saved article images stay available locally, even if the original page changes.",
-                    sourcePluginStatusText: model.sourcePluginStatusText,
+                    sourcePluginStatusText: $model.sourcePluginStatusText,
                     learningSettings: Binding(
                         get: { model.learningSettings },
                         set: { model.updateLearningSettings($0) }
@@ -722,7 +722,7 @@ private final class HiveShiftCaptureHotKeyController: ObservableObject {
         phase = .capturing
         showPanel()
         let targetURL = makeScreenshotTargetURL(model: model)
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let result = Result { try Self.captureScreenshot(to: targetURL) }
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }

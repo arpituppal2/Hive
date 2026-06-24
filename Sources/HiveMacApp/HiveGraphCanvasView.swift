@@ -37,8 +37,16 @@ public final class HiveGraphCanvasView: NSView {
         nil
     }
 
-    deinit {
+    public override func viewWillMove(toWindow newWindow: NSWindow?) {
+        super.viewWillMove(toWindow: newWindow)
+        if newWindow == nil {
+            stopRevealTimer()
+        }
+    }
+
+    private func stopRevealTimer() {
         revealTimer?.invalidate()
+        revealTimer = nil
     }
 
     public override func draw(_ dirtyRect: NSRect) {
