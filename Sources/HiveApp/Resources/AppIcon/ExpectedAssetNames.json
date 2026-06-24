@@ -1,0 +1,13 @@
+{
+  "assetCatalogRoot": "HiveApp/Assets.xcassets",
+  "requiredAssets": [
+    "AppIcon.appiconset",
+    "MenuBarActive.imageset",
+    "MenuBarPaused.imageset",
+    "DockBadgeTemplate.imageset"
+  ],
+  "menuBarIconStates": {
+    "active": "MenuBarActive",
+    "paused": "MenuBarPaused"
+  }
+}

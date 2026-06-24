@@ -559,16 +559,25 @@ public struct HiveSymbolButton: View {
     }
 }
 
+public enum HiveMenuBarIconState: Sendable {
+    case active
+    case paused
+}
+
 public struct HiveMenuBarIcon: View {
-    public init() {}
+    public var state: HiveMenuBarIconState
+
+    public init(state: HiveMenuBarIconState = .active) {
+        self.state = state
+    }
 
     public var body: some View {
         HiveSymbol(
-            .hiveGraph,
+            state == .active ? .hiveGraph : .quickCapture,
             size: 17,
             weight: .bold,
             active: true,
-            rendering: .monochrome(.white),
+            rendering: .monochrome(state == .active ? .white : HiveColorToken.nectarMuted.color),
             accessibilityLabel: "Hive"
         )
         .frame(width: 30, height: 20)

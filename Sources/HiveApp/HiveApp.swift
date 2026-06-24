@@ -9,6 +9,7 @@ import Carbon
 @MainActor
 private final class HiveAppPreferences: ObservableObject {
     @Published private(set) var sidebarVisible: Bool
+    @Published private(set) var showInDock: Bool
     @Published private(set) var menuBarExtraVisible: Bool
     @Published private(set) var menuBarQuickCaptureEnabled: Bool
     @Published private(set) var shortcutRevision = 0
@@ -19,6 +20,7 @@ private final class HiveAppPreferences: ObservableObject {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         sidebarVisible = Self.defaultBool("hive.sidebarVisible", fallback: true, defaults: defaults)
+        showInDock = Self.defaultBool("hive.showInDock", fallback: true, defaults: defaults)
         menuBarExtraVisible = Self.defaultBool("hive.menuBarExtraVisible", fallback: true, defaults: defaults)
         menuBarQuickCaptureEnabled = Self.defaultBool("hive.menuBarQuickCaptureEnabled", fallback: true, defaults: defaults)
         observer = NotificationCenter.default.addObserver(
@@ -44,13 +46,27 @@ private final class HiveAppPreferences: ObservableObject {
         defaults.set(visible, forKey: "hive.menuBarExtraVisible")
     }
 
+    func setShowInDock(_ visible: Bool) {
+        guard showInDock != visible else { return }
+        showInDock = visible
+        defaults.set(visible, forKey: "hive.showInDock")
+        if !visible && !menuBarExtraVisible {
+            menuBarExtraVisible = true
+            defaults.set(true, forKey: "hive.menuBarExtraVisible")
+        }
+    }
+
     private func refreshFromDefaults() {
         let nextSidebarVisible = Self.defaultBool("hive.sidebarVisible", fallback: true, defaults: defaults)
+        let nextShowInDock = Self.defaultBool("hive.showInDock", fallback: true, defaults: defaults)
         let nextMenuBarExtraVisible = Self.defaultBool("hive.menuBarExtraVisible", fallback: true, defaults: defaults)
         let nextQuickCaptureEnabled = Self.defaultBool("hive.menuBarQuickCaptureEnabled", fallback: true, defaults: defaults)
         shortcutRevision += 1
         if sidebarVisible != nextSidebarVisible {
             sidebarVisible = nextSidebarVisible
+        }
+        if showInDock != nextShowInDock {
+            showInDock = nextShowInDock
         }
         if menuBarExtraVisible != nextMenuBarExtraVisible {
             menuBarExtraVisible = nextMenuBarExtraVisible
@@ -68,6 +84,7 @@ private final class HiveAppPreferences: ObservableObject {
 private struct HiveSettingsWindowContent: View {
     @EnvironmentObject private var model: HiveAppModel
     @AppStorage("hive.appearanceMode") private var appearanceModeRaw = HiveAppearanceMode.system.rawValue
+    @AppStorage("hive.showInDock") private var showInDock = true
     @AppStorage("hive.menuBarExtraVisible") private var menuBarExtraVisible = true
     @AppStorage("hive.menuBarQuickCaptureEnabled") private var menuBarQuickCaptureEnabled = true
 
@@ -93,6 +110,7 @@ private struct HiveSettingsWindowContent: View {
                         set: { model.updateLearningSettings($0) }
                     ),
                     appearanceMode: $appearanceModeRaw,
+                    showInDock: $showInDock,
                     menuBarExtraVisible: $menuBarExtraVisible,
                     menuBarQuickCaptureEnabled: $menuBarQuickCaptureEnabled,
                     onReplayTutorial: {
@@ -1012,6 +1030,40 @@ private final class HiveAppLifecycleDelegate: NSObject, NSApplicationDelegate {
         HiveMacWindowPresenter.showMainWindow()
         return false
     }
+
+    func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+        let menu = NSMenu(title: "Hive")
+        menu.addItem(withTitle: "Open Hive", action: #selector(openHiveFromDock), keyEquivalent: "")
+        menu.addItem(withTitle: "Open Field", action: #selector(openFieldFromDock), keyEquivalent: "")
+        menu.addItem(withTitle: "Open Swarm", action: #selector(openSwarmFromDock), keyEquivalent: "")
+        menu.addItem(.separator())
+        menu.addItem(withTitle: "Settings…", action: #selector(openSettingsFromDock), keyEquivalent: "")
+        menu.items.forEach { $0.target = self }
+        return menu
+    }
+
+    @objc private func openHiveFromDock() {
+        NotificationCenter.default.post(name: .hiveDockOpenHive, object: nil)
+    }
+
+    @objc private func openFieldFromDock() {
+        NotificationCenter.default.post(name: .hiveDockOpenField, object: nil)
+    }
+
+    @objc private func openSwarmFromDock() {
+        NotificationCenter.default.post(name: .hiveDockOpenSwarm, object: nil)
+    }
+
+    @objc private func openSettingsFromDock() {
+        NotificationCenter.default.post(name: .hiveDockOpenSettings, object: nil)
+    }
+}
+
+private extension Notification.Name {
+    static let hiveDockOpenHive = Notification.Name("hive.dock.openHive")
+    static let hiveDockOpenField = Notification.Name("hive.dock.openField")
+    static let hiveDockOpenSwarm = Notification.Name("hive.dock.openSwarm")
+    static let hiveDockOpenSettings = Notification.Name("hive.dock.openSettings")
 }
 
 @main
@@ -1037,9 +1089,34 @@ struct HiveExecutable: App {
                     quickChatWindow.install(model: model)
                     quickChatHotKey.install(windowController: quickChatWindow)
                     shiftCaptureHotKey.install(model: model)
+                    applyDockVisibility(showInDock: preferences.showInDock)
                 }
                 .onChange(of: preferences.shortcutRevision) { _, _ in
                     liveHotKey.install(model: model)
+                }
+                .onChange(of: preferences.showInDock) { _, visible in
+                    applyDockVisibility(showInDock: visible)
+                }
+                .onChange(of: model.claims.count) { _, claimCount in
+                    NSApp.dockTile.badgeLabel = claimCount > 0 ? "\(min(claimCount, 999))" : nil
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .hiveDockOpenHive)) { _ in
+                    model.selectedSurface = .graph
+                    HiveMacWindowPresenter.showMainWindow()
+                    NSApp.activate(ignoringOtherApps: true)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .hiveDockOpenField)) { _ in
+                    model.selectedSurface = .rawInputs
+                    HiveMacWindowPresenter.showMainWindow()
+                    NSApp.activate(ignoringOtherApps: true)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .hiveDockOpenSwarm)) { _ in
+                    model.chatVisible = true
+                    HiveMacWindowPresenter.showMainWindow()
+                    NSApp.activate(ignoringOtherApps: true)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .hiveDockOpenSettings)) { _ in
+                    openSettingsPanel()
                 }
         }
         .windowStyle(.hiddenTitleBar)
@@ -1208,7 +1285,7 @@ struct HiveExecutable: App {
                 .environmentObject(model)
                 .tint(HiveColorToken.waxAmber.color)
         } label: {
-            HiveMenuBarIcon()
+            HiveMenuBarIcon(state: preferences.menuBarQuickCaptureEnabled ? .active : .paused)
                 .overlay(
                     ZStack {
                         HiveLiveHotKeyBootstrap(
@@ -1256,6 +1333,10 @@ struct HiveExecutable: App {
                 model.ingest(urls: urls)
             }
         }
+    }
+
+    private func applyDockVisibility(showInDock: Bool) {
+        NSApp.setActivationPolicy(showInDock ? .regular : .accessory)
     }
 
     private func requireAuthenticatedEntryPoint() -> Bool {

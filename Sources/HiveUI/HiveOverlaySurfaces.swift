@@ -932,6 +932,7 @@ private extension HiveStartupSourcePluginKind {
 public struct HiveSettingsSurface: View {
     @Binding private var learningSettings: HiveLearningSettings
     @Binding private var appearanceMode: String
+    @Binding private var showInDock: Bool
     @Binding private var menuBarExtraVisible: Bool
     @Binding private var menuBarQuickCaptureEnabled: Bool
     public var onClose: () -> Void
@@ -981,6 +982,7 @@ public struct HiveSettingsSurface: View {
         sourcePluginStatusText: String = "",
         learningSettings: Binding<HiveLearningSettings> = .constant(.defaultValue),
         appearanceMode: Binding<String>,
+        showInDock: Binding<Bool> = .constant(true),
         menuBarExtraVisible: Binding<Bool> = .constant(true),
         menuBarQuickCaptureEnabled: Binding<Bool> = .constant(true),
         onReplayTutorial: @escaping () -> Void = {},
@@ -1009,6 +1011,7 @@ public struct HiveSettingsSurface: View {
         self.commandAvailability = commandAvailability
         self.onCommand = onCommand
         self._appearanceMode = appearanceMode
+        self._showInDock = showInDock
         self._menuBarExtraVisible = menuBarExtraVisible
         self._menuBarQuickCaptureEnabled = menuBarQuickCaptureEnabled
         self.onClose = onClose
@@ -1338,13 +1341,31 @@ public struct HiveSettingsSurface: View {
 
                 Section("Menu Bar") {
                     MenuBarPreview(enabled: menuBarExtraVisible)
+                    Toggle("Show Hive in Dock", isOn: $showInDock)
+                        .toggleStyle(.switch)
+                        .tint(HiveColorToken.waxAmber.color)
+                        .onChange(of: showInDock) { _, isOn in
+                            if !isOn && !menuBarExtraVisible {
+                                menuBarExtraVisible = true
+                            }
+                        }
                     Toggle("Show Hive in the menu bar", isOn: $menuBarExtraVisible)
                         .toggleStyle(.switch)
                         .tint(HiveColorToken.waxAmber.color)
+                        .onChange(of: menuBarExtraVisible) { _, isOn in
+                            if !isOn && !showInDock {
+                                showInDock = true
+                            }
+                        }
                     Toggle("Show quick capture", isOn: $menuBarQuickCaptureEnabled)
                         .toggleStyle(.switch)
                         .tint(HiveColorToken.waxAmber.color)
                         .disabled(!menuBarExtraVisible)
+                    if !showInDock && !menuBarExtraVisible {
+                        Text("Either Dock or menu bar visibility must stay enabled.")
+                            .font(HiveTypography.chromeFootnote)
+                            .foregroundStyle(HiveColorToken.signalCritical.color)
+                    }
                     Text("Menu bar controls stay focused on capture, Live, and opening Hive.")
                         .font(HiveTypography.chromeFootnote)
                         .foregroundStyle(HiveColorToken.nectarMuted.color)
