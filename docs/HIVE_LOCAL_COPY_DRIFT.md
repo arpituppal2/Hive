@@ -30,9 +30,12 @@ Local-only files that must be deleted:
 
 ## Fix
 
+`Package.swift` now lists an explicit `sources` allowlist for `HiveMacApp`, so stray files like `HiveAppModel.swift` are ignored even if they remain on disk. You still need the canonical `HiveMacRootView.swift` from git — run the sync script if that file was edited locally.
+
 From the repo root:
 
 ```bash
+git pull origin arpituppal2/hive-production-rebuild-82c2
 ./scripts/sync-macos-build.sh
 open Package.swift
 ```

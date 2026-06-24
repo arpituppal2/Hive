@@ -60,7 +60,14 @@ let package = Package(
         ),
         .target(
             name: "HiveMacApp",
-            dependencies: ["HiveCore", "HiveDesignSystem", "HiveMetalRenderer", "HiveUI"]
+            dependencies: ["HiveCore", "HiveDesignSystem", "HiveMetalRenderer", "HiveUI"],
+            path: "Sources/HiveMacApp",
+            sources: [
+                "HiveAppKitGraphSurface.swift",
+                "HiveGraphCanvasView.swift",
+                "HiveMacRootView.swift",
+                "HiveMacWindowPresenter.swift"
+            ]
         ),
         .target(
             name: "HiveMobileApp",
