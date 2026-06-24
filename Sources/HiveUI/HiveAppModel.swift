@@ -2083,17 +2083,20 @@ public final class HiveAppModel: ObservableObject {
         guard requireAppleAuthentication() else { return }
         isWorking = true
         sourcePluginStatusText = "Resetting Hive..."
+        let paths = self.paths
+        let databaseURL = paths.database
+        let root = paths.root
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
             do {
-                self.store.close()
                 let result = try HiveWorkspaceOperations.resetWorkspace(
-                    root: self.paths.root,
-                    databaseURL: self.paths.database
+                    root: root,
+                    databaseURL: databaseURL
                 )
-                let newStore = try HiveStore(databaseURL: self.paths.database)
-                try self.paths.createDirectories()
+                let newStore = try HiveStore(databaseURL: databaseURL)
+                try paths.createDirectories()
                 DispatchQueue.main.async {
+                    self.store.close()
                     self.store = newStore
                     self.controlPlane = ControlPlane(store: newStore, paths: self.paths)
                     self.ingestionEngine = IngestionCoordinator(paths: self.paths, store: newStore)

@@ -79,7 +79,9 @@ public final class HiveGraphCanvasView: NSView {
     }
 
     private func drawNodes() {
-        let orderedNodes = graph.nodes.sorted { $0.createdAt < $1.createdAt }
+        let orderedNodes = graph.nodes.sorted { lhs, rhs in
+            (lhs.timestamp ?? .distantPast) < (rhs.timestamp ?? .distantPast)
+        }
         for node in orderedNodes.prefix(revealNodeCount) {
             let center = canvasPoint(for: node)
             let radius = node.id == selectedNodeID ? baseNodeRadius * 1.22 : baseNodeRadius
@@ -126,11 +128,13 @@ public final class HiveGraphCanvasView: NSView {
     private func startRevealTimer() {
         revealTimer?.invalidate()
         revealTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
-            guard let self else { return }
-            let target = max(120, self.graph.nodes.count)
-            if self.revealNodeCount < target {
-                self.revealNodeCount = min(target, self.revealNodeCount + 12)
-                self.needsDisplay = true
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                let target = max(120, self.graph.nodes.count)
+                if self.revealNodeCount < target {
+                    self.revealNodeCount = min(target, self.revealNodeCount + 12)
+                    self.needsDisplay = true
+                }
             }
         }
     }

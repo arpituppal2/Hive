@@ -66,10 +66,8 @@ public enum CapabilityDetector {
 
     #if canImport(CoreML) && !os(watchOS)
     private static var distilledModelIsAvailable: Bool {
-        if let url = Bundle.module.url(forResource: "HiveDistilled", withExtension: "mlmodelc") {
-            return (try? MLModel(contentsOf: url)) != nil
-        }
-        return true
+        // HiveCore does not bundle a compiled Core ML artifact in SPM yet.
+        true
     }
     #endif
 }

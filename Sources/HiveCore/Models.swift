@@ -795,6 +795,8 @@ public struct HiveGraphSnapshot: Codable, Hashable, Sendable {
     public var nodes: [GraphNodeRecord]
     public var edges: [GraphEdgeRecord]
 
+    public static let empty = HiveGraphSnapshot(nodes: [], edges: [])
+
     public init(nodes: [GraphNodeRecord], edges: [GraphEdgeRecord]) {
         self.nodes = nodes
         self.edges = edges

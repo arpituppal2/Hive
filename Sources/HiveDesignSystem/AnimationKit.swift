@@ -33,6 +33,7 @@ public enum AnimationKit {
     }
 
     #if os(macOS)
+    @MainActor
     public static func fileAway(view: NSView, delay: CFTimeInterval) {
         guard !reduceMotion else {
             view.alphaValue = 0

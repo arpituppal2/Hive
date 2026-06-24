@@ -479,10 +479,10 @@ public final class HiveSpeechOutputController: NSObject, ObservableObject {
         #endif
     }
 
-    public func speakStreamingResponse<Tokens: AsyncSequence>(
+    public func speakStreamingResponse<Tokens: AsyncSequence & Sendable>(
         selectedVoiceIdentifier: String? = SwarmVoiceSettingsStore.selectedVoiceIdentifier(),
         tokens: Tokens
-    ) async where Tokens.Element == String {
+    ) async where Tokens.Element == String, Tokens.AsyncIterator: Sendable {
         beginStreamingResponse(selectedVoiceIdentifier: selectedVoiceIdentifier)
         do {
             for try await token in tokens {
