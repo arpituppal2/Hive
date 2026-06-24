@@ -127,7 +127,8 @@ Pass: saved content appears with correct references.
 For each script above:
 - Capture: screenshot/video + relevant logs
 - Store in a dated folder (example: `artifacts/mac-finalization-YYYYMMDD/`)
-- Record Pass/Fail and notes in a markdown ledger
+- Record Pass/Fail and notes in a markdown ledger copied from:
+  - `docs/HIVE_MAC_ACCEPTANCE_LEDGER_TEMPLATE.md`
 
 Pass criteria:
 - Behavior exactly matches script expectation

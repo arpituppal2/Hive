@@ -4,7 +4,10 @@ import HiveCore
 @MainActor
 public final class HiveGraphCanvasView: NSView {
     public var graph: HiveGraphSnapshot = .empty {
-        didSet { needsDisplay = true }
+        didSet {
+            revealNodeCount = min(120, max(1, graph.nodes.count))
+            needsDisplay = true
+        }
     }
     public var selectedNodeID: String? {
         didSet { needsDisplay = true }
@@ -20,15 +23,22 @@ public final class HiveGraphCanvasView: NSView {
     private var nodeRects: [String: CGRect] = [:]
     private var labelRects: [CGRect] = []
     private let baseNodeRadius: CGFloat = 13
+    private var revealNodeCount = 120
+    private var revealTimer: Timer?
 
     public override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         wantsLayer = true
         layer?.backgroundColor = NSColor.clear.cgColor
+        startRevealTimer()
     }
 
     required init?(coder: NSCoder) {
         nil
+    }
+
+    deinit {
+        revealTimer?.invalidate()
     }
 
     public override func draw(_ dirtyRect: NSRect) {
@@ -70,7 +80,7 @@ public final class HiveGraphCanvasView: NSView {
 
     private func drawNodes() {
         let orderedNodes = graph.nodes.sorted { $0.createdAt < $1.createdAt }
-        for node in orderedNodes {
+        for node in orderedNodes.prefix(revealNodeCount) {
             let center = canvasPoint(for: node)
             let radius = node.id == selectedNodeID ? baseNodeRadius * 1.22 : baseNodeRadius
             let rect = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
@@ -111,5 +121,17 @@ public final class HiveGraphCanvasView: NSView {
             x: center.x + CGFloat(node.x) * spread * zoomScale,
             y: center.y + CGFloat(node.y) * spread * zoomScale
         )
+    }
+
+    private func startRevealTimer() {
+        revealTimer?.invalidate()
+        revealTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            let target = max(120, self.graph.nodes.count)
+            if self.revealNodeCount < target {
+                self.revealNodeCount = min(target, self.revealNodeCount + 12)
+                self.needsDisplay = true
+            }
+        }
     }
 }

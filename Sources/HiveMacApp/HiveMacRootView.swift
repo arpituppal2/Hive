@@ -39,6 +39,7 @@ public struct HiveMacRootView: View {
     @State private var didRegisterAppOpen = false
     @State private var dailyUseTipsVisible = false
     @State private var surfaceScrollDirection: HiveSidebarSurfaceScrollDirection = .forward
+    @State private var appKitGraphZoomScale: CGFloat = 1
 
     public init() {
         _hasSeenOnboarding = State(initialValue: HiveOnboardingStore.isCompleted())
@@ -576,7 +577,9 @@ public struct HiveMacRootView: View {
                     HiveAppKitGraphSurface(
                         graph: model.graph,
                         selectedNodeID: model.selectedNodeID,
-                        onSelectNode: { model.selectedNodeID = $0 }
+                        zoomScale: appKitGraphZoomScale,
+                        onSelectNode: { model.selectedNodeID = $0 },
+                        onZoomChanged: { appKitGraphZoomScale = $0 }
                     )
                 } else {
                     HiveGraphSurface(
