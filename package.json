@@ -1,0 +1,26 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "Hive is a local-first AI Wiki compiler for macOS. It is not a RAG app that rediscovers raw chunks on every question. Field sources remain immutable evidence; Hive incrementally compiles them into an AI-maintained Colony, keeps that Colony consistent, and exposes the shape of the compiled knowledge through The Hive graph.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arpituppal2/hive.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arpituppal2/hive/issues"
+  },
+  "homepage": "https://github.com/arpituppal2/hive#readme",
+  "devDependencies": {
+    "impeccable": "^2.3.2"
+  }
+}

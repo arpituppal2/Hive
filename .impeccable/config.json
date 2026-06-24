@@ -1,0 +1,16 @@
+{
+  "ignore": [
+    {
+      "path": "Design/AppleResources/apple-design-resources.html",
+      "reason": "Vendor snapshot from Apple design resources. Not app-authored UI code."
+    }
+  ],
+  "requiredDocs": [
+    "PRODUCT.md",
+    "DESIGN.md"
+  ],
+  "commands": {
+    "detect": "npx impeccable detect . --json",
+    "polish": "npx impeccable polish ."
+  }
+}
