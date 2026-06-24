@@ -4772,8 +4772,8 @@ final class HiveRebuildTests: XCTestCase {
             ],
             "HiveMacApp must not contain local-only files such as HiveAppModel.swift or HivePrompt10AppKit.swift"
         )
-        XCTAssertFalse(
-            FileManager.default.fileExists(atPath: root.appendingPathComponent("Sources/HiveUI/HiveAppModel.swift").path) == false,
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: root.appendingPathComponent("Sources/HiveUI/HiveAppModel.swift").path),
             "HiveAppModel must live in HiveUI"
         )
     }
