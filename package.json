@@ -7,7 +7,9 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Use swift/xcode test commands from runbook\"",
+    "impeccable:detect": "npx impeccable detect Sources docs PRODUCT.md DESIGN.md --json",
+    "impeccable:polish": "npx impeccable polish Sources docs PRODUCT.md DESIGN.md"
   },
   "repository": {
     "type": "git",

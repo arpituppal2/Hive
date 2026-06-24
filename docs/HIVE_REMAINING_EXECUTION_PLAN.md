@@ -2,147 +2,98 @@
 
 ## 1) Must do on Linux now
 
-1. **Objective:** Remove hardcoded topic injection and contamination-specific domain bundling.  
-   **Files to edit:**  
-   - `Sources/HiveCore/MemorySelfHealingEngine.swift`  
-   - `Sources/HiveCore/GraphPresentationSemantics.swift`  
-   - `Sources/HiveCore/PresentationAdapters.swift`  
-   **Exact command to run:**  
-   - `rg "mac studio|funding|entity-mac-studio-funding-goal|claim-mac-studio-funding-goal" /workspace/Sources`  
-   **Acceptance evidence required:**  
-   - No hardcoded prompt-banned domain terms in production logic (tests may still contain fixtures if clearly isolated)
-   - Self-healing logic generalized to source-driven patterns only
+1. **Objective:** Continue AppKit graph parity implementation where possible without Apple runtime.
+   **Files to edit:**
+   - `Sources/HiveMacApp/HiveGraphCanvasView.swift`
+   - `Sources/HiveMacApp/HiveAppKitGraphSurface.swift`
+   - `Sources/HiveMacApp/HiveMacRootView.swift`
+   **Exact command to run:**
+   - `rg "HiveGraphCanvasView|HiveAppKitGraphSurface|hive.graph.useAppKitCanvas" /workspace/Sources`
+   **Acceptance evidence required:**
+   - AppKit path handles selection, zoom interaction hooks, and collision-ready layout scaffolding
 
-2. **Objective:** Implement prompt-required re-index transactional pipeline (audit -> extract -> dedupe -> rebuild) with rollback and structured logs.  
-   **Files to edit:**  
-   - `Sources/HiveCore/Store.swift`  
-   - `Sources/HiveCore/Ingestion.swift`  
-   - `Sources/HiveCore/WikiEngine.swift`  
-   - `Sources/HiveUI/HiveAppModel.swift`  
-   **Exact command to run:**  
-   - `rg "reindex|BEGIN IMMEDIATE TRANSACTION|ROLLBACK|log.md|is_stale|source_file_hash" /workspace/Sources`  
-   **Acceptance evidence required:**  
-   - Single transaction wrapper around re-index state mutation
-   - Explicit rollback path exercised by test
-   - Structured `Vault/Colony/log.md` append format in code
-
-3. **Objective:** Add missing integration tests for acceptance scenarios executable in CI-like environments.  
-   **Files to edit:**  
-   - `Tests/HiveCoreTests/HiveCoreTests.swift`  
-   - `Tests/HiveRebuildTests/HiveRebuildTests.swift`  
-   **Exact command to run:**  
-   - `swift test` (on machine with Swift toolchain)  
-   **Acceptance evidence required:**  
-   - New tests for topic dominance logic, re-index concurrent trigger handling, and rollback behavior
-
-4. **Objective:** Add missing Impeccable scaffolding files so macOS run is actionable.  
-   **Files to edit:**  
-   - `PRODUCT.md`  
-   - `DESIGN.md`  
-   - `.impeccable/config.json` (if required by tool)  
-   **Exact command to run:**  
-   - `rg "impeccable|PRODUCT.md|DESIGN.md" /workspace`  
-   **Acceptance evidence required:**  
-   - Files exist with Hive-specific, non-placeholder content
+2. **Objective:** Keep truth docs synchronized with live state and priority queue.
+   **Files to edit:**
+   - `docs/HIVE_ACTIVE_GAP_QUEUE.md`
+   - `docs/HIVE_SPEC_GAP_AUDIT.md`
+   - `docs/BLOCKER_4_ICON_AND_MENUBAR_MAC_CHECKLIST.md`
+   - `docs/BLOCKER_5_APPKIT_GRAPH_MIGRATION_PLAN.md`
+   **Exact command to run:**
+   - `rg "P0|P1|OPEN|IN_PROGRESS|BLOCKED" /workspace/docs/HIVE_ACTIVE_GAP_QUEUE.md`
+   **Acceptance evidence required:**
+   - No stale “missing” claims for already-implemented code
 
 ## 2) Must do on your Mac in Xcode
 
-1. **Objective:** Implement/verify AppKit graph rewrite per prompt (`NSScrollView` + `HiveGraphCanvasView`).  
-   **Files to edit:**  
-   - `Sources/HiveUI/HiveGraphSurface.swift` (or split into AppKit adapter files)  
-   - `Sources/HiveMacApp/HiveMacRootView.swift`  
-   **Exact command to run:**  
-   - `open Package.swift`  
-   **Acceptance evidence required:**  
-   - Concrete `HiveGraphCanvasView` symbol and `NSScrollView` document-view wiring
-   - Cursor-centered zoom behavior in runtime
+1. **Objective:** Finalize AppKit graph migration parity.
+   **Files to edit:**
+   - `Sources/HiveMacApp/HiveGraphCanvasView.swift`
+   - `Sources/HiveMacApp/HiveAppKitGraphSurface.swift`
+   - `Sources/HiveMacApp/HiveMacRootView.swift`
+   **Exact command to run:**
+   - `open Package.swift`
+   **Acceptance evidence required:**
+   - Cursor-centered zoom
+   - Selection/hit-testing
+   - Label collision mitigation
+   - Staged reveal behavior
 
-2. **Objective:** Execute Icon Composer pipeline and verify AppIcon slot completion in Xcode.  
-   **Files to edit:**  
-   - `Sources/HiveApp/Resources/AppIcon/*`  
-   - Xcode `Assets.xcassets/AppIcon` (project-side)  
-   **Exact command to run:**  
-   - `scripts/export_icon_composer_assets.sh`  
-   **Acceptance evidence required:**  
-   - Icon Composer exports generated on macOS
-   - No missing AppIcon slots in Xcode asset catalog
-   - Dock icon visibly custom at runtime
+2. **Objective:** Execute Icon Composer flow and populate Xcode asset catalog.
+   **Files to edit:**
+   - `HiveApp/Assets.xcassets/*`
+   - `Sources/HiveApp/Resources/AppIcon/*` (if spec updates are needed)
+   **Exact command to run:**
+   - `scripts/export_icon_composer_assets.sh`
+   **Acceptance evidence required:**
+   - `AppIcon.appiconset` complete
+   - `MenuBarActive.imageset`, `MenuBarPaused.imageset`, `DockBadgeTemplate.imageset` populated
 
-3. **Objective:** Complete menu bar redesign requirement (header/footer/live claim count/state variants).  
-   **Files to edit:**  
-   - `Sources/HiveApp/HiveApp.swift`  
-   - `Sources/HiveUI/HiveOverlaySurfaces.swift`  
-   - Add dedicated menu view classes if needed  
-   **Exact command to run:**  
-   - Build/run from Xcode on macOS  
-   **Acceptance evidence required:**  
-   - Header + footer custom views present
-   - Live claim count updates
-   - Capture state icon variants visible
+3. **Objective:** Validate menu bar/dock behavior quality in runtime.
+   **Files to edit:**
+   - `Sources/HiveMacApp/HiveMacRootView.swift`
+   - `Sources/HiveApp/HiveApp.swift`
+   **Exact command to run:**
+   - Build and run in Xcode
+   **Acceptance evidence required:**
+   - Header/footer visuals pass dark-mode quality checks
+   - Dock menu actions route correctly
+   - Dock/menu mutual accessibility constraint always enforced
 
-4. **Objective:** Run Impeccable tooling and hook integration on Mac.  
-   **Files to edit:**  
-   - `PRODUCT.md`, `DESIGN.md`, `.impeccable/*`  
-   **Exact command to run:**  
-   - `npx impeccable detect . --json`  
-   - `/impeccable polish`  
-   **Acceptance evidence required:**  
-   - Zero unresolved findings or justified ignores
-   - Hook demonstrates regression catch on intentional violation
+4. **Objective:** Finish Impeccable quality gate.
+   **Files to edit:**
+   - `PRODUCT.md`
+   - `DESIGN.md`
+   - `.impeccable/config.json`
+   **Exact command to run:**
+   - `npx impeccable detect . --json`
+   **Acceptance evidence required:**
+   - Detector clean, or explicitly justified ignores committed
 
 ## 3) Must do in simulators/devices
 
-1. **Objective:** Execute cross-platform matrix (macOS, iPhone portrait/landscape, iPad portrait/landscape, Watch relay).  
-   **Files to edit:**  
-   - Runtime-only validation (no file edit required unless failures found)  
-   **Exact command / manual path:**  
-   - Xcode schemes: Hive macOS / Hive iPhone / Hive iPad / Hive Watch  
-   **Acceptance evidence required:**  
-   - Pass/fail log per platform and orientation
-   - Watch dictation relay response path verified
+1. **Objective:** Run platform matrix.
+   **Targets:** macOS, iPhone, iPad, Watch, reduced motion, low-capability path.
+   **Exact command / manual path:**
+   - Xcode schemes for each platform target.
+   **Acceptance evidence required:**
+   - Pass/fail record for each matrix row with artifacts.
 
-2. **Objective:** Run onboarding, settings, plugin, widget, and menu/dock acceptance checks.  
-   **Files to edit:**  
-   - Runtime validation first; patch failing files afterward  
-   **Exact manual path:**  
-   - Launch app repeatedly, resize settings window, toggle plugins, test Downloads watcher, verify widget refresh  
-   **Acceptance evidence required:**  
-   - Evidence table entries for each emergency acceptance criterion
-
-3. **Objective:** Run final integration suite I-1..I-6 and edge suite E-1..E-8.  
-   **Files to edit:**  
-   - Runtime validation + test harness updates as needed  
-   **Exact command / manual path:**  
-   - `xcodebuild -scheme Hive -destination 'platform=macOS' test`  
-   - Manual scenario execution per FINAL PROMPT test IDs  
-   **Acceptance evidence required:**  
-   - Recorded outcomes for every test ID, with failures fixed and re-run
+2. **Objective:** Run acceptance suites and close failures.
+   **Suites:** Prompt AC sets, Emergency set, FINAL-I, FINAL-E.
+   **Exact command / manual path:**
+   - `xcodebuild -scheme Hive -destination 'platform=macOS' test`
+   - Manual scripts for platform-specific interactions.
+   **Acceptance evidence required:**
+   - Every suite row marked pass/fail with logs/screenshots.
 
 ## 4) Final proof before merge
 
-1. **Objective:** Produce evidence-complete closeout report with only DONE/PARTIAL/MISSING/BLOCKED statuses and no optimistic language.  
-   **Files to edit:**  
-   - `docs/HIVE_SPEC_GAP_AUDIT.md` (update with runtime evidence)  
-   **Exact command to run:**  
-   - `rg "Validation: NOT RUN" docs/HIVE_SPEC_GAP_AUDIT.md`  
-   **Acceptance evidence required:**  
-   - Remaining NOT RUN entries reduced to zero for ship-critical requirements
-
-2. **Objective:** Ensure no regressions and reproducible build/test flow.  
-   **Files to edit:**  
-   - As needed from discovered regressions  
-   **Exact command to run:**  
-   - `swift test`  
-   - `scripts/acceptance.sh`  
-   - `xcodebuild -scheme Hive -destination 'platform=macOS' test`  
-   **Acceptance evidence required:**  
-   - All test suites pass
-   - No critical acceptance criteria left unverified
-
-3. **Objective:** Gate merge by strict verdict upgrade logic.  
-   **Files to edit:**  
-   - `docs/HIVE_SPEC_GAP_AUDIT.md` verdict section  
-   **Exact command to run:**  
-   - Manual review checklist signoff  
-   **Acceptance evidence required:**  
-   - Verdict can only move above `SHIP ONLY FOR INTERNAL MAC VALIDATION` once icon pipeline + AppKit graph rewrite + platform acceptance matrix are complete
+1. **Objective:** Produce Mac finalization evidence package.
+   **Files to edit:**
+   - `docs/HIVE_MAC_FINALIZATION_RUNBOOK.md`
+   - `docs/HIVE_SPEC_GAP_AUDIT.md`
+   - `docs/HIVE_ACTIVE_GAP_QUEUE.md`
+   **Exact command to run:**
+   - `rg "UNRUN|NOT RUN|OPEN" /workspace/docs`
+   **Acceptance evidence required:**
+   - P0/P1 queue closed or explicitly Mac-blocked with executable steps.

@@ -16,6 +16,8 @@ This blocker is **prepared**. Visual asset generation still requires macOS + Xco
 - Menu bar icon state switching:
   - `Sources/HiveDesignSystem/HiveAppleNative.swift` (`HiveMenuBarIconState`, `HiveMenuBarIcon`)
   - `Sources/HiveApp/HiveApp.swift` (menu bar label uses active vs paused icon state)
+- Menu bar redesign scaffolding:
+  - `Sources/HiveMacApp/HiveMacRootView.swift` (`HiveMenuBarPopover` now includes `MenuBarHeaderView` + `MenuBarFooterView` + live claim/source count + capture state label)
 
 ## Exact asset names
 

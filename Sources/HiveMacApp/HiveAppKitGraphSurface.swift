@@ -7,17 +7,20 @@ public struct HiveAppKitGraphSurface: NSViewRepresentable {
     public var selectedNodeID: String?
     public var zoomScale: CGFloat
     public var contentOffset: CGPoint
+    public var onSelectNode: (String?) -> Void
 
     public init(
         graph: HiveGraphSnapshot,
         selectedNodeID: String?,
         zoomScale: CGFloat = 1,
-        contentOffset: CGPoint = .zero
+        contentOffset: CGPoint = .zero,
+        onSelectNode: @escaping (String?) -> Void = { _ in }
     ) {
         self.graph = graph
         self.selectedNodeID = selectedNodeID
         self.zoomScale = zoomScale
         self.contentOffset = contentOffset
+        self.onSelectNode = onSelectNode
     }
 
     public func makeNSView(context: Context) -> NSScrollView {
@@ -28,6 +31,7 @@ public struct HiveAppKitGraphSurface: NSViewRepresentable {
         scrollView.minMagnification = 0.25
         scrollView.maxMagnification = 6
         let canvas = HiveGraphCanvasView(frame: NSRect(x: 0, y: 0, width: 2800, height: 1800))
+        canvas.onSelectNode = onSelectNode
         scrollView.documentView = canvas
         context.coordinator.canvasView = canvas
         return scrollView
@@ -40,6 +44,7 @@ public struct HiveAppKitGraphSurface: NSViewRepresentable {
         canvas.selectedNodeID = selectedNodeID
         canvas.zoomScale = zoomScale
         canvas.contentOffset = contentOffset
+        canvas.onSelectNode = onSelectNode
         scrollView.magnification = zoomScale
         if let clip = scrollView.contentView as NSClipView? {
             clip.scroll(to: contentOffset)

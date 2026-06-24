@@ -965,6 +965,7 @@ public struct HiveSettingsSurface: View {
     @State private var customAutomationDuration = ""
     @State private var customAutomationOutput = ""
     @State private var automationReadiness = HiveAutomationReadinessReport.current()
+    @AppStorage("hive.graph.useAppKitCanvas") private var graphUsesAppKitCanvas = false
     public var attachmentPathDescription: String
     public var sourcePluginStatusText: String
     public var onReplayTutorial: () -> Void
@@ -1432,6 +1433,11 @@ public struct HiveSettingsSurface: View {
                                 .buttonStyle(HiveGlassButtonStyle())
 
                             advancedSettingsHeading("Hive Axes")
+                            Toggle("Use AppKit graph canvas (preview)", isOn: $graphUsesAppKitCanvas)
+                                .toggleStyle(.switch)
+                                .tint(HiveColorToken.waxAmber.color)
+                            HiveText("Switches The Hive graph to NSScrollView + AppKit canvas path for migration validation.", role: .scaffoldBody)
+                                .foregroundStyle(HiveColorToken.nectarMuted.color)
                             Grid(horizontalSpacing: 12, verticalSpacing: 10) {
                                 GridRow {
                                     Text("Top")

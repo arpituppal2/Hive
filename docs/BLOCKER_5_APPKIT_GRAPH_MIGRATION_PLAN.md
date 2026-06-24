@@ -47,9 +47,13 @@ Status: planned with scaffolding.
 ## Scaffolding added in this branch
 
 - `Sources/HiveMacApp/HiveGraphCanvasView.swift`
-  - New AppKit canvas class with graph/selection/zoom/offest state placeholders.
+  - AppKit canvas now draws nodes/edges, performs mouse hit-testing, and applies first-pass label collision suppression.
 - `Sources/HiveMacApp/HiveAppKitGraphSurface.swift`
   - `NSViewRepresentable` wrapper around `NSScrollView` + `HiveGraphCanvasView`.
+- `Sources/HiveMacApp/HiveMacRootView.swift`
+  - Graph surface routing now supports AppKit preview path behind `@AppStorage("hive.graph.useAppKitCanvas")`.
+- `Sources/HiveUI/HiveOverlaySurfaces.swift`
+  - Advanced settings now expose “Use AppKit graph canvas (preview)” toggle for migration validation.
 
 ## Future files
 
@@ -77,9 +81,9 @@ Status: planned with scaffolding.
 
 ## Estimated integration order
 
-1. Wire `HiveAppKitGraphSurface` into `HiveMacRootView` behind feature flag.
-2. Implement node/edge rendering in `HiveGraphCanvasView`.
-3. Add hit-testing and selection routing.
+1. Wire `HiveAppKitGraphSurface` into `HiveMacRootView` behind feature flag. ✅
+2. Implement node/edge rendering in `HiveGraphCanvasView`. ✅
+3. Add hit-testing and selection routing. ✅
 4. Add cursor-centered zoom and inertia behavior.
-5. Add label collision + staged reveal.
+5. Add label collision + staged reveal (collision first-pass now in place; staged reveal pending).
 6. Remove duplicated SwiftUI graph interaction code after parity validation.

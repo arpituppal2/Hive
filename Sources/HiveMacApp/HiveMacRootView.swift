@@ -32,6 +32,7 @@ public struct HiveMacRootView: View {
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage("hive.sidebarVisible") private var sidebarVisible = true
     @AppStorage("hive.appearanceMode") private var appearanceModeRaw = HiveAppearanceMode.system.rawValue
+    @AppStorage("hive.graph.useAppKitCanvas") private var graphUsesAppKitCanvas = false
     @AppStorage(HiveInterfaceScale.storageKey) private var interfaceScale = HiveInterfaceScale.defaultValue
     @Namespace private var sidebarSelectionNamespace
     @State private var hasSeenOnboarding: Bool
@@ -570,25 +571,35 @@ public struct HiveMacRootView: View {
                 }
             )
         case .graph:
-            HiveGraphSurface(
-                graph: model.graph,
-                changeAnimationList: model.graphAnimationList,
-                selectedNodeID: model.selectedNodeID,
-                searchText: model.graphSearchText,
-                searchVisible: model.graphSearchVisible,
-                onSelectNode: { model.selectedNodeID = $0 },
-                onOpenWiki: { nodeID in model.openWiki(forGraphNodeID: nodeID) },
-                onSearchChange: { model.graphSearchText = $0 },
-                onNodeFeedback: { action, nodeID in model.applyGraphNodeAction(action, nodeID: nodeID) },
-                onConfirmPlacement: { nodeID, x, y in model.confirmGraphPlacement(nodeID: nodeID, x: x, y: y) },
-                onAskNode: { question in
-                    model.ask(question)
-                },
-                onReindex: { plan in model.reindexHive(plan: plan) },
-                onImportDocuments: openImportPanel,
-                externalReindexRequestID: model.graphReindexRequestID
-            )
-            .overlay(HiveAccessibilityNodeOverlay(nodes: model.visibleGraphNodes) { model.selectedNodeID = $0 })
+            Group {
+                if graphUsesAppKitCanvas {
+                    HiveAppKitGraphSurface(
+                        graph: model.graph,
+                        selectedNodeID: model.selectedNodeID,
+                        onSelectNode: { model.selectedNodeID = $0 }
+                    )
+                } else {
+                    HiveGraphSurface(
+                        graph: model.graph,
+                        changeAnimationList: model.graphAnimationList,
+                        selectedNodeID: model.selectedNodeID,
+                        searchText: model.graphSearchText,
+                        searchVisible: model.graphSearchVisible,
+                        onSelectNode: { model.selectedNodeID = $0 },
+                        onOpenWiki: { nodeID in model.openWiki(forGraphNodeID: nodeID) },
+                        onSearchChange: { model.graphSearchText = $0 },
+                        onNodeFeedback: { action, nodeID in model.applyGraphNodeAction(action, nodeID: nodeID) },
+                        onConfirmPlacement: { nodeID, x, y in model.confirmGraphPlacement(nodeID: nodeID, x: x, y: y) },
+                        onAskNode: { question in
+                            model.ask(question)
+                        },
+                        onReindex: { plan in model.reindexHive(plan: plan) },
+                        onImportDocuments: openImportPanel,
+                        externalReindexRequestID: model.graphReindexRequestID
+                    )
+                    .overlay(HiveAccessibilityNodeOverlay(nodes: model.visibleGraphNodes) { model.selectedNodeID = $0 })
+                }
+            }
         case .swarm:
             SwarmSurface(
                 model: model,
@@ -1522,6 +1533,7 @@ private struct DailyUseTipRow: View {
 }
 
 public struct HiveMenuBarPopover: View {
+    @EnvironmentObject private var model: HiveAppModel
     private let onImportDocuments: () -> Void
     private let onOpenSettings: () -> Void
     private let onQuit: () -> Void
@@ -1538,6 +1550,11 @@ public struct HiveMenuBarPopover: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 4) {
+            MenuBarHeaderView(
+                claimCount: model.claims.count,
+                sourceCount: model.visibleSources.count,
+                captureState: captureStateLabel
+            )
             MenuBarActionRow(symbol: .importAction, title: "Import Docs", detail: "Choose documents, files, or folders for Field.", active: true, action: onImportDocuments)
             MenuBarActionRow(symbol: .settings, title: "Settings", detail: "Open Hive settings.", active: false, action: onOpenSettings)
             Rectangle()
@@ -1545,9 +1562,10 @@ public struct HiveMenuBarPopover: View {
                 .frame(height: 1)
                 .padding(.vertical, 2)
             MenuBarActionRow(symbol: .signOut, title: "Quit Hive", detail: "Quit the Hive app.", active: false, destructive: true, action: onQuit)
+            MenuBarFooterView(captureState: captureStateLabel)
         }
         .padding(8)
-        .frame(width: 176)
+        .frame(width: 268)
         .foregroundStyle(HiveColorToken.nectarText.color)
         .background(
             RoundedRectangle(cornerRadius: HiveRadius.xl, style: .continuous)
@@ -1564,6 +1582,66 @@ public struct HiveMenuBarPopover: View {
 
     private var menuBackground: Color {
         HiveColorToken.backgroundDeep.color
+    }
+
+    private var captureStateLabel: String {
+        if model.isWorking {
+            return "Capturing"
+        }
+        let queued = model.visibleSources.filter { $0.status == .queued }.count
+        if queued > 0 {
+            return "Queued \(queued)"
+        }
+        return "Idle"
+    }
+}
+
+private struct MenuBarHeaderView: View {
+    var claimCount: Int
+    var sourceCount: Int
+    var captureState: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                HiveText("Hive", role: .scaffoldLabel)
+                Spacer()
+                HiveText(captureState, role: .scaffoldBody)
+                    .foregroundStyle(HiveColorToken.waxAmber.color)
+            }
+            HStack(spacing: 8) {
+                capsule("Claims", value: claimCount)
+                capsule("Field", value: sourceCount)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.top, 4)
+        .padding(.bottom, 8)
+    }
+
+    private func capsule(_ title: String, value: Int) -> some View {
+        HStack(spacing: 4) {
+            HiveText(title, role: .scaffoldBody)
+            HiveText("\(value)", role: .scaffoldLabel)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(HiveColorToken.raisedSurface.color.opacity(0.6), in: Capsule())
+    }
+}
+
+private struct MenuBarFooterView: View {
+    var captureState: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            HiveSymbol(.status, size: 11, active: true, rendering: .monochrome(HiveColorToken.waxAmber.color))
+            HiveText("Capture state: \(captureState)", role: .scaffoldBody)
+                .foregroundStyle(HiveColorToken.nectarMuted.color)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 8)
     }
 }
 

@@ -20,8 +20,10 @@
    - `.cursor/hooks/impeccable-pre-commit.sh`
 6. Ran detector:
    - `npx impeccable detect . --json > /tmp/impeccable-output.json`
+7. Added scoped repo command path for authored files:
+   - `npm run impeccable:detect`
 
-## Detector output summary
+## Detector output summary (initial run)
 
 - Findings count: `10`
 - Current findings are against `Design/AppleResources/apple-design-resources.html` heading structure and numbered section markers.
@@ -31,8 +33,13 @@ Representative output:
 - `skipped-heading` warnings for vendor snapshot headings (`h2 -> h4`, `h2 -> h5`)
 - `numbered-section-markers` advisory in same vendor snapshot file
 
+## Detector output summary (scoped authored paths)
+
+- Command: `npm run impeccable:detect`
+- Findings count: `0`
+
 ## Result
 
 - Impeccable is installed and executable in this branch.
 - PRODUCT/DESIGN docs now exist with Hive-specific constraints.
-- Detector is not yet clean.
+- Detector is clean for authored product/design/code docs scope.

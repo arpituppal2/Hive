@@ -10,7 +10,7 @@
     "DESIGN.md"
   ],
   "commands": {
-    "detect": "npx impeccable detect . --json",
-    "polish": "npx impeccable polish ."
+    "detect": "npm run impeccable:detect",
+    "polish": "npm run impeccable:polish"
   }
 }
