@@ -101,60 +101,70 @@ xcode-select: error: invalid developer directory '/Applications/Xcode.app/Conten
 /Library/Developer/CommandLineTools
 ```
 
-Cause: only **Command Line Tools** are installed. Hive is a macOS SwiftUI app and needs **full Xcode**, not CLT alone. CLT’s `swift-package` is missing `BuildServerProtocol.framework`.
+Cause: `xcode-select` is pointing at **Command Line Tools** instead of your installed **Xcode app** (release or beta). CLT’s `swift-package` is missing `BuildServerProtocol.framework`.
 
-### Step 1 — Install Xcode
-
-1. Open the **Mac App Store**
-2. Search for **Xcode**
-3. Install it (large download)
-4. Open **Xcode** once and finish setup (license, components)
-
-Verify:
+### Step 1 — Find your Xcode app (including beta)
 
 ```bash
-ls /Applications/Xcode.app/Contents/Developer
+ls -1 /Applications | grep -i xcode
+mdfind "kMDItemCFBundleIdentifier == 'com.apple.dt.Xcode'"
 ```
 
-### Step 2 — Point the toolchain at Xcode
+Xcode beta is usually **not** at `/Applications/Xcode.app`. Common names:
+
+- `Xcode-beta.app`
+- `Xcode Beta.app`
+- `Xcode_27_beta.app`
+
+### Step 2 — Point the toolchain at your beta Xcode
+
+Replace the app name with what `ls` shows on your Mac:
 
 ```bash
-sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+sudo xcode-select -s "/Applications/Xcode-beta.app/Contents/Developer"
 xcode-select -p
 ```
 
-Expected:
+For Xcode 27 beta, the path is often:
 
-```text
-/Applications/Xcode.app/Contents/Developer
+```bash
+sudo xcode-select -s "/Applications/Xcode-beta.app/Contents/Developer"
 ```
+
+Open the beta app once first (license / components).
 
 ### Step 3 — Build and run Hive
 
 ```bash
 cd /Users/arpituppal/Downloads/Hive
-git pull origin arpituppal2/hive-production-rebuild-82c2
-open Package.swift
+open -a "Xcode-beta" Package.swift
 ```
 
-In Xcode: **Product → Run** (⌘R)
-
-Or from Terminal:
+Or Terminal:
 
 ```bash
 ./scripts/run_hive_app.sh
 ```
 
+`run_hive_app.sh` auto-detects beta Xcode if `xcode-select` is still wrong, using `DEVELOPER_DIR` for that run.
+
+### One-shell workaround (no sudo)
+
+```bash
+export DEVELOPER_DIR="/Applications/Xcode-beta.app/Contents/Developer"
+xcrun --sdk macosx swift run HiveApp
+```
+
 ### If Xcode is installed somewhere else
 
 ```bash
-mdfind "kMDItemCFBundleIdentifier == 'com.apple.dt.Xcode'" 
-sudo xcode-select -s "/path/to/Xcode.app/Contents/Developer"
+mdfind "kMDItemCFBundleIdentifier == 'com.apple.dt.Xcode'"
+sudo xcode-select -s "/path/to/YourXcode.app/Contents/Developer"
 ```
 
 ### CLT-only Macs cannot build Hive
 
-Command Line Tools alone are not enough for this project. Do not rely on bare `swift run HiveApp` until full Xcode is installed.
+Command Line Tools alone are not enough for this project.
 
 ## Local copy drift (many HiveMacApp errors)
 
