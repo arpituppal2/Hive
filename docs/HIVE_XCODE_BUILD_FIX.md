@@ -72,9 +72,57 @@ Open `Package.swift` directly. Do **not** open a stale generated `.xcodeproj`.
 
 ## Verify from terminal
 
+Prefer the Xcode toolchain wrapper (not bare `swift`, which may point at broken Command Line Tools):
+
 ```bash
 cd /Users/arpituppal/Downloads/Hive
+./scripts/run_hive_app.sh
+```
+
+Or build without running:
+
+```bash
 xcodebuild -scheme HiveApp -destination 'platform=macOS' build
+```
+
+## BuildServerProtocol / `swift run` aborts
+
+Symptom:
+
+```text
+dyld: Library not loaded: @rpath/BuildServerProtocol.framework/...
+Referenced from: .../CommandLineTools/usr/bin/swift-package
+```
+
+Cause: `swift` on your PATH is the **standalone Command Line Tools** build, which is missing SwiftPM frameworks that ship with full Xcode.
+
+Fix:
+
+```bash
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+xcode-select -p
+which swift
+xcrun --find swift
+./scripts/run_hive_app.sh
+```
+
+Expected `xcode-select -p`:
+
+```text
+/Applications/Xcode.app/Contents/Developer
+```
+
+If `which swift` still points at `/Library/Developer/CommandLineTools/...`, either:
+
+- run via `xcrun swift run HiveApp`, or
+- open `Package.swift` in Xcode and use **Product → Run**
+
+If the error persists after switching `xcode-select`, open Xcode once, accept the license, and install any offered components. As a last resort:
+
+```bash
+sudo rm -rf /Library/Developer/CommandLineTools
+xcode-select --install
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 ```
 
 ## Local copy drift (many HiveMacApp errors)
