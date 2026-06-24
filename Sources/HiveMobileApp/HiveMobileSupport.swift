@@ -623,10 +623,19 @@ public struct HiveIPhoneRootView: View {
     @State private var pendingCaptures: [HiveShareCapturePayload]
     @State private var activityItems: [String]
     @State private var showsActivityView: Bool
+    @State private var isRecordingVoice = false
+    private var onSendPrompt: ((String, HiveIPadSurface) -> Void)?
+    private var onVoiceInput: (() -> Void)?
+    private var onAttach: (() -> Void)?
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
-    public init(navigationState: HiveMobileNavigationState = HiveMobileNavigationState()) {
+    public init(
+        navigationState: HiveMobileNavigationState = HiveMobileNavigationState(),
+        onSendPrompt: ((String, HiveIPadSurface) -> Void)? = nil,
+        onVoiceInput: (() -> Void)? = nil,
+        onAttach: (() -> Void)? = nil
+    ) {
         _navigationState = State(initialValue: navigationState)
         _selectedSurface = State(initialValue: HiveIPadSurface(rawValue: navigationState.selectedSurface) ?? .field)
         _prompt = State(initialValue: "")
@@ -634,6 +643,9 @@ public struct HiveIPhoneRootView: View {
         _pendingCaptures = State(initialValue: [])
         _activityItems = State(initialValue: [])
         _showsActivityView = State(initialValue: false)
+        self.onSendPrompt = onSendPrompt
+        self.onVoiceInput = onVoiceInput
+        self.onAttach = onAttach
     }
 
     public var body: some View {
@@ -741,21 +753,30 @@ public struct HiveIPhoneRootView: View {
     private var bottomComposer: some View {
         HStack(spacing: HiveSpacing.sm) {
             Button {
-                selectedSurface = .swarm
+                if let onVoiceInput {
+                    onVoiceInput()
+                } else {
+                    isRecordingVoice.toggle()
+                    selectedSurface = .swarm
+                }
             } label: {
-                HiveSymbol(.voiceNote, size: 18, active: true)
+                HiveSymbol(.voiceNote, size: 18, active: isRecordingVoice)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Start voice input")
+            .accessibilityLabel(isRecordingVoice ? "Stop voice input" : "Start voice input")
 
-            TextField("Ask or add to Field", text: $prompt, axis: .vertical)
+            TextField(composerPlaceholder, text: $prompt, axis: .vertical)
                 .lineLimit(1...3)
                 .textFieldStyle(.plain)
                 .submitLabel(.send)
                 .onSubmit(sendPrompt)
 
             Button {
-                selectedSurface = .field
+                if let onAttach {
+                    onAttach()
+                } else {
+                    selectedSurface = .field
+                }
             } label: {
                 HiveSymbol(.attach, size: 18, active: true)
             }
@@ -774,6 +795,13 @@ public struct HiveIPhoneRootView: View {
         .clipShape(RoundedRectangle(cornerRadius: HiveRadius.lg, style: .continuous))
         .padding(.horizontal, HiveSpacing.md)
         .padding(.bottom, HiveSpacing.sm)
+    }
+
+    private var composerPlaceholder: String {
+        if CapabilityStore.shared.tier == .coreMLDistilled {
+            return "Search your knowledge base (AI generation unavailable on this device)"
+        }
+        return "Ask or add to Field"
     }
 
     private var iPhoneLayoutTitle: String {
@@ -864,9 +892,13 @@ public struct HiveIPhoneRootView: View {
     private func sendPrompt() {
         let trimmed = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        pendingCaptures.append(HiveShareCapturePayload(title: "Quick note", text: trimmed))
-        navigationState.shareExtensionPendingCount = pendingCaptures.count
-        selectedSurface = .swarm
+        if let onSendPrompt {
+            onSendPrompt(trimmed, selectedSurface)
+        } else {
+            pendingCaptures.append(HiveShareCapturePayload(title: "Quick note", text: trimmed))
+            navigationState.shareExtensionPendingCount = pendingCaptures.count
+            selectedSurface = .swarm
+        }
         prompt = ""
     }
 

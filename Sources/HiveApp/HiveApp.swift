@@ -96,7 +96,7 @@ private struct HiveSettingsWindowContent: View {
                     menuBarExtraVisible: $menuBarExtraVisible,
                     menuBarQuickCaptureEnabled: $menuBarQuickCaptureEnabled,
                     onReplayTutorial: {
-                        UserDefaults.standard.set(false, forKey: "hive.hasSeenOnboarding")
+                        HiveOnboardingStore.resetForReplay()
                         NSApp.activate(ignoringOtherApps: true)
                     },
                     onRunMorningBriefing: {
@@ -1171,14 +1171,14 @@ struct HiveExecutable: App {
                 .keyboardShortcut("h", modifiers: [.option])
                 Button("Show Tutorial") {
                     guard requireAuthenticatedEntryPoint() else { return }
-                    UserDefaults.standard.set(false, forKey: "hive.hasSeenOnboarding")
+                    HiveOnboardingStore.resetForReplay()
                     HiveMacWindowPresenter.showMainWindow()
                 }
             }
             CommandGroup(replacing: .help) {
                 Button("Hive Tutorial") {
                     guard requireAuthenticatedEntryPoint() else { return }
-                    UserDefaults.standard.set(false, forKey: "hive.hasSeenOnboarding")
+                    HiveOnboardingStore.resetForReplay()
                     NSApp.activate(ignoringOtherApps: true)
                 }
                 Button("Open Field") {

@@ -2,6 +2,9 @@ import SwiftUI
 import HiveCore
 import HiveDesignSystem
 import HiveMetalRenderer
+#if os(macOS)
+import AppKit
+#endif
 
 public struct HiveCommandPalette: View {
     @Binding public var query: String
@@ -746,17 +749,25 @@ public struct HiveStartupSourcePluginSetup: View {
     @Binding private var pasteLocation: String
     @Binding private var prompt: String
     private var compact: Bool
+    private var onToggleChange: ((HiveStartupSourcePluginKind, Bool) -> Void)?
+    private var onPasteSubmit: (() -> Void)?
+    @State private var pasteError: String?
+    @FocusState private var pasteFieldFocused: Bool
 
     public init(
         selections: Binding<[HiveStartupSourcePluginSelection]>,
         pasteLocation: Binding<String>,
         prompt: Binding<String>,
-        compact: Bool = false
+        compact: Bool = false,
+        onToggleChange: ((HiveStartupSourcePluginKind, Bool) -> Void)? = nil,
+        onPasteSubmit: (() -> Void)? = nil
     ) {
         self._selections = selections
         self._pasteLocation = pasteLocation
         self._prompt = prompt
         self.compact = compact
+        self.onToggleChange = onToggleChange
+        self.onPasteSubmit = onPasteSubmit
     }
 
     public var body: some View {
@@ -767,20 +778,36 @@ public struct HiveStartupSourcePluginSetup: View {
                     .foregroundStyle(HiveColorToken.nectarMuted.color)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            LazyVGrid(columns: pluginColumns, alignment: .leading, spacing: 8) {
+            LazyVGrid(columns: pluginColumns, alignment: .leading, spacing: 12) {
                 ForEach(selections.indices, id: \.self) { index in
                     sourcePluginRow(index: index)
                 }
             }
             VStack(alignment: .leading, spacing: 8) {
-                TextField(HiveStartupSourcePluginCatalog.pasteLocationPlaceholder, text: $pasteLocation)
-                    .textFieldStyle(.plain)
-                    .font(HiveTypography.chromeSearch)
-                    .foregroundStyle(HiveColorToken.nectarText.color)
-                    .padding(12)
-                    .background(HiveColorToken.cellSurface.color.opacity(0.96))
-                    .clipShape(RoundedRectangle(cornerRadius: HiveLayoutMetrics.rowCornerRadius, style: .continuous))
-                    .accessibilityLabel("Location to grab")
+                HStack(spacing: 8) {
+                    TextField(HiveStartupSourcePluginCatalog.pasteLocationPlaceholder, text: $pasteLocation)
+                        .textFieldStyle(.plain)
+                        .font(HiveTypography.chromeSearch)
+                        .foregroundStyle(HiveColorToken.nectarText.color)
+                        .focused($pasteFieldFocused)
+                        .onSubmit(submitPaste)
+                        .accessibilityLabel("Location to grab")
+                    Button(action: submitPaste) {
+                        HiveSymbol(.send, size: 16, active: !pasteLocation.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(pasteLocation.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .accessibilityLabel("Submit pasted source")
+                }
+                .padding(12)
+                .background(HiveColorToken.cellSurface.color.opacity(0.96))
+                .clipShape(RoundedRectangle(cornerRadius: HiveLayoutMetrics.rowCornerRadius, style: .continuous))
+                if let pasteError {
+                    Text(pasteError)
+                        .font(HiveTypography.chromeFootnote)
+                        .foregroundStyle(HiveColorToken.conflict.color)
+                        .transition(.opacity)
+                }
                 ZStack(alignment: .topLeading) {
                     TextEditor(text: $prompt)
                         .font(HiveTypography.chromeBody)
@@ -806,6 +833,30 @@ public struct HiveStartupSourcePluginSetup: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+        .onAppear {
+            selections = HiveSourcePluginToggleStore.loadSelections()
+            pasteFieldFocused = true
+        }
+    }
+
+    private func submitPaste() {
+        let input = pasteLocation.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !input.isEmpty else { return }
+        let type = PasteInputClassifier.classify(input)
+        if let required = PasteInputClassifier.requiredPlugin(for: type),
+           !HiveSourcePluginToggleStore.isEnabled(required) {
+            withAnimation(.easeInOut(duration: 0.15)) {
+                pasteError = "\(required.title) plugin is not enabled. Turn it on above to use this source."
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    pasteError = nil
+                }
+            }
+            return
+        }
+        pasteError = nil
+        onPasteSubmit?()
     }
 
     private var pluginColumns: [GridItem] {
@@ -822,7 +873,11 @@ public struct HiveStartupSourcePluginSetup: View {
         let selection = selections[index]
         return Toggle(isOn: Binding(
             get: { selections[index].isEnabled },
-            set: { selections[index].isEnabled = $0 }
+            set: { newValue in
+                selections[index].isEnabled = newValue
+                HiveSourcePluginToggleStore.setEnabled(selection.kind, newValue)
+                onToggleChange?(selection.kind, newValue)
+            }
         )) {
             HStack(alignment: .top, spacing: 10) {
                 HiveSymbol(selection.kind.symbolName, size: 17, active: selection.isEnabled)
@@ -846,6 +901,7 @@ public struct HiveStartupSourcePluginSetup: View {
         .toggleStyle(.switch)
         .tint(HiveColorToken.waxAmber.color)
         .padding(10)
+        .frame(minHeight: 120, alignment: .topLeading)
         .background(HiveColorToken.raisedSurface.color.opacity(selection.isEnabled ? 0.82 : 0.54))
         .clipShape(RoundedRectangle(cornerRadius: HiveLayoutMetrics.rowCornerRadius, style: .continuous))
         .accessibilityHint(selection.kind.handlesPrivateMaterial ? "Requires explicit permission or a pasted location before Hive reads private material." : "Adds a source type for Field capture.")
@@ -1013,6 +1069,7 @@ public struct HiveSettingsSurface: View {
             .padding(.top, 24)
             .padding(.bottom, 12)
 
+            ScrollView {
             Form {
                 Section("Learning") {
                     VStack(alignment: .leading, spacing: 8) {
@@ -1131,7 +1188,13 @@ public struct HiveSettingsSurface: View {
                         selections: $sourcePluginRequest.selections,
                         pasteLocation: $sourcePluginRequest.pasteLocation,
                         prompt: $sourcePluginRequest.prompt,
-                        compact: true
+                        compact: true,
+                        onToggleChange: { kind, enabled in
+                            handlePluginToggle(kind: kind, enabled: enabled)
+                        },
+                        onPasteSubmit: {
+                            submitSourcePluginPaste()
+                        }
                     )
                     HStack(spacing: 10) {
                         Button("Add to Field") {
@@ -1398,13 +1461,19 @@ public struct HiveSettingsSurface: View {
             .accentColor(HiveColorToken.waxAmber.color)
             .scrollContentBackground(.hidden)
             .padding(.horizontal, 14)
-            .padding(.bottom, 18)
+            .padding(.bottom, 32)
+            }
+            .scrollIndicators(.automatic)
         }
         .background(HiveColorToken.backgroundMid.color.opacity(0.98))
         .onAppear {
             refreshOnlineAskKeyStatus()
             refreshSwarmVoiceOptions()
-            sourcePluginRequest = HiveStartupSourcePluginCatalog.load()
+            sourcePluginRequest = HiveStartupSourcePluginRequest(
+                selections: HiveSourcePluginToggleStore.loadSelections(),
+                pasteLocation: sourcePluginRequest.pasteLocation,
+                prompt: sourcePluginRequest.prompt
+            )
             refreshAutomationReadiness()
             saveOnlineAskMetadata()
         }
@@ -1454,6 +1523,82 @@ public struct HiveSettingsSurface: View {
                 iCloudModeRaw = settings.mode.rawValue
             }
         )
+    }
+
+    private func handlePluginToggle(kind: HiveStartupSourcePluginKind, enabled: Bool) {
+        if !enabled, kind == .uploads {
+            #if os(macOS)
+            let alert = NSAlert()
+            alert.messageText = "Disable Uploads?"
+            alert.informativeText = "Disabling Uploads will prevent you from adding local files to Hive."
+            alert.addButton(withTitle: "Disable")
+            alert.addButton(withTitle: "Cancel")
+            if alert.runModal() == .alertSecondButtonReturn {
+                updatePluginSelection(kind, enabled: true)
+                return
+            }
+            #endif
+        }
+
+        HiveSourcePluginToggleStore.setEnabled(kind, enabled)
+
+        if enabled {
+            switch kind {
+            case .localDisk, .downloadsFolder:
+                #if os(macOS)
+                let panel = NSOpenPanel()
+                panel.canChooseFiles = false
+                panel.canChooseDirectories = true
+                panel.allowsMultipleSelection = false
+                panel.message = kind == .downloadsFolder
+                    ? "Confirm access to Downloads for Hive."
+                    : "Choose a folder that Hive can read from."
+                panel.begin { response in
+                    guard response == .OK, let url = panel.url else {
+                        HiveSourcePluginToggleStore.setEnabled(kind, false)
+                        updatePluginSelection(kind, enabled: false)
+                        return
+                    }
+                    if let data = try? url.bookmarkData(options: .withSecurityScope) {
+                        HiveSourcePluginToggleStore.persistBookmark(data, for: kind)
+                    }
+                }
+                #endif
+            case .googleDrive:
+                if !GoogleDriveOAuthStore.hasValidTokens {
+                    sourcePluginStatusText = "Google Drive enabled. Connect your account in Settings to fetch Drive files."
+                }
+            default:
+                break
+            }
+        } else {
+            HiveSourcePluginToggleStore.clearBookmark(for: kind)
+            if kind == .googleDrive {
+                GoogleDriveOAuthStore.delete()
+            }
+        }
+
+        updatePluginSelection(kind, enabled: enabled)
+    }
+
+    private func updatePluginSelection(_ kind: HiveStartupSourcePluginKind, enabled: Bool) {
+        sourcePluginRequest.selections = sourcePluginRequest.selections.map { selection in
+            guard selection.kind == kind else { return selection }
+            return HiveStartupSourcePluginSelection(kind: kind, isEnabled: enabled)
+        }
+        HiveStartupSourcePluginCatalog.persist(sourcePluginRequest)
+    }
+
+    private func submitSourcePluginPaste() {
+        let request = HiveStartupSourcePluginCatalog.sanitizedRequest(sourcePluginRequest)
+        sourcePluginRequest = request
+        sourcePluginRequest.pasteLocation = ""
+        onClose()
+        if request.hasBrowserHistoryIntent && !request.hasUserInstruction {
+            onChooseBrowserHistory(request)
+        } else {
+            onConfigureSourcePlugins(request)
+        }
     }
 
     private func confirmAxesAndReindex() {

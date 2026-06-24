@@ -485,10 +485,10 @@ public final class HiveAppModel: ObservableObject {
     @Published public var firstLoginDataChoicePrompt: HiveFirstLoginDataChoicePrompt?
 
     public let paths: HivePaths
-    public let store: HiveStore
-    private let controlPlane: ControlPlane
-    private let ingestionEngine: IngestionCoordinator
-    private let knowledgeLoop: KnowledgeLoop
+    public private(set) var store: HiveStore
+    private var controlPlane: ControlPlane
+    private var ingestionEngine: IngestionCoordinator
+    private var knowledgeLoop: KnowledgeLoop
     private let cloudAppStateSync = HiveCloudAppStateSync()
     private let chatAnswerEngine = ChatAnswerEngine()
     private let foundationOrchestrator: HiveFoundationModelsOrchestrator
@@ -533,6 +533,8 @@ public final class HiveAppModel: ObservableObject {
             restoreSwarmState()
             installAppleCredentialRevocationObserver()
             validateAppleCredentialState()
+            installWatchConnectivityHandler()
+            Task { await CapabilityStore.shared.refresh() }
         } catch {
             let fallback = HivePaths(root: FileManager.default.temporaryDirectory.appendingPathComponent("Hive", isDirectory: true))
             self.paths = fallback
@@ -546,6 +548,8 @@ public final class HiveAppModel: ObservableObject {
             restoreSwarmState()
             installAppleCredentialRevocationObserver()
             validateAppleCredentialState()
+            installWatchConnectivityHandler()
+            Task { await CapabilityStore.shared.refresh() }
         }
     }
 
@@ -1992,6 +1996,129 @@ public final class HiveAppModel: ObservableObject {
             selectedPageID = selectedPage?.id
         }
         schedulePendingStagedSourceProcessingIfNeeded()
+        publishWidgetSnapshot()
+    }
+
+    private func publishWidgetSnapshot() {
+        let titles = claims.prefix(3).map(\.statement)
+        let payload = HiveWidgetSnapshotStore.makePayload(
+            claimCount: claims.count,
+            sourceCount: sources.count,
+            recentClaimTitles: Array(titles)
+        )
+        HiveWidgetSnapshotStore.save(payload, root: paths.root)
+    }
+
+    private func installWatchConnectivityHandler() {
+        #if !os(watchOS)
+        HiveWatchConnectivityHandler.shared.onReceiveQuery = { [weak self] query in
+            guard let self else { return "Hive is not ready." }
+            return await self.answerWatchQuery(query)
+        }
+        #endif
+    }
+
+    private func answerWatchQuery(_ query: String) async -> String {
+        let tier = await CapabilityDetector.detect()
+        if tier == .voiceRelayOnly || tier == .coreMLDistilled {
+            let matches = wikiPages.prefix(5).filter {
+                $0.title.localizedCaseInsensitiveContains(query)
+                    || $0.markdown.localizedCaseInsensitiveContains(query)
+            }
+            if matches.isEmpty {
+                return "No saved knowledge about that topic. Open Hive on iPhone for full answers."
+            }
+            return matches.map(\.title).joined(separator: ", ")
+        }
+        chatText = query
+        selectedSurface = .swarm
+        chatVisible = true
+        return "Processing on iPhone. Open Swarm for the full answer."
+    }
+
+    public func exportAllData(to directory: URL? = nil) {
+        guard requireAppleAuthentication() else { return }
+        isWorking = true
+        #if os(macOS)
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.prompt = "Export"
+        panel.message = "Choose where to save the Hive export."
+        panel.begin { [weak self] response in
+            guard let self, response == .OK, let url = panel.url else {
+                self?.isWorking = false
+                return
+            }
+            self.performExport(to: url)
+        }
+        #else
+        let exportParent = directory ?? paths.root.deletingLastPathComponent()
+        performExport(to: exportParent)
+        #endif
+    }
+
+    private func performExport(to parentDirectory: URL) {
+        DispatchQueue.global(qos: .userInitiated).async { [store, paths] in
+            let result = Result {
+                try HiveWorkspaceOperations.exportAllData(store: store, paths: paths, to: parentDirectory)
+            }
+            DispatchQueue.main.async {
+                self.isWorking = false
+                switch result {
+                case .success(let url):
+                    self.sourcePluginStatusText = "Exported to \(url.lastPathComponent)."
+                case .failure(let error):
+                    self.errorText = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    public func resetHive(requireSecondConfirmation: Bool = true) {
+        guard requireAppleAuthentication() else { return }
+        isWorking = true
+        sourcePluginStatusText = "Resetting Hive..."
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
+            do {
+                self.store.close()
+                let result = try HiveWorkspaceOperations.resetWorkspace(
+                    root: self.paths.root,
+                    databaseURL: self.paths.database
+                )
+                let newStore = try HiveStore(databaseURL: self.paths.database)
+                try self.paths.createDirectories()
+                DispatchQueue.main.async {
+                    self.store = newStore
+                    self.controlPlane = ControlPlane(store: newStore, paths: self.paths)
+                    self.ingestionEngine = IngestionCoordinator(paths: self.paths, store: newStore)
+                    self.knowledgeLoop = KnowledgeLoop(store: newStore, paths: self.paths)
+                    self.selectedSourceID = nil
+                    self.selectedClaimID = nil
+                    self.selectedNodeID = nil
+                    self.selectedPageID = nil
+                    self.chatEntries = []
+                    self.swarmThreads = []
+                    self.activeSwarmThreadID = nil
+                    self.refreshFromStore()
+                    self.isWorking = false
+                    let backup = result.backupURL?.lastPathComponent ?? "backup"
+                    self.sourcePluginStatusText = "Hive reset complete. Backup: \(backup)."
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.isWorking = false
+                    self.errorText = error.localizedDescription
+                    self.sourcePluginStatusText = "Reset failed."
+                }
+            }
+        }
+    }
+
+    public func runIntegrityCheck() -> String {
+        (try? HiveWorkspaceOperations.runIntegrityCheck(store: store)) ?? "error"
     }
 
     public func runMorningBriefingNow() {

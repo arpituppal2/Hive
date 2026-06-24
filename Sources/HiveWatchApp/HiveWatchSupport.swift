@@ -641,7 +641,9 @@ private struct HiveWatchInspectionPage: View {
 
 @available(watchOS 10.0, *)
 private struct HiveWatchAskPage: View {
+    @ObservedObject private var connectivity = HiveWatchConnectivityHandler.shared
     @State private var question = ""
+    @State private var isSending = false
 
     var body: some View {
         List {
@@ -650,6 +652,20 @@ private struct HiveWatchAskPage: View {
             } icon: {
                 HiveSymbol(.chat, size: 17, active: true)
             }
+            if let response = connectivity.lastResponse {
+                ScrollView {
+                    Text(response)
+                        .font(.footnote)
+                        .lineLimit(8)
+                }
+                Button("More on iPhone") {
+                    #if canImport(WatchKit)
+                    if let url = URL(string: "hive://swarm?query=\(question.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")") {
+                        WKExtension.shared().openSystemURL(url)
+                    }
+                    #endif
+                }
+            }
             TextField("Ask from your memory", text: $question)
                 .submitLabel(.send)
                 .onSubmit(sendQuestion)
@@ -657,22 +673,27 @@ private struct HiveWatchAskPage: View {
                 sendQuestion()
             } label: {
                 Label {
-                    Text("Ask")
+                    Text(isSending ? "Sending..." : "Ask")
                 } icon: {
-                    HiveSymbol(.send, size: 15, active: true)
+                    HiveSymbol(.send, size: 15, active: !question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
-            .disabled(question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .disabled(question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSending)
         }
     }
 
     private func sendQuestion() {
         let trimmed = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        isSending = true
+        connectivity.sendQueryFromWatch(trimmed)
         #if canImport(AppIntents)
         HiveIntentRequestStore.enqueue(route: .askHive, query: trimmed)
         #endif
         question = ""
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            isSending = false
+        }
     }
 }
 

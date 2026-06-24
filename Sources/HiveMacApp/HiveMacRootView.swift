@@ -40,7 +40,7 @@ public struct HiveMacRootView: View {
     @State private var surfaceScrollDirection: HiveSidebarSurfaceScrollDirection = .forward
 
     public init() {
-        _hasSeenOnboarding = State(initialValue: Self.defaultBool("hive.hasSeenOnboarding", fallback: false))
+        _hasSeenOnboarding = State(initialValue: HiveOnboardingStore.isCompleted())
     }
 
     public var body: some View {
@@ -340,7 +340,11 @@ public struct HiveMacRootView: View {
 
     private func setHasSeenOnboarding(_ value: Bool) {
         hasSeenOnboarding = value
-        UserDefaults.standard.set(value, forKey: "hive.hasSeenOnboarding")
+        if value {
+            HiveOnboardingStore.markCompleted()
+        } else {
+            HiveOnboardingStore.resetForReplay()
+        }
     }
 
     private func handleAppAppear() {
@@ -583,7 +587,7 @@ public struct HiveMacRootView: View {
         if previousSurface != surface {
             surfaceScrollDirection = surface.sidebarOrder >= previousSurface.sidebarOrder ? .forward : .backward
         }
-        withAnimation(previousSurface == surface ? HiveMotion.focus : HiveMotion.sidebarPageScroll) {
+        withAnimation(AnimationKit.pageTransition(previousSurface == surface ? HiveMotion.focus : HiveMotion.sidebarPageScroll)) {
             model.selectedSurface = surface
             model.chatVisible = false
             model.commandPaletteVisible = false
@@ -917,6 +921,9 @@ private struct HiveSettingsSheet: View {
     @Binding var appearanceModeRaw: String
     @Binding var interfaceScale: Double
     var onClose: () -> Void
+    @State private var showsResetConfirmation = false
+    @State private var showsResetFinalConfirmation = false
+    @State private var integrityStatus = ""
     @AppStorage("hive.showSystemItemsInField") private var showSystemItems = false
     @AppStorage("hive.autoUpdateColonyOnCapture") private var autoUpdateColony = true
     @AppStorage("hive.colonyUpdateFrequency") private var updateFrequency = "After capture"
@@ -1059,8 +1066,40 @@ private struct HiveSettingsSheet: View {
                             Text("Data location")
                         }
                     }
-                    Button("Export all data") {}
-                    Button("Reset Hive", role: .destructive) {}
+                    Button("Export all data") {
+                        model.exportAllData()
+                    }
+                    Button("Run Integrity Check") {
+                        integrityStatus = model.runIntegrityCheck()
+                    }
+                    if !integrityStatus.isEmpty {
+                        Text(integrityStatus)
+                            .font(HiveTypography.hiveBody)
+                            .foregroundStyle(integrityStatus.contains("ok") ? HiveColorToken.sealed.color : HiveColorToken.conflict.color)
+                    }
+                    Button("Reset Hive", role: .destructive) {
+                        showsResetConfirmation = true
+                    }
+                    .confirmationDialog(
+                        "Reset Hive?",
+                        isPresented: $showsResetConfirmation,
+                        titleVisibility: .visible
+                    ) {
+                        Button("Continue", role: .destructive) {
+                            showsResetFinalConfirmation = true
+                        }
+                        Button("Cancel", role: .cancel) {}
+                    } message: {
+                        Text("This removes derived memory and rebuilds an empty workspace. Field backups are preserved in Application Support.")
+                    }
+                    .alert("Confirm Reset", isPresented: $showsResetFinalConfirmation) {
+                        Button("Reset Hive", role: .destructive) {
+                            model.resetHive()
+                        }
+                        Button("Cancel", role: .cancel) {}
+                    } message: {
+                        Text("This cannot be undone. A backup of Hive.sqlite will be saved before reset.")
+                    }
                 }
 
                 Section("About") {

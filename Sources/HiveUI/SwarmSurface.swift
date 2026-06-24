@@ -114,8 +114,27 @@ public struct SwarmSurface: View {
         .accessibilityLabel("Swarm chat history")
     }
 
+    private var capabilityBanner: some View {
+        HStack(spacing: 8) {
+            HiveSymbol(.cloudSource, size: 14, active: true)
+            Text("Enable AI responses by adding an API key →")
+                .font(HiveTypography.chromeFootnote)
+            Spacer()
+            Button("Add Key") {
+                model.settingsVisible = true
+            }
+            .buttonStyle(HiveGlassButtonStyle(active: true, compact: true))
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(HiveColorToken.waxAmber.color.opacity(0.12))
+    }
+
     private var conversationColumn: some View {
         VStack(spacing: 0) {
+            if CapabilityStore.shared.tier == .coreMLDistilled && !CloudInferenceKeyStore.hasKey() {
+                capabilityBanner
+            }
             conversationHeader
                 .padding(.horizontal, 24)
                 .padding(.top, 20)

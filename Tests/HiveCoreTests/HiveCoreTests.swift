@@ -4028,6 +4028,70 @@ final class HiveCoreTests: XCTestCase {
             status: .extracted
         )
     }
+
+    func testOnboardingStoreUsesSingleCompletedKey() {
+        let defaults = UserDefaults(suiteName: "hive.tests.onboarding")!
+        defaults.removePersistentDomain(forName: "hive.tests.onboarding")
+        XCTAssertFalse(HiveOnboardingStore.isCompleted(defaults: defaults))
+        HiveOnboardingStore.markCompleted(defaults: defaults)
+        XCTAssertTrue(HiveOnboardingStore.isCompleted(defaults: defaults))
+        XCTAssertNil(defaults.object(forKey: "hive.hasSeenOnboarding"))
+    }
+
+    func testSourcePluginToggleStorePersistsPerPlugin() {
+        let defaults = UserDefaults(suiteName: "hive.tests.plugins")!
+        defaults.removePersistentDomain(forName: "hive.tests.plugins")
+        HiveSourcePluginToggleStore.setEnabled(.googleDrive, true, defaults: defaults)
+        HiveSourcePluginToggleStore.setEnabled(.webPages, false, defaults: defaults)
+        XCTAssertTrue(HiveSourcePluginToggleStore.isEnabled(.googleDrive, defaults: defaults))
+        XCTAssertFalse(HiveSourcePluginToggleStore.isEnabled(.webPages, defaults: defaults))
+    }
+
+    func testPasteInputClassifierDetectsDriveAndWebURLs() {
+        XCTAssertEqual(
+            PasteInputClassifier.classify("https://drive.google.com/file/d/abc/view"),
+            .googleDriveURL
+        )
+        XCTAssertEqual(
+            PasteInputClassifier.classify("https://en.wikipedia.org/wiki/Obsidian_(software)"),
+            .webURL
+        )
+        XCTAssertEqual(PasteInputClassifier.classify("~/Downloads/report.pdf"), .localPath)
+    }
+
+    func testWidgetSnapshotStoreRoundTrip() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let payload = HiveWidgetSnapshotStore.makePayload(
+            claimCount: 4,
+            sourceCount: 2,
+            recentClaimTitles: ["Alpha", "Beta"]
+        )
+        HiveWidgetSnapshotStore.save(payload, root: root)
+        let loaded = HiveWidgetSnapshotStore.load(root: root)
+        XCTAssertEqual(loaded.memoryCount, 4)
+        XCTAssertEqual(loaded.claimTitles, ["Alpha", "Beta"])
+    }
+
+    func testStoreTransactionRollsBackOnFailure() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = try HiveStore(databaseURL: root.appendingPathComponent("Hive.sqlite"))
+        let beforeCount = try store.fetchAuditEvents().count
+        XCTAssertThrowsError(try store.inTransaction {
+            try store.appendAudit(AuditEventRecord(
+                eventType: "test.transaction",
+                targetType: "test",
+                targetID: "rollback",
+                detail: "should not persist"
+            ))
+            throw HiveStoreError.stepFailed("forced")
+        })
+        let afterCount = try store.fetchAuditEvents().count
+        XCTAssertEqual(beforeCount, afterCount)
+    }
 }
 
 private struct Harness {

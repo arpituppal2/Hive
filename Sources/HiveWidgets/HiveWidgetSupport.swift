@@ -147,12 +147,28 @@ public struct HiveMemoryTimelineProvider: TimelineProvider {
     }
 
     public func getSnapshot(in context: Context, completion: @escaping (HiveMemoryWidgetEntry) -> Void) {
-        completion(HiveMemoryWidgetEntry(snapshot: placeholderSnapshot(family: widgetFamily(from: context.family))))
+        completion(HiveMemoryWidgetEntry(snapshot: loadSnapshot(family: widgetFamily(from: context.family))))
     }
 
     public func getTimeline(in context: Context, completion: @escaping (Timeline<HiveMemoryWidgetEntry>) -> Void) {
-        let entry = HiveMemoryWidgetEntry(snapshot: placeholderSnapshot(family: widgetFamily(from: context.family)))
-        completion(Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(30 * 60))))
+        let family = widgetFamily(from: context.family)
+        let snapshot = loadSnapshot(family: family)
+        let entry = HiveMemoryWidgetEntry(snapshot: snapshot)
+        let refresh = Calendar.current.date(byAdding: .minute, value: 30, to: Date()) ?? Date().addingTimeInterval(30 * 60)
+        completion(Timeline(entries: [entry], policy: .after(refresh)))
+    }
+
+    private func loadSnapshot(family: HiveWidgetFamily) -> HiveWidgetSnapshot {
+        let root = (try? HivePaths.applicationSupport())?.root
+        let payload = root.map { HiveWidgetSnapshotStore.load(root: $0) } ?? .empty
+        return HiveWidgetSnapshot(
+            family: family,
+            stateText: payload.stateText,
+            memoryCount: payload.memoryCount,
+            claimTitles: payload.claimTitles,
+            graphTextureUpdatedAt: payload.updatedAt,
+            description: payload.memoryCount > 0 ? "Open Hive to review recent memory." : "Open Hive to add a source."
+        )
     }
 
     private func placeholderSnapshot(family: HiveWidgetFamily) -> HiveWidgetSnapshot {

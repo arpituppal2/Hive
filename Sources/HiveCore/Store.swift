@@ -57,7 +57,38 @@ public final class HiveStore: @unchecked Sendable {
     }
 
     deinit {
-        sqlite3_close(db)
+        close()
+    }
+
+    public func close() {
+        lock.lock()
+        defer { lock.unlock() }
+        if let db {
+            sqlite3_close(db)
+            self.db = nil
+        }
+    }
+
+    public func withConnection<T>(_ work: (OpaquePointer) throws -> T) throws -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        guard let db else {
+            throw HiveStoreError.openFailed("Database is closed.")
+        }
+        return try work(db)
+    }
+
+    @discardableResult
+    public func inTransaction<T>(_ work: () throws -> T) throws -> T {
+        try execute("BEGIN IMMEDIATE TRANSACTION")
+        do {
+            let value = try work()
+            try execute("COMMIT")
+            return value
+        } catch {
+            try? execute("ROLLBACK")
+            throw error
+        }
     }
 
     public func migrate() throws {
