@@ -4752,6 +4752,32 @@ final class HiveRebuildTests: XCTestCase {
         }
     }
 
+    func testHiveMacAppContainsOnlyCanonicalSources() throws {
+        let root = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let macAppDirectory = root.appendingPathComponent("Sources/HiveMacApp", isDirectory: true)
+        let swiftFiles = try FileManager.default.contentsOfDirectory(at: macAppDirectory, includingPropertiesForKeys: nil)
+            .filter { $0.pathExtension == "swift" }
+            .map(\.lastPathComponent)
+            .sorted()
+        XCTAssertEqual(
+            swiftFiles,
+            [
+                "HiveAppKitGraphSurface.swift",
+                "HiveGraphCanvasView.swift",
+                "HiveMacRootView.swift",
+                "HiveMacWindowPresenter.swift"
+            ],
+            "HiveMacApp must not contain local-only files such as HiveAppModel.swift or HivePrompt10AppKit.swift"
+        )
+        XCTAssertFalse(
+            FileManager.default.fileExists(atPath: root.appendingPathComponent("Sources/HiveUI/HiveAppModel.swift").path) == false,
+            "HiveAppModel must live in HiveUI"
+        )
+    }
+
     func testDeepAuditRunsAppleHIGGateAndSafePackagingPath() throws {
         let root = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()

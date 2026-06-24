@@ -70,6 +70,28 @@ cd /Users/arpituppal/Downloads/Hive
 xcodebuild -scheme HiveApp -destination 'platform=macOS' build
 ```
 
+## Local copy drift (many HiveMacApp errors)
+
+If you see errors in `Sources/HiveMacApp/HiveAppModel.swift`, `HivePrompt10AppKit.swift`, or dozens of `Color has no member 'color'` / ambiguous symbol errors, your folder is mixed with local-only files.
+
+Run:
+
+```bash
+./scripts/sync-macos-build.sh
+```
+
+See `docs/HIVE_LOCAL_COPY_DRIFT.md`.
+
+## SPM / mlx missing products
+
+If Package.swift reports missing products like `mlx-swift-lm_MLXLLM.MLXLLM`:
+
+1. `rm -rf ~/Library/Developer/Xcode/DerivedData/Hive-*`
+2. `rm -rf .build`
+3. In Xcode: **File → Packages → Reset Package Caches**
+4. **File → Packages → Resolve Package Versions**
+5. Rebuild
+
 ## If errors persist
 
-Share only the **first** compile error under the `HiveCore` target (ignore downstream "Unable to resolve module dependency" messages).
+Share only the **first** compile error under the `HiveCore` or `HiveMacApp` target (ignore downstream cascade errors).
