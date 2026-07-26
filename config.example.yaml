@@ -1,0 +1,13 @@
+# Hive runtime configuration (OPTIONAL).
+#
+# Local on-device models are the v1 baseline. BYOK remote providers are an add-on
+# the user opts into, never a requirement for core function.
+#
+# NEVER commit real keys to this repository. BYOK keys belong in Keychain
+# (KeychainStore), referenced by alias, not pasted into this file.
+
+# byok_add_on:
+#   litellm_proxy:
+#     base_url: "https://integrate.api.nvidia.com/v1"
+#     api_key_alias: "hive.byok.nvidia"   # Keychain item name, not the key itself
+#     rate_limit_rpm: 35

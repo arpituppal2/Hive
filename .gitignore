@@ -1,0 +1,14 @@
+# Build artifacts
+.build/
+.swiftpm/
+*.xcodeproj/
+DerivedData/
+
+# Local Claude Code tooling — not product content
+.claude/
+
+# Local runtime config — secrets live in Keychain, never here
+config.yaml
+
+# macOS
+.DS_Store
