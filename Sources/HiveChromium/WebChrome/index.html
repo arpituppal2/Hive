@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Tab — Hive</title>
+<!-- Session token injected by HiveSchemeHandler at serve time. Every bridge
+     call must present it; arbitrary web pages never see it. -->
+<script>window.__HIVE_TOKEN = "__HIVE_TOKEN__";</script>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- Frosted canvas glow, hand-drawn: no native chrome anywhere -->
+  <div class="ambient" aria-hidden="true">
+    <div class="glow glow--indigo"></div>
+    <div class="glow glow--gold"></div>
+  </div>
+
+  <main class="stage">
+    <!-- Wordmark: Hive, not "macOS" -->
+    <div class="brand">
+      <div class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M16 2.5 27.5 9v14L16 29.5 4.5 23V9L16 2.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M16 2.5v27M4.5 9l23 14M27.5 9l-23 14" stroke="currentColor" stroke-width="0.7" stroke-linejoin="round" opacity="0.45"/>
+        </svg>
+      </div>
+      <h1 class="brand__name">Hive</h1>
+    </div>
+
+    <!-- The command bar: the heart of the page. Typing anywhere focuses it. -->
+    <section class="command">
+      <div class="command__field">
+        <svg class="command__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="1.4"/>
+          <path d="m13.5 13.5 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <input id="query" type="text" placeholder="Search or enter an address" autocomplete="off" spellcheck="false">
+        <kbd class="command__hint" id="escHint">esc</kbd>
+      </div>
+      <div class="suggestions" id="suggestions" hidden></div>
+    </section>
+
+    <!-- Top sites — real data from actual browsing history, never hardcoded -->
+    <section class="topsites" id="topsites">
+      <div class="section-head">
+        <span>Top Sites</span>
+      </div>
+      <div class="topsites__grid" id="topsitesGrid"></div>
+    </section>
+
+    <!-- Continue browsing — recent history -->
+    <section class="recent" id="recent">
+      <div class="section-head">
+        <span>Continue Browsing</span>
+      </div>
+      <div class="recent__list" id="recentList"></div>
+    </section>
+
+    <!-- Workspaces -->
+    <section class="spaces" id="spaces">
+      <div class="section-head">
+        <span>Spaces</span>
+      </div>
+      <div class="spaces__row" id="spacesRow"></div>
+    </section>
+
+    <footer class="foot">
+      <button class="foot__btn" data-action="settings" title="Settings">
+        <svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.6" stroke="currentColor" stroke-width="1.3"/><path d="M9 1.5v2M9 14.5v2M1.5 9h2M14.5 9h2M3.7 3.7l1.4 1.4M12.9 12.9l1.4 1.4M14.3 3.7l-1.4 1.4M5.1 12.9l-1.4 1.4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+        <span>Settings</span>
+      </button>
+      <button class="foot__btn" data-action="history" title="History">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M9 3.5A5.5 5.5 0 1 0 14.5 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9 5.5V9l2.2 2.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>History</span>
+      </button>
+      <button class="foot__btn" data-action="bookmarks" title="Bookmarks">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M4.5 2.5h9v13l-4.5-3-4.5 3v-13Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        <span>Bookmarks</span>
+      </button>
+      <button class="foot__btn" data-action="downloads" title="Downloads">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M9 2.5v9M5.5 8.5 9 12l3.5-3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 14.5h13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span>Downloads</span>
+      </button>
+      <button class="foot__btn" data-action="commands" title="Command Palette">
+        <svg viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="4.4" height="4.4" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="10.6" y="3" width="4.4" height="4.4" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="3" y="10.6" width="4.4" height="4.4" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M10.6 12.8h4.4M12.8 10.6v4.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span>Commands</span>
+      </button>
+    </footer>
+
+    <p class="status" id="status" hidden></p>
+  </main>
+
+  <script>
+  // CefSwift bridge shim — embedded so it's present before any page code runs.
+  // (Mirrors CefBridge.javascriptShim; served from our own page per CefSwift docs.)
+  (function () {
+    if (window.cefSwift && window.cefSwift.invoke) { return; }
+    window.cefSwift = {
+      _listeners: {},
+      invoke: function (name, params) {
+        return fetch('cefswift://bridge/' + encodeURIComponent(name), {
+          method: 'POST',
+          body: params === undefined ? '' : JSON.stringify(params)
+        }).then(function (response) {
+          return response.text().then(function (text) {
+            if (!response.ok) {
+              throw new Error('cefSwift.invoke(' + name + ') failed (' + response.status + '): ' + text);
+            }
+            var contentType = response.headers.get('Content-Type') || '';
+            if (contentType.indexOf('application/json') !== -1 && text.length) {
+              return JSON.parse(text);
+            }
+            return text;
+          });
+        });
+      },
+      on: function (name, fn) {
+        (this._listeners[name] = this._listeners[name] || []).push(fn);
+        var self = this;
+        return function () {
+          self._listeners[name] = (self._listeners[name] || []).filter(function (f) { return f !== fn; });
+        };
+      },
+      off: function (name, fn) {
+        if (!this._listeners[name]) { return; }
+        if (fn === undefined) { this._listeners[name] = []; return; }
+        this._listeners[name] = this._listeners[name].filter(function (f) { return f !== fn; });
+      },
+      _emit: function (name, data) {
+        (this._listeners[name] || []).forEach(function (fn) {
+          try { fn(data); } catch (e) { console.error(e); }
+        });
+      }
+    };
+  })();
+  </script>
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+{
+  "mission": "Hive Browser one-shot autonomous recovery and ship",
+  "started": "2026-08-07T00:00:00Z",
+  "branch": "mission/recovery-and-ship",
+  "tasks": [
+    {
+      "id": "T01",
+      "subsystem": "repo",
+      "owner": "coordinator",
+      "status": "completed",
+      "dependencies": [],
+      "files": [],
+      "evidence": "Baseline: swift build (HiveChromium) 0 errors; swift test 983/130 suites pass; smoke readiness PASS; two-launch session recovery PASS",
+      "risks": []
+    },
+    {
+      "id": "T02",
+      "subsystem": "repo",
+      "owner": "coordinator",
+      "status": "in_progress",
+      "dependencies": ["T01"],
+      "files": [".hive/mission/", "docs/"],
+      "evidence": "ledger + docs being written",
+      "risks": []
+    },
+    {
+      "id": "T03",
+      "subsystem": "browser",
+      "owner": "coordinator",
+      "status": "pending",
+      "dependencies": ["T02"],
+      "files": ["Sources/HiveChromium/*"],
+      "evidence": "live CDP-driven navigation test on rebuilt app",
+      "risks": []
+    },
+    {
+      "id": "T04",
+      "subsystem": "browser",
+      "owner": "qa-agent",
+      "status": "pending",
+      "dependencies": ["T03"],
+      "files": [],
+      "evidence": "adversarial QA: malformed session, offline, cancel, rapid tab ops",
+      "risks": []
+    },
+    {
+      "id": "T05",
+      "subsystem": "ui",
+      "owner": "ui-reviewer",
+      "status": "pending",
+      "dependencies": ["T03"],
+      "files": ["Sources/HiveChromium/Views"],
+      "evidence": "screenshots + accessibility inspection",
+      "risks": []
+    },
+    {
+      "id": "T06",
+      "subsystem": "security",
+      "owner": "security-reviewer",
+      "status": "pending",
+      "dependencies": ["T03"],
+      "files": [],
+      "evidence": "secrets scan, entitlement audit, log sweep",
+      "risks": []
+    },
+    {
+      "id": "T07",
+      "subsystem": "release",
+      "owner": "coordinator",
+      "status": "pending",
+      "dependencies": ["T04", "T05", "T06"],
+      "files": ["dist/", "scripts/"],
+      "evidence": "full release validation: build app, preflight, entitlements, smoke, tests",
+      "risks": []
+    },
+    {
+      "id": "T08",
+      "subsystem": "repo",
+      "owner": "coordinator",
+      "status": "pending",
+      "dependencies": ["T07"],
+      "files": [".hive/mission/FINAL_VALIDATION.md", "docs/*", "THIRD_PARTY_NOTICES.md"],
+      "evidence": "final docs + coherent commit history",
+      "risks": []
+    }
+  ]
+}

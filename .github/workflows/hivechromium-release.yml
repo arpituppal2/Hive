@@ -1,0 +1,302 @@
+name: HiveChromium Release
+
+on:
+  push:
+    tags:
+      - "hive-v*.*.*"
+permissions:
+  contents: read
+
+# This workflow is intentionally separate from Signoff. It does not fall back
+# to unsigned output and it never uses the local ad-hoc mode.
+jobs:
+  release:
+    name: Build, verify, notarize Hive Browser
+    runs-on: macos-15
+    environment: hivechromium-release
+    timeout-minutes: 120
+    steps:
+      - name: Checkout release ref
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Select Xcode and inspect toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE="$(ls -dt /Applications/Xcode*.app 2>/dev/null | head -1 || true)"
+          [[ -n "$XCODE" ]] || { echo "::error::No Xcode installation found"; exit 1; }
+          sudo xcode-select -s "$XCODE/Contents/Developer"
+          xcodebuild -version
+          xcrun --sdk macosx --show-sdk-version
+
+      - name: Fail closed when protected release inputs are incomplete
+        shell: bash
+        env:
+          DEVELOPER_ID_APPLICATION: ${{ secrets.DEVELOPER_ID_APPLICATION }}
+          DEVELOPER_ID_CERTIFICATE_P12: ${{ secrets.DEVELOPER_ID_CERTIFICATE_P12 }}
+          DEVELOPER_ID_CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_CERTIFICATE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          HIVE_WORKER_REQUIREMENT: ${{ secrets.HIVE_WORKER_REQUIREMENT }}
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          missing=()
+          for name in \
+            DEVELOPER_ID_APPLICATION \
+            DEVELOPER_ID_CERTIFICATE_P12 \
+            DEVELOPER_ID_CERTIFICATE_PASSWORD \
+            APPLE_TEAM_ID \
+            HIVE_WORKER_REQUIREMENT \
+            APPLE_API_KEY_P8 \
+            APPLE_API_KEY_ID \
+            APPLE_API_ISSUER_ID; do
+            [[ -n "${!name:-}" ]] || missing+=("$name")
+          done
+          if (( ${#missing[@]} > 0 )); then
+            echo "::error::HiveChromium release is blocked; missing protected inputs: ${missing[*]}"
+            exit 1
+          fi
+          [[ "$APPLE_TEAM_ID" =~ ^[A-Z0-9]{10}$ ]] || {
+            echo "::error::APPLE_TEAM_ID must be a ten-character Apple Team ID"
+            exit 1
+          }
+          [[ "$APPLE_TEAM_ID" != "0000000000" ]] || {
+            echo "::error::The local-only dummy Team ID is forbidden in release CI"
+            exit 1
+          }
+          [[ "$DEVELOPER_ID_APPLICATION" != "-" ]] || {
+            echo "::error::Ad-hoc signing is forbidden in release CI"
+            exit 1
+          }
+          [[ "$HIVE_WORKER_REQUIREMENT" != *"0000000000"* ]] || {
+            echo "::error::The worker requirement contains the local-only dummy Team ID"
+            exit 1
+          }
+          if printf '%s' "$HIVE_WORKER_REQUIREMENT" | LC_ALL=C grep -q '[[:cntrl:]]'; then
+            echo "::error::HIVE_WORKER_REQUIREMENT contains control characters"
+            exit 1
+          fi
+          [[ -f Sources/HiveChromium/cefapp.json ]] || {
+            echo "::error::HiveChromium metadata is missing"
+            exit 1
+          }
+          [[ -f Sources/HiveChromium/Resources/AppIcon.icns ]] || {
+            echo "::error::HiveChromium app icon is missing"
+            exit 1
+          }
+
+      - name: Require the explicit hardened-runtime policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          ENTITLEMENTS="Sources/HiveChromium/HiveChromium.entitlements"
+          if [[ ! -f "$ENTITLEMENTS" ]]; then
+            echo "::error::Release blocked: $ENTITLEMENTS is not present."
+            echo "::error::Do not notarize HiveChromium until its CEF helper/runtime entitlements are reviewed and committed."
+            exit 1
+          fi
+          for script in \
+            scripts/test-hivechromium-entitlements.sh \
+            scripts/verify-hivechromium-entitlements.sh \
+            scripts/verify-hivechromium-entitlement-application.sh \
+            scripts/build-hivechromium-app.sh \
+            scripts/preflight-hivechromium-app.sh \
+            scripts/build-research-worker.sh \
+            scripts/verify-research-worker.sh; do
+            [[ -x "$script" ]] || { echo "::error::Release helper is not executable: $script"; exit 1; }
+          done
+          scripts/test-hivechromium-entitlements.sh
+          scripts/verify-hivechromium-entitlements.sh "$ENTITLEMENTS"
+
+      - name: Import Developer ID certificate into an ephemeral keychain
+        shell: bash
+        env:
+          DEVELOPER_ID_CERTIFICATE_P12: ${{ secrets.DEVELOPER_ID_CERTIFICATE_P12 }}
+          DEVELOPER_ID_CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_CERTIFICATE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN_PATH="$RUNNER_TEMP/hivechromium-signing.keychain-db"
+          ORIGINAL_KEYCHAINS_FILE="$RUNNER_TEMP/hivechromium-original-keychains.txt"
+          ORIGINAL_DEFAULT_KEYCHAIN_FILE="$RUNNER_TEMP/hivechromium-original-default-keychain.txt"
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 32)"
+          P12_PATH="$RUNNER_TEMP/hivechromium-developer-id.p12"
+          security list-keychains -d user > "$ORIGINAL_KEYCHAINS_FILE"
+          security default-keychain -d user > "$ORIGINAL_DEFAULT_KEYCHAIN_FILE"
+          printf '%s' "$DEVELOPER_ID_CERTIFICATE_P12" | base64 -D > "$P12_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$P12_PATH" -P "$DEVELOPER_ID_CERTIFICATE_PASSWORD" -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          ORIGINAL_KEYCHAINS=()
+          while IFS= read -r keychain; do
+            keychain="${keychain#\"}"
+            keychain="${keychain%\"}"
+            [[ -n "$keychain" ]] && ORIGINAL_KEYCHAINS+=("$keychain")
+          done < <(sed -E 's/^[[:space:]]*//; s/[[:space:]]*$//' "$ORIGINAL_KEYCHAINS_FILE")
+          # Keep the runner's existing search paths and prepend only the
+          # ephemeral keychain for this job.
+          security list-keychains -d user -s "$KEYCHAIN_PATH" "${ORIGINAL_KEYCHAINS[@]}"
+          security default-keychain -s "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          rm -f "$P12_PATH"
+          # The keychain path is deterministic under RUNNER_TEMP, so cleanup
+          # can remove it even if this step fails before GITHUB_ENV is written.
+          {
+            echo "HIVE_SIGNING_KEYCHAIN=$KEYCHAIN_PATH"
+            echo "HIVE_ORIGINAL_KEYCHAINS_FILE=$ORIGINAL_KEYCHAINS_FILE"
+            echo "HIVE_ORIGINAL_DEFAULT_KEYCHAIN_FILE=$ORIGINAL_DEFAULT_KEYCHAIN_FILE"
+          } >> "$GITHUB_ENV"
+
+      - name: Build and assemble signed HiveChromium.app
+        shell: bash
+        env:
+          DEVELOPER_ID_APPLICATION: ${{ secrets.DEVELOPER_ID_APPLICATION }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          HIVE_WORKER_REQUIREMENT: ${{ secrets.HIVE_WORKER_REQUIREMENT }}
+        run: |
+          set -euo pipefail
+          OUTPUT_DIR="$RUNNER_TEMP/hivechromium-release"
+          rm -rf "$OUTPUT_DIR"
+          scripts/build-hivechromium-app.sh \
+            --output "$OUTPUT_DIR" \
+            --entitlements Sources/HiveChromium/HiveChromium.entitlements
+          echo "HIVE_APP_PATH=$OUTPUT_DIR/HiveChromium.app" >> "$GITHUB_ENV"
+
+      - name: Verify signed bundle before notarization
+        shell: bash
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          scripts/preflight-hivechromium-app.sh --app "$HIVE_APP_PATH"
+          HIVE_WORKER_TEAM_ID="$APPLE_TEAM_ID" \
+            scripts/verify-research-worker.sh \
+              --app "$HIVE_APP_PATH" \
+              --team-id "$APPLE_TEAM_ID"
+          codesign --verify --deep --strict --verbose=2 "$HIVE_APP_PATH"
+          scripts/verify-hivechromium-entitlement-application.sh --app "$HIVE_APP_PATH"
+
+      - name: Create notarization archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP_PATH="$RUNNER_TEMP/HiveChromium-notarize.zip"
+          ditto -c -k --keepParent "$HIVE_APP_PATH" "$ZIP_PATH"
+          echo "HIVE_NOTARIZE_ZIP=$ZIP_PATH" >> "$GITHUB_ENV"
+
+      - name: Submit to Apple notarization
+        shell: bash
+        env:
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          API_KEY_PATH="$RUNNER_TEMP/hivechromium-api-key.p8"
+          printf '%s' "$APPLE_API_KEY_P8" > "$API_KEY_PATH"
+          xcrun notarytool submit "$HIVE_NOTARIZE_ZIP" \
+            --key "$API_KEY_PATH" \
+            --key-id "$APPLE_API_KEY_ID" \
+            --issuer "$APPLE_API_ISSUER_ID" \
+            --wait
+          rm -f "$API_KEY_PATH"
+
+      - name: Staple and verify notarization ticket
+        shell: bash
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          xcrun stapler staple "$HIVE_APP_PATH"
+          xcrun stapler validate "$HIVE_APP_PATH"
+          HIVE_WORKER_TEAM_ID="$APPLE_TEAM_ID" \
+            scripts/verify-research-worker.sh \
+              --app "$HIVE_APP_PATH" \
+              --team-id "$APPLE_TEAM_ID" \
+              --require-stapled-ticket
+
+      - name: Assess stapled app with Gatekeeper
+        shell: bash
+        run: |
+          set -euo pipefail
+          spctl --assess --type execute --verbose=4 "$HIVE_APP_PATH"
+
+      - name: Package DMG
+        shell: bash
+        run: |
+          set -euo pipefail
+          DMG_PATH="$RUNNER_TEMP/HiveChromium.dmg"
+          hdiutil create \
+            -volname "Hive Browser" \
+            -srcfolder "$HIVE_APP_PATH" \
+            -ov \
+            -format UDZO \
+            "$DMG_PATH"
+          echo "HIVE_DMG_PATH=$DMG_PATH" >> "$GITHUB_ENV"
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: HiveChromium-${{ github.ref_name }}
+          path: |
+            ${{ runner.temp }}/hivechromium-release/HiveChromium.app
+            ${{ runner.temp }}/HiveChromium.dmg
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Remove ephemeral signing material
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          KEYCHAIN_PATH="$RUNNER_TEMP/hivechromium-signing.keychain-db"
+          ORIGINAL_KEYCHAINS_FILE="$RUNNER_TEMP/hivechromium-original-keychains.txt"
+          ORIGINAL_DEFAULT_KEYCHAIN_FILE="$RUNNER_TEMP/hivechromium-original-default-keychain.txt"
+          if [[ -s "$ORIGINAL_KEYCHAINS_FILE" ]]; then
+            ORIGINAL_KEYCHAINS=()
+            while IFS= read -r keychain; do
+              keychain="${keychain#\"}"
+              keychain="${keychain%\"}"
+              [[ -n "$keychain" ]] && ORIGINAL_KEYCHAINS+=("$keychain")
+            done < <(sed -E 's/^[[:space:]]*//; s/[[:space:]]*$//' "$ORIGINAL_KEYCHAINS_FILE")
+            security list-keychains -d user -s "${ORIGINAL_KEYCHAINS[@]}" 2>/dev/null || true
+          fi
+          if [[ -s "$ORIGINAL_DEFAULT_KEYCHAIN_FILE" ]]; then
+            DEFAULT_KEYCHAIN="$(sed -E 's/^[[:space:]]*//; s/[[:space:]]*$//' "$ORIGINAL_DEFAULT_KEYCHAIN_FILE")"
+            DEFAULT_KEYCHAIN="${DEFAULT_KEYCHAIN#\"}"
+            DEFAULT_KEYCHAIN="${DEFAULT_KEYCHAIN%\"}"
+            [[ -n "$DEFAULT_KEYCHAIN" ]] && security default-keychain -d user -s "$DEFAULT_KEYCHAIN" 2>/dev/null || true
+          fi
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/hivechromium-developer-id.p12" "$RUNNER_TEMP/hivechromium-api-key.p8" "$RUNNER_TEMP/HiveChromium-notarize.zip" "$ORIGINAL_KEYCHAINS_FILE" "$ORIGINAL_DEFAULT_KEYCHAIN_FILE"
+
+  publish:
+    name: Publish verified Hive Browser artifact
+    needs: release
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: macos-15
+    permissions:
+      contents: write
+    steps:
+      - name: Download verified artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: HiveChromium-${{ github.ref_name }}
+          path: release-artifact
+
+      - name: Create draft GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          DMG_PATH="$(find release-artifact -type f -name '*.dmg' -print -quit)"
+          [[ -n "$DMG_PATH" ]] || { echo "::error::Verified DMG artifact is missing"; exit 1; }
+          gh release create "$GITHUB_REF_NAME" \
+            --draft \
+            --generate-notes \
+            "$DMG_PATH"
