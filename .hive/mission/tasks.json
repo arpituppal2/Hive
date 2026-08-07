@@ -32,14 +32,14 @@
       "id": "T03",
       "subsystem": "browser",
       "owner": "coordinator",
-      "status": "in_progress",
+      "status": "completed",
       "dependencies": [
         "T02"
       ],
       "files": [
         "Sources/HiveChromium/*"
       ],
-      "evidence": "Bug A fixed: fresh isolated launch creates exactly 1 page target (was 2). Bug B fixed: hive://start/ renders (title 'New Tab \u2014 Hive', 6972 DOM bytes), fetch('hive://start/') -> 200, window.cefSwift present; session.json records 1 tabInfo. Root causes: setupDefaults double newTab() (duplicate removed); per-context scheme handler factories not inherited from global context (vendored CefSwift + replay on context creation).",
+      "evidence": "Bug A fixed: fresh isolated launch creates exactly 1 page target (was 2). Bug B fixed: hive://start/ renders (title 'New Tab \u2014 Hive', 6972 DOM bytes), fetch('hive://start/') -> 200, window.cefSwift present; session.json records 1 tabInfo. Root causes: setupDefaults double newTab() (duplicate removed); per-context scheme handler factories not inherited from global context (vendored CefSwift + replay on context creation). | CDP smoke flow: https://example.com/ nav -> 'Example Domain'; history.back -> hive://start/; reload OK; Browser.close + SIGTERM ignored (app quits only via Cmd+Q saveNowAndQuit); osascript quit canceled (-128, expected); SIGKILL crash-recovery relaunch restores exactly 1 hive://start tab. UI-level tab create/close/reorder deferred to T04.",
       "risks": []
     },
     {
