@@ -108,6 +108,21 @@ struct WebChromeDownload: Codable, Sendable {
     let progress: Double
 }
 
+struct WebChromeSession: Codable, Sendable {
+    let id: String
+    let title: String
+    let windowCount: Int
+    let tabCount: Int
+    let faviconURL: String?
+    let startedAt: String
+    let lastActiveAt: String
+}
+
+struct WebChromeSearchRequest: Codable, Sendable {
+    let token: String
+    let query: String
+}
+
 struct WebChromeTab: Codable, Sendable {
     let id: String
     let title: String
@@ -191,11 +206,6 @@ struct WebChromeWorkspaceRequest: Codable, Sendable {
 struct WebChromeAccentRequest: Codable, Sendable {
     let token: String
     let hex: String
-}
-
-struct WebChromeSearchRequest: Codable, Sendable {
-    let token: String
-    let query: String
 }
 
 struct WebChromeSuggestion: Codable, Sendable {
@@ -662,6 +672,86 @@ enum WebChromeBridge {
             return true
         }
 
+        // ---- hive.snapshotSession: capture the current window as a snapshot ----
+        bridge.register("hive.snapshotSession") { (request: WebChromeToken) async throws -> Bool in
+            try Self.authorize(request.token)
+            return await MainActor.run {
+                let tabs = state.tabs.map { tab -> SessionSnapshotTab in
+                    SessionSnapshotTab(
+                        id: tab.id,
+                        title: tab.model.title ?? (tab.model.url?.absoluteString ?? "Untitled"),
+                        url: tab.model.url?.absoluteString ?? "",
+                        faviconURL: tab.model.faviconURL?.absoluteString
+                    )
+                }
+                SessionStore.shared.snapshot(tabs: tabs, workspaceID: state.currentWorkspaceID)
+                return true
+            }
+        }
+
+        // ---- hive.listSessions / hive.restoreSession / hive.deleteSession ----
+        // Backed by BrowserSessions.SessionStore — a self-contained snapshot
+        // store that persists independently of ChromiumBrowserState's session
+        // bootstrap. restoreSession opens a new window wired to that snapshot.
+        bridge.register("hive.listSessions") { (request: WebChromeToken) async throws -> [WebChromeSession] in
+            try Self.authorize(request.token)
+            return await MainActor.run {
+                SessionStore.shared.sessions.map { s -> WebChromeSession in
+                    let fmt = s.formatted()
+                    return WebChromeSession(
+                        id: s.id.uuidString,
+                        title: s.title,
+                        windowCount: s.windowCount,
+                        tabCount: s.tabCount,
+                        faviconURL: s.faviconURL,
+                        startedAt: fmt.startedAt,
+                        lastActiveAt: fmt.lastActiveAt
+                    )
+                }
+            }
+        }
+
+        bridge.register("hive.restoreSession") { (request: WebChromeIDRequest) async throws -> Bool in
+            try Self.authorize(request.token)
+            guard UUID(uuidString: request.id) != nil else { return false }
+            await MainActor.run {
+                NotificationCenter.default.post(
+                    name: Notification.Name("HiveRequestNewWindow"),
+                    object: request.id
+                )
+            }
+            return true
+        }
+
+        bridge.register("hive.deleteSession") { (request: WebChromeIDRequest) async throws -> Bool in
+            try Self.authorize(request.token)
+            guard let id = UUID(uuidString: request.id) else { return false }
+            await MainActor.run { SessionStore.shared.delete(id: id) }
+            return true
+        }
+
+        // ---- hive.listDownloads: live + terminal downloads from browser state ----
+        bridge.register("hive.listDownloads") { (request: WebChromeToken) async throws -> [WebChromeDownload] in
+            try Self.authorize(request.token)
+            return await MainActor.run {
+                state.downloads.map { dl -> WebChromeDownload in
+                    let stateName: String
+                    if dl.isComplete { stateName = "completed" }
+                    else if dl.isCanceled { stateName = "cancelled" }
+                    else if dl.isInterrupted { stateName = "failed" }
+                    else if dl.progress > 0 { stateName = "inProgress" }
+                    else { stateName = "pending" }
+                    return WebChromeDownload(
+                        id: dl.id.uuidString,
+                        name: dl.suggestedName,
+                        url: dl.url.absoluteString,
+                        state: stateName,
+                        progress: dl.progress
+                    )
+                }
+            }
+        }
+
         // ---- hive.createTabGroup: group the active tab into a new colored group ----
         bridge.register("hive.createTabGroup") { (request: WebChromeGroupRequest) async throws -> Bool in
             try Self.authorize(request.token)
@@ -688,12 +778,8 @@ enum WebChromeBridge {
         // ---- hive.setTabGroupColor: recolor a group ----
         bridge.register("hive.setTabGroupColor") { (request: WebChromeGroupColorRequest) async throws -> Bool in
             try Self.authorize(request.token)
-            guard UUID(uuidString: request.id) != nil else { return false }
-            await MainActor.run {
-                if let id = UUID(uuidString: request.id) {
-                    state.setTabGroupColor(id: id, colorHex: request.colorHex)
-                }
-            }
+            guard let id = UUID(uuidString: request.id) else { return false }
+            await MainActor.run { state.setTabGroupColor(id: id, colorHex: request.colorHex) }
             return true
         }
 
@@ -708,7 +794,7 @@ enum WebChromeBridge {
         // ---- hive.moveTabToGroup: assign a tab to a group (or nil to ungroup) ----
         bridge.register("hive.moveTabToGroup") { (request: WebChromeMoveTabGroupRequest) async throws -> Bool in
             try Self.authorize(request.token)
-            guard let groupID = request.groupID.isEmpty ? nil : UUID(uuidString: request.groupID) else { return false }
+            let groupID = request.groupID.isEmpty ? nil : UUID(uuidString: request.groupID)
             await MainActor.run { state.moveTabToGroup(tabID: request.tabID, groupID: groupID) }
             return true
         }
