@@ -72,12 +72,12 @@
       "id": "T06",
       "subsystem": "security",
       "owner": "security-reviewer",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         "T03"
       ],
       "files": [],
-      "evidence": "secrets scan, entitlement audit, log sweep",
+      "evidence": "Entitlement fixtures pass (verify-hivechromium-entitlements.sh + test-hivechromium-entitlements.sh); devtools port 9223 #if DEBUG-gated; no secrets in Sources/scripts/native/.github/Tests (grep sweep); API keys env-injected (TAVILY_API_KEY) via KeychainSecretStore; runtime log contains no keys.",
       "risks": []
     },
     {
