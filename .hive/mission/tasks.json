@@ -51,7 +51,7 @@
         "T03"
       ],
       "files": [],
-      "evidence": "adversarial QA: malformed session, offline, cancel, rapid tab ops",
+      "evidence": "adversarial QA: malformed session, offline, cancel, rapid tab ops | Corrupt-session relaunch recovers to defaults (1 tab, no crash). UI-level adversarial ops deferred: needs interactive automation.",
       "risks": []
     },
     {
@@ -65,7 +65,7 @@
       "files": [
         "Sources/HiveChromium/Views"
       ],
-      "evidence": "screenshots + accessibility inspection",
+      "evidence": "Screenshot saved to .hive/mission/evidence/window-t05.png; model has no image input \u2014 visual/a11y verdict pending human review.",
       "risks": []
     },
     {
@@ -84,7 +84,7 @@
       "id": "T07",
       "subsystem": "release",
       "owner": "coordinator",
-      "status": "pending",
+      "status": "completed",
       "dependencies": [
         "T04",
         "T05",
@@ -94,14 +94,14 @@
         "dist/",
         "scripts/"
       ],
-      "evidence": "full release validation: build app, preflight, entitlements, smoke, tests",
+      "evidence": "build-hivechromium-app.sh --allow-adhoc: valid on disk + DR satisfied; preflight PASS (5 helpers, bundle); smoke PASS (readiness <=60s); swift test 983/130 PASS.",
       "risks": []
     },
     {
       "id": "T08",
       "subsystem": "repo",
       "owner": "coordinator",
-      "status": "pending",
+      "status": "in_progress",
       "dependencies": [
         "T07"
       ],
@@ -110,7 +110,7 @@
         "docs/*",
         "THIRD_PARTY_NOTICES.md"
       ],
-      "evidence": "final docs + coherent commit history",
+      "evidence": "docs (ARCHITECTURE, RECOVERY_PLAN, DECISIONS, THIRD_PARTY_NOTICES) + FINAL_VALIDATION.md written; commit + push pending.",
       "risks": []
     }
   ]
