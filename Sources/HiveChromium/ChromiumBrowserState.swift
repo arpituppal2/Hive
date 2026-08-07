@@ -121,6 +121,25 @@ final class ChromiumBrowserState {
         }
     }
 
+    /// Where the web chrome shell sits in the window: a left sidebar
+    /// (vertical tabs, Arc/Zen/Dia style) or a top strip (horizontal tabs,
+    /// Chrome/Brave style). The chrome itself is web content — this enum only
+    /// describes the native frame it is given.
+    enum ChromeMode: String, Sendable {
+        case sidebar
+        case strip
+    }
+
+    /// The URL of the web chrome shell — the persistent browser that renders
+    /// the entire UI (tab strip, toolbar, panels). Distinct from
+    /// ``webChromeStartURL`` which is the per-tab start page.
+    static let webChromeURL = URL(string: "hive://start?chrome=1")!
+
+    /// Whether `url` belongs to the persistent web chrome shell.
+    static func isWebChromeURL(_ url: URL?) -> Bool {
+        url?.host == "start" && url?.query == "chrome=1"
+    }
+
     @MainActor
     final class Tab: Identifiable {
         let id: String
@@ -184,6 +203,49 @@ final class ChromiumBrowserState {
     var layout: TabLayout = .vertical {
         didSet {
             if !isRestoringSession { scheduleAutosave() }
+        }
+    }
+
+    // MARK: Web chrome shell (the UI in web content)
+
+    /// The persistent browser that renders the entire UI. Lives at
+    /// ``webChromeURL``; never counted as a tab. Created after
+    /// ``setupDefaults()`` in `init`.
+    var chromeModel: CefWebViewModel?
+
+    /// Where the chrome shell sits: left sidebar (vertical tabs) or top strip
+    /// (horizontal tabs). Mirrors `layout` for the native frame only.
+    var chromeMode: ChromeMode = .sidebar
+
+    /// Sidebar width (vertical mode) or strip height (horizontal mode), in
+    /// points. The web chrome reports its chosen size via
+    /// `hive.setChromeDimension`; panels grow the chrome frame.
+    var chromeDimension: CGFloat = 270
+
+    /// Panel currently open inside the web chrome ("settings", "history",
+    /// "bookmarks", "downloads", "commands"), or nil.
+    var isChromePanelOpen: String?
+
+    /// The chrome dimension when no panel is open (sidebar: 270pt;
+    /// strip: 58pt).
+    var chromeDefaultDimension: CGFloat {
+        chromeMode == .sidebar ? 270 : 58
+    }
+
+    func setChromePanel(_ panel: String?) {
+        isChromePanelOpen = panel
+        withAnimation(isReduceMotionEnabled ? nil : HiveDesign.Animation.springQuick) {
+            if let panel {
+                // Grow the chrome to make room for the panel; the web UI
+                // renders the toolbar on top and the panel below (strip) or
+                // beside (sidebar) it. Clamped so the content area never
+                // disappears.
+                chromeDimension = chromeMode == .sidebar
+                    ? min(max(chromeDimension, 420), 560)
+                    : min(max(chromeDimension, 420), 560)
+            } else {
+                chromeDimension = chromeDefaultDimension
+            }
         }
     }
 
@@ -3815,6 +3877,22 @@ final class ChromiumBrowserState {
         scheduleAutosave()
     }
 
+    /// Adds or removes the active page's bookmark. Returns true if the page
+    /// is bookmarked afterwards (used by the web chrome star state).
+    @discardableResult
+    func toggleBookmarkCurrentPage() -> Bool {
+        guard let url = activeModel?.url,
+              url.absoluteString != Self.webChromeStartURL.absoluteString,
+              url.absoluteString != "about:blank"
+        else { return false }
+        if let existing = bookmarks.first(where: { $0.urlString == url.absoluteString }) {
+            deleteBookmark(id: existing.id)
+            return false
+        }
+        addBookmark(Bookmark(title: activeModel?.title ?? url.host ?? "Bookmark", url: url))
+        return true
+    }
+
     /// Merges external bookmarks and history through one state-owned import
     /// boundary. Every import surface therefore shares URL privacy, dedup,
     /// ordering, caps, persistence, and honest counts.
@@ -3909,6 +3987,21 @@ final class ChromiumBrowserState {
         )
         startHibernationTimer()
         startResearchHandoffRecovery()
+
+        // The web chrome shell: one persistent browser that renders the whole
+        // UI in web content (sidebar/strip tabs, toolbar, panels). It uses the
+        // default workspace's profile and is not a tab. Created after
+        // setupDefaults() so a workspace exists to borrow its profile from.
+        if chromeModel == nil {
+            let chromeWorkspaceID = workspaces.first?.id ?? currentWorkspaceID
+            var chromeOpts = CefBrowserOptions()
+            chromeOpts.profile = cefProfile(for: chromeWorkspaceID)
+            let model = CefWebViewModel(url: Self.webChromeURL, options: chromeOpts)
+            chromeModel = model
+            chromeMode = layout == .vertical ? .sidebar : .strip
+            chromeDimension = chromeDefaultDimension
+        }
+        broadcastWebChromeState()
 
         // Opt-in marker for the local Chromium smoke harness. This proves only
         // that the browser state completed bootstrap and has a usable shell;
@@ -4466,21 +4559,104 @@ final class ChromiumBrowserState {
                 tabCount: tabs.filter { $0.workspaceID == ws.id }.count
             )
         }
+        let chromeTabs = tabs.map { tab -> WebChromeTab in
+            let url = tab.model.url
+            return WebChromeTab(
+                id: tab.id,
+                title: tab.model.title ?? (url == nil ? "New Tab" : "Untitled"),
+                url: url?.absoluteString,
+                host: url?.host,
+                faviconURL: tab.model.faviconURL?.absoluteString,
+                isPinned: tab.isPinned,
+                isEssential: tab.isEssential,
+                isPrivate: tab.isPrivate,
+                isHibernated: tab.isHibernated,
+                canGoBack: tab.model.canGoBack,
+                canGoForward: tab.model.canGoForward,
+                isLoading: tab.model.isLoading,
+                workspaceID: tab.workspaceID.uuidString,
+                groupID: tab.groupID?.uuidString,
+                isBookmarked: {
+                    guard let u = url?.absoluteString,
+                          u != Self.webChromeStartURL.absoluteString,
+                          u != "about:blank"
+                    else { return false }
+                    return bookmarks.contains(where: { $0.urlString == u })
+                }()
+            )
+        }
+        let history = historyItems.suffix(40).reversed().map { item -> WebChromeRecentItem in
+            WebChromeRecentItem(
+                title: item.title,
+                url: item.url.absoluteString,
+                host: item.url.host ?? "",
+                faviconURL: item.faviconURL?.absoluteString,
+                timeLabel: item.visitedAt.formatted(.relative(presentation: .named))
+            )
+        }
+        let bookmarkItems = bookmarks.map { bm -> WebChromeBookmark in
+            WebChromeBookmark(
+                id: bm.id.uuidString,
+                title: bm.title,
+                url: bm.url.absoluteString,
+                faviconURL: bm.faviconURL?.absoluteString
+            )
+        }
+        let downloadItems = downloads.suffix(12).reversed().map { dl -> WebChromeDownload in
+            let stateName: String
+            if dl.isComplete { stateName = "completed" }
+            else if dl.isCanceled { stateName = "cancelled" }
+            else if dl.isInterrupted { stateName = "failed" }
+            else if dl.progress > 0 { stateName = "inProgress" }
+            else { stateName = "pending" }
+            return WebChromeDownload(
+                id: dl.id.uuidString,
+                name: dl.suggestedName,
+                url: dl.url.absoluteString,
+                state: stateName,
+                progress: dl.progress
+            )
+        }
+
+        // Tab groups belonging to the current workspace — the web chrome uses
+        // these to render collapsible group headers in the tab list.
+        let chromeGroups = groupsForCurrentWorkspace.map { group -> WebChromeTabGroup in
+            WebChromeTabGroup(
+                id: group.id.uuidString,
+                name: group.name,
+                colorHex: group.colorHex,
+                tabIDs: tabs.filter { $0.groupID == group.id && $0.workspaceID == currentWorkspaceID }.map(\.id),
+                isCollapsed: group.isCollapsed
+            )
+        }
         return WebChromeStartData(
             topSites: topSites,
             recent: recent,
             spaces: spaces,
-            accentHex: browserAccentColorHex
+            accentHex: browserAccentColorHex,
+            tabs: chromeTabs,
+            activeTabID: activeTabID,
+            layout: layout == .vertical ? "vertical" : "horizontal",
+            isPrivateBrowsing: isPrivateBrowsing,
+            isSplitActive: isSplitViewActive,
+            isChromePanelOpen: isChromePanelOpen,
+            chromeMode: chromeMode == .sidebar ? "sidebar" : "strip",
+            chromeDimension: Double(chromeDimension),
+            tabGroups: chromeGroups,
+            history: history,
+            bookmarks: bookmarkItems,
+            downloads: downloadItems
         )
     }
 
-    /// Pushes a fresh start-data snapshot to every open web start page so the
-    /// chrome stays live (new tab, closed tab, switched tab, switched space).
+    /// Pushes a fresh start-data snapshot to every open web start page and to
+    /// the persistent chrome shell so the UI stays live (new tab, closed tab,
+    /// switched tab, switched space, layout change).
     ///
-    /// Scoped to hive://start tabs only: the global bridge broadcast injects
-    /// the payload into EVERY page, and a malicious page could define
+    /// Scoped to hive://start browsers only: the global bridge broadcast
+    /// injects the payload into EVERY page, and a malicious page could define
     /// `window.cefSwift._emit` to capture browsing data. We emit only into
-    /// browsers whose current URL is the web start page.
+    /// browsers whose current URL is our own web chrome.
     func broadcastWebChromeState() {
         let snapshot = webChromeStartData()
         guard let data = try? JSONEncoder().encode(snapshot),
@@ -4488,7 +4664,10 @@ final class ChromiumBrowserState {
         else { return }
         let script = "if(window.cefSwift&&window.cefSwift._emit){window.cefSwift._emit(\"hive.stateChanged\","
             + json + ");}"
-        for tab in tabs where tab.model.url?.absoluteString == Self.webChromeStartURL.absoluteString {
+        if let chrome = chromeModel, chrome.url?.host == "start" {
+            chrome.browser?.executeJavaScript(script)
+        }
+        for tab in tabs where tab.model.url?.host == "start" {
             tab.model.browser?.executeJavaScript(script)
         }
     }

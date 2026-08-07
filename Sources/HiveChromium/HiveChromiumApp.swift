@@ -73,13 +73,20 @@ struct HiveChromiumApp: CefSwiftApp {
     @State private var showOnboarding: Bool = !UserDefaults.standard.bool(forKey: "HiveHasSeenOnboarding")
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "main") {
             ChromiumBrowserWindow()
                 .environment(state)
                 .frame(minWidth: 960, idealWidth: 1280, minHeight: 640, idealHeight: 800)
                 .sheet(isPresented: $showOnboarding) {
                     OnboardingSheet()
                         .environment(state)
+                }
+                .onReceive(NotificationCenter.default.publisher(
+                    for: Notification.Name("HiveRequestNewWindow")
+                )) { _ in
+                    // The web chrome's ⌘N bridge lands here; SwiftUI
+                    // WindowGroup handles the actual window creation.
+                    NSApp.sendAction(Selector(("newWindow:")), to: nil, from: nil)
                 }
         }
         .commands {

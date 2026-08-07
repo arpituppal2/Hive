@@ -11,38 +11,26 @@ struct ChromiumBrowserWindow: View {
 
     @Environment(ChromiumBrowserState.self) private var state
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         @Bindable var state = state
         HStack(spacing: 0) {
-            if state.layout == .vertical {
-                VerticalChromeView()
-                    // Arc/Zen parity: fixed 240px sidebar. A proportional
-                    // width (e.g. 22% of window) reshapes with every resize,
-                    // which reads as "wonky" — fixed width is deliberate.
-                    .frame(width: isSidebarRevealed ? HiveDesign.Tab.verticalDefaultWidth : 0)
-                    .opacity(isSidebarRevealed ? 1 : 0)
-                        .onHover { hovering in
-                            // Always track cursor presence over the sidebar.
-                            // In compact mode this collapses the sidebar when
-                            // the cursor leaves (Zen-style). In normal mode the
-                            // flag is ignored by isSidebarRevealed, but keeping
-                            // it fresh prevents a stale value from popping the
-                            // sidebar open after a mode toggle.
-                            isLeftEdgeHovered = hovering
-                        }
-                        .animation(reduceMotion ? nil : HiveDesign.Animation.spring, value: isSidebarRevealed)
-                }
+            // The web chrome shell renders the ENTIRE UI (tabs, toolbar,
+            // panels) in web content. Native SwiftUI only frames it: a left
+            // sidebar in vertical mode, a top strip in horizontal mode.
+            if state.chromeMode == .sidebar {
+                chromeShell
+                    .frame(width: state.chromeDimension)
+                    .animation(reduceMotion ? nil : HiveDesign.Animation.spring, value: state.chromeDimension)
+            }
 
-                VStack(spacing: 0) {
-                    if state.layout == .horizontal {
-                        HorizontalChromeView()
-                            .frame(height: state.isCompactMode ? 6 : nil)
-                            .opacity(state.isCompactMode ? 0 : 1)
-                    } else {
-                        CompactAddressBar()
-                            .opacity(state.isCompactMode ? 0 : 1)
-                    }
+            VStack(spacing: 0) {
+                if state.chromeMode == .strip {
+                    chromeShell
+                        .frame(height: state.chromeDimension)
+                        .animation(reduceMotion ? nil : HiveDesign.Animation.spring, value: state.chromeDimension)
+                }
 
                     // Main content: active tab + split tab + MRU-cached keepalive tabs.
                     ZStack {
@@ -106,11 +94,12 @@ struct ChromiumBrowserWindow: View {
         .overlay(alignment: .leading) {
             leftEdgeTrigger
         }
-        .overlay { if state.isCommandPaletteOpen { CommandPaletteOverlay() } }
-        .overlay { if state.isTabSearchOpen { TabSearchOverlay() } }
-        .overlay { if state.isFloatingURLBarVisible { FloatingURLBarOverlay() } }
-        .overlay(alignment: .trailing) { if state.isGeminiPanelOpen { GeminiSidePanel() } }
-        .overlay(alignment: .trailing) { if state.isKnowledgePanelOpen { KnowledgePanel() } }
+                .overlay { if state.isCommandPaletteOpen { CommandPaletteOverlay() } }
+                .overlay { if state.isTabSearchOpen { TabSearchOverlay() } }
+                .overlay { if state.isFloatingURLBarVisible { FloatingURLBarOverlay() } }
+                .overlay(alignment: .trailing) { if state.isGeminiPanelOpen { GeminiSidePanel() } }
+                .overlay(alignment: .trailing) { if state.isKnowledgePanelOpen { KnowledgePanel() } }
+                .background(NewWindowHandler(openWindow: openWindow))
         .overlay(alignment: .trailing) { if state.isStudioPanelOpen { StudioPanel() } }
         .overlay(alignment: .trailing) { if state.isSheetsPanelOpen { SheetsPanel() } }
         .overlay(alignment: .center) { if state.isBriefCaptureOpen { BriefCaptureView() } }
@@ -176,6 +165,17 @@ struct ChromiumBrowserWindow: View {
                 Button("Rename") { state.commitGroupRename() }
                 Button("Cancel", role: .cancel) { state.cancelGroupRename() }
             }
+        }
+    }
+
+    // MARK: - Web chrome shell
+
+    /// The persistent web-chrome browser. In sidebar mode it is the left rail
+    /// (tabs, toolbar, panels); in strip mode it is the top bar. Everything
+    /// inside it is HTML/CSS/JS served by the app itself.
+    @ViewBuilder private var chromeShell: some View {
+        if let chrome = state.chromeModel {
+            CefWebView(model: chrome)
         }
     }
 
@@ -381,5 +381,23 @@ struct SplitContentView: View {
         .buttonStyle(.plain)
         .accessibilityLabel("Close split view")
         .padding(.top, 6).padding(.trailing, 6)
+    }
+}
+
+/// Minimal invisible view that opens a new WindowGroup window when the web
+/// chrome's ⌘N bridge posts HiveRequestNewWindow. Kept separate from the main
+/// modifier chain so the compiler can type-check it in reasonable time.
+private struct NewWindowHandler: View {
+    @Environment(\.openWindow) private var envOpenWindow
+    let openWindow: OpenWindowAction
+
+    var body: some View {
+        Color.clear
+            .frame(width: 0, height: 0)
+            .onReceive(NotificationCenter.default.publisher(
+                for: Notification.Name("HiveRequestNewWindow")
+            )) { _ in
+                envOpenWindow(id: "main")
+            }
     }
 }
