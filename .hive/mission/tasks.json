@@ -18,8 +18,13 @@
       "subsystem": "repo",
       "owner": "coordinator",
       "status": "in_progress",
-      "dependencies": ["T01"],
-      "files": [".hive/mission/", "docs/"],
+      "dependencies": [
+        "T01"
+      ],
+      "files": [
+        ".hive/mission/",
+        "docs/"
+      ],
       "evidence": "ledger + docs being written",
       "risks": []
     },
@@ -27,10 +32,14 @@
       "id": "T03",
       "subsystem": "browser",
       "owner": "coordinator",
-      "status": "pending",
-      "dependencies": ["T02"],
-      "files": ["Sources/HiveChromium/*"],
-      "evidence": "live CDP-driven navigation test on rebuilt app",
+      "status": "in_progress",
+      "dependencies": [
+        "T02"
+      ],
+      "files": [
+        "Sources/HiveChromium/*"
+      ],
+      "evidence": "Bug A fixed: fresh isolated launch creates exactly 1 page target (was 2). Bug B fixed: hive://start/ renders (title 'New Tab \u2014 Hive', 6972 DOM bytes), fetch('hive://start/') -> 200, window.cefSwift present; session.json records 1 tabInfo. Root causes: setupDefaults double newTab() (duplicate removed); per-context scheme handler factories not inherited from global context (vendored CefSwift + replay on context creation).",
       "risks": []
     },
     {
@@ -38,7 +47,9 @@
       "subsystem": "browser",
       "owner": "qa-agent",
       "status": "pending",
-      "dependencies": ["T03"],
+      "dependencies": [
+        "T03"
+      ],
       "files": [],
       "evidence": "adversarial QA: malformed session, offline, cancel, rapid tab ops",
       "risks": []
@@ -48,8 +59,12 @@
       "subsystem": "ui",
       "owner": "ui-reviewer",
       "status": "pending",
-      "dependencies": ["T03"],
-      "files": ["Sources/HiveChromium/Views"],
+      "dependencies": [
+        "T03"
+      ],
+      "files": [
+        "Sources/HiveChromium/Views"
+      ],
       "evidence": "screenshots + accessibility inspection",
       "risks": []
     },
@@ -58,7 +73,9 @@
       "subsystem": "security",
       "owner": "security-reviewer",
       "status": "pending",
-      "dependencies": ["T03"],
+      "dependencies": [
+        "T03"
+      ],
       "files": [],
       "evidence": "secrets scan, entitlement audit, log sweep",
       "risks": []
@@ -68,8 +85,15 @@
       "subsystem": "release",
       "owner": "coordinator",
       "status": "pending",
-      "dependencies": ["T04", "T05", "T06"],
-      "files": ["dist/", "scripts/"],
+      "dependencies": [
+        "T04",
+        "T05",
+        "T06"
+      ],
+      "files": [
+        "dist/",
+        "scripts/"
+      ],
       "evidence": "full release validation: build app, preflight, entitlements, smoke, tests",
       "risks": []
     },
@@ -78,8 +102,14 @@
       "subsystem": "repo",
       "owner": "coordinator",
       "status": "pending",
-      "dependencies": ["T07"],
-      "files": [".hive/mission/FINAL_VALIDATION.md", "docs/*", "THIRD_PARTY_NOTICES.md"],
+      "dependencies": [
+        "T07"
+      ],
+      "files": [
+        ".hive/mission/FINAL_VALIDATION.md",
+        "docs/*",
+        "THIRD_PARTY_NOTICES.md"
+      ],
       "evidence": "final docs + coherent commit history",
       "risks": []
     }
