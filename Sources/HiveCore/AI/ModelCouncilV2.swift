@@ -95,6 +95,20 @@ public struct CouncilVerdict: Sendable {
     }
 }
 
+// MARK: - Council Event (streaming)
+
+/// Events emitted during a streaming council deliberation.
+/// The UI receives these incrementally — each model's response appears
+/// as it arrives, followed by the synthesized verdict.
+public enum CouncilEvent: Sendable {
+    /// A single provider has responded (success, timeout, or error).
+    case responseReceived(CouncilResponse)
+    /// The chair has synthesized all responses into a verdict.
+    case verdictReady(CouncilVerdict)
+    /// A provider degraded (unavailable or errored) with reason.
+    case degraded(CouncilProvider, String)
+}
+
 // MARK: - ModelCouncil
 
 /// Orchestrates parallel multi-model dispatch and synthesis.
@@ -155,6 +169,79 @@ public final class ModelCouncil {
             activeProviders: active.map(\.provider),
             isDegraded: isDegraded
         )
+    }
+
+    /// Streaming variant: yields `CouncilEvent` values as each provider responds,
+    /// then emits the synthesized verdict. The UI subscribes to this stream
+    /// and renders responses incrementally — no waiting for all models.
+    ///
+    /// Supports cancellation via the `Task` that consumes the stream:
+    /// cancel the consuming Task to stop waiting for remaining providers.
+    public func streamConvene(_ query: CouncilQuery) -> AsyncStream<CouncilEvent> {
+        AsyncStream { continuation in
+            let startTime = Date()
+            let task = Task {
+                var responses: [CouncilResponse] = []
+
+                // Phase 1: Parallel dispatch — yield each response as it arrives
+                await withTaskGroup(of: CouncilResponse.self) { group in
+                    for provider in query.providers {
+                        group.addTask {
+                            await self.queryProvider(provider, query: query, startTime: startTime)
+                        }
+                    }
+
+                    for await response in group {
+                        responses.append(response)
+                        // Yield immediately — UI updates per model
+                        continuation.yield(.responseReceived(response))
+
+                        // Emit degradation notice for non-success responses
+                        switch response.status {
+                        case .error(let msg):
+                            continuation.yield(.degraded(response.provider, msg))
+                        case .timeout:
+                            continuation.yield(.degraded(response.provider, "Timed out after \(Int(query.timeout))s"))
+                        case .unavailable:
+                            continuation.yield(.degraded(response.provider, "Unavailable"))
+                        case .success:
+                            break
+                        }
+                    }
+                }
+
+                // Sort and synthesize
+                let sorted = responses.sorted { a, b in
+                    if a.status == b.status { return a.confidence > b.confidence }
+                    if case .success = a.status { return true }
+                    if case .success = b.status { return false }
+                    return a.confidence > b.confidence
+                }
+
+                let active = sorted.filter { $0.status == .success }
+                let isDegraded = active.count < query.providers.count
+
+                let synthesis = await self.synthesize(responses: sorted, question: query.question)
+
+                let verdict = CouncilVerdict(
+                    answer: synthesis.answer,
+                    reasoning: synthesis.reasoning,
+                    agreements: synthesis.agreements,
+                    disagreements: synthesis.disagreements,
+                    confidence: synthesis.confidence,
+                    responses: sorted,
+                    activeProviders: active.map(\.provider),
+                    isDegraded: isDegraded
+                )
+
+                continuation.yield(.verdictReady(verdict))
+                continuation.finish()
+            }
+
+            continuation.onTermination = { @Sendable _ in
+                task.cancel()
+            }
+        }
     }
 
     // MARK: Private

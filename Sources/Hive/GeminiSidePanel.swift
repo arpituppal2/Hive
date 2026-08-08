@@ -555,19 +555,17 @@ struct GeminiSidePanel: View {
                     .font(HiveDesign.Typography.captionSemiBold)
                     .foregroundStyle(Color.hiveAccent)
                 Spacer()
-                Text("Deliberating…")
+                Text("\(state.councilLiveResponses.count) responded")
                     .font(HiveDesign.Typography.monoMicroMedium)
                     .foregroundStyle(.tertiary)
             }
-            if let verdict = state.latestCouncilVerdict {
-                // Intermediate state: some models have responded
-                HStack(spacing: 4) {
-                    ForEach(verdict.responses) { response in
-                        Circle()
-                            .fill(response.status == CouncilResponse.ResponseStatus.success ? Color.green : Color.hiveAccent)
-                            .frame(width: 6, height: 6)
+
+            // Live response cards — one per model as it responds
+            if !state.councilLiveResponses.isEmpty {
+                VStack(spacing: 4) {
+                    ForEach(state.councilLiveResponses) { response in
+                        liveResponseRow(response)
                     }
-                    Spacer()
                 }
             }
         }
@@ -576,6 +574,83 @@ struct GeminiSidePanel: View {
         .background(HiveDesign.Surface.level1)
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
+        }
+    }
+
+    private func liveResponseRow(_ response: CouncilResponse) -> some View {
+        HStack(spacing: 6) {
+            // Provider badge
+            Text(providerLabel(response.provider))
+                .font(HiveDesign.Typography.microLabelMedium)
+                .foregroundStyle(providerColor(response.provider))
+                .padding(.horizontal, 4)
+                .padding(.vertical, 1)
+                .background(providerColor(response.provider).opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+
+            if response.status == .success {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 8))
+                    .foregroundStyle(Color.green)
+                Text(response.answer)
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            } else {
+                Image(systemName: statusIcon(response.status))
+                    .font(.system(size: 8))
+                    .foregroundStyle(Color.orange)
+                Text(statusMessage(response.status))
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+
+            Text("\(Int(response.confidence * 100))%")
+                .font(HiveDesign.Typography.monoMicroMedium)
+                .foregroundStyle(response.confidence > 0.7 ? Color.green.opacity(0.7) : Color.orange.opacity(0.7))
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(HiveDesign.Surface.level2)
+        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+    }
+
+    private func providerLabel(_ provider: CouncilProvider) -> String {
+        switch provider {
+        case .mlxLocal: return "Local"
+        case .tavilyCloud: return "Tavily"
+        case .vaneLocal: return "Vane"
+        case .byokRemote: return "BYOK"
+        }
+    }
+
+    private func providerColor(_ provider: CouncilProvider) -> Color {
+        switch provider {
+        case .mlxLocal: return Color.hiveAccent
+        case .tavilyCloud: return Color.purple
+        case .vaneLocal: return Color.teal
+        case .byokRemote: return Color.orange
+        }
+    }
+
+    private func statusIcon(_ status: CouncilResponse.ResponseStatus) -> String {
+        switch status {
+        case .timeout: return "clock.badge.exclamationmark"
+        case .error: return "xmark.circle.fill"
+        case .unavailable: return "slash.circle.fill"
+        case .success: return "checkmark.circle.fill"
+        }
+    }
+
+    private func statusMessage(_ status: CouncilResponse.ResponseStatus) -> String {
+        switch status {
+        case .timeout: return "Timed out"
+        case .error(let msg): return msg
+        case .unavailable: return "Unavailable"
+        case .success: return ""
         }
     }
 

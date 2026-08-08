@@ -1160,6 +1160,10 @@ final class BrowserState {
     /// Latest council verdict — observed by GeminiSidePanel for display.
     private(set) var latestCouncilVerdict: CouncilVerdict? = nil
     /// True while a council is convened and deliberating.
+
+    /// Live responses collected during a streaming council deliberation.
+    /// Cleared when the council starts, populated incrementally as models respond.
+    private(set) var councilLiveResponses: [CouncilResponse] = []
     private(set) var isCouncilConvening: Bool = false
 
     /// Serializes browser transitions with background Swarm requests. The
@@ -2181,11 +2185,16 @@ final class BrowserState {
     /// Tavily-cloud, and BYOK-remote models simultaneously and synthesizes
     /// through the chair model. Results are stored in ``latestCouncilVerdict``.
     /// Honest degradation: fewer models is visible, never silent.
+    ///
+    /// Uses streaming dispatch: each model's response appears in the UI
+    /// as it arrives via ``councilLiveResponses``, then the synthesized
+    /// verdict replaces them when the chair completes.
     func conveneCouncil(question: String, pageContext: String? = nil) async {
         guard !isCouncilConvening, let council = modelCouncil else { return }
 
         isCouncilConvening = true
         latestCouncilVerdict = nil
+        councilLiveResponses = []
 
         let query = CouncilQuery(
             question: question,
@@ -2193,10 +2202,25 @@ final class BrowserState {
             timeout: 30
         )
 
-        let verdict = await council.convene(query)
-        latestCouncilVerdict = verdict
+        // Stream responses incrementally
+        let stream = council.streamConvene(query)
+        for await event in stream {
+            switch event {
+            case .responseReceived(let response):
+                councilLiveResponses.append(response)
+                // Broadcast after each response so web chrome updates live
+                broadcastWebChromeState()
+            case .degraded(let provider, let reason):
+                // Degradation notices are logged; responses handle the UI
+                _ = (provider, reason)
+            case .verdictReady(let verdict):
+                latestCouncilVerdict = verdict
+                councilLiveResponses = []
+                broadcastWebChromeState()
+            }
+        }
+
         isCouncilConvening = false
-        broadcastWebChromeState()
     }
 
     /// Cancel the active council deliberation.
@@ -4792,6 +4816,8 @@ final class BrowserState {
             bookmarks: bookmarkItems,
             downloads: downloadItems,
             councilVerdict: councilDTO,
+            isCouncilConvening: isCouncilConvening,
+            councilLiveResponses: councilLiveResponses.map { r in WebChromeCouncilResponse(provider: r.provider.rawValue, answer: r.answer, confidence: r.confidence, durationMS: Int(r.duration * 1000), status: r.status == .success ? "success" : "timeout") },
             deepResearchStep: researchDTO
         )
     }

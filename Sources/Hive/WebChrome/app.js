@@ -89,7 +89,7 @@
     topSites: [], recent: [], history: [], bookmarks: [], downloads: [],
     layout: 'vertical', isPrivateBrowsing: false, isSplitActive: false,
     isChromePanelOpen: null, chromeMode: 'sidebar', chromeDimension: 270,
-    councilVerdict: null, deepResearchStep: null
+    councilVerdict: null, isCouncilConvening: false, councilLiveResponses: [], deepResearchStep: null
   };
 
   var lastTabsJSON = '';
@@ -545,6 +545,29 @@
     var research = state.deepResearchStep;
     var council = state.councilVerdict;
     var html = '';
+
+    // Council convening — show live responses as they arrive
+    if (state.isCouncilConvening) {
+      var live = state.councilLiveResponses || [];
+      html += '<div class="ai-panel">' +
+        '<div class="ai-panel__header">' +
+        '<span class="ai-panel__icon">' + svg(ICONS.settings, 13) + '</span>' +
+        '<span class="ai-panel__label">Council deliberating…</span>' +
+        '<span class="ai-panel__pct">' + live.length + ' responded</span>' +
+        '</div>';
+      for (var i = 0; i < live.length; i++) {
+        var r = live[i];
+        var badge = r.status === 'success'
+          ? '<span class="ai-panel__tag ai-panel__tag--ok">' + esc(r.provider) + '</span>'
+          : '<span class="ai-panel__tag ai-panel__tag--warn">' + esc(r.provider) + ' ' + esc(r.status) + '</span>';
+        html += '<div class="ai-panel__live-row">' +
+          badge +
+          '<span class="ai-panel__live-text">' + esc(r.answer.slice(0, 120)) + '</span>' +
+          '<span class="ai-panel__live-pct">' + Math.round(r.confidence * 100) + '%</span>' +
+          '</div>';
+      }
+      html += '</div>';
+    }
 
     // Deep research progress bar (shown while research is running)
     if (research && !research.isComplete) {

@@ -85,6 +85,8 @@ struct WebChromeStartData: Codable, Sendable {
     let downloads: [WebChromeDownload]
     // AI state surfaced to the web chrome shell
     let councilVerdict: WebChromeCouncilVerdict?
+    let isCouncilConvening: Bool
+    let councilLiveResponses: [WebChromeCouncilResponse]
     let deepResearchStep: WebChromeDeepResearchStep?
 }
 
