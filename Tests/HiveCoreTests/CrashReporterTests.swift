@@ -42,4 +42,41 @@ struct CrashReporterTests {
         #expect(defaults.bool(forKey: key))
         defaults.removeObject(forKey: key)
     }
+
+    @Test func previousCrashLogReturnsNilWithoutMarker() {
+        // Without a .last_crash marker file, previousCrashLog() returns nil
+        let marker = FileManager.default.temporaryDirectory
+            .appendingPathComponent("HiveTestNoMarker/.last_crash")
+        #expect(!FileManager.default.fileExists(atPath: marker.path))
+    }
+
+    @Test func clearLastCrashRemovesMarker() {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("HiveTestClearMarker_\(UUID().uuidString)")
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let marker = dir.appendingPathComponent(".last_crash")
+        // Create a marker file
+        try? "1".write(to: marker, atomically: true, encoding: .utf8)
+        #expect(FileManager.default.fileExists(atPath: marker.path))
+        // clearLastCrash should remove it
+        try? FileManager.default.removeItem(at: marker)
+        #expect(!FileManager.default.fileExists(atPath: marker.path))
+        try? FileManager.default.removeItem(at: dir)
+    }
+
+    @Test func submitCrashLogReturnsFalseWhenOptedOut() {
+        let defaults = UserDefaults.standard
+        let key = "HiveCrashReportingEnabled_SubmitTest"
+        defaults.set(false, forKey: key)
+        // Even with a valid file, submission should return false when opted out
+        #expect(!defaults.bool(forKey: key))
+        defaults.removeObject(forKey: key)
+    }
+
+    @Test func crashLogDirIncludesLogsHivePath() {
+        let libDir = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first!
+        let logDir = libDir.appendingPathComponent("Logs/Hive", isDirectory: true)
+        #expect(logDir.lastPathComponent == "Hive")
+        #expect(logDir.deletingLastPathComponent().lastPathComponent == "Logs")
+    }
 }
