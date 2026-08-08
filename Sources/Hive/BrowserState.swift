@@ -2249,6 +2249,14 @@ final class BrowserState {
         broadcastWebChromeState()
     }
 
+    /// Cancels in-flight deep research.
+    func cancelDeepResearch() {
+        deepResearchTask?.cancel()
+        deepResearchTask = nil
+        deepResearchStep = nil
+        broadcastWebChromeState()
+    }
+
     /// Dismisses the current council verdict from the UI.
     /// Cancels any in-flight deliberation and clears all council state.
     func dismissCouncilVerdict() {
@@ -2257,6 +2265,8 @@ final class BrowserState {
         latestCouncilVerdict = nil
         councilLiveResponses = []
         deepResearchStep = nil
+        deepResearchTask?.cancel()
+        deepResearchTask = nil
         isCouncilConvening = false
         broadcastWebChromeState()
     }
@@ -3592,6 +3602,9 @@ final class BrowserState {
     /// Tracks deep research progress for UI display.
     private(set) var deepResearchStep: ResearchStep?
 
+    /// Handle to the in-flight deep research Task. Cancel to abort.
+    private var deepResearchTask: Task<Void, Never>? = nil
+
     /// Runs a multi-step deep research query: plan sub-queries → search →
     /// read top sources → synthesize findings → refine (optional).
     /// Honest: provider labels, degradation indicators, step progress visible.
@@ -3604,7 +3617,10 @@ final class BrowserState {
         let placeholder = GeminiMessage(role: .assistant, text: "...")
         geminiMessages.append(placeholder)
 
-        geminiGenerationTask = Task { [weak self] in
+        // Cancel any in-flight deep research before starting a new one
+        deepResearchTask?.cancel()
+
+        deepResearchTask = Task { [weak self] in
             defer { self?.finishResponse(responseID) }
             guard let self else { return }
 
@@ -3635,8 +3651,12 @@ final class BrowserState {
                 self.replaceMessage(id: placeholder.id, text: markdown)
                 self.deepResearchStep = .complete(brief)
             } catch {
-                guard self.responseIsCurrent(responseID), !Task.isCancelled else { return }
-                self.replaceMessage(id: placeholder.id, text: "Deep research failed: \(error.localizedDescription)")
+                guard self.responseIsCurrent(responseID) else { return }
+                if Task.isCancelled {
+                    self.replaceMessage(id: placeholder.id, text: "Deep research cancelled.")
+                } else {
+                    self.replaceMessage(id: placeholder.id, text: "Deep research failed: \(error.localizedDescription)")
+                }
                 self.lastGeminiProvider = "error"
                 self.deepResearchStep = nil
             }

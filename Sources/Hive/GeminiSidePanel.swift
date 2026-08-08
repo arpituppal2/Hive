@@ -810,6 +810,13 @@ struct GeminiSidePanel: View {
                             .font(HiveDesign.Typography.captionSemiBold)
                             .foregroundStyle(.primary)
                         Spacer()
+                        Button(action: { state.cancelDeepResearch() }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 10))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .buttonStyle(.plain)
+                        .help("Cancel deep research")
                         Text("Deep Research")
                             .font(HiveDesign.Typography.microLabelBold)
                             .foregroundStyle(.tertiary)

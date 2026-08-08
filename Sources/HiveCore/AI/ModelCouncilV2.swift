@@ -301,7 +301,7 @@ public final class ModelCouncil {
         case .vaneLocal:
             return try await queryMLX(question: question, context: context) // Fallback to MLX
         case .byokRemote:
-            throw InferenceError.byokNotConfigured(role: .librarian)
+            return try await queryBYOK(question: question, context: context)
         }
     }
 
@@ -353,6 +353,40 @@ public final class ModelCouncil {
             confidence: 0,
             citations: []
         )
+    }
+
+    /// Query the user's BYOK endpoint via the dispatcher. Routes to the
+    /// configured BYOK runtime when available; falls back to the honest mock
+    /// with a degradation notice when BYOK is not configured.
+    private func queryBYOK(question: String, context: String?) async throws -> ProviderResult {
+        var prompt = question
+        if let ctx = context {
+            prompt = "Context:\n\(ctx)\n\nQuestion: \(question)"
+        }
+
+        let request = GenerateRequest(
+            role: .byokFrontier,
+            system: "Answer concisely with citations when possible. Be honest and direct.",
+            user: prompt,
+            maxTokens: 1024
+        )
+
+        do {
+            let result = try await dispatcher.generate(request)
+            // Check if the response came from mock (BYOK not configured) vs real BYOK
+            let isMock = result.provider == .rule
+            return ProviderResult(
+                answer: result.text,
+                confidence: isMock ? 0.3 : 0.88,
+                citations: extractCitations(from: result.text)
+            )
+        } catch {
+            return ProviderResult(
+                answer: "",
+                confidence: 0,
+                citations: []
+            )
+        }
     }
 
     /// Synthesize responses through the chair model. Uses the dispatcher to
