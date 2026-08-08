@@ -14,4 +14,21 @@ struct PageCaptureAdmissionTests {
         #expect(!decision.isAllowed)
         #expect(decision.userMessage.contains("not captured"))
     }
+
+    @Test func allowedDecisionHasNonEmptyUserMessage() {
+        let decision = PageCaptureAdmission.evaluate(isPrivate: false)
+        #expect(!decision.userMessage.isEmpty, "allowed capture should confirm success")
+    }
+
+    @Test func deniedUserMessageIsNonEmpty() {
+        let decision = PageCaptureAdmission.evaluate(isPrivate: true)
+        #expect(!decision.userMessage.isEmpty)
+    }
+
+    @Test func isAllowedIsConsistentWithDecision() {
+        let allowed = PageCaptureAdmission.evaluate(isPrivate: false)
+        let denied = PageCaptureAdmission.evaluate(isPrivate: true)
+        #expect(allowed.isAllowed)
+        #expect(!denied.isAllowed)
+    }
 }

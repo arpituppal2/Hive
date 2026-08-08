@@ -53,9 +53,12 @@
 <body>
 <div class="ambient" aria-hidden="true"></div>
 
+<!-- Screen-reader live region for dynamic announcements (tab switch, load complete, etc.) -->
+<div id="srAnnounce" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
 <!-- CHROME SHELL (hive://start?chrome=1) -->
-<div id="chrome" class="chrome chrome--sidebar" hidden>
-  <header class="toolbar">
+<div id="chrome" class="chrome chrome--sidebar" hidden role="application" aria-label="Hive Browser">
+  <header class="toolbar" role="banner">
     <div class="toolbar__row" id="toolbarRow">
       <button class="navbtn" id="btnBack" title="Back (⌘[)" tabindex="-1" aria-label="Back">
         <svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -67,7 +70,7 @@
         <svg viewBox="0 0 24 24" fill="none" class="ic-reload"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v4h-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
 
-      <form class="addressbar" id="addressbarForm" autocomplete="off">
+      <form class="addressbar" id="addressbarForm" autocomplete="off" role="search" aria-label="Search or enter web address">
         <span class="addressbar__lock" id="addrLock" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="currentColor" stroke-width="1.8"/></svg>
         </span>
@@ -121,7 +124,7 @@
 
   <div id="aiPanel" class="ai-panel" hidden></div>
 
-  <aside class="panel" id="panel" hidden>
+  <aside class="panel" id="panel" hidden role="complementary" aria-label="Side panel">
     <div class="panel__head">
       <span class="panel__title" id="panelTitle">Panel</span>
       <button class="panel__close" id="btnPanelClose" title="Close panel (Esc)" aria-label="Close panel">
@@ -142,7 +145,7 @@
 </div>
 
 <!-- START PAGE (hive://start) -->
-<main class="stage" id="stage" hidden>
+<main class="stage" id="stage" hidden role="main" aria-label="Start page">
   <div class="brand">
     <div class="brand__mark" aria-hidden="true">
       <svg viewBox="0 0 32 32" fill="none">

@@ -38,4 +38,17 @@ struct ResponseLifecycleTokenTests {
         #expect(cancelled < second)
         #expect(token.isCurrent(second))
     }
+
+    @Test("fresh token has no current generation")
+    func freshTokenHasNoCurrent() {
+        let token = ResponseLifecycleToken()
+        #expect(token.current() == 0)
+    }
+
+    @Test("generation identifiers are strictly positive")
+    func generationIDsArePositive() {
+        let token = ResponseLifecycleToken()
+        let id = token.begin()
+        #expect(id > 0)
+    }
 }

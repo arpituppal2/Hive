@@ -38,4 +38,15 @@ struct NavigationLoadObservationTests {
         }
         #expect(observation.state == .waitingForStart)
     }
+
+
+
+    @Test("equality includes state")
+    func equality() {
+        var a = NavigationLoadObservation()
+        let b = NavigationLoadObservation()
+        #expect(a == b)
+        _ = a.observe(isLoading: true)
+        #expect(a != b)
+    }
 }

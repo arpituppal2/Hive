@@ -42,4 +42,17 @@ struct BrowserTabAIContextTests {
         let decoded = try JSONDecoder().decode(BrowserTab.self, from: data)
         #expect(decoded.isAIContextAllowed)
     }
+
+    @Test func privateTabsAllowAIContextByDefault() {
+        #expect(BrowserTab(url: URL(string: "https://example.com"), isPrivate: true).isAIContextAllowed)
+    }
+
+    @Test func togglingAIContextPersists() {
+        var tab = BrowserTab(url: URL(string: "https://example.com"))
+        #expect(tab.isAIContextAllowed)
+        tab.isAIContextAllowed = false
+        #expect(!tab.isAIContextAllowed)
+        tab.isAIContextAllowed = true
+        #expect(tab.isAIContextAllowed)
+    }
 }

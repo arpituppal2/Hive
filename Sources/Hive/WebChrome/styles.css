@@ -28,6 +28,20 @@
   /* type */
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, "Segoe UI", sans-serif;
   --mono: ui-monospace, "SF Mono", "Berkeley Mono", Menlo, monospace;
+}
+
+/* Screen-reader-only utility (WCAG 2.1 compliant) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
 
   /* motion */
   --spring: cubic-bezier(0.22, 1, 0.36, 1);

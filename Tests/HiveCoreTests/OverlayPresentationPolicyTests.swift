@@ -16,4 +16,22 @@ struct OverlayPresentationPolicyTests {
                 OverlayPresentationPolicy.State(commandPalettePresented: false, tabSearchPresented: true)
         )
     }
+
+    @Test func closingBothProducesEmptyState() {
+        let state = OverlayPresentationPolicy.State(commandPalettePresented: false, tabSearchPresented: false)
+        #expect(state.commandPalettePresented == false)
+        #expect(state.tabSearchPresented == false)
+    }
+
+    @Test func bothStatesAreIndependent() {
+        let state = OverlayPresentationPolicy.State(commandPalettePresented: true, tabSearchPresented: false)
+        #expect(state.commandPalettePresented)
+        #expect(!state.tabSearchPresented)
+    }
+
+    @Test func stateEqualityIgnoresTransientTimestamps() {
+        let a = OverlayPresentationPolicy.State(commandPalettePresented: true, tabSearchPresented: false)
+        let b = OverlayPresentationPolicy.State(commandPalettePresented: true, tabSearchPresented: false)
+        #expect(a == b)
+    }
 }

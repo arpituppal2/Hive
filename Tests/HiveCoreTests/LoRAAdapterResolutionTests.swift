@@ -68,4 +68,27 @@ struct LoRAAdapterResolutionTests {
             // path is reachable and auditable rather than dead code.
         }
     }
+
+    @Test func nonLoRARolesStayUnchanged() {
+        let nonLoRARoles: [ModelRole] = [.orchestrator, .summarizer, .librarian, .titleGenerator]
+        for role in nonLoRARoles {
+            guard let entry = ModelManifest.entries[role] else { continue }
+            #expect(entry.servingStrategy != .instructLoRA,
+                    "\(role) must not be .instructLoRA — only distilled roles carry LoRA adapters")
+        }
+    }
+
+    @Test func loraRolesAreExactlyThree() {
+        let loraCount = ModelRole.allCases.filter { role in
+            guard let entry = ModelManifest.entries[role] else { return false }
+            return entry.servingStrategy == .instructLoRA
+        }.count
+        #expect(loraCount == 3, "Exactly 3 distilled LoRA roles expected, found \(loraCount)")
+    }
+
+    @Test func adapterKeysMatchExpectedSet() {
+        let keys = loraRoles.compactMap { ModelManifest.entries[$0]?.loraAdapter }
+        #expect(Set(keys) == expectedKeys,
+                "LoRA adapter key drift — keys: \(keys), expected: \(expectedKeys)")
+    }
 }
