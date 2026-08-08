@@ -606,7 +606,7 @@ struct GeminiSidePanel: View {
             } else {
                 Image(systemName: statusIcon(response.status))
                     .font(.system(size: 8))
-                    .foregroundStyle(Color.orange)
+                    .foregroundStyle(HiveBrand.aiAccent)
                 Text(statusMessage(response.status))
                     .font(.system(size: 10.5))
                     .foregroundStyle(.tertiary)
@@ -617,7 +617,7 @@ struct GeminiSidePanel: View {
 
             Text("\(Int(response.confidence * 100))%")
                 .font(HiveDesign.Typography.monoMicroMedium)
-                .foregroundStyle(response.confidence > 0.7 ? Color.green.opacity(0.7) : Color.orange.opacity(0.7))
+                .foregroundStyle(response.confidence > 0.7 ? Color.green.opacity(0.7) : HiveBrand.aiAccent.opacity(0.7))
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
@@ -639,7 +639,7 @@ struct GeminiSidePanel: View {
         case .mlxLocal: return Color.hiveAccent
         case .tavilyCloud: return Color.purple
         case .vaneLocal: return Color.teal
-        case .byokRemote: return Color.orange
+        case .byokRemote: return HiveBrand.aiAccent
         }
     }
 
@@ -691,7 +691,7 @@ struct GeminiSidePanel: View {
                     .foregroundStyle(.tertiary)
                 Text("\(Int(verdict.confidence * 100))%")
                     .font(HiveDesign.Typography.monoMicroMedium)
-                    .foregroundStyle(verdict.confidence > 0.7 ? Color.green : Color.orange)
+                    .foregroundStyle(verdict.confidence > 0.7 ? Color.green : HiveBrand.aiAccent)
             }
 
             // Synthesized answer
@@ -726,7 +726,7 @@ struct GeminiSidePanel: View {
                         HStack(spacing: 4) {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 8))
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(HiveBrand.aiAccent)
                             Text("Disagreed: \(verdict.disagreements.prefix(3).joined(separator: ", "))")
                                 .font(HiveDesign.Typography.microLabelSecondary)
                                 .foregroundStyle(.secondary)
@@ -742,7 +742,7 @@ struct GeminiSidePanel: View {
                     ForEach(verdict.responses) { response in
                         HStack(alignment: .top, spacing: 6) {
                             Circle()
-                                .fill(response.status == CouncilResponse.ResponseStatus.success ? Color.green : Color.orange)
+                                .fill(response.status == CouncilResponse.ResponseStatus.success ? Color.green : HiveBrand.aiAccent)
                                 .frame(width: 6, height: 6)
                                 .padding(.top, 5)
                             VStack(alignment: .leading, spacing: 2) {

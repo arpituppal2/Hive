@@ -142,6 +142,25 @@ Apply to: AI panel, start page, command palette, panels, side panel.
 - **CDP live verification**: navigate → `hive://brief/` → title "The Hive Brief", `brief-data` keys [footer/header/tasks/top_todos], greeting "Good evening…", 4 content sections, hero "Saturday Brief", Exposure fonts loaded
 - Screenshot: `.hive/mission/evidence/hive-brief-u3.png` (154KB)
 
+### U2 ✅ Chrome shell on tokens + persistent agent dock — COMPLETE
+- Comet-style **agent dock**: honey-accented ask box (input + send) docked in the chrome shell; **⌘A** toggles + focuses; ⏎ runs `hive.agent.run`; esc closes
+- **Modal `prompt()` eliminated**: palette "Deep Research"/"Ask Hive…" now prefill the dock input instead of a browser prompt
+- **Empty-state hero** (5-state honest rendering): dock open + idle shows "Ask Hive anything" + shortcut hints — no fabricated activity
+- **JetBrains Mono** applied to AI output (council body, reasoning, agent step) per U1 type decision
+- Favicon monograms upgraded: real favicon loads over tinted letter tile when available (`upgradeTabFavicons`)
+
+### U4 ✅ AI side panel token alignment — COMPLETE
+- `HiveBrand`: accent → honey #F97316 (+ accentDark/Light recomputed); new `aiAccent` #F59E0B reserved for AI surfaces
+- `GeminiSidePanel.swift`: all `Color.orange` → `HiveBrand.aiAccent` (10 sites: provider colors, confidence dots, status fills)
+
+### U9 ✅ Landing page honey pass — COMPLETE
+- `web/styles.css`: warm cn-* neutrals, honey accent/glow/gradient, mono font var, honey CTA hover
+- `web/index.html`: honey logo fills, `⌘A — ask Hive anything` mono hero eyebrow
+
+### Verification
+- 1063/142 tests ✅ · build ✅ · bundle ✅ · smoke ✅
+- **CDP live**: accent `#F97316`, ⌘A opens dock, hero "Ask Hive anything", input focused, submit closes dock + shows AI panel; screenshots `.hive/mission/evidence/hive-u2-agentdock.png`
+
 ## 9. Success Criteria
 
 - The browser looks unmistakably premium: Polar-grade design system, Dia-grade brief, Zen-grade vertical tabs.

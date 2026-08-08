@@ -1227,6 +1227,64 @@ svg { display: block; }
 
 /* ============ AI PANEL (council verdict + deep research) ============ */
 
+/* Persistent agent dock — Comet-style ask box, honey accent */
+.agentdock {
+  padding: var(--s2) var(--s3) 0;
+  border-top: 1px solid var(--hairline);
+  animation: drop-in 160ms var(--spring);
+}
+.agentdock__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 4px 4px 4px var(--s3);
+  border-radius: var(--r-md);
+  background: var(--surface-hover-subtle);
+  border: 1px solid var(--hairline);
+  transition: border-color var(--dur) var(--spring-soft), box-shadow var(--dur) var(--spring-soft);
+}
+.agentdock__row:focus-within {
+  border-color: rgba(249, 115, 22, 0.45);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+  background: var(--surface-hover);
+}
+.agentdock__glyph {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+.agentdock__input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--font);
+  letter-spacing: var(--tracking-tight);
+  padding: 3px 0;
+}
+.agentdock__input::placeholder { color: var(--text-faint); }
+.agentdock__send {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  transition: background var(--dur) var(--spring-soft), transform var(--dur) var(--spring-soft);
+}
+.agentdock__send svg { width: 12px; height: 12px; }
+.agentdock__send:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+/* AI panel — 5-state honest rendering (loading / partial / degraded / success / empty) */
 .ai-panel {
   padding: var(--s2) var(--s3);
   border-top: 1px solid var(--hairline);
@@ -1234,6 +1292,41 @@ svg { display: block; }
   line-height: 1.45;
   color: var(--text-muted);
   transition: background var(--dur) var(--spring-soft);
+}
+
+/* Empty-state hero (dock open, nothing running) */
+.ai-panel--hero {
+  padding: var(--s4) var(--s3) var(--s3);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  animation: rise-in 260ms var(--spring) backwards;
+}
+.ai-panel__hero-title {
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--text);
+  letter-spacing: var(--tracking-tight);
+}
+.ai-panel__hero-hint {
+  font-size: 10.5px;
+  color: var(--text-faint);
+}
+.ai-panel__hero-shortcuts {
+  margin-top: 2px;
+  font-size: 9.5px;
+  color: var(--text-faint);
+  font-family: var(--mono);
+}
+.ai-panel__kbd {
+  display: inline-block;
+  padding: 0 4px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 4px;
+  background: var(--surface-hover-subtle);
+  color: var(--text-secondary);
+  font-size: 9px;
+  line-height: 1.5;
 }
 
 .ai-panel__header {
@@ -1310,6 +1403,9 @@ svg { display: block; }
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
+  /* AI output renders in JetBrains Mono per the U1 token decision */
+  font-family: var(--mono);
+  font-size: 10.5px;
 }
 
 .ai-panel__reasoning {
@@ -1320,6 +1416,13 @@ svg { display: block; }
   line-height: 1.4;
   max-height: 36px;
   overflow: hidden;
+  font-family: var(--mono);
+  font-size: 9.5px;
+}
+
+.ai-panel__body--sm {
+  font-family: var(--mono);
+  font-size: 10.5px;
 }
 
 .ai-panel__meta {

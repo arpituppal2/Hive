@@ -1,24 +1,27 @@
 /* Hive Landing Page — Dark Theme */
 :root {
-    --bg-primary: #0B0F17;
-    --bg-secondary: #111827;
-    --bg-card: #1A1F2E;
-    --bg-card-hover: #1F2538;
-    --text-primary: #F1F5F9;
-    --text-secondary: #94A3B8;
-    --text-tertiary: #64748B;
-    --accent: #F5A623;
-    --accent-glow: rgba(245, 166, 35, 0.15);
-    --accent-secondary: #7C3AED;
-    --border: #1E293B;
-    --border-hover: #334155;
-    --gradient-hero: linear-gradient(135deg, #F5A623 0%, #7C3AED 50%, #3B82F6 100%);
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 24px;
-    --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-    --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
+    /* Hive design tokens (U1) — warm dark neutrals + honey accent */
+    --bg-primary: #1E1D1C;      /* cn-900 warm near-black */
+    --bg-secondary: #232221;    /* cn-800 */
+    --bg-card: #2E2D2C;         /* cn-600 */
+    --bg-card-hover: #353433;   /* cn-500 */
+    --text-primary: #F5F4F3;    /* cn-50 */
+    --text-secondary: #B4B3B2;  /* cn-100 */
+    --text-tertiary: #969594;   /* cn-150 */
+    --accent: #F97316;          /* Hive honey — the one accent */
+    --accent-hover: #FB923C;
+    --accent-glow: rgba(249, 115, 22, 0.18);
+    --accent-secondary: #FB923C;
+    --border: #3E3D3C;          /* cn-400 */
+    --border-hover: #585756;    /* cn-300 */
+    --gradient-hero: linear-gradient(135deg, #F97316 0%, #FB923C 45%, #F59E0B 100%);
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --shadow-card: 0 1px 2px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.45), 0 2px 4px rgba(0,0,0,0.3);
     --shadow-glow: 0 0 30px var(--accent-glow);
     --max-width: 1200px;
     --transition: 0.2s ease;
@@ -54,8 +57,8 @@ body {
 
 /* Buttons */
 .btn { display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer; font-weight: 600; border-radius: var(--radius-md); transition: var(--transition); font-family: inherit; }
-.btn-primary { background: var(--accent); color: #000; }
-.btn-primary:hover { background: #FBBF24; transform: translateY(-1px); box-shadow: var(--shadow-glow); }
+.btn-primary { background: var(--accent); color: #FFF; }
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-glow); }
 .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
 .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--border-hover); }
 .btn-sm { padding: 8px 16px; font-size: 13px; }
@@ -66,6 +69,10 @@ body {
 .hero {
     padding: 160px 24px 120px; max-width: var(--max-width); margin: 0 auto;
     display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+}
+.hero-eyebrow {
+    font-family: var(--font-mono); font-size: 13px; color: var(--accent);
+    margin-bottom: 16px; letter-spacing: 0.02em;
 }
 .hero-title { font-size: 56px; font-weight: 800; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 24px; }
 .gradient-text { background: var(--gradient-hero); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -103,7 +110,7 @@ body {
 .mockup-dots { display: flex; gap: 6px; }
 .mockup-dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
 .mockup-dots span:first-child { background: #EF4444; }
-.mockup-dots span:nth-child(2) { background: #F59E0B; }
+.mockup-dots span:nth-child(2) { background: var(--accent); }
 .mockup-dots span:nth-child(3) { background: #10B981; }
 .mockup-url {
     font-size: 12px; color: var(--text-tertiary); background: var(--bg-primary);
@@ -115,6 +122,7 @@ body {
 .model-response {
     background: var(--bg-card); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px;
     border-left: 3px solid var(--accent);
+    font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6;
 }
 .model-response:last-child { margin-bottom: 0; }
 .model-tag { font-size: 11px; font-weight: 600; color: var(--accent); display: block; margin-bottom: 4px; }

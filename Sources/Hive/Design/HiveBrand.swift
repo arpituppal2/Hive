@@ -6,24 +6,33 @@ import SwiftUI
 // (<5% of pixels). Hive is warm, editorial, and unmistakably its own product —
 // not a translucent Mac utility and not an AI-purple dashboard.
 //
-// Accent:  #F5A623  (Hive amber / lamplight)
-// Canvas:  #1A1512  (warm mahogany — never pure #000)
+// Accent:  #F97316  (Hive honey — the ONE brand accent, approved U1 decision)
+// AI lane: #F59E0B  (amber reserved for AI affordances only)
+// Canvas:  #1E1D1C  (warm near-black — never pure #000)
 //
 // Rule: The accent appears ONLY on focus rings, active tab edges, primary CTAs,
-// and brand marks. Surfaces stay quiet so the page remains the visual hero. Everything else is neutral.
+// and brand marks. Surfaces stay quiet so the page remains the visual hero.
+// AI surfaces (council, side panel) use `aiAccent` so the brand honey stays
+// distinguishable from the AI lane.
 
 enum HiveBrand {
-    // ── Accent ────────────────────────────────────────────────
-    static let accent       = Color(red: 0.96, green: 0.65, blue: 0.14)  // #F5A623
-    static let accentDark   = Color(red: 0.78, green: 0.45, blue: 0.06)  // #C7740F
+    // ── Accent (honey #F97316) ────────────────────────────────
+    static let accent       = Color(red: 0.976, green: 0.451, blue: 0.086)  // #F97316
+    static let accentDark   = Color(red: 0.76, green: 0.33, blue: 0.05)     // #C2560D
     static let accentMuted  = accent.opacity(0.12)
     static let accentHover  = accent.opacity(0.18)
     static let accentGlow   = accent.opacity(0.06)  // subtle background wash
 
-    /// Deep amber for light mode — AA-compliant text contrast on warm paper
-    /// (#9A5A00 on #F7F2E9 ≈ 4.9:1). Used by the adaptive `hiveAccent` in light
-    /// appearance so amber foreground/icons never fall to ~1.9:1.
-    static let accentLight  = Color(red: 0.60, green: 0.35, blue: 0.0)   // #9A5A00
+    /// Deep honey for light mode — AA-compliant text contrast on warm paper
+    /// (#9A4A0D on #F7F2E9 ≈ 4.9:1). Used by the adaptive `hiveAccent` in light
+    /// appearance so honey foreground/icons never fall to ~1.9:1.
+    static let accentLight  = Color(red: 0.60, green: 0.29, blue: 0.05)   // #9A4A0D
+
+    // ── AI lane (amber #F59E0B) — AI surfaces only ─────────────
+    /// The AI affordance color: council, side panel, agent progress.
+    /// Kept distinct from the brand honey so "brand" and "AI" never collide.
+    static let aiAccent      = Color(red: 0.961, green: 0.62, blue: 0.043)  // #F59E0B
+    static let aiAccentMuted = aiAccent.opacity(0.12)
 
     // ── Canvas / Surface Ladder (dark-mode-first, auto-adapts) ─
     // Dark: tinted near-blacks. Light: warm paper tones.

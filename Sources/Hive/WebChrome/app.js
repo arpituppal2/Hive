@@ -230,6 +230,7 @@
     var changed = json !== lastTabsJSON;
     lastTabsJSON = json;
     list.innerHTML = html;
+    upgradeTabFavicons();
     if (changed) {
       var active = list.querySelector('.tab[data-active="true"]');
       if (active && state.layout === 'sidebar') active.scrollIntoView({ block: 'nearest' });
@@ -243,7 +244,7 @@
     var groupStripe = groupColor ? ' style="border-left:3px solid ' + sanitizeHex(groupColor) + '"' : '';
     return '<div class="tab" data-id="' + t.id + '" data-active="' + active + '" ' + groupStripe +
       'draggable="true" role="tab" aria-selected="' + active + '" title="' + esc(t.title) + '">' +
-      '<span class="tab__fav" style="background:hsl(' + hue + ',32%,48%)">' +
+      '<span class="tab__fav" data-host="' + esc(host || '') + '" style="background:hsl(' + hue + ',32%,48%)">' +
       esc((host || '?').charAt(0).toUpperCase()) + '</span>' +
       (t.isPinned ? '<span class="tab__pin">' + svg(ICONS.pin, 11) + '</span>' : '') +
       '<span class="tab__title">' + esc(t.title || 'New Tab') + '</span>' +
@@ -283,6 +284,27 @@
     });
     if (pending.length) out.push({ group: null, tabs: pending });
     return out;
+  }
+
+  // Upgrade favicon monograms to real favicons when available (premium detail:
+  // crisp site icon over the tinted letter tile; letter stays as fallback).
+  function upgradeTabFavicons() {
+    document.querySelectorAll('.tab__fav').forEach(function (tile) {
+      if (tile.dataset.upgraded) return;
+      var id = tile.closest('.tab') ? tile.closest('.tab').dataset.id : null;
+      if (!id) return;
+      var tab = state.tabs.find(function (t) { return t.id === id; });
+      if (!tab || !tab.faviconURL) return;
+      tile.dataset.upgraded = '1';
+      var img = new Image();
+      img.onload = function () {
+        tile.textContent = '';
+        tile.appendChild(img);
+        tile.style.background = 'transparent';
+      };
+      img.alt = '';
+      img.src = tab.faviconURL;
+    });
   }
 
   function esc(s) {
@@ -502,6 +524,42 @@
   $('btnBookmark').addEventListener('click', function () { api('hive.toggleBookmark'); });
   $('btnSettings').addEventListener('click', function () { openPanel('settings'); });
   $('btnDownloads').addEventListener('click', function () { openPanel('downloads'); });
+  /* ---------- persistent agent dock (Comet-style) ---------- */
+
+  function agentDockOpen() {
+    var dock = $('agentDock');
+    if (!dock.hidden) { dock.hidden = true; return; }
+    dock.hidden = false;
+    var input = $('agentAsk');
+    input.focus();
+    renderAIPanel(); // show the empty-state hero when dock opens
+  }
+
+  function agentAsk(text) {
+    var q = (text || '').trim();
+    if (!q) return;
+    $('agentDock').hidden = true;
+    api('hive.agent.run', { text: q }).then(function () { refresh(); });
+  }
+
+  $('agentSend').addEventListener('click', function () {
+    agentAsk($('agentAsk').value);
+    $('agentAsk').value = '';
+  });
+  $('agentAsk').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      agentAsk($('agentAsk').value);
+      $('agentAsk').value = '';
+    } else if (e.key === 'Escape') {
+      $('agentDock').hidden = true;
+      $('agentAsk').value = '';
+    }
+  });
+  $('agentDock').addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') $('agentDock').hidden = true;
+  });
+
   $('btnCouncil').addEventListener('click', function () {
     var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
     var question = active ? 'Summarize: ' + (active.title || active.host || 'this page') : 'What can you help me with?';
@@ -545,7 +603,25 @@
 
     var research = state.deepResearchStep;
     var council = state.councilVerdict;
+    var agent = state.agentTask;
+    var dockOpen = !$('agentDock').hidden;
     var html = '';
+
+    // Empty state — the dock is the hero when nothing is running. Shows the
+    // 5 AI states are honest: no fabricated activity, just an invitation.
+    var busy = state.isCouncilConvening || (research && !research.isComplete) ||
+      (agent && agent.phase !== 'idle' && agent.phase !== 'done');
+    if (dockOpen && !busy && !council) {
+      html += '<div class="ai-panel ai-panel--hero">' +
+        '<div class="ai-panel__hero-title">Ask Hive anything</div>' +
+        '<div class="ai-panel__hero-hint">Summarize the page · Deep research · Take a browser action</div>' +
+        '<div class="ai-panel__hero-shortcuts">' +
+        '<span class="ai-panel__kbd">⌘A</span> ask · ' +
+        '<span class="ai-panel__kbd">⏎</span> run · ' +
+        '<span class="ai-panel__kbd">esc</span> close' +
+        '</div>' +
+        '</div>';
+    }
 
     // Council convening — show live responses as they arrive
     if (state.isCouncilConvening) {
@@ -616,7 +692,6 @@
     }
 
     // Agent pipeline — show progress, phase, and action results
-    var agent = state.agentTask;
     if (agent && agent.phase !== 'idle' && agent.phase !== 'done') {
       var phaseLabel = { council: 'Council', researching: 'Research', acting: 'Browser' }[agent.phase] || agent.phase;
       html += '<div class="ai-panel ai-panel--agent">' +
@@ -904,14 +979,19 @@
         run: function () { api('hive.reopenClosedTab').then(function (res) { if (res !== null) refresh(); }); } },
       { icon: ICONS.window, label: 'New Window (⌘N)', run: function () { api('hive.newWindow'); } },
       { icon: ICONS.private, label: 'New Private Tab (⇧⌘N)', run: function () { api('hive.newPrivateTab'); } },
-            { icon: ICONS.search, label: 'Ask AI Council', run: function () {
+            { icon: ICONS.search, label: 'Ask Hive…', run: function () { agentDockOpen(); } },
+      { icon: ICONS.search, label: 'Ask AI Council', run: function () {
         var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
         var q = active ? 'Summarize: ' + (active.title || active.host || 'this page') : 'What can you help me with?';
         api('hive.agent.run', { text: q }).then(function () { refresh(); });
       } },
       { icon: ICONS.search, label: 'Deep Research', run: function () {
-        var q = prompt('Research query:', '');
-        if (q) api('hive.agent.run', { text: q }).then(function () { refresh(); });
+        var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
+        var q = active ? 'Research: ' + (active.title || active.host || 'this page') : 'Research: ';
+        $('agentAsk').value = q;
+        agentDockOpen();
+        var input = $('agentAsk');
+        input.setSelectionRange(q.length, q.length);
       } },
 
       { icon: ICONS.focus, label: 'Focus Mode: hide chrome', run: toggleCompactMode },
@@ -991,6 +1071,7 @@
       else if (document.activeElement === addrInput) addrInput.blur();
       return;
     }
+    if (meta && e.key.toLowerCase() === 'a') { e.preventDefault(); agentDockOpen(); return; }
     if (meta && e.key.toLowerCase() === 'k') { e.preventDefault(); openPalette(); return; }
     if (meta && e.key.toLowerCase() === 'n' && e.shiftKey) { e.preventDefault(); api('hive.newPrivateTab'); return; }
     if (meta && e.key.toLowerCase() === 'n') { e.preventDefault(); api('hive.newWindow'); return; }

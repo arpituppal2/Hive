@@ -106,6 +106,19 @@
 
   <footer class="workspacerow" id="workspaceRow"></footer>
 
+  <!-- Persistent agent dock (Comet-style): ask Hive anything, ⌘J -->
+  <div class="agentdock" id="agentDock" hidden>
+    <div class="agentdock__row">
+      <svg class="agentdock__glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 4a4 4 0 0 1 4 4v2h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h2V8a4 4 0 0 1 4-4Zm0 2a2 2 0 0 0-2 2v2h4V8a2 2 0 0 0-2-2Z" fill="currentColor"/>
+      </svg>
+      <input id="agentAsk" class="agentdock__input" type="text" autocomplete="off" spellcheck="false" placeholder="Ask Hive anything…" aria-label="Ask Hive">
+      <button class="agentdock__send" id="agentSend" title="Run (⏎)" aria-label="Send to Hive">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 12 20 4l-4 16-4-6-8 2Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
   <div id="aiPanel" class="ai-panel" hidden></div>
 
   <aside class="panel" id="panel" hidden>

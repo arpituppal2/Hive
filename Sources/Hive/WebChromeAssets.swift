@@ -114,6 +114,19 @@ enum WebChromeAssets {
 
   <footer class="workspacerow" id="workspaceRow"></footer>
 
+  <!-- Persistent agent dock (Comet-style): ask Hive anything, ⌘J -->
+  <div class="agentdock" id="agentDock" hidden>
+    <div class="agentdock__row">
+      <svg class="agentdock__glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 4a4 4 0 0 1 4 4v2h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h2V8a4 4 0 0 1 4-4Zm0 2a2 2 0 0 0-2 2v2h4V8a2 2 0 0 0-2-2Z" fill="currentColor"/>
+      </svg>
+      <input id="agentAsk" class="agentdock__input" type="text" autocomplete="off" spellcheck="false" placeholder="Ask Hive anything…" aria-label="Ask Hive">
+      <button class="agentdock__send" id="agentSend" title="Run (⏎)" aria-label="Send to Hive">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 12 20 4l-4 16-4-6-8 2Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
   <div id="aiPanel" class="ai-panel" hidden></div>
 
   <aside class="panel" id="panel" hidden>
@@ -1417,6 +1430,64 @@ svg { display: block; }
 
 /* ============ AI PANEL (council verdict + deep research) ============ */
 
+/* Persistent agent dock — Comet-style ask box, honey accent */
+.agentdock {
+  padding: var(--s2) var(--s3) 0;
+  border-top: 1px solid var(--hairline);
+  animation: drop-in 160ms var(--spring);
+}
+.agentdock__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 4px 4px 4px var(--s3);
+  border-radius: var(--r-md);
+  background: var(--surface-hover-subtle);
+  border: 1px solid var(--hairline);
+  transition: border-color var(--dur) var(--spring-soft), box-shadow var(--dur) var(--spring-soft);
+}
+.agentdock__row:focus-within {
+  border-color: rgba(249, 115, 22, 0.45);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+  background: var(--surface-hover);
+}
+.agentdock__glyph {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+.agentdock__input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--font);
+  letter-spacing: var(--tracking-tight);
+  padding: 3px 0;
+}
+.agentdock__input::placeholder { color: var(--text-faint); }
+.agentdock__send {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  transition: background var(--dur) var(--spring-soft), transform var(--dur) var(--spring-soft);
+}
+.agentdock__send svg { width: 12px; height: 12px; }
+.agentdock__send:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+/* AI panel — 5-state honest rendering (loading / partial / degraded / success / empty) */
 .ai-panel {
   padding: var(--s2) var(--s3);
   border-top: 1px solid var(--hairline);
@@ -1424,6 +1495,41 @@ svg { display: block; }
   line-height: 1.45;
   color: var(--text-muted);
   transition: background var(--dur) var(--spring-soft);
+}
+
+/* Empty-state hero (dock open, nothing running) */
+.ai-panel--hero {
+  padding: var(--s4) var(--s3) var(--s3);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  animation: rise-in 260ms var(--spring) backwards;
+}
+.ai-panel__hero-title {
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--text);
+  letter-spacing: var(--tracking-tight);
+}
+.ai-panel__hero-hint {
+  font-size: 10.5px;
+  color: var(--text-faint);
+}
+.ai-panel__hero-shortcuts {
+  margin-top: 2px;
+  font-size: 9.5px;
+  color: var(--text-faint);
+  font-family: var(--mono);
+}
+.ai-panel__kbd {
+  display: inline-block;
+  padding: 0 4px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 4px;
+  background: var(--surface-hover-subtle);
+  color: var(--text-secondary);
+  font-size: 9px;
+  line-height: 1.5;
 }
 
 .ai-panel__header {
@@ -1500,6 +1606,9 @@ svg { display: block; }
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
+  /* AI output renders in JetBrains Mono per the U1 token decision */
+  font-family: var(--mono);
+  font-size: 10.5px;
 }
 
 .ai-panel__reasoning {
@@ -1510,6 +1619,13 @@ svg { display: block; }
   line-height: 1.4;
   max-height: 36px;
   overflow: hidden;
+  font-family: var(--mono);
+  font-size: 9.5px;
+}
+
+.ai-panel__body--sm {
+  font-family: var(--mono);
+  font-size: 10.5px;
 }
 
 .ai-panel__meta {
@@ -1973,6 +2089,7 @@ svg { display: block; }
     var changed = json !== lastTabsJSON;
     lastTabsJSON = json;
     list.innerHTML = html;
+    upgradeTabFavicons();
     if (changed) {
       var active = list.querySelector('.tab[data-active="true"]');
       if (active && state.layout === 'sidebar') active.scrollIntoView({ block: 'nearest' });
@@ -1986,7 +2103,7 @@ svg { display: block; }
     var groupStripe = groupColor ? ' style="border-left:3px solid ' + sanitizeHex(groupColor) + '"' : '';
     return '<div class="tab" data-id="' + t.id + '" data-active="' + active + '" ' + groupStripe +
       'draggable="true" role="tab" aria-selected="' + active + '" title="' + esc(t.title) + '">' +
-      '<span class="tab__fav" style="background:hsl(' + hue + ',32%,48%)">' +
+      '<span class="tab__fav" data-host="' + esc(host || '') + '" style="background:hsl(' + hue + ',32%,48%)">' +
       esc((host || '?').charAt(0).toUpperCase()) + '</span>' +
       (t.isPinned ? '<span class="tab__pin">' + svg(ICONS.pin, 11) + '</span>' : '') +
       '<span class="tab__title">' + esc(t.title || 'New Tab') + '</span>' +
@@ -2026,6 +2143,27 @@ svg { display: block; }
     });
     if (pending.length) out.push({ group: null, tabs: pending });
     return out;
+  }
+
+  // Upgrade favicon monograms to real favicons when available (premium detail:
+  // crisp site icon over the tinted letter tile; letter stays as fallback).
+  function upgradeTabFavicons() {
+    document.querySelectorAll('.tab__fav').forEach(function (tile) {
+      if (tile.dataset.upgraded) return;
+      var id = tile.closest('.tab') ? tile.closest('.tab').dataset.id : null;
+      if (!id) return;
+      var tab = state.tabs.find(function (t) { return t.id === id; });
+      if (!tab || !tab.faviconURL) return;
+      tile.dataset.upgraded = '1';
+      var img = new Image();
+      img.onload = function () {
+        tile.textContent = '';
+        tile.appendChild(img);
+        tile.style.background = 'transparent';
+      };
+      img.alt = '';
+      img.src = tab.faviconURL;
+    });
   }
 
   function esc(s) {
@@ -2245,6 +2383,42 @@ svg { display: block; }
   $('btnBookmark').addEventListener('click', function () { api('hive.toggleBookmark'); });
   $('btnSettings').addEventListener('click', function () { openPanel('settings'); });
   $('btnDownloads').addEventListener('click', function () { openPanel('downloads'); });
+  /* ---------- persistent agent dock (Comet-style) ---------- */
+
+  function agentDockOpen() {
+    var dock = $('agentDock');
+    if (!dock.hidden) { dock.hidden = true; return; }
+    dock.hidden = false;
+    var input = $('agentAsk');
+    input.focus();
+    renderAIPanel(); // show the empty-state hero when dock opens
+  }
+
+  function agentAsk(text) {
+    var q = (text || '').trim();
+    if (!q) return;
+    $('agentDock').hidden = true;
+    api('hive.agent.run', { text: q }).then(function () { refresh(); });
+  }
+
+  $('agentSend').addEventListener('click', function () {
+    agentAsk($('agentAsk').value);
+    $('agentAsk').value = '';
+  });
+  $('agentAsk').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      agentAsk($('agentAsk').value);
+      $('agentAsk').value = '';
+    } else if (e.key === 'Escape') {
+      $('agentDock').hidden = true;
+      $('agentAsk').value = '';
+    }
+  });
+  $('agentDock').addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') $('agentDock').hidden = true;
+  });
+
   $('btnCouncil').addEventListener('click', function () {
     var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
     var question = active ? 'Summarize: ' + (active.title || active.host || 'this page') : 'What can you help me with?';
@@ -2288,7 +2462,25 @@ svg { display: block; }
 
     var research = state.deepResearchStep;
     var council = state.councilVerdict;
+    var agent = state.agentTask;
+    var dockOpen = !$('agentDock').hidden;
     var html = '';
+
+    // Empty state — the dock is the hero when nothing is running. Shows the
+    // 5 AI states are honest: no fabricated activity, just an invitation.
+    var busy = state.isCouncilConvening || (research && !research.isComplete) ||
+      (agent && agent.phase !== 'idle' && agent.phase !== 'done');
+    if (dockOpen && !busy && !council) {
+      html += '<div class="ai-panel ai-panel--hero">' +
+        '<div class="ai-panel__hero-title">Ask Hive anything</div>' +
+        '<div class="ai-panel__hero-hint">Summarize the page · Deep research · Take a browser action</div>' +
+        '<div class="ai-panel__hero-shortcuts">' +
+        '<span class="ai-panel__kbd">⌘A</span> ask · ' +
+        '<span class="ai-panel__kbd">⏎</span> run · ' +
+        '<span class="ai-panel__kbd">esc</span> close' +
+        '</div>' +
+        '</div>';
+    }
 
     // Council convening — show live responses as they arrive
     if (state.isCouncilConvening) {
@@ -2359,7 +2551,6 @@ svg { display: block; }
     }
 
     // Agent pipeline — show progress, phase, and action results
-    var agent = state.agentTask;
     if (agent && agent.phase !== 'idle' && agent.phase !== 'done') {
       var phaseLabel = { council: 'Council', researching: 'Research', acting: 'Browser' }[agent.phase] || agent.phase;
       html += '<div class="ai-panel ai-panel--agent">' +
@@ -2647,14 +2838,19 @@ svg { display: block; }
         run: function () { api('hive.reopenClosedTab').then(function (res) { if (res !== null) refresh(); }); } },
       { icon: ICONS.window, label: 'New Window (⌘N)', run: function () { api('hive.newWindow'); } },
       { icon: ICONS.private, label: 'New Private Tab (⇧⌘N)', run: function () { api('hive.newPrivateTab'); } },
-            { icon: ICONS.search, label: 'Ask AI Council', run: function () {
+            { icon: ICONS.search, label: 'Ask Hive…', run: function () { agentDockOpen(); } },
+      { icon: ICONS.search, label: 'Ask AI Council', run: function () {
         var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
         var q = active ? 'Summarize: ' + (active.title || active.host || 'this page') : 'What can you help me with?';
         api('hive.agent.run', { text: q }).then(function () { refresh(); });
       } },
       { icon: ICONS.search, label: 'Deep Research', run: function () {
-        var q = prompt('Research query:', '');
-        if (q) api('hive.agent.run', { text: q }).then(function () { refresh(); });
+        var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
+        var q = active ? 'Research: ' + (active.title || active.host || 'this page') : 'Research: ';
+        $('agentAsk').value = q;
+        agentDockOpen();
+        var input = $('agentAsk');
+        input.setSelectionRange(q.length, q.length);
       } },
 
       { icon: ICONS.focus, label: 'Focus Mode: hide chrome', run: toggleCompactMode },
@@ -2734,6 +2930,7 @@ svg { display: block; }
       else if (document.activeElement === addrInput) addrInput.blur();
       return;
     }
+    if (meta && e.key.toLowerCase() === 'a') { e.preventDefault(); agentDockOpen(); return; }
     if (meta && e.key.toLowerCase() === 'k') { e.preventDefault(); openPalette(); return; }
     if (meta && e.key.toLowerCase() === 'n' && e.shiftKey) { e.preventDefault(); api('hive.newPrivateTab'); return; }
     if (meta && e.key.toLowerCase() === 'n') { e.preventDefault(); api('hive.newWindow'); return; }
