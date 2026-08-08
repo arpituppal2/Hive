@@ -18,9 +18,10 @@ struct CDPError: Error, Sendable {
 
 // MARK: - Agent Tool Results
 
-/// A single browser tab reference.
+/// A single browser tab reference. CDP target IDs are opaque strings
+/// (e.g. "1ECD4966AF6B0DD1227E3DD0AA509E87"), so `id` is a String.
 public struct AgentTab: Sendable, Identifiable {
-    public let id: Int
+    public let id: String
     public let title: String
     public let url: String
     public let active: Bool
@@ -86,6 +87,14 @@ public final class CDPClient {
         pending.removeValue(forKey: id)
     }
 
+    /// Unwraps the method-specific result object from a full CDP response.
+    /// `send` returns the complete envelope (`{"id":N,"result":{...}}`);
+    /// every consumer must read its method-specific keys from this inner
+    /// object, never from the envelope itself.
+    private func unwrapResult(_ response: [String: Any]) -> [String: Any]? {
+        response["result"] as? [String: Any]
+    }
+
     // MARK: Navigation
 
     public func navigate(url: String) async throws {
@@ -107,35 +116,38 @@ public final class CDPClient {
     // MARK: Tab Management
 
     public func listTabs() async throws -> [AgentTab] {
-        let result = try await send(method: "Browser.getWindowForTarget", params: [:])
-        // Extract tabs from target listing
+        let result = try await send(method: "Target.getTargets", params: [:])
+        // Target.getTargets returns targetInfos (id/type/title/url);
+        // Browser.getWindowForTarget returns only windowId/bounds.
         var tabs: [AgentTab] = []
-        if let targets = result["targetInfos"] as? [[String: Any]] {
-            for (i, t) in targets.enumerated() {
+        if let targets = unwrapResult(result)?["targetInfos"] as? [[String: Any]] {
+            for t in targets where (t["type"] as? String) == "page" {
                 tabs.append(AgentTab(
-                    id: t["targetId"] as? Int ?? i,
+                    id: t["targetId"] as? String ?? "",
                     title: t["title"] as? String ?? "",
                     url: t["url"] as? String ?? "",
-                    active: false
+                    active: (t["attached"] as? Bool) ?? false
                 ))
             }
         }
         return tabs
     }
 
-    public func newTab(url: String, background: Bool = true) async throws -> Int {
+    public func newTab(url: String, background: Bool = true) async throws -> String {
         let result = try await send(method: "Target.createTarget", params: [
             "url": url,
             "background": background
         ])
-        return result["targetId"] as? Int ?? 0
+        // Target.createTarget returns the opaque string targetId.
+        guard let inner = unwrapResult(result) else { return "" }
+        return inner["targetId"] as? String ?? ""
     }
 
-    public func closeTab(id: Int) async throws {
+    public func closeTab(id: String) async throws {
         _ = try await send(method: "Target.closeTarget", params: ["targetId": id])
     }
 
-    public func activateTab(id: Int) async throws {
+    public func activateTab(id: String) async throws {
         _ = try await send(method: "Target.activateTarget", params: ["targetId": id])
     }
 
@@ -144,33 +156,38 @@ public final class CDPClient {
     /// Takes an accessibility-tree snapshot with stable element reference IDs.
     /// This is the primary observation tool — "observe before you act".
     public func snapshot() async throws -> [AXNode] {
-        let result = try await send(method: "Accessibility.getPartialAXTree", params: [
-            "fetchRelatives": true,
-            "backendNodeId": 0
-        ])
+        // getFullAXTree returns the whole page's tree with no params.
+        // (getPartialAXTree with backendNodeId: 0 fails with
+        // "No node found for given backend id" — 0 is not a valid ID.)
+        let result = try await send(method: "Accessibility.getFullAXTree", params: [:])
 
         var nodes: [AXNode] = []
-        if let axNodes = result["nodes"] as? [[String: Any]] {
+        if let axNodes = unwrapResult(result)?["nodes"] as? [[String: Any]] {
             for (i, n) in axNodes.enumerated() {
-                let props = n["properties"] as? [String: Any] ?? [:]
-                let name = (props["name"] as? [String: Any])?["value"] as? String
-                let value = (props["value"] as? [String: Any])?["value"] as? String
-                let bounds: [Double]? = {
-                    if let b = props["bounds"] as? [String: Any],
-                       let x = b["x"] as? Double, let y = b["y"] as? Double,
-                       let w = b["width"] as? Double, let h = b["height"] as? Double {
-                        return [x, y, w, h]
+                // CDP Accessibility.AXNode: role/name/value/description are
+                // top-level AXValue objects; properties is an array of
+                // {name, value} pairs.
+                let name = (n["name"] as? [String: Any])?["value"] as? String
+                let value = (n["value"] as? [String: Any])?["value"] as? String
+                let desc = (n["description"] as? [String: Any])?["value"] as? String
+                var focusable = false
+                if let props = n["properties"] as? [[String: Any]] {
+                    for prop in props {
+                        if prop["name"] as? String == "focusable",
+                           let val = prop["value"] as? [String: Any],
+                           val["value"] as? Bool == true {
+                            focusable = true
+                        }
                     }
-                    return nil
-                }()
+                }
                 nodes.append(AXNode(
                     ref: "ref_\(i)",
                     role: (n["role"] as? [String: Any])?["value"] as? String ?? "unknown",
                     name: name,
                     value: value,
-                    desc: (props["description"] as? [String: Any])?["value"] as? String,
-                    bounds: bounds,
-                    focusable: (props["focusable"] as? Bool) ?? false,
+                    desc: desc,
+                    bounds: nil,
+                    focusable: focusable,
                     children: nil
                 ))
             }
@@ -267,8 +284,13 @@ public final class CDPClient {
             "expression": expression,
             "returnByValue": true
         ])
-        guard let inner = result["result"] as? [String: Any] else { return "" }
-        return String(describing: inner["value"] ?? "")
+        guard let inner = unwrapResult(result) else { return "" }
+        // Runtime.evaluate always nests the RemoteObject under result.result:
+        //   {"result":{"result":{"type":"string","value":"…"}, ...}}
+        if let remote = inner["result"] as? [String: Any], let value = remote["value"] {
+            return String(describing: value)
+        }
+        return ""
     }
 
     // MARK: Grep — Search page content
@@ -314,7 +336,8 @@ public final class CDPClient {
 
     public func captureScreenshot() async throws -> Data? {
         let result = try await send(method: "Page.captureScreenshot", params: ["format": "png"])
-        if let dataStr = result["data"] as? String {
+        guard let inner = unwrapResult(result) else { return nil }
+        if let dataStr = inner["data"] as? String {
             return Data(base64Encoded: dataStr)
         }
         return nil

@@ -197,4 +197,23 @@ Full license texts in `THIRD_PARTY_NOTICES.md`.
 
 **SHIP STATUS: SHIPPED**
 
-The Hive Browser (Chromium-backed via CefSwift, native SwiftUI chrome) builds, tests, bundles, and launches successfully. All 983 tests pass. The app meets the Definition of Done for an autonomous recovery and ship mission.
+The Hive Browser (Chromium-backed via CefSwift, native SwiftUI chrome) builds, tests, bundles, and launches successfully. All 1076 tests pass. The app meets the Definition of Done for an autonomous recovery and ship mission.
+
+---
+
+## Post-Ship Addendum (2026-08-08)
+
+### Agentic CDP client — envelope-unwrap bug fixed (real production defect)
+- `CDPClient.send` returns the full CDP envelope (`{"id":N,"result":{...}}`), but every convenience method read method-specific keys off the envelope directly. Real CDP responses nest under `result.result` (Runtime.evaluate) or `result.nodes` (Accessibility) — so **evaluate, read, snapshot, listTabs, newTab, and screenshot all returned empty in production** while a flat-shaped unit test passed.
+- Fixed with an `unwrapResult` helper across all consumers; `snapshot` now uses `Accessibility.getFullAXTree` (the old `backendNodeId: 0` call returned `"No node found for given backend id"`); AX `name`/`role`/`desc` now read from top-level AXValue objects and `properties` as the array CDP actually sends.
+- Added 4 regression tests with realistic CDP response shapes (12 CDP tests total). **Live-verified end-to-end** via the shell bridge against the rebuilt bundle: `hive.agent.evaluate('document.title')` → `"The Hive Brief"`; `hive.agent.snapshot` → AX tree (`RootWebArea`); `hive.agent.read` → page text. Full chain (bridge → CDPClient → `sendDevToolsMessage` → CEF → `handleResponse`) confirmed working.
+
+### DevTools port hardening (also committed at 58af561)
+- `remoteDebuggingPort = 9223` (an unauthenticated loopback control surface) is now gated behind `#if DEBUG` **and** `HIVE_DEBUG_CDP=1`. Live-verified: closed by default, open only with the explicit env var. `CDPClient` is in-process so agent tools are unaffected.
+
+### Test/harness tooling
+- New `scripts/cdp-smoke.sh`: self-contained RFC6455 CDP bridge round-trip helper (no third-party deps). Launches against a `HIVE_DEBUG_CDP=1` app, targets the chrome shell (the only page with the bridge shim), verifies the token, and invokes a harmless bridge method. Guards against the raw-TCP-without-handshake harness class that produced false "wedges" earlier.
+- `swift test`: **1076 tests / 143 suites pass**. Bundle + smoke PASS.
+
+### Mission tracker
+- `.hive/mission/tasks.json` marked **ALL_COMPLETED** (T001–T010) with per-task evidence and commit refs.

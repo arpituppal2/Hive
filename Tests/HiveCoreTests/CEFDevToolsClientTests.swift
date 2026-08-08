@@ -147,14 +147,112 @@ struct CDPClientTests {
                 lastMethod = dict["method"] as? String
                 lastParams = dict["params"] as? [String: Any]
                 let id = dict["id"] as? Int ?? 1
-                client.handleResponse("{\"id\":\(id),\"result\":{\"value\":\"test\"}}")
+                // Realistic CDP Runtime.evaluate envelope: the RemoteObject is
+                // nested under result.result.
+                client.handleResponse("{\"id\":\(id),\"result\":{\"result\":{\"type\":\"string\",\"value\":\"test\"}}}")
             }
         }
 
         let result = try await client.evaluate(expression: "1 + 1")
         #expect(lastMethod == "Runtime.evaluate")
         #expect(lastParams?["returnByValue"] as? Bool == true)
-        #expect(result as? String == "test")
+        #expect(result == "test")
+    }
+
+    // MARK: - Envelope unwrapping regressions
+
+    @Test func evaluateExtractsNestedRemoteObjectValue() async throws {
+        // Regression: consumers must read method keys from result.result, not
+        // the envelope — real CDP responses nest the RemoteObject there.
+        let client = CDPClient()
+        client.wireSend { json in
+            if let data = json.data(using: .utf8),
+               let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let id = dict["id"] as? Int {
+                client.handleResponse("{\"id\":\(id),\"result\":{\"result\":{\"type\":\"string\",\"value\":\"The Hive Brief\"},\"exceptionDetails\":null}}")
+            }
+        }
+        let result = try await client.evaluate(expression: "document.title")
+        #expect(result == "The Hive Brief")
+    }
+
+    @Test func snapshotExtractsNodesFromEnvelope() async throws {
+        // Regression: Accessibility.getPartialAXTree returns nodes under
+        // result.nodes; AXValue fields (role/name) are top-level, properties
+        // is an array of {name, value} pairs.
+        let client = CDPClient()
+        client.wireSend { json in
+            if let data = json.data(using: .utf8),
+               let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let id = dict["id"] as? Int {
+                let axNode = """
+                {"nodeId":"1","ignored":false,
+                 "role":{"type":"string","value":"heading"},
+                 "name":{"type":"string","value":"Hello"},
+                 "description":{"type":"string","value":"Greeting"},
+                 "properties":[{"name":"focusable","value":{"type":"boolean","value":true}}]}
+                """
+                client.handleResponse("{\"id\":\(id),\"result\":{\"nodes\":[\(axNode)]}}")
+            }
+        }
+        let nodes = try await client.snapshot()
+        #expect(nodes.count == 1)
+        #expect(nodes.first?.role == "heading")
+        #expect(nodes.first?.name == "Hello")
+        #expect(nodes.first?.desc == "Greeting")
+        #expect(nodes.first?.focusable == true)
+    }
+
+    @Test func newTabReturnsStringTargetID() async throws {
+        // Regression: Target.createTarget returns an opaque string targetId
+        // (e.g. hex "1ECD4966…") that must survive as a String, not an Int.
+        let client = CDPClient()
+        client.wireSend { json in
+            if let data = json.data(using: .utf8),
+               let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let id = dict["id"] as? Int {
+                client.handleResponse("{\"id\":\(id),\"result\":{\"targetId\":\"1ECD4966AF6B0DD1227E3DD0AA509E87\"}}")
+            }
+        }
+        let tabID = try await client.newTab(url: "https://example.com")
+        #expect(tabID == "1ECD4966AF6B0DD1227E3DD0AA509E87")
+    }
+
+    @Test func listTabsUsesTargetGetTargets() async throws {
+        // Regression: listing tabs requires Target.getTargets (which returns
+        // targetInfos), not Browser.getWindowForTarget (windowId/bounds only).
+        let client = CDPClient()
+        var lastMethod: String?
+        client.wireSend { json in
+            if let data = json.data(using: .utf8),
+               let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let id = dict["id"] as? Int {
+                lastMethod = dict["method"] as? String
+                let target = "{\"targetId\":\"abc123\",\"type\":\"page\",\"title\":\"Hi\",\"url\":\"https://x\",\"attached\":true}"
+                client.handleResponse("{\"id\":\(id),\"result\":{\"targetInfos\":[\(target)]}}")
+            }
+        }
+        let tabs = try await client.listTabs()
+        #expect(lastMethod == "Target.getTargets")
+        #expect(tabs.count == 1)
+        #expect(tabs.first?.id == "abc123")
+        #expect(tabs.first?.title == "Hi")
+        #expect(tabs.first?.active == true)
+    }
+
+    @Test func captureScreenshotReadsDataFromEnvelope() async throws {
+        // Regression: Page.captureScreenshot returns base64 under result.data.
+        let client = CDPClient()
+        client.wireSend { json in
+            if let data = json.data(using: .utf8),
+               let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let id = dict["id"] as? Int {
+                client.handleResponse("{\"id\":\(id),\"result\":{\"data\":\"aGVsbG8=\"}}")
+            }
+        }
+        let data = try await client.captureScreenshot()
+        #expect(data != nil)
+        #expect(String(data: data!, encoding: .utf8) == "hello")
     }
 
     // MARK: - ID sequencing

@@ -204,6 +204,17 @@ Apply to: AI panel, start page, command palette, panels, side panel.
 - **No consumers break**: `CDPClient` (agent tools) is in-process (`wireSend`/`handleResponse`), not socket-based; no scripts reference 9223.
 - In-process agentic CDP (`CefBrowserHost.sendDevToolsMessage`) remains the production path per ROADMAP_2027 (updated to reflect the new gate).
 
+### 🤖 Agentic CDP client — envelope-unwrap fix + live verification (this pass)
+- **Real production defect fixed**: `CDPClient.send` returns the full CDP envelope (`{"id":N,"result":{...}}`), but `evaluate`/`snapshot`/`read`/`listTabs`/`newTab`/`screenshot` read method keys off the envelope directly → all returned empty/zero in production while a flat-shaped test passed. Added `unwrapResult`; `snapshot` switched to `Accessibility.getFullAXTree` (the old `backendNodeId: 0` call returned `"No node found for given backend id"`); AX `name`/`role`/`desc` read from top-level AXValue objects and `properties` as the array CDP sends.
+- **Live-verified end-to-end** via the shell bridge on the rebuilt bundle: `hive.agent.evaluate('document.title')` → `"The Hive Brief"`; `hive.agent.snapshot` → AX tree (`RootWebArea`); `hive.agent.read` → page text. Chain: bridge → `CDPClient` → `sendDevToolsMessage` → CEF → `handleResponse`.
+- **4 new regression tests** with realistic CDP shapes (12 CDP tests total). `swift test` now **1076/143**.
+
+### 🧰 CDP smoke helper (this pass)
+- New `scripts/cdp-smoke.sh`: self-contained RFC6455 client (no deps), targets the chrome shell (only page with the bridge shim), verifies token + a harmless bridge round-trip. Prevents the raw-TCP-without-handshake harness class that produced the false "wedges" closed earlier. Requires `HIVE_DEBUG_CDP=1`.
+
+### 🗂 Mission tracker
+- `.hive/mission/tasks.json` → **ALL_COMPLETED** (T001–T010, per-task evidence + commit refs).
+
 ## 9. Success Criteria
 
 - The browser looks unmistakably premium: Polar-grade design system, Dia-grade brief, Zen-grade vertical tabs.
