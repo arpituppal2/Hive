@@ -65,4 +65,19 @@ struct PrivacyReportSummaryTests {
         #expect(summary.measuredTabCount == 0)
         #expect(summary.measuredSiteCount == 0)
     }
+    @Test func emptyTabsProducesZeroAggregate() {
+        let summary = PrivacyReportSummary(tabs: [])
+        #expect(summary.totalBlocked == 0)
+        #expect(summary.measuredTabCount == 0)
+        #expect(summary.measuredSiteCount == 0)
+        #expect(summary.topSites.isEmpty)
+    }
+
+    @Test func singleTabAggregatesCorrectly() {
+        let tab = BrowserTab(url: URL(string: "https://single.example"), blockedCount: 7)
+        let summary = PrivacyReportSummary(tabs: [tab])
+        #expect(summary.totalBlocked == 7)
+        #expect(summary.measuredSiteCount == 1)
+        #expect(summary.topSites == [PrivacyReportSummary.SiteCount(host: "single.example", count: 7)])
+    }
 }

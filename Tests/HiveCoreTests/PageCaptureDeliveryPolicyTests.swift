@@ -55,4 +55,24 @@ struct PageCaptureDeliveryPolicyTests {
             #expect(result == PageCaptureDelivery(persistCapture: false, fulfillContext: false, launchAutoTriage: false))
         }
     }
+    @Test func manualCaptureWithoutSwarmConsentStillPersists() {
+        let result = PageCaptureDeliveryPolicy.decide(
+            disposition: .manual,
+            isPrivate: false,
+            aiContextAllowed: false
+        )
+        #expect(result.persistCapture)
+        #expect(!result.fulfillContext)
+    }
+
+    @Test func allFlagsAreBoolType() {
+        let result = PageCaptureDeliveryPolicy.decide(
+            disposition: .auto,
+            isPrivate: false,
+            aiContextAllowed: true
+        )
+        #expect(type(of: result.persistCapture) == Bool.self)
+        #expect(type(of: result.fulfillContext) == Bool.self)
+        #expect(type(of: result.launchAutoTriage) == Bool.self)
+    }
 }

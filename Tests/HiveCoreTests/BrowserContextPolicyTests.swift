@@ -57,3 +57,29 @@ func pageWithEmptyTextIsScoped() {
     #expect(scoped != nil)
     #expect(scoped?.text.isEmpty == true)
 }
+
+@Test
+func fbcdnSubdomainStillScopedAsHTTPS() {
+    let page = PageContext(
+        tabID: "tab-cdn",
+        url: URL(string: "https://scontent-fra3-1.xx.fbcdn.net/image"),
+        title: "Image",
+        text: "cdn content",
+        aiContextAllowed: true
+    )
+    #expect(BrowserContextPolicy.scopePage(page) != nil)
+}
+
+@Test
+func nonHTTPSPagesAreNeverScoped() {
+    for scheme in ["http", "ftp", "data", "blob"] {
+        let page = PageContext(
+            tabID: "tab-scheme",
+            url: URL(string: scheme + "://example.com"),
+            title: "Non-HTTPS",
+            text: "content",
+            aiContextAllowed: true
+        )
+        #expect(BrowserContextPolicy.scopePage(page) == nil)
+    }
+}

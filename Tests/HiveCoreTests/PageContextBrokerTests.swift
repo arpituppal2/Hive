@@ -67,3 +67,24 @@ func pageContextBrokerOverwriteCancelsFirst() async throws {
     #expect(firstResult == nil)
     #expect(secondResult?.text == "second")
 }
+
+@Test
+func pageContextBrokerNilURLIsStillFulfilled() async throws {
+    let broker = PageContextBroker()
+    let context = PageContext(tabID: "nil-url", url: nil, title: "No URL", text: "content")
+    let task = Task { await broker.request(for: "nil-url") }
+    try? await Task.sleep(for: .milliseconds(10))
+    broker.fulfill(context)
+    let result = await task.value
+    #expect(result?.text == "content")
+}
+
+@Test
+func pageContextBrokerFulfillDeliversToFirstWaiter() async throws {
+    let broker = PageContextBroker()
+    let task = Task { await broker.request(for: "t-waiter") }
+    try? await Task.sleep(for: .milliseconds(10))
+    broker.fulfill(PageContext(tabID: "t-waiter", url: URL(string: "https://a.example"), title: "A", text: "delivered"))
+    let result = await task.value
+    #expect(result?.text == "delivered")
+}
