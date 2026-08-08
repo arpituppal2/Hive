@@ -367,3 +367,78 @@ a099381 feat: adblock cosmetic FFI + Zen compact-mode CSS + hover tracking
 ---
 
 **SHIP STATUS: SHIPPED, MERGED, OPTIMIZED, ITERATING**
+
+## Post-Ship Addendum 6 — Final Mission Push (2026-08-08)
+
+### Test Suite Growth
+| Milestone | Tests | Change |
+|---|---|---|
+| Baseline | 1082 | — |
+| CDP client fix + 4 regression | 1086 | +4 |
+| Interaction states sweep (U7) | 1091 | +5 |
+| 8-suite expansion | 1113 | +22 |
+| 3-suite expansion (SessionIntegrity, NavHealth, ContextPolicy) | 1118 | +5 |
+| Keychain HMAC + AXTree + PageLedger + SwarmResearch | 1128 | +10 |
+| 8-suite expansion (LoRA, HostContext, Overlay, etc.) | 1147 | +19 |
+| 4-suite expansion (BrowserContext, PageBroker, PageDelivery, Privacy) | 1155 | +8 |
+| 10-suite expansion (SessionPrivacy, History, Nav, Downloads, etc.) | 1175 | +20 |
+| 13-suite expansion (Bookmark, SessionEvidence, Nav, etc.) | **1197** | **+22** |
+
+### Final Feature Dashboard
+| Feature | Status |
+|---|---|
+| CEF/Chromium engine | ✅ CEF 148 via CefSwiftUI |
+| Web Chrome (hive:// scheme) + ARIA | ✅ Landmark roles, live region, .sr-only |
+| Tab management (create/select/close/reorder/duplicate/pin/essential) | ✅ |
+| Workspaces/Spaces (create/delete/switch/DND/gesture) | ✅ |
+| Split view (side-by-side, top-bottom, draggable) | ✅ |
+| Compact mode (Zen-derived: sidebar auto-hide, hover reveal) | ✅ |
+| Navigation (back/forward/reload/stop/address bar) | ✅ |
+| Private browsing (ephemeral CEF profile) | ✅ |
+| Session persistence (crash-only, session.json + backup) | ✅ |
+| Hibernation policy (memory saver) | ✅ |
+| Bookmarks/History/Downloads (CRUD, import/export) | ✅ |
+| Reader mode | ✅ |
+| Safe Browsing (4-byte hash prefixes) | ✅ |
+| Adblock engine (Brave adblock-rust v0.13 C FFI, cosmetic filtering) | ✅ |
+| AI/Swarm (ModelCouncilV2: multi-model, chair synthesis, honest degradation) | ✅ |
+| Deep Research (multi-step, AsyncStream streaming) | ✅ |
+| Voice command (speech recognition + TTS) | ✅ |
+| Code Studio (file editing, diff preview, approval center) | ✅ |
+| Command palette (⌘K, full browser command surface) | ✅ |
+| Tab search (⌘⇧A, fuzzy search) | ✅ |
+| Floating URL bar (⌘L overlay) | ✅ |
+| Media mini-player (PiP) | ✅ |
+| Crash reporter (Signal handlers + URLSession submission) | ✅ |
+| CDP/Agentic browsing (16-tool surface via CEF DevTools) | ✅ |
+| Settings (appearance, search, commands, privacy, performance, about) | ✅ |
+| Sparkle auto-update (framework + settings UI + appcast.xml) | ✅ |
+| Extension manager (install/uninstall/persist) | ✅ |
+| Landing page (arch detection, download links, waitlist, comparison) | ✅ |
+| Onboarding wizard (browser detection, import flow, theme picker) | ✅ |
+| Accessibility (175+ labels, reduce-motion, ARIA landmarks, live region) | ✅ |
+| CI/CD (hive-ci.yml + hive-release.yml) | ✅ |
+| Deferred AI init (off critical startup path) | ✅ |
+| Zero TODOs/FIXMEs in non-vendored Swift | ✅ |
+
+### Verification
+- `swift build --product Hive`: Clean ✅
+- `swift test`: **1197 tests / 143 suites** ✅
+- `build-hive-app.sh --allow-adhoc`: Bundle + Sparkle + adblock dylib ✅
+- `smoke-test-hive-app.sh`: PASS ✅
+- Commits: 61 on main ✅
+
+### Git History (recent)
+```
+640258d test: +20 tests across 13 suites — 1197 total (+115 this mission)
+a1fe1df test: +20 tests across 10 suites — 1175 total
+24bdce0 test: +8 tests — 1155 total
+f937221 feat: +19 tests + WebChrome ARIA accessibility — 1147 tests total
+5bdda35 test: expand 4 suites + fix KeychainHMACKeyStore — 1128 tests (+10)
+55521a9 test: expand 3 suites — 1118 tests (+5)
+...
+```
+
+---
+
+**SHIP STATUS: SHIPPED — 1197 tests, 61 commits, 33 features, zero TODOs. Mission complete.**
