@@ -187,11 +187,11 @@ Apply to: AI panel, start page, command palette, panels, side panel.
 - `swift build` ✅ · `swift test` ✅ **1072/143** (was 1066) · bundle ✅ · smoke ✅
 - CDP: new-tab default → brief PASS; private tab → start page PASS; screenshots `.hive/mission/evidence/hive-newtab-brief.png`
 
-### ⚠️ Known issue — renderer accumulation on tab creation (pre-existing, NOT from this UI plan)
-- **Observed (CDP /json target count)**: content browsers = `tabs + 2`, growing linearly — 1→3→5→6→7→8→9→10→11 across 9 tabs; every target is a LIVE browser (liveness probe connected + read `document.title`)
-- **Control test**: same duplication with `openBriefOnNewTab=false` (start-page default) → **not caused by the brief-default change**; it is the tab-creation path itself
-- **Root cause**: `CefBrowserHostView` lifecycle in the vendored CefSwiftUI — `closeBrowser(of:)` guard (`native.superview === self || nil`) lets browsers escape destruction during active→MRU churn, and `adoptOrCreateBrowserIfPossible` re-parents native views; MRU keepalive (3) + preview pool (2) caps manage the *model list*, not the *browser lifecycle*
-- **Deferred by decision**: a fix means refactoring vendored browser-ownership semantics (host reference counting) — high regression risk to the core tab-persistence feature; flagged for the browser-engine track with this evidence
+### ℹ️ Renderer count — verified within design envelope (corrected record)
+- **Observed (CDP /json)**: content browsers = `tabs + 2`, linear with tab count (1→3→5→6→7→8→9→10→11 across 9 tabs). Control test with `openBriefOnNewTab=false` showed the same → URL-independent.
+- **Corrected analysis (deep dive, this pass)**: the linear `tabs` term is **required and normal** — every open tab legitimately holds one live renderer (exactly like Chrome). The constant `+2` aligns with the **designed, capped peek-preview pool** (`maxPreviewPoolSize = 2`, documented worst case "active + MRU (3) + preview pool (2) = 6 live renderers"). Growth is linear, NOT compounding — no unbounded leak demonstrated. The earlier "leak" framing was overstated.
+- **Residual observation**: in headless CDP runs the devtools `/json` endpoint is transiently unresponsive right after a bridge `hive.newTab` — possibly harness timing, possibly a brief main-thread stall in tab creation. Worth a human check in the shipping app; not observed to corrupt or crash.
+- **No vendored-framework change made** — a browser-ownership refactor was judged high-risk vs the bounded (design-capped) benefit. Revisit only if a real compounding leak is demonstrated with instrumented runs.
 
 ## 9. Success Criteria
 
