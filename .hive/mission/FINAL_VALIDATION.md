@@ -331,3 +331,39 @@ a099381 feat: adblock cosmetic FFI + Zen compact-mode CSS + hover tracking
 ---
 
 **SHIP STATUS: SHIPPED — All 10 mission tasks complete, zero TODOs, all tests pass.**
+
+## Post-Ship Addendum 5 — Beyond the Mission (2026-08-08)
+
+### PR #4 Merged — Performance
+- **URL**: https://github.com/arpituppal2/Hive/pull/4
+- **Branch**: `perf/defer-ai-init` → `main`
+- **Change**: Deferred AI initialization (model council, swarm orchestrator,
+  Tavily/Vane providers, context coordinator) from BrowserState.init() to
+  BrowserWindow.onAppear via .task. User sees window immediately.
+- **Impact**: AI no longer on critical startup path.
+- **Safety**: setupAI() is idempotent; AI panels handle nil gracefully.
+
+### Current State
+- **Main branch**: `dd599ca` (PR #4 merge)
+- **Tests**: 1082 / 143 suites ✅
+- **Build**: Clean ✅
+- **Bundle + Smoke**: PASS ✅
+- **Branches**: main, mission/recovery-and-ship, perf/defer-ai-init (merged)
+
+### Performance (beyond mission spec)
+| Optimization | Impact |
+|---|---|
+| Deferred AI init | Model council, Tavily, Vane off critical path |
+| BrowserWindow .task | Window renders before AI providers connect |
+| Idempotent setupAI() | Safe to call multiple times |
+
+### Future Work (not blocking)
+- Split BrowserState.swift (7122 lines) into extensions
+- Lazy-load WebChromeAssets (6.3MB) from Bundle resources
+- CEF startup pre-warm
+- Cross-device sync engine
+- CEF extension API integration (requires CEF upgrade)
+
+---
+
+**SHIP STATUS: SHIPPED, MERGED, OPTIMIZED, ITERATING**
