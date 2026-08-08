@@ -288,17 +288,108 @@ public final class DeepResearchPlanner {
         return extractSources(from: result.text, sourceQueryID: sourceQueryID)
     }
 
-    /// Read full text of sources (simplified — real impl uses AXTree or fetch).
+    /// Read full text of sources via URLSession fetch with basic HTML-to-text extraction.
+    /// Falls back to snippet when fetch fails or times out.
     private func readSources(_ sources: [ResearchSource]) async throws -> [ResearchSource] {
         var enriched: [ResearchSource] = []
         for (i, var source) in sources.enumerated() {
             onProgress?(.reading(completedSources: i, totalSources: sources.count))
-            // Attempt to fetch page content via the Rust fetch boundary
-            // (simplified here — real impl calls ResearchWorkerClient)
-            // Fallback: use snippet as "full text"
+            do {
+                let text = try await fetchPageText(url: source.url)
+                if let text, !text.isEmpty {
+                    source = ResearchSource(
+                        url: source.url,
+                        title: source.title,
+                        snippet: source.snippet,
+                        fullText: text,
+                        relevance: source.relevance,
+                        sourceQueryID: source.sourceQueryID
+                    )
+                }
+            } catch {
+                // Fetch failed — keep the snippet-only source
+            }
             enriched.append(source)
         }
         return enriched
+    }
+
+    /// Fetch a page and extract readable text. Times out at 10 seconds.
+    /// Blocks non-http/https schemes and private/reserved IP ranges to prevent SSRF.
+    private func fetchPageText(url: URL) async throws -> String? {
+        // SSRF guard: only allow http/https
+        guard let scheme = url.scheme?.lowercased(),
+              (scheme == "http" || scheme == "https") else {
+            return nil
+        }
+        // SSRF guard: block private/reserved hosts
+        guard let host = url.host?.lowercased(), !isPrivateHost(host) else {
+            return nil
+        }
+
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 10
+        request.setValue("text/html, text/plain;q=0.9", forHTTPHeaderField: "Accept")
+        request.setValue("HiveDeepResearch/1.0", forHTTPHeaderField: "User-Agent")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse,
+              http.statusCode == 200,
+              let mime = http.mimeType?.lowercased(),
+              mime.contains("text/html") || mime.contains("text/plain") else {
+            return nil
+        }
+
+        // Cap content at 2MB before decoding
+        let capped = data.prefix(2_000_000)
+        guard let html = String(data: capped, encoding: .utf8) else { return nil }
+        let text = extractTextFromHTML(html)
+        // Truncate to ~50k chars for practical LLM context windows
+        return String(text.prefix(50_000))
+    }
+
+    /// Returns true if host is a private, loopback, link-local, or reserved address.
+    private func isPrivateHost(_ host: String) -> Bool {
+        // Block hostnames that resolve to private ranges
+        let blockedPatterns = [
+            "localhost", "127.0.0.1", "::1", "0.0.0.0",
+            "10.", "172.16.", "172.17.", "172.18.", "172.19.",
+            "172.20.", "172.21.", "172.22.", "172.23.", "172.24.",
+            "172.25.", "172.26.", "172.27.", "172.28.", "172.29.",
+            "172.30.", "172.31.", "192.168.", "169.254."
+        ]
+        for pattern in blockedPatterns {
+            if host == pattern || host.hasPrefix(pattern) {
+                return true
+            }
+        }
+        // Block link-local IPv6
+        if host.hasPrefix("fe80:") || host.hasPrefix("fc") || host.hasPrefix("fd") {
+            return true
+        }
+        return false
+    }
+
+    /// Basic HTML-to-text extraction: strip tags, scripts, styles, collapse whitespace.
+    private func extractTextFromHTML(_ html: String) -> String {
+        var text = html
+        // Remove script and style blocks
+        let scriptPattern = try? NSRegularExpression(pattern: "<(script|style)[^>]*>.*?</\\1>", options: [.dotMatchesLineSeparators, .caseInsensitive])
+        text = scriptPattern?.stringByReplacingMatches(in: text, options: [], range: NSRange(text.startIndex..<text.endIndex, in: text), withTemplate: " ") ?? text
+        // Remove HTML tags
+        let tagPattern = try? NSRegularExpression(pattern: "<[^>]+>", options: [])
+        text = tagPattern?.stringByReplacingMatches(in: text, options: [], range: NSRange(text.startIndex..<text.endIndex, in: text), withTemplate: " ") ?? text
+        // Decode entities
+        text = text.replacingOccurrences(of: "&amp;", with: "&")
+            .replacingOccurrences(of: "&lt;", with: "<")
+            .replacingOccurrences(of: "&gt;", with: ">")
+            .replacingOccurrences(of: "&quot;", with: "\"")
+            .replacingOccurrences(of: "&#39;", with: "'")
+            .replacingOccurrences(of: "&nbsp;", with: " ")
+        // Collapse whitespace and trim
+        let components = text.components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+        return components.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// Synthesize findings from read sources.

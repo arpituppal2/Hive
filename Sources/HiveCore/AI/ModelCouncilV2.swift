@@ -102,9 +102,11 @@ public struct CouncilVerdict: Sendable {
 public final class ModelCouncil {
 
     private let dispatcher: Dispatcher
+    private let searchProvider: WebSearchProvider?
 
-    public init(dispatcher: Dispatcher = .shared) {
+    public init(dispatcher: Dispatcher = .shared, searchProvider: WebSearchProvider? = nil) {
         self.dispatcher = dispatcher
+        self.searchProvider = searchProvider
     }
 
     // MARK: Public API
@@ -141,7 +143,7 @@ public final class ModelCouncil {
         let isDegraded = active.count < query.providers.count
 
         // Phase 2: Synthesize through chair model
-        let synthesis = synthesize(responses: sorted, question: query.question)
+        let synthesis = await synthesize(responses: sorted, question: query.question)
 
         return CouncilVerdict(
             answer: synthesis.answer,
@@ -238,17 +240,38 @@ public final class ModelCouncil {
     }
 
     private func queryTavily(question: String) async throws -> ProviderResult {
-        // Delegate to existing Tavily search provider
-        // (simplified — real implementation calls ResearchWorkerClient)
+        // Use the real TavilySearchProvider if a key is available
+        if let search = searchProvider, await search.isAvailable() {
+            do {
+                let result = try await search.search(query: question, focusMode: .webSearch)
+                let answer = result.answer.isEmpty
+                    ? result.sources.prefix(5).map { "[\($0.title)](\($0.url)): \($0.snippet)" }.joined(separator: "\n\n")
+                    : result.answer
+                return ProviderResult(
+                    answer: answer,
+                    confidence: 0.85,
+                    citations: result.sources.map { $0.url }
+                )
+            } catch {
+                return ProviderResult(
+                    answer: "",
+                    confidence: 0,
+                    citations: []
+                )
+            }
+        }
+        // No search provider configured — honest degradation
         return ProviderResult(
-            answer: "[Tavily search results for: \(question)]",
-            confidence: 0.8,
+            answer: "",
+            confidence: 0,
             citations: []
         )
     }
 
-    /// Synthesize responses through the chair model.
-    private func synthesize(responses: [CouncilResponse], question: String) -> Synthesis {
+    /// Synthesize responses through the chair model. Uses the dispatcher to
+    /// produce a proper synthesis with reasoning, agreements, and disagreements
+    /// rather than a simple heuristic merge.
+    private func synthesize(responses: [CouncilResponse], question: String) async -> Synthesis {
         guard !responses.isEmpty else {
             return Synthesis(answer: "No models responded.", reasoning: "All providers failed.",
                              agreements: [], disagreements: [], confidence: 0)
@@ -266,40 +289,117 @@ public final class ModelCouncil {
             return Synthesis(
                 answer: solo.answer,
                 reasoning: "Single model response (council degraded).",
-                agreements: [solo.answer],
+                agreements: [solo.provider.rawValue + ": " + solo.answer],
                 disagreements: [],
-                confidence: solo.confidence * 0.7 // Penalty for no corroboration
+                confidence: solo.confidence * 0.7
             )
         }
 
-        // Find agreement and disagreement areas
-        let answers = active.map { $0.answer }
-        let confidences = active.map { $0.confidence }
+        // Build a chair prompt from all responses
+        let responseTexts = active.enumerated().map { i, r in
+            """
+            Model \(i + 1) (\(r.provider.rawValue), confidence \(Int(r.confidence * 100))%):
+            \(r.answer)
+            """
+        }.joined(separator: "\n")
 
+        let chairPrompt = """
+        Question: \(question)
+
+        Council responses:
+        \(responseTexts)
+
+        As the chair, synthesize these responses:
+        1. Provide a single best answer that reconciles all perspectives.
+        2. Note where models AGREE (specific points of consensus).
+        3. Note where models DISAGREE (specific points of divergence).
+        4. Assign an overall confidence score (0.0–1.0).
+
+        Format your response as:
+        ANSWER: <final answer>
+        AGREEMENTS: <comma-separated agreement points>
+        DISAGREEMENTS: <comma-separated disagreement points>
+        CONFIDENCE: <0.0-1.0>
+        """
+
+        do {
+            let result = try await dispatcher.generate(GenerateRequest(
+                role: .librarian,
+                system: "You are a council chair. Synthesize multiple AI responses into one authoritative answer. Be precise about agreements and disagreements.",
+                user: chairPrompt,
+                maxTokens: 2048
+            ))
+            return parseChairResponse(result.text, active: active)
+        } catch {
+            // Fall back to local synthesis on chair model failure
+            return localSynthesize(active: active)
+        }
+    }
+
+    /// Fallback local synthesis when the chair model is unavailable.
+    private func localSynthesize(active: [CouncilResponse]) -> Synthesis {
+        let confidences = active.map { $0.confidence }
         let avgConfidence = confidences.reduce(0, +) / Double(confidences.count)
         let hasConsensus = confidences.allSatisfy { $0 > 0.7 }
-
-        var agreements: [String] = []
-        var disagreements: [String] = []
-
-        if hasConsensus {
-            agreements = ["All \(active.count) models agree on the core answer."]
-        } else {
-            disagreements = ["Models differ in confidence and detail."]
-            for resp in active where resp.confidence < 0.7 {
-                disagreements.append("\(resp.provider.rawValue): lower confidence (\(Int(resp.confidence * 100))%)")
-            }
-        }
-
-        // Use the highest-confidence answer as the primary
         let bestAnswer = active.max(by: { $0.confidence < $1.confidence })?.answer ?? active[0].answer
 
         return Synthesis(
             answer: bestAnswer,
-            reasoning: "Synthesized from \(active.count) model(s). Council \(hasConsensus ? "reached consensus" : "has divergent views").",
+            reasoning: "Synthesized from \(active.count) model(s) (chair model unavailable — local merge).",
+            agreements: hasConsensus ? ["All \(active.count) models agree on the core answer."] : [],
+            disagreements: hasConsensus ? [] : active.filter { $0.confidence < 0.7 }.map {
+                "\($0.provider.rawValue): lower confidence (\(Int($0.confidence * 100))%)"
+            },
+            confidence: hasConsensus ? avgConfidence : avgConfidence * 0.6
+        )
+    }
+
+    /// Parse the chair model's structured response.
+    private func parseChairResponse(_ text: String, active: [CouncilResponse]) -> Synthesis {
+        var answer = ""
+        var agreements: [String] = []
+        var disagreements: [String] = []
+        var confidence: Double = 0.7
+
+        let lines = text.components(separatedBy: "\n")
+        var currentSection = ""
+
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.hasPrefix("ANSWER:") || trimmed.hasPrefix("ANSWER") {
+                currentSection = "answer"
+                answer = String(trimmed.dropFirst(trimmed.hasPrefix("ANSWER:") ? 7 : 6)).trimmingCharacters(in: .whitespaces)
+            } else if trimmed.hasPrefix("AGREEMENTS:") || trimmed.hasPrefix("AGREEMENTS") {
+                currentSection = "agreements"
+                let val = String(trimmed.dropFirst(trimmed.hasPrefix("AGREEMENTS:") ? 11 : 10)).trimmingCharacters(in: .whitespaces)
+                if !val.isEmpty { agreements = val.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty } }
+            } else if trimmed.hasPrefix("DISAGREEMENTS:") || trimmed.hasPrefix("DISAGREEMENTS") {
+                currentSection = "disagreements"
+                let val = String(trimmed.dropFirst(trimmed.hasPrefix("DISAGREEMENTS:") ? 14 : 13)).trimmingCharacters(in: .whitespaces)
+                if !val.isEmpty { disagreements = val.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty } }
+            } else if trimmed.hasPrefix("CONFIDENCE:") || trimmed.hasPrefix("CONFIDENCE") {
+                let val = String(trimmed.dropFirst(trimmed.hasPrefix("CONFIDENCE:") ? 11 : 10)).trimmingCharacters(in: .whitespaces)
+                confidence = Double(val) ?? 0.7
+            } else if currentSection == "answer", !trimmed.isEmpty {
+                answer += " " + trimmed
+            } else if currentSection == "agreements", !trimmed.isEmpty, trimmed.hasPrefix("-") {
+                agreements.append(String(trimmed.dropFirst(1)).trimmingCharacters(in: .whitespaces))
+            } else if currentSection == "disagreements", !trimmed.isEmpty, trimmed.hasPrefix("-") {
+                disagreements.append(String(trimmed.dropFirst(1)).trimmingCharacters(in: .whitespaces))
+            }
+        }
+
+        if answer.isEmpty {
+            answer = active.max(by: { $0.confidence < $1.confidence })?.answer ?? active[0].answer
+            confidence = confidence * 0.5
+        }
+
+        return Synthesis(
+            answer: answer,
+            reasoning: "Chair synthesis from \(active.count) models.",
             agreements: agreements,
             disagreements: disagreements,
-            confidence: hasConsensus ? avgConfidence : avgConfidence * 0.6
+            confidence: min(1.0, max(0.0, confidence))
         )
     }
 

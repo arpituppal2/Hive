@@ -4079,8 +4079,10 @@ final class BrowserState {
             dispatcher: .shared, hotMemory: hotMemory, ledger: eventLedger,
             honeycomb: honeycomb
         )
-        // Parallel multi-model council for AI queries
-        modelCouncil = ModelCouncil(dispatcher: .shared)
+        // Parallel multi-model council for AI queries — with Tavily search if configured
+        let tavilyKey = self.tavilyAPIKey
+        let searchProvider: WebSearchProvider? = tavilyKey.isEmpty ? nil : TavilySearchProvider(apiKey: tavilyKey)
+        modelCouncil = ModelCouncil(dispatcher: .shared, searchProvider: searchProvider)
         if let swarmOrchestrator {
             contextRequestCoordinator = ContextRequestCoordinator(
                 hotMemory: hotMemory,
