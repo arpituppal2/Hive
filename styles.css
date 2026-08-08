@@ -216,3 +216,12 @@ body {
     .nav-links { display: none; }
     .nav .btn-sm { display: none; }
 }
+
+/* Download section enhancements */
+.download-actions { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.download-options { display: none; align-items: center; gap: 8px; margin-top: 4px; }
+.download-option { color: var(--text-secondary); font-size: 14px; text-decoration: none; transition: color 0.15s; }
+.download-option:hover { color: var(--accent); }
+.download-divider { color: var(--border); }
+.sparkle-badge { color: var(--accent); font-size: 13px; }
+#arch-badge { color: var(--accent); font-weight: 500; }
