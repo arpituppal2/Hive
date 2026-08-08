@@ -984,6 +984,14 @@ final class BrowserState {
             if !isRestoringSession { scheduleAutosave() }
         }
     }
+    /// Approved taste decision (autoplan): new tabs open the Morning Brief by
+    /// default. The hand-drawn start page (search + top sites + briefcard)
+    /// remains one Settings toggle away.
+    var openBriefOnNewTab: Bool = true {
+        didSet {
+            if !isRestoringSession { scheduleAutosave() }
+        }
+    }
     var bookmarks: [Bookmark] = [] {
         didSet {
             // Auto-hide bookmarks bar when empty; show it when bookmarks appear
@@ -4701,12 +4709,14 @@ final class BrowserState {
             layout: saved.layout,
             showBookmarksBar: saved.showBookmarksBar,
             isCompactMode: saved.isCompactMode,
-            isMemorySaverEnabled: saved.isMemorySaverEnabled
+            isMemorySaverEnabled: saved.isMemorySaverEnabled,
+            openBriefOnNewTab: saved.openBriefOnNewTab
         ).normalized
         layout = TabLayout(rawValue: chromePreferences.layout) ?? .vertical
         isCompactMode = chromePreferences.isCompactMode
         showBookmarksBar = chromePreferences.showBookmarksBar
         isMemorySaverEnabled = chromePreferences.isMemorySaverEnabled
+        openBriefOnNewTab = chromePreferences.openBriefOnNewTab
         browserAccentColorHex = saved.accentColorHex
             searchEngine = SearchEngine(rawValue: saved.searchEngine) ?? .google
             // Restore the user's model preference — it was persisted but never
@@ -4917,6 +4927,12 @@ final class BrowserState {
     /// The hand-drawn web start page, served by HiveSchemeHandler over the
     /// custom `hive://` scheme. SwiftUI chrome reads it as a clean empty state.
     static let webChromeStartURL = URL(string: "hive://start")!
+
+    /// The Morning Brief new-tab destination (approved taste decision: brief
+    /// as the default new tab; ``openBriefOnNewTab`` flips back to the start
+    /// page). Private tabs always land on the start page — the brief is built
+    /// from browsing data and must never surface in a private window.
+    static let webChromeBriefURL = URL(string: "hive://brief")!
 
     /// The text shown in the address bar. The web start page renders as an
     /// empty field — a raw `hive://start` would be chrome noise, not a URL.
@@ -5152,8 +5168,11 @@ final class BrowserState {
         let isoDate = ISO8601DateFormatter().string(from: Date())
 
         // Open tabs → top to-dos ("resume reading" style).
+        // Private tabs are excluded: the brief is browsing-data-derived and is
+        // served in normal-profile tabs — a private tab's title/URL must never
+        // surface here (mirror of the newTab() isPrivate guard).
         var todos: [[String: String]] = []
-        for tab in tabs.prefix(8) {
+        for tab in tabs.prefix(8) where !tab.isPrivate {
             guard let url = tab.model.url,
                   let host = url.host, !host.isEmpty,
                   url.scheme == "http" || url.scheme == "https"
@@ -5270,8 +5289,20 @@ final class BrowserState {
     func newTab(url: URL? = nil, groupID: UUID? = nil, activate: Bool = true, isPrivate: Bool = false) -> Tab {
         let workspaceID = currentWorkspaceID
         let profileID = currentWorkspace?.profileID ?? currentProfileID
-        // New tabs open the hand-drawn web start page, not a blank about:page.
-        let resolvedURL = url ?? Self.webChromeStartURL
+        // Approved taste decision: new tabs open the Morning Brief by default;
+        // the hand-drawn start page is one Settings toggle away. Private tabs
+        // always land on the start page — the brief is derived from browsing
+        // data and must never leak into a private window.
+        let resolvedURL: URL
+        if let url {
+            resolvedURL = url
+        } else if isPrivate {
+            resolvedURL = Self.webChromeStartURL
+        } else if openBriefOnNewTab {
+            resolvedURL = Self.webChromeBriefURL
+        } else {
+            resolvedURL = Self.webChromeStartURL
+        }
         let profile = isPrivate ? CefProfile.incognito() : cefProfile(for: workspaceID)
         let tab = Tab(url: resolvedURL, workspaceID: workspaceID, profileID: profileID, groupID: groupID, isPrivate: isPrivate, profile: profile)
         withAnimation(isReduceMotionEnabled ? nil : HiveDesign.Animation.springQuick) {
@@ -5927,6 +5958,7 @@ final class BrowserState {
         var isCompactMode: Bool = false
         var showBookmarksBar: Bool
         var isMemorySaverEnabled: Bool = true
+        var openBriefOnNewTab: Bool = true
         var accentColorHex: String
         var searchEngine: String = "Google"
         var preferredModelProvider: String = "auto"
@@ -5955,14 +5987,14 @@ final class BrowserState {
         var schemaVersion: Int = 1
 
         private enum CodingKeys: String, CodingKey {
-            case layout, isCompactMode, showBookmarksBar, isMemorySaverEnabled, accentColorHex, searchEngine,
+            case layout, isCompactMode, showBookmarksBar, isMemorySaverEnabled, openBriefOnNewTab, accentColorHex, searchEngine,
                  preferredModelProvider, splitSecondaryTabID, splitRatio, splitOrientation,
                  activeTabID, currentProfileID, currentWorkspaceID,
                  profiles, workspaces, tabGroups, tabInfos, bookmarks, history, downloads,
                  userDefinedCommands, tabZoomLevels, snapshotSequence, isCleanExit, schemaVersion
         }
 
-        init(layout: String, isCompactMode: Bool, showBookmarksBar: Bool, isMemorySaverEnabled: Bool = true, accentColorHex: String,
+        init(layout: String, isCompactMode: Bool, showBookmarksBar: Bool, isMemorySaverEnabled: Bool = true, openBriefOnNewTab: Bool = true, accentColorHex: String,
              searchEngine: String, preferredModelProvider: String,
              splitSecondaryTabID: String?, splitRatio: Double, splitOrientation: String,
              activeTabID: String?,
@@ -5976,6 +6008,7 @@ final class BrowserState {
             self.isCompactMode = isCompactMode
             self.showBookmarksBar = showBookmarksBar
             self.isMemorySaverEnabled = isMemorySaverEnabled
+            self.openBriefOnNewTab = openBriefOnNewTab
             self.accentColorHex = accentColorHex
             self.searchEngine = searchEngine
             self.preferredModelProvider = preferredModelProvider
@@ -6009,6 +6042,7 @@ final class BrowserState {
             isCompactMode = try c.decodeIfPresent(Bool.self, forKey: .isCompactMode) ?? false
             showBookmarksBar = try c.decodeIfPresent(Bool.self, forKey: .showBookmarksBar) ?? false
             isMemorySaverEnabled = try c.decodeIfPresent(Bool.self, forKey: .isMemorySaverEnabled) ?? true
+            openBriefOnNewTab = try c.decodeIfPresent(Bool.self, forKey: .openBriefOnNewTab) ?? true
             accentColorHex = try c.decode(String.self, forKey: .accentColorHex)
             searchEngine = try c.decodeIfPresent(String.self, forKey: .searchEngine) ?? "Google"
             preferredModelProvider = try c.decodeIfPresent(String.self, forKey: .preferredModelProvider) ?? "auto"
@@ -6051,6 +6085,7 @@ final class BrowserState {
             try c.encode(isCompactMode, forKey: .isCompactMode)
             try c.encode(showBookmarksBar, forKey: .showBookmarksBar)
             try c.encode(isMemorySaverEnabled, forKey: .isMemorySaverEnabled)
+            try c.encode(openBriefOnNewTab, forKey: .openBriefOnNewTab)
             try c.encode(accentColorHex, forKey: .accentColorHex)
             try c.encode(searchEngine, forKey: .searchEngine)
             try c.encode(preferredModelProvider, forKey: .preferredModelProvider)

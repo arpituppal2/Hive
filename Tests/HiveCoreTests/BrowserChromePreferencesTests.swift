@@ -10,6 +10,7 @@ struct BrowserChromePreferencesTests {
         #expect(preferences.showBookmarksBar == false)
         #expect(preferences.isCompactMode == false)
         #expect(preferences.isMemorySaverEnabled)
+        #expect(preferences.openBriefOnNewTab, "Approved taste decision: the Morning Brief is the default new-tab destination.")
         #expect(preferences.normalized == preferences)
     }
 
@@ -38,5 +39,14 @@ struct BrowserChromePreferencesTests {
         let decoded = try JSONDecoder().decode(BrowserChromePreferences.self, from: data)
         #expect(decoded == BrowserChromePreferences())
         #expect(decoded.isMemorySaverEnabled)
+        #expect(decoded.openBriefOnNewTab)
+    }
+
+    @Test func newTabDefaultCanRoundTripAsFalse() throws {
+        let original = BrowserChromePreferences(openBriefOnNewTab: false)
+        let data = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(BrowserChromePreferences.self, from: data)
+        #expect(decoded.openBriefOnNewTab == false)
+        #expect(decoded.normalized.openBriefOnNewTab == false)
     }
 }

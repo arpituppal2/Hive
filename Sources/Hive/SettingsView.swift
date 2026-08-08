@@ -130,6 +130,19 @@ struct SettingsView: View {
                 .frame(maxWidth: 320)
             }
 
+            settingsGroup("New Tab") {
+                Picker("", selection: $state.openBriefOnNewTab) {
+                    Text("Morning Brief").tag(true)
+                    Text("Start Page").tag(false)
+                }
+                .pickerStyle(.segmented)
+                .frame(maxWidth: 280)
+                Text("New tabs open with a daily brief assembled locally from your browsing. The classic start page keeps search + top sites.")
+                    .font(HiveDesign.Typography.smallLabel)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             settingsGroup("Toolbar") {
                 Toggle("Show Bookmarks Bar", isOn: $state.showBookmarksBar)
             }

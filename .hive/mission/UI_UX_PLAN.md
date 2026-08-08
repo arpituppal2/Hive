@@ -167,6 +167,32 @@ Apply to: AI panel, start page, command palette, panels, side panel.
 - **Stale accent defaults → honey**: `sanitizeHex` fallback #8E5FEB→#F97316; workspace/profile/onboarding defaults #F5A623→#F97316; `hive.createWorkspace` default.
 - `WebChromeAssets.mimeType` split into chrome + brief variants (dead brief cases removed).
 
+### U5 ✅ Brief as new-tab default — COMPLETE (taste decision #6, delayed from previous pass)
+- `BrowserChromePreferences.openBriefOnNewTab` (default **true**, forward-compatible `decodeIfPresent`) + HiveCore tests
+- `SessionData` persists the field (field/CodingKeys/init/decode/encode, default true → older sessions restore to brief)
+- `newTab()` resolution: explicit URL → as given; **isPrivate → start page** (the brief is browsing-data-derived and must never surface in a private window); else brief if pref, else start page
+- `BrowserState.webChromeBriefURL` (`hive://brief`); runtime pref with `didSet` autosave; restore-site mapping
+- Settings → Appearance → "New Tab" segmented picker (Morning Brief / Start Page)
+- **CDP-verified (CFFIXED_USER_HOME-isolated fresh profile)**: initial tab = `hive://brief/`, title "The Hive Brief", `#brief-data` present → `PASS`. Private guard: `hive.newPrivateTab` lands on `hive://start/` → `PASS`. Evidence: `.hive/mission/evidence/hive-newtab-brief.png`
+- **Privacy follow-up (code review)**: `buildBriefJSON()` now skips `tab.isPrivate` tabs — a private tab's title/URL can never appear in a normal-profile brief
+
+### U8 ✅ Bridge inventory contract tests — COMPLETE (Eng critical, decision #16)
+- NEW `WebChromeBridgeContractTests.swift` (5 tests): every `hive.*` method called from `WebChrome/app.js` is registered in `WebChromeHandler.swift`; registered surface non-empty (69); critical feature methods (tabs/council/agent/split/layout) present; 11 agent tool methods present; `docs/WEB_CHROME_BRIDGE.md` exists
+- Robust extraction: registered side strips `//` comments (a commented-out registration can't mask a removal); called side matches `api(...)` call sites only (direct + ternary `api(s.tabID ? 'hive.selectTab' : 'hive.navigate', …)`) — no false-positive whitelist
+
+### DX ✅ Bridge reference doc — COMPLETE (DX review action, docs 3/10)
+- NEW `docs/WEB_CHROME_BRIDGE.md`: token-gated `api(name, params)` contract, add-a-method steps, full 69-method inventory grouped by domain
+
+### Verification (this pass)
+- `swift build` ✅ · `swift test` ✅ **1072/143** (was 1066) · bundle ✅ · smoke ✅
+- CDP: new-tab default → brief PASS; private tab → start page PASS; screenshots `.hive/mission/evidence/hive-newtab-brief.png`
+
+### ⚠️ Known issue — renderer accumulation on tab creation (pre-existing, NOT from this UI plan)
+- **Observed (CDP /json target count)**: content browsers = `tabs + 2`, growing linearly — 1→3→5→6→7→8→9→10→11 across 9 tabs; every target is a LIVE browser (liveness probe connected + read `document.title`)
+- **Control test**: same duplication with `openBriefOnNewTab=false` (start-page default) → **not caused by the brief-default change**; it is the tab-creation path itself
+- **Root cause**: `CefBrowserHostView` lifecycle in the vendored CefSwiftUI — `closeBrowser(of:)` guard (`native.superview === self || nil`) lets browsers escape destruction during active→MRU churn, and `adoptOrCreateBrowserIfPossible` re-parents native views; MRU keepalive (3) + preview pool (2) caps manage the *model list*, not the *browser lifecycle*
+- **Deferred by decision**: a fix means refactoring vendored browser-ownership semantics (host reference counting) — high regression risk to the core tab-persistence feature; flagged for the browser-engine track with this evidence
+
 ## 9. Success Criteria
 
 - The browser looks unmistakably premium: Polar-grade design system, Dia-grade brief, Zen-grade vertical tabs.
