@@ -264,6 +264,7 @@ public final class CefBrowser: Identifiable {
     private var devToolsRegistration: UnsafeMutablePointer<cef_registration_t>?
 
     func handleBeforeClose() {
+        unregisterDevToolsHandler()
         delegate?.browserDidClose(self)
         if let raw {
             cefRelease(UnsafeMutableRawPointer(raw))
