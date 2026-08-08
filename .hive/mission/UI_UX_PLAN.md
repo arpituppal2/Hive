@@ -197,6 +197,13 @@ Apply to: AI panel, start page, command palette, panels, side panel.
   - The `#if DEBUG`-gated `remoteDebuggingPort = 9223` only exists in ad-hoc (debug-config) validation bundles; a real release build closes the port.
 - **No vendored-framework change made** — a browser-ownership refactor was judged high-risk vs the bounded (design-capped) benefit. Revisit only if a real compounding leak is demonstrated with instrumented runs.
 
+### 🔒 Security hardening — DevTools port now explicit opt-in (this pass)
+- `remoteDebuggingPort = 9223` is an **unauthenticated control surface** (any local process can drive the browser over loopback CDP). It was `#if DEBUG`-only, so *every* debug build and ad-hoc validation bundle exposed it on a well-known port.
+- **Change**: the port now requires `#if DEBUG` **AND** `HIVE_DEBUG_CDP=1`. Routine debug builds and ad-hoc bundles stay closed by default; engineers opt in explicitly for harness work.
+- **Verified live** (fresh `dist/Hive.app`, retry loops): without the var → port CLOSED, 0 DevTools log lines; with the var → port OPEN, DevTools listening logged, `/json` lists 2 targets.
+- **No consumers break**: `CDPClient` (agent tools) is in-process (`wireSend`/`handleResponse`), not socket-based; no scripts reference 9223.
+- In-process agentic CDP (`CefBrowserHost.sendDevToolsMessage`) remains the production path per ROADMAP_2027 (updated to reflect the new gate).
+
 ## 9. Success Criteria
 
 - The browser looks unmistakably premium: Polar-grade design system, Dia-grade brief, Zen-grade vertical tabs.

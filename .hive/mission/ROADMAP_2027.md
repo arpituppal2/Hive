@@ -311,7 +311,7 @@ DESIGN DUAL VOICES — CONSENSUS TABLE:
 
 | Plan Claim | Assessment |
 |-----------|------------|
-| "16 CDP tools as Swift wrapper" | Feasible but non-trivial. Production needs `CefBrowserHost.sendDevToolsMessage` (in-process), not `localhost:9223` (#if DEBUG gated). |
+| "16 CDP tools as Swift wrapper" | Feasible but non-trivial. Production needs `CefBrowserHost.sendDevToolsMessage` (in-process), not `localhost:9223` (#if DEBUG AND `HIVE_DEBUG_CDP=1` gated; closed by default). |
 | "adblock-rust via FFI → Swift" | Feasible. Existing Rust FFI pattern from hive-fetch-boundary applies. |
 | "AXTree via CEF DevTools" | Feasible, shares infrastructure with CDP tools. |
 | "WinUI3 + CEF on Windows" | **High risk.** Swift→C# interop is NOT "share HiveCore" — it's a port. |

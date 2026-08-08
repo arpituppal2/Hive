@@ -39,8 +39,15 @@ struct HiveApp: CefSwiftApp {
             CefCustomScheme(name: WebChromeBridge.schemeName,
                             options: [.standard, .secure, .corsEnabled, .fetchEnabled, .displayIsolated])
         ]
+        // DevTools (CDP) is a powerful unauthenticated control surface: any
+        // process running as this user can connect to the loopback port and
+        // drive the browser. The port is DEBUG-only AND explicitly opted into
+        // via HIVE_DEBUG_CDP=1, so routine debug builds and ad-hoc validation
+        // bundles stay closed by default.
         #if DEBUG
-        config.remoteDebuggingPort = 9223
+        if environment["HIVE_DEBUG_CDP"] == "1" {
+            config.remoteDebuggingPort = 9223
+        }
         #endif
         return config
     }
