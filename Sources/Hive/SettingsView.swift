@@ -460,6 +460,26 @@ struct SettingsView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
+            if UpdateManager.shared.canCheckForUpdates {
+                settingsGroup("Updates") {
+                    HStack {
+                        Text("Auto-update via Sparkle")
+                        Spacer()
+                        Button("Check for Updates…") {
+                            UpdateManager.shared.checkForUpdates()
+                        }
+                    }
+                    if let updater = UpdateManager.shared.updater {
+                        Text(updater.automaticallyChecksForUpdates
+                             ? "Hive checks for updates daily and installs them automatically."
+                             : "Hive checks for updates when you open this panel.")
+                            .font(HiveDesign.Typography.smallLabel)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+
             settingsGroup("Web Research") {
                 VStack(alignment: .leading, spacing: 10) {
                     Picker("Provider", selection: $state.researchProvider) {

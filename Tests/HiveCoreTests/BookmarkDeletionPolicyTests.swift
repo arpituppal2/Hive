@@ -46,4 +46,36 @@ struct BookmarkDeletionPolicyTests {
 
         #expect(result.map(\.id) == ["unrelated"])
     }
+
+    @Test("deleting the only bookmark returns empty array")
+    func deletingLastBookmark() {
+        let only = Bookmark(id: "only", title: "Only", url: URL(string: "https://only.example"))
+        let result = BookmarkDeletionPolicy.deleting(bookmarkID: "only", from: [only])
+        #expect(result.isEmpty)
+    }
+
+    @Test("deleting from empty list is safe")
+    func deletingFromEmpty() {
+        let result = BookmarkDeletionPolicy.deleting(bookmarkID: "any", from: [])
+        #expect(result.isEmpty)
+    }
+
+    @Test("deleting a leaf preserves sibling order")
+    func preservesOrder() {
+        let a = Bookmark(id: "a", title: "A", url: URL(string: "https://a.example"))
+        let b = Bookmark(id: "b", title: "B", url: URL(string: "https://b.example"))
+        let c = Bookmark(id: "c", title: "C", url: URL(string: "https://c.example"))
+        let result = BookmarkDeletionPolicy.deleting(bookmarkID: "b", from: [a, b, c])
+        #expect(result.map(\.id) == ["a", "c"])
+    }
+
+    @Test("deleting a deeply nested leaf removes only that leaf")
+    func deepNestingDeletesOnlyTarget() {
+        let root = Bookmark(id: "root", title: "Root", isFolder: true)
+        let child = Bookmark(id: "child", title: "Child", isFolder: true, parentID: "root")
+        let grandchild = Bookmark(id: "gc", title: "Grandchild", url: URL(string: "https://gc.example"), parentID: "child")
+        let sibling = Bookmark(id: "sib", title: "Sibling", url: URL(string: "https://sib.example"), parentID: "child")
+        let result = BookmarkDeletionPolicy.deleting(bookmarkID: "gc", from: [root, child, grandchild, sibling])
+        #expect(result.map(\.id).sorted() == ["child", "root", "sib"])
+    }
 }
