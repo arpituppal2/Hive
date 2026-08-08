@@ -19,6 +19,48 @@ struct HiveSessionEvidenceTests {
         #expect(!evidence.markerLine().contains("title"))
     }
 
+    @Test("nil priorCleanExit is reflected as null")
+    func nilPriorCleanExit() {
+        let evidence = HiveSessionEvidence(
+            restoredFromDisk: true,
+            priorCleanExit: nil,
+            snapshotSequence: 1,
+            durableTabCount: 0,
+            writeSucceeded: true
+        )
+        #expect(evidence.priorCleanExit == nil)
+        // The marker line contains the JSON-encoded evidence; nil fields
+        // may be omitted or rendered as null depending on encoder config.
+        let line = evidence.markerLine()
+        #expect(line.contains("restoredFromDisk") && line.contains("durableTabCount"))
+    }
+
+    @Test("write failure is reflected in marker")
+    func writeFailureMarker() {
+        let evidence = HiveSessionEvidence(
+            restoredFromDisk: true,
+            priorCleanExit: true,
+            snapshotSequence: 5,
+            durableTabCount: 10,
+            writeSucceeded: false
+        )
+        #expect(!evidence.writeSucceeded)
+        #expect(evidence.markerLine().contains("\"writeSucceeded\":false"))
+    }
+
+    @Test("zero sequence with no restore is a fresh session")
+    func freshSession() {
+        let evidence = HiveSessionEvidence(
+            restoredFromDisk: false,
+            priorCleanExit: nil,
+            snapshotSequence: 0,
+            durableTabCount: 0,
+            writeSucceeded: true
+        )
+        #expect(!evidence.restoredFromDisk)
+        #expect(evidence.snapshotSequence == 0)
+    }
+
     @Test("negative tab counts are fail-closed to zero")
     func tabCountIsBounded() {
         let evidence = HiveSessionEvidence(

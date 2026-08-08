@@ -27,6 +27,15 @@ struct PersistenceHealthTests {
         #expect(!ledger.isEphemeral)
     }
 
+    @Test("temporary file-backed store is durable but not ephemeral")
+    func tempFileIsDurable() throws {
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent("hive-ph-test-\(UUID().uuidString).sqlite3").path
+        let store = try HoneycombStore(path: path)
+        #expect(!store.isEphemeral)
+        try? FileManager.default.removeItem(atPath: path)
+    }
+
     @Test("invalid storage paths fail instead of pretending to be durable")
     func invalidStoragePathsThrow() {
         let invalidBase = "/dev/null/hive-persistence-health-\(UUID().uuidString)"

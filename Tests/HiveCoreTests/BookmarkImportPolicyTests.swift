@@ -34,4 +34,31 @@ struct BookmarkImportPolicyTests {
         #expect(decision.entries.map(\.title) == ["One", "Two"])
         #expect(decision.skippedCount == 1)
     }
+
+    @Test func emptyCandidatesProducesEmptyResult() {
+        let decision = BookmarkImportPolicy.merge(existingURLs: [], candidates: [])
+        #expect(decision.entries.isEmpty)
+        #expect(decision.skippedCount == 0)
+    }
+
+    @Test func allExistingURLsDedupAllCandidates() {
+        let existing: Set<String> = ["https://a.com", "https://b.com", "https://c.com"]
+        let candidates = [
+            ImportedBookmark(title: "A", url: URL(string: "https://a.com")!),
+            ImportedBookmark(title: "B", url: URL(string: "https://b.com")!),
+            ImportedBookmark(title: "C", url: URL(string: "https://c.com")!)
+        ]
+        let decision = BookmarkImportPolicy.merge(existingURLs: existing, candidates: candidates)
+        #expect(decision.entries.isEmpty)
+        #expect(decision.skippedCount == 3)
+    }
+
+    @Test func trimsWhitespaceFromBookmarkTitles() {
+        let candidates = [
+            ImportedBookmark(title: "  Spaced Title  ", url: URL(string: "https://spaced.example")!)
+        ]
+        let decision = BookmarkImportPolicy.merge(existingURLs: [], candidates: candidates)
+        #expect(decision.entries.count == 1)
+        #expect(decision.entries[0].title == "Spaced Title")
+    }
 }

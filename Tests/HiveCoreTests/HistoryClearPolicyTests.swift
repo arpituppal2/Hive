@@ -20,4 +20,22 @@ struct HistoryClearPolicyTests {
         #expect(decision.removedCount == 0)
         #expect(!decision.shouldPersist)
     }
+
+    @Test func largeCountIsStillValid() {
+        let decision = HistoryClearPolicy.decision(itemCount: 1_000_000)
+        #expect(decision.removedCount == 1_000_000)
+        #expect(decision.shouldPersist)
+    }
+
+    @Test func singleItemClearPersists() {
+        let decision = HistoryClearPolicy.decision(itemCount: 1)
+        #expect(decision.removedCount == 1)
+        #expect(decision.shouldPersist)
+    }
+
+    @Test func decisionEquality() {
+        let a = HistoryClearPolicy.decision(itemCount: 5)
+        let b = HistoryClearPolicy.decision(itemCount: 5)
+        #expect(a == b)
+    }
 }

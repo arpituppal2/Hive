@@ -29,6 +29,26 @@ struct HiveReadinessTests {
         #expect(report.markerLine().contains("browser shell unavailable"))
     }
 
+    @Test("both invariants false is also not ready")
+    func bothFalse() {
+        let report = HiveReadinessReport(appInitialized: false, browserShellReady: false, message: "nothing ready")
+        #expect(!report.isReady)
+        #expect(report.markerLine().hasPrefix("HIVE_READINESS_FAIL "))
+    }
+
+    @Test("app initialized alone is not ready")
+    func appOnlyNotReady() {
+        let report = HiveReadinessReport(appInitialized: true, browserShellReady: false, message: "shell pending")
+        #expect(!report.isReady)
+    }
+
+    @Test("empty message is preserved")
+    func emptyMessage() {
+        let report = HiveReadinessReport(appInitialized: true, browserShellReady: true, message: "")
+        #expect(report.isReady)
+        #expect(report.message.isEmpty)
+    }
+
     @Test("diagnostics are bounded before they enter smoke logs")
     func messageIsBounded() throws {
         let report = HiveReadinessReport(
