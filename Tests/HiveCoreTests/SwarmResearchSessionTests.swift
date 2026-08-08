@@ -85,6 +85,30 @@ struct SwarmResearchSessionTests {
         #expect(recorder.snapshots.last?.phase == .cancelled)
     }
 
+    @Test func emptyEventsCompletesWithNoAnswer() async throws {
+        let provider = SessionTestProvider(events: [])
+        let session = SwarmResearchSession()
+        let recorder = SessionSnapshotRecorder()
+        session.start(provider: provider, query: "empty", focusMode: .webSearch) { recorder.record($0) }
+        await provider.waitUntilFinished(count: 1)
+        await recorder.waitForTerminal()
+        #expect(session.state.phase == .completed)
+        #expect(session.state.sources.isEmpty)
+    }
+
+    @Test func doubleCancelIsIdempotent() async throws {
+        let provider = SessionTestProvider(events: [.answerChunk("x")], waitForRelease: true)
+        let session = SwarmResearchSession()
+        let recorder = SessionSnapshotRecorder()
+        session.start(provider: provider, query: "q", focusMode: .webSearch) { recorder.record($0) }
+        await provider.waitUntilStarted(count: 1)
+        session.cancel()
+        session.cancel()
+        await recorder.waitForTerminal()
+        provider.release()
+        #expect(session.state.phase == .cancelled)
+    }
+
     @Test func newRunInvalidatesOldRun() async throws {
         let oldProvider = SessionTestProvider(events: [.answerChunk("old")], waitForRelease: true)
         let newProvider = SessionTestProvider(events: [.answerChunk("new")])

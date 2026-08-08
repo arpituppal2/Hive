@@ -116,6 +116,21 @@ struct KeychainHMACKeyStoreTests {
         }
     }
 
+    @Test func unprovisionedStoreAutoCreatesKeyAndMakesAuthority() async throws {
+        let backend = MemoryBackend()
+        let store = KeychainHMACKeyStore(backend: backend)
+        // makeAuthority calls loadOrCreateKey internally, so it auto-provisions
+        let authority = try await store.makeAuthority(issuerID: "auto-provision")
+        #expect(authority.issuerID == "auto-provision")
+    }
+
+    @Test func loadKeyReturnsNilWhenNotProvisioned() async throws {
+        let backend = MemoryBackend()
+        let store = KeychainHMACKeyStore(backend: backend)
+        let key = try await store.loadKey()
+        #expect(key == nil)
+    }
+
     @Test func versionRotationIsExplicitAndOldAuthorityDoesNotAcceptNewVersion() async throws {
         let backend = MemoryBackend()
         let store = KeychainHMACKeyStore(backend: backend)

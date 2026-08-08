@@ -52,6 +52,24 @@ struct PageCaptureRequestLedgerTests {
         #expect(secondTab == .canceledAuto)
     }
 
+    @Test func consumeWithoutArmingReturnsStale() {
+        var ledger = PageCaptureRequestLedger()
+        let result = ledger.consume(tabID: "unknown", requestID: 1)
+        #expect(result == .stale)
+    }
+
+    @Test func cancelPendingWithoutArmingReturnsFalse() {
+        var ledger = PageCaptureRequestLedger()
+        let result = ledger.cancelPendingAutoCapture(for: "nonexistent")
+        #expect(!result)
+    }
+
+    @Test func emptyLedgerHasZeroCounts() {
+        let ledger = PageCaptureRequestLedger()
+        #expect(ledger.pendingCount == 0)
+        #expect(ledger.canceledCount == 0)
+    }
+
     @Test func removingTabDropsPendingAndTombstones() {
         var ledger = PageCaptureRequestLedger()
         ledger.armAutoCapture(tabID: "tab", requestID: 1)

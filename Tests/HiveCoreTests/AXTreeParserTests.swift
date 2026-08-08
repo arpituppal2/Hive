@@ -77,6 +77,56 @@ struct AXTreeParserTests {
         #expect(context.contains("more elements"))
     }
 
+    @Test func handlesNodesWithMissingFields() {
+        let input: [String: Sendable] = [
+            "nodes": [[
+                "role": ["value": "button" as Sendable]
+                // missing name, focusable, children
+            ] as [String: Sendable]]
+        ]
+        let tree = AXTreeParser.parse(input)
+        #expect(tree.nodes.count == 1)
+        #expect(tree.interactableCount == 1)
+    }
+
+    @Test func parsesNestedChildren() {
+        let grandchild: [[String: Sendable]] = [[
+            "role": ["value": "statictext" as Sendable],
+            "name": ["value": "deep" as Sendable],
+            "focusable": ["value": false as Sendable],
+            "children": [] as [[String: Sendable]]
+        ] as [String: Sendable]]
+        let child: [[String: Sendable]] = [[
+            "role": ["value": "group" as Sendable],
+            "name": ["value": "inner" as Sendable],
+            "focusable": ["value": false as Sendable],
+            "children": grandchild
+        ] as [String: Sendable]]
+        let input: [String: Sendable] = ["nodes": [[
+            "role": ["value": "region" as Sendable],
+            "name": ["value": "outer" as Sendable],
+            "focusable": ["value": false as Sendable],
+            "children": child
+        ] as [String: Sendable]]]
+        let tree = AXTreeParser.parse(input)
+        #expect(tree.nodes.count >= 1)
+    }
+
+    @Test func toYAMLContextIncludesPageURL() {
+        let children: [[String: Sendable]] = []
+        let input: [String: Sendable] = [
+            "nodes": [[
+                "role": ["value": "link" as Sendable],
+                "name": ["value": "Docs" as Sendable],
+                "focusable": ["value": true as Sendable],
+                "children": children
+            ] as [String: Sendable]]
+        ]
+        let tree = AXTreeParser.parse(input, pageURL: "https://docs.example.com", pageTitle: "Documentation")
+        let context = tree.toPromptContext()
+        #expect(context.contains("Documentation"))
+    }
+
     @Test func identifiesInteractableRoles() {
         let roles = ["button", "link", "textbox", "checkbox", "menuitem", "paragraph", "heading", "statictext"]
         var axNodes: [[String: Sendable]] = []
