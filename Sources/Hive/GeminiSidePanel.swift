@@ -558,6 +558,13 @@ struct GeminiSidePanel: View {
                 Text("\(state.councilLiveResponses.count) responded")
                     .font(HiveDesign.Typography.monoMicroMedium)
                     .foregroundStyle(.tertiary)
+                Button(action: { state.cancelCouncil() }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.tertiary)
+                }
+                .buttonStyle(.plain)
+                .help("Cancel council")
             }
 
             // Live response cards — one per model as it responds

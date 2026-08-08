@@ -1166,6 +1166,9 @@ final class BrowserState {
     private(set) var councilLiveResponses: [CouncilResponse] = []
     private(set) var isCouncilConvening: Bool = false
 
+    /// Handle to the in-flight council deliberation Task. Cancel to abort.
+    private var councilDeliberationTask: Task<Void, Never>? = nil
+
     /// Serializes browser transitions with background Swarm requests. The
     /// generation is incremented on every profile/workspace switch; a request
     /// carries the generation it observed and fails closed if the browser has
@@ -2189,12 +2192,16 @@ final class BrowserState {
     /// Uses streaming dispatch: each model's response appears in the UI
     /// as it arrives via ``councilLiveResponses``, then the synthesized
     /// verdict replaces them when the chair completes.
-    func conveneCouncil(question: String, pageContext: String? = nil) async {
+    func conveneCouncil(question: String, pageContext: String? = nil) {
         guard !isCouncilConvening, let council = modelCouncil else { return }
+
+        // Cancel any stale task (safety)
+        councilDeliberationTask?.cancel()
 
         isCouncilConvening = true
         latestCouncilVerdict = nil
         councilLiveResponses = []
+        broadcastWebChromeState()
 
         let query = CouncilQuery(
             question: question,
@@ -2202,37 +2209,55 @@ final class BrowserState {
             timeout: 30
         )
 
-        // Stream responses incrementally
-        let stream = council.streamConvene(query)
-        for await event in stream {
-            switch event {
-            case .responseReceived(let response):
-                councilLiveResponses.append(response)
-                // Broadcast after each response so web chrome updates live
-                broadcastWebChromeState()
-            case .degraded(let provider, let reason):
-                // Degradation notices are logged; responses handle the UI
-                _ = (provider, reason)
-            case .verdictReady(let verdict):
-                latestCouncilVerdict = verdict
+        // Launch deliberation as a cancellable Task
+        councilDeliberationTask = Task {
+            let stream = council.streamConvene(query)
+            for await event in stream {
+                // Check cancellation between events
+                if Task.isCancelled { break }
+
+                switch event {
+                case .responseReceived(let response):
+                    councilLiveResponses.append(response)
+                    broadcastWebChromeState()
+                case .degraded(let provider, let reason):
+                    _ = (provider, reason)
+                case .verdictReady(let verdict):
+                    latestCouncilVerdict = verdict
+                    councilLiveResponses = []
+                    broadcastWebChromeState()
+                }
+            }
+
+            if Task.isCancelled {
+                // Clean up cancelled deliberation
                 councilLiveResponses = []
                 broadcastWebChromeState()
             }
-        }
 
-        isCouncilConvening = false
+            isCouncilConvening = false
+        }
     }
 
-    /// Cancel the active council deliberation.
+    /// Cancel the active council deliberation. Stops in-flight providers
+    /// via AsyncStream cancellation and resets UI state.
     func cancelCouncil() {
+        councilDeliberationTask?.cancel()
+        councilDeliberationTask = nil
+        councilLiveResponses = []
         isCouncilConvening = false
+        broadcastWebChromeState()
     }
 
     /// Dismisses the current council verdict from the UI.
-    /// Broadcasts to web chrome so the JS panel hides immediately.
+    /// Cancels any in-flight deliberation and clears all council state.
     func dismissCouncilVerdict() {
+        councilDeliberationTask?.cancel()
+        councilDeliberationTask = nil
         latestCouncilVerdict = nil
+        councilLiveResponses = []
         deepResearchStep = nil
+        isCouncilConvening = false
         broadcastWebChromeState()
     }
 
