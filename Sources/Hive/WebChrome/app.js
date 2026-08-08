@@ -890,6 +890,7 @@
 
   function paletteActions(q) {
     var actions = [
+      { icon: ICONS.globe, label: 'Morning Brief', run: function () { navigate('hive://brief/'); } },
       { icon: ICONS.globe, label: 'New Tab', run: function () { api('hive.newTab'); } },
       { icon: ICONS.panel, label: state.layout === 'vertical' ? 'Switch to Horizontal tabs' : 'Switch to Vertical tabs',
         run: function () { api('hive.setLayout', { mode: state.layout === 'vertical' ? 'horizontal' : 'vertical' }); } },
@@ -1030,6 +1031,8 @@
 
   function renderStartPage() {
     if (IS_CHROME) return;
+    $('btnOpenBrief').addEventListener('click', function () { navigate('hive://brief'); });
+    $('briefCard').hidden = false;
     var grid = $('topsitesGrid');
     grid.innerHTML = '';
     state.topSites.forEach(function (site) {

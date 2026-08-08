@@ -47,6 +47,7 @@
   };
 })();
 </script>
+<link rel="stylesheet" href="/tokens.css">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -144,6 +145,18 @@
     <div class="stage__suggest" id="stageSuggest" hidden></div>
   </form>
 
+  <section class="briefcard" id="briefCard" hidden>
+    <div class="briefcard__glyph" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M6 4h12v16l-6-4.5L6 20V4Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="briefcard__text">
+      <span class="briefcard__eyebrow">Every morning, made for you</span>
+      <span class="briefcard__title">Open the Hive Morning Brief</span>
+      <span class="briefcard__hint">Tabs, history, and top sources — assembled locally from your browsing.</span>
+    </div>
+    <button class="briefcard__cta" id="btnOpenBrief">Read brief</button>
+  </section>
+
   <section class="topsites" id="topSitesSection" hidden>
     <h2 class="sectionlabel">Top Sites</h2>
     <div class="topsites__grid" id="topsitesGrid"></div>
@@ -159,7 +172,7 @@
     <div class="spaces__row" id="spacesRow"></div>
   </section>
 
-  <div class="stage__hint" id="escHint">Press Esc to focus the page · ⌘K for commands</div>
+  <div class="stage__hint" id="escHint">Press Esc to focus the page · ⌘K for commands · Brief in the palette</div>
 </main>
 
 <script src="/app.js"></script>

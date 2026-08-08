@@ -5099,6 +5099,91 @@ final class BrowserState {
         )
     }
 
+    // MARK: - Morning Brief
+
+    /// Builds the Morning Brief JSON (schema: the Dia-style brief template at
+    /// Sources/Hive/WebChrome/brief/). The template is JSON-driven — the HTML
+    /// holds a __HIVE_BRIEF_JSON__ placeholder filled at serve time — so Hive
+    /// injects *real* browsing data with zero JS surgery: greeting + time, the
+    /// user's open tabs as to-dos, top history domains as suggested tasks, and
+    /// a source credit footer. Honest: when there is no history yet, the brief
+    /// greets without inventing fake items.
+    func buildBriefJSON() -> String {
+        func esc(_ s: String) -> String {
+            var out = ""
+            for ch in s {
+                switch ch {
+                case "\\": out += "\\\\"
+                case "\"": out += "\\\""
+                case "\n": out += "\\n"
+                case "\r": out += "\\r"
+                case "\t": out += "\\t"
+                default: out.append(ch)
+                }
+            }
+            return out
+        }
+
+        // Greeting from the clock.
+        let hour = Calendar.current.component(.hour, from: Date())
+        let greeting: String
+        switch hour {
+        case 5..<12: greeting = "Good morning. Here's what's on your radar today."
+        case 12..<17: greeting = "Good afternoon. Here's what's worth your attention."
+        default: greeting = "Good evening. A quiet recap of your day."
+        }
+
+        let isoDate = ISO8601DateFormatter().string(from: Date())
+
+        // Open tabs → top to-dos ("resume reading" style).
+        var todos: [[String: String]] = []
+        for tab in tabs.prefix(8) {
+            guard let url = tab.model.url,
+                  let host = url.host, !host.isEmpty,
+                  url.scheme == "http" || url.scheme == "https"
+            else { continue }
+            let title = tab.model.title ?? host
+            todos.append([
+                "title": title,
+                "source_url": url.absoluteString,
+                "tier": "now",
+                "rank": String(todos.count + 1),
+                "context": "Open in a tab — pick up where you left off.",
+            ])
+        }
+
+        // History domains → suggested tasks.
+        var tasks: [[String: String]] = []
+        for (i, site) in topDomainsFromHistory(limit: 6).enumerated() {
+            tasks.append([
+                "title": site.host,
+                "source_url": site.url.absoluteString,
+                "description": i == 0 ? "Your most-visited site this week." : "From your recent browsing.",
+            ])
+        }
+
+        // Footer source chips.
+        var sources: [[String: String]] = []
+        for site in topDomainsFromHistory(limit: 6) {
+            sources.append(["url": site.url.absoluteString, "name": site.host])
+        }
+
+        func jsonItems(_ items: [[String: String]]) -> String {
+            items.map { item in
+                "{" + item.map { "\"\($0.key)\":\"\(esc($0.value))\"" }.joined(separator: ",") + "}"
+            }.joined(separator: ",")
+        }
+
+        var members: [String] = []
+        members.append("\"header\": { \"greeting\": \"\(esc(greeting))\", \"date_time\": \"\(isoDate)\" }")
+        members.append("\"top_todos\": [\(jsonItems(todos))]")
+        members.append("\"tasks\": [\(jsonItems(tasks))]")
+        if !sources.isEmpty {
+            members.append("\"footer\": { \"sources\": [\(jsonItems(sources))] }")
+        }
+        return "{\n  " + members.joined(separator: ",\n  ") + "\n}"
+    }
+
     /// Pushes a fresh start-data snapshot to every open web start page and to
     /// the persistent chrome shell so the UI stays live (new tab, closed tab,
     /// switched tab, switched space, layout change).

@@ -17,8 +17,24 @@ struct HiveSchemeHandler: CefSchemeHandler {
     /// Per-session token injected into the start page HTML.
     let sessionToken: String
 
+    /// Supplies the Morning Brief JSON (real browsing data) at serve time.
+    /// Set at registration; falls back to an empty brief if unavailable.
+    /// Async: the scheme handler runs on a CEF IO thread, so the provider
+    /// hops to MainActor to read BrowserState (never assumeIsolated).
+    var briefJSONProvider: (@Sendable () async -> String)? = nil
+
     func response(for request: CefSchemeRequest) async -> CefSchemeResponse {
-        let path = request.url?.path ?? "/"
+        let url = request.url
+        let host = url?.host?.lowercased() ?? ""
+        let path = url?.path ?? "/"
+
+        // The Morning Brief lives at hive://brief/... — where "brief" is the
+        // *host*, not a path segment. Route by host first so the brief shell
+        // and its relative assets (style.css, app.js, fonts/…) all resolve.
+        if host == "brief" || path.hasPrefix("/brief") {
+            return await briefResponse(path: path)
+        }
+
         switch path {
         case "/", "/index.html", "/start":
             let html = WebChromeAssets.indexHTML.replacingOccurrences(
@@ -26,9 +42,46 @@ struct HiveSchemeHandler: CefSchemeHandler {
             return CefSchemeResponse(status: 200, mimeType: "text/html", body: Data(html.utf8))
         case "/styles.css":
             return CefSchemeResponse(status: 200, mimeType: "text/css", body: Data(WebChromeAssets.stylesCSS.utf8))
+        case "/tokens.css":
+            return CefSchemeResponse(status: 200, mimeType: "text/css", body: Data(WebChromeAssets.tokensCSS.utf8))
         case "/app.js":
             return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.appJS.utf8))
         default:
+            return .notFound("No such asset: \(path)")
+        }
+    }
+
+    /// Serves the Morning Brief shell + its relative assets.
+    private func briefResponse(path: String) async -> CefSchemeResponse {
+        switch path {
+        case "/", "/index.html":
+            // The brief is a JSON-driven static template: the HTML holds a
+            // __HIVE_BRIEF_JSON__ placeholder that we fill with real browsing
+            // data at serve time. Zero JS surgery on the copied template.
+            let json = await briefJSONProvider?() ?? "{}"
+            let html = WebChromeAssets.briefHTML.replacingOccurrences(
+                of: "__HIVE_BRIEF_JSON__", with: json)
+            return CefSchemeResponse(status: 200, mimeType: "text/html", body: Data(html.utf8))
+        case "/style.css":
+            return CefSchemeResponse(status: 200, mimeType: "text/css", body: Data(WebChromeAssets.briefCSS.utf8))
+        case "/feedback.css":
+            return CefSchemeResponse(status: 200, mimeType: "text/css", body: Data(WebChromeAssets.briefFeedbackCSS.utf8))
+        case "/looking-ahead.css":
+            return CefSchemeResponse(status: 200, mimeType: "text/css", body: Data(WebChromeAssets.briefLookingAheadCSS.utf8))
+        case "/app.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.briefAppJS.utf8))
+        case "/feedback.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.briefFeedbackJS.utf8))
+        case "/looking-ahead.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.briefLookingAheadJS.utf8))
+        default:
+            if path.hasPrefix("/fonts/") {
+                let fontName = path.replacingOccurrences(of: "/fonts/", with: "")
+                if let base64 = WebChromeAssets.fontBase64[fontName],
+                   let data = Data(base64Encoded: base64) {
+                    return CefSchemeResponse(status: 200, mimeType: "font/woff2", body: data)
+                }
+            }
             return .notFound("No such asset: \(path)")
         }
     }
@@ -385,7 +438,17 @@ enum WebChromeBridge {
         )
         CefRuntime.shared.registerSchemeHandler(
             scheme: schemeName,
-            handler: HiveSchemeHandler(sessionToken: sessionToken)
+            handler: HiveSchemeHandler(
+                sessionToken: sessionToken,
+                briefJSONProvider: {
+                    // Filled lazily at serve time with real browsing data.
+                    // BrowserState is @MainActor and the scheme handler runs
+                    // on a CEF IO thread, so hop to the main actor.
+                    await MainActor.run {
+                        state.buildBriefJSON()
+                    }
+                }
+            )
         )
 
         let bridge = CefRuntime.shared.bridge

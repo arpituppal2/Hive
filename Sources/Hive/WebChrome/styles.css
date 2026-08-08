@@ -34,14 +34,14 @@
   --spring-soft: cubic-bezier(0.3, 0.8, 0.4, 1);
   --dur: 180ms;
 
-  /* one accent */
-  --accent: #8E5FEB;
-  --accent-hover: #A07BF0;
-  --accent-soft: rgba(142, 95, 235, 0.16);
+  /* one accent — Hive honey (approved U1 token decision) */
+  --accent: #F97316;
+  --accent-hover: #FB923C;
+  --accent-soft: rgba(249, 115, 22, 0.16);
   --accent-ink: #FFFFFF;
 
   /* ambient theme bloom (Arc: gradient warmth as atmosphere) */
-  --bloom-a: rgba(142, 95, 235, 0.20);
+  --bloom-a: rgba(249, 115, 22, 0.16);
   --bloom-b: rgba(240, 132, 90, 0.10);
 }
 
@@ -1022,6 +1022,68 @@ svg { display: block; }
   color: var(--text-faint);
   margin-bottom: var(--s4);
 }
+
+/* Morning Brief entry card — honey accent, editorial quietness */
+.briefcard {
+  width: min(560px, 100%);
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s5) var(--s6);
+  border-radius: var(--r-lg);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.13), rgba(249, 115, 22, 0.04) 55%, transparent);
+  border: 1px solid rgba(249, 115, 22, 0.28);
+  animation: rise-in 500ms var(--spring) 100ms backwards;
+  transition: border-color var(--dur) var(--spring-soft), transform var(--dur) var(--spring-soft);
+}
+.briefcard:hover {
+  border-color: rgba(249, 115, 22, 0.5);
+  transform: translateY(-1px);
+}
+.briefcard__glyph {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  background: rgba(249, 115, 22, 0.16);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.briefcard__glyph svg { width: 22px; height: 22px; }
+.briefcard__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.briefcard__eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.briefcard__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: var(--tracking-tight);
+}
+.briefcard__hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+.briefcard__cta {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: var(--s2) var(--s4);
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background var(--dur) var(--spring-soft), transform var(--dur) var(--spring-soft);
+}
+.briefcard__cta:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
 .topsites,
 .recent,
