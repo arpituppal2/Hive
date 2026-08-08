@@ -88,6 +88,7 @@ struct WebChromeStartData: Codable, Sendable {
     let isCouncilConvening: Bool
     let councilLiveResponses: [WebChromeCouncilResponse]
     let deepResearchStep: WebChromeDeepResearchStep?
+    let agentTask: WebChromeAgentTask?
 }
 
 struct WebChromeCouncilVerdict: Codable, Sendable {
@@ -113,6 +114,22 @@ struct WebChromeDeepResearchStep: Codable, Sendable {
     let label: String
     let progress: Double
     let isComplete: Bool
+}
+
+struct WebChromeAgentTask: Codable, Sendable {
+    let question: String
+    let phase: String  // "idle", "council", "researching", "acting", "done"
+    let stepLabel: String
+    let stepProgress: Double
+    let verdict: WebChromeCouncilVerdict?
+    let research: WebChromeDeepResearchStep?
+    let actions: [WebChromeAgentAction]
+}
+
+struct WebChromeAgentAction: Codable, Sendable {
+    let tool: String
+    let label: String
+    let success: Bool
 }
 
 struct WebChromeBookmark: Codable, Sendable {
@@ -639,6 +656,23 @@ enum WebChromeBridge {
         bridge.register("hive.dismissCouncilVerdict") { (request: WebChromeToken) async throws -> Bool in
             try Self.authorize(request.token)
             await MainActor.run { state.dismissCouncilVerdict() }
+            return true
+        }
+
+        // ---- hive.agent.run: unified agent pipeline (council → research → actions) ----
+        bridge.register("hive.agent.run") { (request: WebChromeTextRequest) async throws -> Bool in
+            try Self.authorize(request.token)
+            guard !request.text.isEmpty else { return false }
+            await MainActor.run {
+                state.runAgentPipeline(question: request.text)
+            }
+            return true
+        }
+
+        // ---- hive.agent.cancel: cancel the running agent pipeline ----
+        bridge.register("hive.agent.cancel") { (request: WebChromeToken) async throws -> Bool in
+            try Self.authorize(request.token)
+            await MainActor.run { state.cancelAgentPipeline() }
             return true
         }
             try Self.authorize(request.token)

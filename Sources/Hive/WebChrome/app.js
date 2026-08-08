@@ -89,7 +89,8 @@
     topSites: [], recent: [], history: [], bookmarks: [], downloads: [],
     layout: 'vertical', isPrivateBrowsing: false, isSplitActive: false,
     isChromePanelOpen: null, chromeMode: 'sidebar', chromeDimension: 270,
-    councilVerdict: null, isCouncilConvening: false, councilLiveResponses: [], deepResearchStep: null
+    councilVerdict: null, isCouncilConvening: false, councilLiveResponses: [], deepResearchStep: null,
+    agentTask: null
   };
 
   var lastTabsJSON = '';
@@ -504,7 +505,7 @@
   $('btnCouncil').addEventListener('click', function () {
     var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
     var question = active ? 'Summarize: ' + (active.title || active.host || 'this page') : 'What can you help me with?';
-    api('hive.conveneCouncil', { text: question }).then(function () { refresh(); });
+    api('hive.agent.run', { text: question }).then(function () { refresh(); });
   });
   $('btnNewTab').addEventListener('click', function () { api('hive.newTab'); });
 
@@ -614,6 +615,34 @@
       html += '</div>';
     }
 
+    // Agent pipeline — show progress, phase, and action results
+    var agent = state.agentTask;
+    if (agent && agent.phase !== 'idle' && agent.phase !== 'done') {
+      var phaseLabel = { council: 'Council', researching: 'Research', acting: 'Browser' }[agent.phase] || agent.phase;
+      html += '<div class="ai-panel ai-panel--agent">' +
+        '<div class="ai-panel__header">' +
+        '<span class="ai-panel__icon">' + svg(ICONS.search, 13) + '</span>' +
+        '<span class="ai-panel__label">Agent: ' + esc(phaseLabel) + '</span>' +
+        '<span class="ai-panel__pct">' + Math.round(agent.stepProgress * 100) + '%</span>' +
+        '<button class="ai-panel__dismiss" onclick="hiveCancelAgent()" title="Cancel" aria-label="Cancel agent">' +
+        svg(ICONS.close, 10) + '</button>' +
+        '</div>' +
+        '<div class="ai-panel__body ai-panel__body--sm">' + esc(agent.stepLabel) + '</div>' +
+        '<div class="ai-panel__bar"><i style="width:' + Math.round(agent.stepProgress * 100) + '%"></i></div>';
+      // Show action results
+      if (agent.actions && agent.actions.length) {
+        html += '<div class="ai-panel__actions">';
+        for (var i = 0; i < agent.actions.length; i++) {
+          var a = agent.actions[i];
+          var icon = a.success ? svg(ICONS.check, 10) : svg(ICONS.close, 10);
+          var cls = a.success ? 'ai-panel__action--ok' : 'ai-panel__action--fail';
+          html += '<div class="ai-panel__action ' + cls + '">' + icon + ' ' + esc(a.label) + '</div>';
+        }
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
     container.innerHTML = html;
     container.hidden = !html;
   }
@@ -622,8 +651,13 @@
   function hiveDismissVerdict() {
     state.councilVerdict = null;
     state.deepResearchStep = null;
+    state.agentTask = null;
     api('hive.dismissCouncilVerdict').then(function () { refresh(); });
     renderAIPanel();
+  }
+
+  function hiveCancelAgent() {
+    api('hive.agent.cancel').then(function () { refresh(); });
   }
 
   /* ---------- panels ---------- */
@@ -872,7 +906,11 @@
             { icon: ICONS.search, label: 'Ask AI Council', run: function () {
         var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
         var q = active ? 'Summarize: ' + (active.title || active.host || 'this page') : 'What can you help me with?';
-        api('hive.conveneCouncil', { text: q }).then(function () { refresh(); });
+        api('hive.agent.run', { text: q }).then(function () { refresh(); });
+      } },
+      { icon: ICONS.search, label: 'Deep Research', run: function () {
+        var q = prompt('Research query:', '');
+        if (q) api('hive.agent.run', { text: q }).then(function () { refresh(); });
       } },
 
       { icon: ICONS.focus, label: 'Focus Mode: hide chrome', run: toggleCompactMode },

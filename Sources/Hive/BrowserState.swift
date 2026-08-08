@@ -2314,6 +2314,179 @@ final class BrowserState {
         broadcastWebChromeState()
     }
 
+    // MARK: - Unified Agent Pipeline
+
+    /// Runs the full AI agent pipeline: council → deep research → browser actions.
+    /// Each phase streams progress via ``agentTask`` and ``broadcastWebChromeState``.
+    /// Cancel with ``cancelAgentPipeline()``.
+    func runAgentPipeline(question: String) {
+        guard agentPipelineTask == nil else { return }
+
+        let trimmed = question.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        updateAgentTask(phase: "council", label: "Convening AI council…", progress: 0)
+
+        agentPipelineTask = Task { [weak self] in
+            guard let self else { return }
+
+            // ── Phase 1: Council ──
+            self.conveneCouncil(question: trimmed)
+            // Wait for council to finish (poll the state since conveneCouncil is async)
+            while self.isCouncilConvening && !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(200))
+                let liveCount = self.councilLiveResponses.count
+                self.updateAgentTask(phase: "council", label: "Council deliberating…", progress: min(Double(liveCount) / 4.0, 0.95))
+            }
+            if Task.isCancelled { self.finishAgentTask(success: false); return }
+
+            let verdict = self.latestCouncilVerdict
+            let answer = verdict?.answer ?? ""
+            self.updateAgentTask(phase: "council", label: "Council complete", progress: 1.0, verdict: verdict)
+
+            // ── Phase 2: Deep Research (if suggested) ──
+            if answer.lowercased().contains("search") || answer.lowercased().contains("research") || answer.lowercased().contains("look up") {
+                self.updateAgentTask(phase: "researching", label: "Researching…", progress: 0)
+                self.performDeepResearch(query: trimmed)
+                while self.deepResearchStep != nil && !Task.isCancelled {
+                    try? await Task.sleep(for: .milliseconds(200))
+                    if let step = self.deepResearchStep {
+                        self.updateAgentTask(phase: "researching", label: step.label, progress: step.progress)
+                    }
+                    if case .complete = self.deepResearchStep { break }
+                }
+                if Task.isCancelled { self.finishAgentTask(success: false); return }
+                self.updateAgentTask(phase: "researching", label: "Research complete", progress: 1.0)
+            }
+
+            // ── Phase 3: Browser Actions ──
+            let actions = self.extractBrowserActions(from: answer)
+            if !actions.isEmpty {
+                var results: [WebChromeAgentAction] = []
+                for (i, action) in actions.enumerated() {
+                    if Task.isCancelled { break }
+                    let progress = Double(i) / Double(max(actions.count, 1))
+                    self.updateAgentTask(phase: "acting", label: action.label, progress: progress, actions: results)
+                    let success = await self.executeBrowserAction(action)
+                    results.append(WebChromeAgentAction(tool: action.tool, label: action.label, success: success))
+                    self.updateAgentTask(phase: "acting", label: action.label, progress: Double(i + 1) / Double(actions.count), actions: results)
+                }
+                if Task.isCancelled { self.finishAgentTask(success: false); return }
+            }
+
+            self.finishAgentTask(success: true)
+        }
+    }
+
+    func cancelAgentPipeline() {
+        agentPipelineTask?.cancel()
+        agentPipelineTask = nil
+        cancelCouncil()
+        deepResearchTask?.cancel()
+        deepResearchTask = nil
+        deepResearchStep = nil
+        agentTask = nil
+        broadcastWebChromeState()
+    }
+
+    // MARK: Agent pipeline helpers
+
+    private func updateAgentTask(phase: String, label: String, progress: Double,
+                                  verdict: CouncilVerdict? = nil, actions: [WebChromeAgentAction] = []) {
+        let researchDTO: WebChromeDeepResearchStep?
+        if let step = deepResearchStep {
+            researchDTO = WebChromeDeepResearchStep(label: step.label, progress: step.progress,
+                isComplete: { if case .complete = step { return true }; return false }())
+        } else { researchDTO = nil }
+        let verdictDTO: WebChromeCouncilVerdict?
+        if let v = verdict ?? latestCouncilVerdict {
+            verdictDTO = WebChromeCouncilVerdict(
+                answer: v.answer, reasoning: v.reasoning,
+                agreements: v.agreements, disagreements: v.disagreements,
+                confidence: v.confidence, activeProviders: v.activeProviders.map(\.rawValue),
+                isDegraded: v.isDegraded,
+                responses: v.responses.map { r in WebChromeCouncilResponse(
+                    provider: r.provider.rawValue, answer: r.answer, confidence: r.confidence,
+                    durationMS: Int(r.duration * 1000), status: r.status == .success ? "success" : "timeout")})
+        } else { verdictDTO = nil }
+        agentTask = WebChromeAgentTask(
+            question: latestCouncilVerdict != nil ? "" : (agentTask?.question ?? ""),
+            phase: phase, stepLabel: label, stepProgress: progress,
+            verdict: verdictDTO, research: researchDTO, actions: actions)
+        broadcastWebChromeState()
+    }
+
+    private func finishAgentTask(success: Bool) {
+        updateAgentTask(phase: success ? "done" : "failed",
+                        label: success ? "Complete" : "Cancelled", progress: 1.0)
+        agentPipelineTask = nil
+    }
+
+    private struct BrowserAction { let tool: String; let label: String; let url: String?; let selector: String?; let value: String? }
+
+    private func extractBrowserActions(from answer: String) -> [BrowserAction] {
+        var actions: [BrowserAction] = []
+        // Parse [NAVIGATE: url] markers
+        let navPattern = try? NSRegularExpression(pattern: #"\[NAVIGATE:\s*([^\]]+)\]"#, options: [])
+        if let matches = navPattern?.matches(in: answer, range: NSRange(answer.startIndex..., in: answer)) {
+            for match in matches {
+                if let range = Range(match.range(at: 1), in: answer) {
+                    let url = String(answer[range]).trimmingCharacters(in: .whitespaces)
+                    actions.append(BrowserAction(tool: "navigate", label: "Open \(url)", url: url, selector: nil, value: nil))
+                }
+            }
+        }
+        // Parse [CLICK: selector] markers
+        let clickPattern = try? NSRegularExpression(pattern: #"\[CLICK:\s*([^\]]+)\]"#, options: [])
+        if let matches = clickPattern?.matches(in: answer, range: NSRange(answer.startIndex..., in: answer)) {
+            for match in matches {
+                if let range = Range(match.range(at: 1), in: answer) {
+                    let sel = String(answer[range]).trimmingCharacters(in: .whitespaces)
+                    actions.append(BrowserAction(tool: "click", label: "Click \(sel)", url: nil, selector: sel, value: nil))
+                }
+            }
+        }
+        // Parse [FILL: selector = value] markers
+        let fillPattern = try? NSRegularExpression(pattern: #"\[FILL:\s*([^=]+?)\s*=\s*([^\]]+)\]"#, options: [])
+        if let matches = fillPattern?.matches(in: answer, range: NSRange(answer.startIndex..., in: answer)) {
+            for match in matches {
+                if let selRange = Range(match.range(at: 1), in: answer),
+                   let valRange = Range(match.range(at: 2), in: answer) {
+                    let sel = String(answer[selRange]).trimmingCharacters(in: .whitespaces)
+                    let val = String(answer[valRange]).trimmingCharacters(in: .whitespaces)
+                    actions.append(BrowserAction(tool: "fill", label: "Fill \(sel)", url: nil, selector: sel, value: val))
+                }
+            }
+        }
+        return actions
+    }
+
+    private func executeBrowserAction(_ action: BrowserAction) async -> Bool {
+        do {
+            switch action.tool {
+            case "navigate":
+                if let urlStr = action.url, let url = URL(string: urlStr) {
+                    newTab(url: url, activate: true)
+                }
+                return true
+            case "click":
+                if let sel = action.selector {
+                    _ = try await cdpClient.click(selector: sel)
+                }
+                return true
+            case "fill":
+                if let sel = action.selector, let val = action.value {
+                    _ = try await cdpClient.fill(selector: sel, value: val)
+                }
+                return true
+            default:
+                return false
+            }
+        } catch {
+            return false
+        }
+    }
+
     var installedExtensions: [ExtensionItem] = ExtensionItem.defaults
     var isMemorySaverEnabled: Bool = true {
         didSet {
@@ -3645,6 +3818,10 @@ final class BrowserState {
     /// Tracks deep research progress for UI display.
     private(set) var deepResearchStep: ResearchStep?
 
+    /// Unified agent pipeline state — council → research → browser actions.
+    private(set) var agentTask: WebChromeAgentTask?
+    private var agentPipelineTask: Task<Void, Never>?
+
     /// Handle to the in-flight deep research Task. Cancel to abort.
     private var deepResearchTask: Task<Void, Never>? = nil
 
@@ -4917,7 +5094,8 @@ final class BrowserState {
             councilVerdict: councilDTO,
             isCouncilConvening: isCouncilConvening,
             councilLiveResponses: councilLiveResponses.map { r in WebChromeCouncilResponse(provider: r.provider.rawValue, answer: r.answer, confidence: r.confidence, durationMS: Int(r.duration * 1000), status: r.status == .success ? "success" : "timeout") },
-            deepResearchStep: researchDTO
+            deepResearchStep: researchDTO,
+            agentTask: agentTask
         )
     }
 
