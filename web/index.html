@@ -152,6 +152,8 @@
                     <tr><td>Chrome extensions</td><td class="hive-col">✔</td><td>✔</td><td>✘</td><td>✔</td></tr>
                     <tr><td>Cross-device sync</td><td class="hive-col">✔ E2E encrypted</td><td>✔</td><td>✘</td><td>✔</td></tr>
                     <tr><td>No telemetry</td><td class="hive-col">✔</td><td>Partial</td><td>✘</td><td>✘</td></tr>
+                    <tr><td>Open source</td><td class="hive-col">✔ MIT</td><td>✘</td><td>✘</td><td>Partial</td></tr>
+                    <tr><td>Auto-update</td><td class="hive-col">✔ Sparkle</td><td>✔</td><td>✘</td><td>✔</td></tr>
                 </tbody>
             </table>
         </div>
@@ -160,12 +162,25 @@
     <!-- Download -->
     <section class="download" id="download">
         <h2 class="section-title">Ready to think differently?</h2>
-        <p class="section-subtitle">Available for macOS. Windows and iOS coming soon.</p>
-        <button class="btn btn-primary btn-xl" id="main-download-btn">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download Hive for macOS
-        </button>
-        <p class="version-info">Version 1.0 • macOS 14+ • Free</p>
+        <p class="section-subtitle" id="download-subtitle">Available for macOS. Windows and iOS coming soon.</p>
+        <div class="download-actions">
+            <a href="#" class="btn btn-primary btn-xl" id="main-download-btn" onclick="return false">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span id="download-btn-text">Download Hive for macOS</span>
+            </a>
+            <div class="download-options" id="download-options">
+                <a href="#" class="download-option" id="dl-arm64">Apple Silicon (.dmg)</a>
+                <span class="download-divider">|</span>
+                <a href="#" class="download-option" id="dl-x64">Intel (.dmg)</a>
+            </div>
+        </div>
+        <p class="version-info">
+            <span id="version-badge">Version 1.0</span> • macOS 14+ • 
+            <span id="arch-badge"></span> • Free
+        </p>
+        <p class="version-info">
+            <span class="sparkle-badge">✨ Auto-updates via Sparkle — stay current effortlessly</span>
+        </p>
     </section>
 
     <!-- Pricing -->
@@ -249,5 +264,51 @@
     </footer>
 
     <script src="waitlist.js"></script>
+    <script>
+        // Architecture detection for download links
+        (function() {
+            var isAppleSilicon = (function() {
+                var canvas = document.createElement('canvas');
+                var gl = canvas.getContext('webgl');
+                if (!gl) return false;
+                var debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                if (!debugInfo) return false;
+                var renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                return /Apple/.test(renderer) && !/Intel/.test(renderer);
+            })();
+            
+            var dlBtn = document.getElementById('main-download-btn');
+            var dlText = document.getElementById('download-btn-text');
+            var archBadge = document.getElementById('arch-badge');
+            var dlOptions = document.getElementById('download-options');
+            
+            if (isAppleSilicon) {
+                dlText.textContent = 'Download Hive for Apple Silicon';
+                archBadge.textContent = 'Apple Silicon';
+                dlBtn.href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-arm64.dmg';
+                document.getElementById('dl-arm64').href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-arm64.dmg';
+                document.getElementById('dl-x64').href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-x64.dmg';
+            } else {
+                dlText.textContent = 'Download Hive for Intel Mac';
+                archBadge.textContent = 'Intel';
+                dlBtn.href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-x64.dmg';
+                document.getElementById('dl-arm64').href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-arm64.dmg';
+                document.getElementById('dl-x64').href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-x64.dmg';
+            }
+            
+            // Show download options
+            dlOptions.style.display = 'flex';
+            
+            // Version badge from release
+            fetch('https://api.github.com/repos/arpituppal2/Hive/releases/latest')
+                .then(function(r) { return r.json(); })
+                .then(function(release) {
+                    if (release.tag_name) {
+                        document.getElementById('version-badge').textContent = release.tag_name;
+                    }
+                })
+                .catch(function() { /* offline — use default version */ });
+        })();
+    </script>
 </body>
 </html>
