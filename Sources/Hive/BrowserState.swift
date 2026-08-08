@@ -3232,11 +3232,18 @@ final class BrowserState {
         tab.groupID = groupID
         if let group = tabGroups.first(where: { $0.id == groupID }), tab.workspaceID != group.workspaceID {
             tab.workspaceID = group.workspaceID
-            // The tab moved to another workspace — its pooled peek preview
-            // holds the old workspace's profile/context; drop it so content
-            // from one space can never surface in another.
             invalidatePreview(for: tabID)
         }
+        scheduleAutosave()
+    }
+
+    /// Moves a tab to a different workspace (Zen DND workspace drop).
+    func moveTabToWorkspace(tabID: String, workspaceID: UUID) {
+        guard let tab = tabs.first(where: { $0.id == tabID }),
+              tab.workspaceID != workspaceID else { return }
+        tab.workspaceID = workspaceID
+        tab.groupID = nil  // ungroup when moving between workspaces
+        invalidatePreview(for: tabID)
         scheduleAutosave()
     }
 

@@ -1601,3 +1601,13 @@ body[data-workspace-switching="true"] .tab {
   0% { opacity: 0; transform: translateY(-4px); }
   100% { opacity: 1; transform: translateY(0); }
 }
+
+
+/* ══ Workspace DND drop target glow ══ */
+.workspace--drop-target {
+  outline: 2px solid var(--color-accent-1, #F97316);
+  outline-offset: -2px;
+  background: color-mix(in srgb, var(--color-accent-1, #F97316) 12%, transparent);
+  transform: scale(1.05);
+  transition: transform 0.1s ease, background 0.1s ease;
+}

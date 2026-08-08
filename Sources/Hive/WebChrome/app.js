@@ -612,6 +612,18 @@
       w.innerHTML = '<span class="workspace__dot" style="background:' + ws.colorHex + '"></span>' +
         '<span>' + esc(ws.name) + '</span><span class="workspace__count">' + ws.tabCount + '</span>';
       w.addEventListener('click', function () { api('hive.switchWorkspace', { id: ws.id }); });
+      // DND drop target: drag a tab onto a workspace dot to move it
+      w.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        w.classList.add('workspace--drop-target');
+      });
+      w.addEventListener('dragleave', function () { w.classList.remove('workspace--drop-target'); });
+      w.addEventListener('drop', function (e) {
+        e.preventDefault();
+        w.classList.remove('workspace--drop-target');
+        if (dragID) { api('hive.moveTabToWorkspace', { tabID: dragID, groupID: ws.id }); }
+      });
       row.appendChild(w);
     });
   }

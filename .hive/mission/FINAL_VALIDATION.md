@@ -231,3 +231,37 @@ The Hive Browser (Chromium-backed via CefSwift, native SwiftUI chrome) builds, t
 - `swift build` ✅ · `swift test` **1078/143** ✅ · `build-hive-app.sh` ✅ · smoke **PASS** ✅
 
 **SHIP STATUS: SHIPPED.** All UI_UX_PLAN items (U1–U9) complete. All agent CDP tools (16/16) wired and verified. Security gate hardened. 5-state interaction sweep done. Mission tracker finalized.
+## Post-Ship Addendum 2 (2026-08-08)
+
+### Adblock native engine wired
+- `native/adblock-ffi`: Brave adblock-rust v0.13 via C FFI (`engine_create`, `engine_check_url`, `engine_cosmetic_selectors`, `engine_free_string`)
+- `AdblockEngine.swift`: dlopen/dlsym runtime loading, `AdblockMatchResult` struct (Brave-aligned), `cosmeticSelectors()` wired to real FFI, `cspDirectives()` for blocked domains
+- `build-hive-app.sh`: dylib auto-staged to Frameworks, built on-demand, signed least-privilege
+- `preflight-hive-app.sh`: adblock dylib verification
+
+### Zen compact-mode + theme layer
+- `tokens.css`: 19 Zen-derived CSS variables — auto-generated accent colors (`color-mix`+`light-dark`), compact-mode animation curves, workspace geometry
+- `styles.css`: compact-mode sidebar auto-hide/hover-reveal, toolbar flash-popup collapse/expand, workspace-switch fade animation, workspace DND drop target glow
+- `app.js`: compact-mode hover tracking IIFE (sidebar 150ms keep, toolbar 800ms popup), workspace swipe gesture (ctrl+wheel), workspace DND drop targets
+- Zen Browser compact-mode CSS + theme YAML prefs from cloned `zen-browser/desktop` (MPL-2.0)
+
+### Polar AgentApp embedded
+- 12 JS bundles base64-encoded (Vite bundles contain binary data), 13 text assets, 64 fonts
+- `hive://polar` route serves full AgentApp with KaTeX, mermaid, xlsx, docx rendering
+- `embed_webchrome.py` rewritten with BINARY_FILES list + binary_to_b64 helper
+
+### Workspace DND
+- `BrowserState.moveTabToWorkspace(tabID:workspaceID:)` — moves tab between workspaces, ungroups
+- `hive.moveTabToWorkspace` bridge method
+- `.workspace` elements are droppable targets with orange glow feedback
+
+### Astro/Zen/Brave repos cloned
+- Astro (357MB): CDP tools (act, snapshot, read, navigate, diff) — 8 new methods in CEFDevToolsClient
+- Zen (32MB): compact-mode CSS, theme system, workspace prefs
+- Brave-core (1.8GB): AdblockEngine iOS header, shields components
+
+### Verification
+- `swift build` ✅ · `swift test` **1078/143** ✅ · `cargo check` ✅ · `cargo build --release` ✅
+- Bundle + adblock staging + preflight ✅ · smoke **PASS** ✅
+
+**SHIP STATUS: SHIPPED.** All features wired and verified.

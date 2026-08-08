@@ -1100,6 +1100,14 @@ enum WebChromeBridge {
             return true
         }
 
+        // ---- hive.moveTabToWorkspace: DND tab onto a workspace dot ----
+        bridge.register("hive.moveTabToWorkspace") { (request: WebChromeMoveTabGroupRequest) async throws -> Bool in
+            try Self.authorize(request.token)
+            guard let wsID = UUID(uuidString: request.groupID) else { return false }
+            await MainActor.run { state.moveTabToWorkspace(tabID: request.tabID, workspaceID: wsID) }
+            return true
+        }
+
         // MARK: Agent Tools — CDP bridge for AI-driven browsing (Astro-aligned)
 
         bridge.register("hive.agent.navigate") { (request: WebChromeAgentNavigate) async throws -> Bool in
