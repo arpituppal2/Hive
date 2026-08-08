@@ -16,6 +16,11 @@ struct BrowserWindow: View {
     var body: some View {
         @Bindable var state = state
         HStack(spacing: 0) {
+            // Defer heavy AI init until after the browser shell renders.
+            // The user sees a window immediately; model council + swarm
+            // orchestrator initialize asynchronously without blocking.
+            Color.clear.frame(width: 0, height: 0)
+                .task { state.setupAI() }
             // The web chrome shell renders the ENTIRE UI (tabs, toolbar,
             // panels) in web content. Native SwiftUI only frames it: a left
             // sidebar in vertical mode, a top strip in horizontal mode.

@@ -4460,24 +4460,10 @@ final class BrowserState {
             reportSessionPersistenceFailure()
         }
         migrateLegacySecrets()
-        // swarmOrchestrator needs self for hotMemory/eventLedger references
-        swarmOrchestrator = SwarmOrchestrator(
-            dispatcher: .shared, hotMemory: hotMemory, ledger: eventLedger,
-            honeycomb: honeycomb
-        )
-        // Parallel multi-model council for AI queries — with Tavily + Vane search if configured
-        let tavilyKey = self.tavilyAPIKey
-        let searchProvider: WebSearchProvider? = tavilyKey.isEmpty ? nil : TavilySearchProvider(apiKey: tavilyKey)
-        let vaneURL = self.vaneBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
-        let vaneProvider: WebSearchProvider? = vaneURL.isEmpty ? nil : VaneSearchProvider(baseURL: URL(string: vaneURL) ?? URL(string: "http://localhost:3000")!)
-        modelCouncil = ModelCouncil(dispatcher: .shared, searchProvider: searchProvider, vaneProvider: vaneProvider)
-        restoreCouncilVerdict()
-        if let swarmOrchestrator {
-            contextRequestCoordinator = ContextRequestCoordinator(
-                hotMemory: hotMemory,
-                orchestrator: swarmOrchestrator
-            )
-        }
+        // AI components are heavy (ModelCouncil creates Tavily/Vane providers,
+        // SwarmOrchestrator wires hotMemory + ledger). Defer to after the
+        // browser shell appears so the user sees a window immediately.
+        // setupAI() is called from the window's onAppear.
         trustedTurnGateway = TrustedTurnGateway(
             coordinator: voiceCoordinator,
             honeycomb: honeycomb,
@@ -5371,6 +5357,29 @@ final class BrowserState {
     }
 
     @discardableResult
+    /// Initializes AI components (swarm orchestrator, model council, context
+    /// coordinator). Called from BrowserWindow.onAppear after the shell renders.
+    /// Idempotent — subsequent calls are no-ops.
+    func setupAI() {
+        guard swarmOrchestrator == nil else { return }
+        swarmOrchestrator = SwarmOrchestrator(
+            dispatcher: .shared, hotMemory: hotMemory, ledger: eventLedger,
+            honeycomb: honeycomb
+        )
+        let tavilyKey = self.tavilyAPIKey
+        let searchProvider: WebSearchProvider? = tavilyKey.isEmpty ? nil : TavilySearchProvider(apiKey: tavilyKey)
+        let vaneURL = self.vaneBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        let vaneProvider: WebSearchProvider? = vaneURL.isEmpty ? nil : VaneSearchProvider(baseURL: URL(string: vaneURL) ?? URL(string: "http://localhost:3000")!)
+        modelCouncil = ModelCouncil(dispatcher: .shared, searchProvider: searchProvider, vaneProvider: vaneProvider)
+        restoreCouncilVerdict()
+        if let swarmOrchestrator {
+            contextRequestCoordinator = ContextRequestCoordinator(
+                hotMemory: hotMemory,
+                orchestrator: swarmOrchestrator
+            )
+        }
+    }
+
     func newTab(url: URL? = nil, groupID: UUID? = nil, activate: Bool = true, isPrivate: Bool = false) -> Tab {
         let workspaceID = currentWorkspaceID
         let profileID = currentWorkspace?.profileID ?? currentProfileID
