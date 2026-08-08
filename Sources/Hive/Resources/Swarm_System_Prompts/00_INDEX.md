@@ -35,6 +35,7 @@ A given job may have **one or more tier variants**. A tier variant exists only w
 | — | orchestrator | `Cell_orchestrator.md` | DOC | Task-graph protocol, no-silent-stop rule, resume protocol |
 | 7 | browser | `100m_dom_scout.md` | 100m | Cheap DOM parse / element-locate / readability extraction |
 | 8 | browser | `1b_action_planner.md` | 1b | Plan a CDP action sequence (click/fill/navigate/extract) |
+| 8a | browser | `1b_agent.md` | 1b | Primary browser agent — drives CDP tools end-to-end, observe→act→verify loop |
 | 9 | browser | `8b_nav_reasoner.md` | 8b | Hard multi-step / ambiguous navigation; fallback reasoning |
 | 10 | coder | `1b_coder.md` | 1b | Common repo-aware edits (← **punch-up: ≈30B generalist target**) |
 | 11 | coder | `8b_coder.md` | 8b | Hard repo-aware reasoning / multi-file refactor |
@@ -100,7 +101,7 @@ orchestrator/1b_orchestrator
   └─► council/1b_council_chair        (when confidence < threshold; orchestrator never silently picks a size)
 
 planner ──► orchestrator (returns topology; orchestrator owns dispatch)
-browser/1b_action_planner ──► 100m_dom_scout (scouts before acting); ──► 8b_nav_reasoner on failure
+browser/1b_agent ──► 1b_action_planner (plans before acting); ──► 100m_dom_scout (scouts before acting); ──► 8b_nav_reasoner on failure
 librarian/1b_librarian ──► summarizer/1b_compressor (compact → Honeycomb)
 researcher/1b_research_gatherer ──► researcher/8b_research_synthesizer (verified sources + spans in, brief out; fetch ops dispatched by orchestrator via browser family)
 council/1b_council_chair ──► may vote across {router/1b, planner/1b, auditor/1b, reasoner/8b}; ──► orchestrator with verdict
