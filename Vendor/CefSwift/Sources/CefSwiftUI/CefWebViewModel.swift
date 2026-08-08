@@ -106,6 +106,10 @@ public final class CefWebViewModel {
     /// fall through to CEF.
     public var onContextMenuCommand: ((Int, CefContextMenuParams) -> Bool)?
 
+    /// Called once when a CEF browser is created and attached to this model.
+    /// Use this to wire up CDP or other per-browser infrastructure.
+    public var onBrowserAttached: ((CefBrowser) -> Void)?
+
     /// Set while mirroring a browser-reported address change into ``url``,
     /// so the `didSet` observer doesn't navigate again.
     @ObservationIgnored private var isApplyingBrowserURL = false
@@ -135,6 +139,7 @@ public final class CefWebViewModel {
             url = browserURL
             isApplyingBrowserURL = false
         }
+        onBrowserAttached?(browser)
     }
 
     /// Disowns the current browser (closing is the hosting view's responsibility).

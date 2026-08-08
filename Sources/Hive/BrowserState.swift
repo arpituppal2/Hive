@@ -5107,6 +5107,13 @@ final class BrowserState {
                 }
             }
         }
+        // Wire CDP if the tab's browser is already attached (common when
+        // switching back to a tab whose browser stayed alive in the MRU
+        // cache). If the browser isn't attached yet, onBrowserAttached
+        // (set in wireTabHooks) will wire it when it becomes ready.
+        if let browser = tab.model.browser {
+            wireCDP(to: browser)
+        }
         broadcastWebChromeState()
     }
 
@@ -6174,6 +6181,26 @@ final class BrowserState {
         // split/duplicate — so peeks and the mini-player work the moment a
         // tab becomes visible again.
         armPageProbes(on: model, tabID: tabID)
+
+        // --- CDP / Agentic browsing bridge ---
+        // When this tab's CEF browser is created (lazily by CefWebView),
+        // wire it to the CDP client so the AI can drive the page via
+        // the DevTools protocol. Re-wired on every browser attach so
+        // hibernation cycles (tab → sleep → wake → new browser) stay
+        // connected without manual intervention.
+        model.onBrowserAttached = { [weak self] browser in
+            guard let self else { return }
+            // Only wire if this tab is the active one — background tabs
+            // don't need CDP access.
+            if self.activeTabID == tabID {
+                self.wireCDP(to: browser)
+            }
+        }
+        // If the browser is already attached (e.g. this tab is being
+        // duplicated from a live tab), wire CDP immediately.
+        if let browser = model.browser, activeTabID == tabID {
+            wireCDP(to: browser)
+        }
     }
 
     // MARK: - Native context menu (Chrome / Edge / Safari parity)
