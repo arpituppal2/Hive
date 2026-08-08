@@ -1,0 +1,208 @@
+name: Hive CI
+
+on:
+  push:
+    branches: [main, "mission/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build & Test (macOS)
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE="$(ls -dt /Applications/Xcode*.app 2>/dev/null | head -1 || true)"
+          [[ -n "$XCODE" ]] || { echo "::error::No Xcode installation found"; exit 1; }
+          sudo xcode-select -s "$XCODE/Contents/Developer"
+          xcodebuild -version
+          xcrun --sdk macosx --show-sdk-version
+
+      - name: Install Rust toolchain (for adblock-ffi)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v rustc >/dev/null 2>&1; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+            echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          fi
+          rustc --version
+          cargo --version
+
+      - name: Build adblock-ffi native engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd native/adblock-ffi
+          cargo build --release
+          ls -lh target/release/libhive_adblock_ffi.dylib
+
+      - name: Build research worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/build-research-worker.sh
+
+      - name: Swift Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          swift build --product Hive
+
+      - name: Swift Test
+        shell: bash
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          swift test
+
+  verify-entitlements:
+    name: Verify Entitlements
+    runs-on: macos-15
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Verify entitlements
+        shell: bash
+        run: |
+          set -euo pipefail
+          scripts/verify-hivechromium-entitlements.sh Sources/Hive/Hive.entitlements
+          scripts/test-hivechromium-entitlements.sh
+
+  assemble-and-smoke:
+    name: Assemble & Smoke (Ad-Hoc)
+    runs-on: macos-15
+    timeout-minutes: 45
+    needs: [build-and-test]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE="$(ls -dt /Applications/Xcode*.app 2>/dev/null | head -1 || true)"
+          [[ -n "$XCODE" ]] || { echo "::error::No Xcode installation found"; exit 1; }
+          sudo xcode-select -s "$XCODE/Contents/Developer"
+
+      - name: Install Rust toolchain
+        shell: bash
+        run: |
+          if ! command -v rustc >/dev/null 2>&1; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+            echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          fi
+
+      - name: Assemble ad-hoc bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          scripts/build-hive-app.sh --allow-adhoc
+
+      - name: Preflight verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          scripts/preflight-hive-app.sh --app dist/Hive.app --allow-adhoc
+
+      - name: Codesign deep verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          codesign --verify --deep --strict --verbose=2 dist/Hive.app
+          for helper in \
+            "Hive Helper.app" \
+            "Hive Helper (Alerts).app" \
+            "Hive Helper (GPU).app" \
+            "Hive Helper (Plugin).app" \
+            "Hive Helper (Renderer).app"; do
+            codesign --verify --strict "dist/Hive.app/Contents/Frameworks/$helper"
+          done
+          codesign --verify --strict dist/Hive.app/Contents/Frameworks/libhive_adblock_ffi.dylib
+
+      - name: Smoke test (bootstrap)
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          HIVE_SMOKE_TIMEOUT_SECONDS=60 bash scripts/smoke-test-hive-app.sh
+
+      - name: Smoke test (session recovery)
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          HIVE_SMOKE_SESSION_EVIDENCE=1 HIVE_SMOKE_TIMEOUT_SECONDS=60 \
+            bash scripts/smoke-test-hive-app.sh
+
+  security-audit:
+    name: Security Audit
+    runs-on: macos-15
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Scan for secrets in source
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "=== Scanning for API keys / secrets in Sources/ ==="
+          if grep -rIHE \
+            --exclude-dir=.build \
+            --exclude-dir=Vendor \
+            --exclude-dir=.git \
+            --exclude='*.dylib' \
+            --exclude='*.png' \
+            --exclude='*.icns' \
+            --exclude='*.woff*' \
+            -e 'sk-[a-zA-Z0-9]{20,}' \
+            -e 'AIza[0-9A-Za-z_-]{35}' \
+            -e 'ghp_[a-zA-Z0-9]{36}' \
+            -e 'gho_[a-zA-Z0-9]{36}' \
+            -e 'xox[baprs]-[a-zA-Z0-9-]+' \
+            -e '-----BEGIN (RSA|EC|DSA|OPENSSH) PRIVATE KEY-----' \
+            Sources/ 2>/dev/null; then
+            echo "::error::Potential secrets found in source code!"
+            exit 1
+          fi
+          echo "No secrets detected in source."
+
+      - name: Verify debug port is gated
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "=== Verifying devtools port 9223 is DEBUG-gated ==="
+          if grep -rn '9223' Sources/Hive/*.swift | grep -v '#if DEBUG' | grep -v '//' | grep -v 'HIVE_DEBUG_CDP'; then
+            echo "::warning::DevTools port reference found outside DEBUG guard — verify it is intentional"
+          else
+            echo "DevTools port references are properly guarded."
+          fi
+
+      - name: Verify no browsing data in logs/artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -rIHE 'session\.json\|\.prev\.json\|\.crash' Sources/Hive/*.swift | grep -v 'FileManager\|Library\|Logs' | grep -v 'MARK:\|//\|///' > /dev/null 2>&1; then
+            echo "::warning::Session/crash file references found — verify they sanitize before writing"
+          fi
+          echo "Security audit complete."

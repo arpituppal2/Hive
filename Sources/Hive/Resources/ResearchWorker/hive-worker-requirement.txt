@@ -1,0 +1,1 @@
+anchor apple generic and certificate leaf[subject.OU] = "0000000000" and identifier "com.hive.browser.research-worker"

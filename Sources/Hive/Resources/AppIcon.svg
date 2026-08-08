@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f1011"/>
+      <stop offset="100%" stop-color="#141516"/>
+    </linearGradient>
+    <linearGradient id="hex" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="40%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#6366F1" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="200" fill="url(#bg)"/>
+
+  <!-- Outer hexagon -->
+  <polygon
+    points="512,64 912,290 912,734 512,960 112,734 112,290"
+    fill="none"
+    stroke="url(#hex)"
+    stroke-width="12"
+    stroke-linejoin="round"/>
+
+  <!-- Main hexagon -->
+  <polygon
+    points="512,112 872,316 872,708 512,912 152,708 152,316"
+    fill="url(#hex)"
+    opacity="0.92"/>
+
+  <!-- Inner glow -->
+  <polygon
+    points="512,160 832,340 832,684 512,864 192,684 192,340"
+    fill="url(#inner)"/>
+
+  <!-- Center H mark -->
+  <g transform="translate(512,512)">
+    <!-- H letterform -->
+    <rect x="-100" y="-120" width="24" height="240" rx="12" fill="#F59E0B" opacity="0.95"/>
+    <rect x="76" y="-120" width="24" height="240" rx="12" fill="#F59E0B" opacity="0.95"/>
+    <rect x="-100" y="-12" width="200" height="24" rx="12" fill="#F59E0B" opacity="0.95"/>
+  </g>
+</svg>

@@ -1,0 +1,37 @@
+[package]
+name = "hive-fetch-boundary"
+version = "0.1.0"
+edition = "2021"
+description = "Cross-platform SSRF-aware HTTP/TLS research fetch boundary for Hive"
+license = "MIT"
+
+[lib]
+name = "hive_fetch_boundary"
+path = "src/lib.rs"
+
+[[bin]]
+name = "hive-fetch-worker"
+path = "src/main.rs"
+
+[[bin]]
+name = "hive-hostile-worker"
+path = "tests/support/hostile_worker.rs"
+required-features = ["test-support"]
+
+[[bin]]
+name = "hive-research-fixture-worker"
+path = "tests/support/research_fixture_worker.rs"
+required-features = ["test-support"]
+
+[dependencies]
+base64 = "0.22"
+rustls = "0.23"
+sha2 = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+url = "2"
+webpki-roots = "0.26"
+
+[features]
+default = []
+test-support = []

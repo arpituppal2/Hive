@@ -1,0 +1,214 @@
+/* ============================================================
+   Hive Design Tokens — tokens.css
+   ------------------------------------------------------------
+   Extracted from Polar's AgentApp design system (verbatim values,
+   licensed for use) and adapted to Hive's dark-first identity.
+
+   Structure (mirrors Polar):
+   · cn-*        neutral scale as RGB triplets (alpha-composable)
+   · --color-*   semantic colors (text, surface, border, status)
+   · --font-*    type ramp (system UI + JetBrains Mono for AI)
+   · shadows     Polar's dark elevation recipe
+   · motion      short springy transitions
+
+   Hive signature: honey-orange accent (#F97316 family). Amber is
+   reserved for AI affordances only; honey is the brand accent.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* ---------- Neutral scale (dark-first) ---------- */
+  /* Polar cn-* values, dark variant — RGB triplets so every
+     consumer can alpha-composite: rgb(var(--cn-300) / .5) */
+  --cn-50:   245 244 243;   /* brightest text on dark */
+  --cn-75:   214 213 212;
+  --cn-100:  180 179 178;
+  --cn-150:  150 149 148;
+  --cn-200:  118 117 116;
+  --cn-300:  88 87 86;
+  --cn-400:  66 65 64;
+  --cn-500:  54 53 52;
+  --cn-600:  46 45 44;      /* card / field */
+  --cn-700:  40 39 38;      /* raised surface */
+  --cn-800:  35 34 33;      /* canvas */
+  --cn-900:  30 29 28;      /* app background */
+  --cn-1000: 25 24 23;      /* deepest wells */
+
+  /* ---------- Semantic colors ---------- */
+  --color-app: var(--cn-900);
+  --color-canvas: var(--cn-800);
+  --color-canvas-raised: var(--cn-700);
+  --color-card: var(--cn-600);
+  --color-field: var(--cn-600);
+  --color-input: var(--cn-600);
+  --color-input-border: var(--cn-300);
+
+  --color-text-primary: var(--cn-50);
+  --color-text-secondary: var(--cn-100);
+  --color-text-tertiary: var(--cn-150);
+  --color-text-muted: var(--cn-200);
+  --color-text-disabled: var(--cn-300);
+  --color-placeholder: var(--cn-200);
+
+  --color-border-subtle: rgb(var(--cn-400));
+  --color-border-strong: rgb(var(--cn-300));
+  --color-border-active: rgb(249 115 22);           /* honey */
+  --color-hairline: rgba(255, 255, 255, 0.07);
+  --color-hairline-strong: rgba(255, 255, 255, 0.13);
+
+  --color-surface-hover: rgba(255, 255, 255, 0.08);
+  --color-surface-hover-subtle: rgba(255, 255, 255, 0.04);
+
+  /* ---------- Accent (Hive signature: honey) ---------- */
+  --color-accent: 249 115 22;       /* #F97316 */
+  --color-accent-hover: 251 146 60; /* #FB923C */
+  --color-accent-soft: rgb(249 115 22 / 0.16);
+  --color-accent-ink: 255 255 255;
+
+  /* AI-only semantics — amber stays in the AI lane */
+  --color-ai: 245 158 11;           /* #F59E0B */
+
+  /* ---------- Status ---------- */
+  --color-error: 248 113 113;
+  --color-error-bg: rgba(239, 68, 68, 0.15);
+  --color-error-border: rgba(248, 113, 113, 0.3);
+  --color-success: 52 211 153;
+  --color-success-bg: rgba(16, 185, 129, 0.15);
+  --color-info: 34 211 238;
+  --color-info-bg: rgba(8, 145, 178, 0.12);
+  --color-warning: 251 191 36;
+  --color-warning-bg: rgba(245, 158, 11, 0.14);
+
+  /* ---------- Type ---------- */
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+             "Inter", system-ui, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono",
+               "Berkeley Mono", Menlo, monospace;
+  --font-display: "SF Pro Display", var(--font-ui);
+
+  /* Sizes: 11px tab titles → 34px display */
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 26px;
+  --text-display: 34px;
+
+  --tracking-tight: -0.01em;
+  --tracking-display: -0.02em;
+
+  /* ---------- Spacing (4px base) ---------- */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+  --s5: 20px; --s6: 24px; --s8: 32px; --s10: 40px; --s12: 48px;
+
+  /* ---------- Radii ---------- */
+  --r-tab: 8px;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-card: 16px;
+  --r-pill: 9999px;
+
+  /* ---------- Elevation (Polar dark recipe) ---------- */
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04),
+                 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-raised: inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                   0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                     0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-overlay: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                    0 16px 48px rgba(0, 0, 0, 0.55);
+  --shadow-accent: 0 0 0 1px rgb(var(--color-accent) / 0.35),
+                   0 4px 20px rgb(var(--color-accent) / 0.25);
+
+  /* ---------- Motion ---------- */
+  --spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --spring-soft: cubic-bezier(0.3, 0.8, 0.4, 1);
+  --dur: 180ms;
+  --dur-slow: 260ms;
+
+  /* ---------- Chrome geometry ---------- */
+  --chrome-sidebar-w: 264px;
+  --chrome-strip-h: 52px;
+  --tab-h: 36px;
+
+  /* ---------- Ambient bloom (Arc-style atmosphere) ---------- */
+  --bloom-a: rgb(var(--color-accent) / 0.14);
+  --bloom-b: rgb(240 132 90 / 0.08);
+}
+
+/* ---------- Scrollbars: thin, owned, quiet ---------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--cn-400)) transparent;
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgb(var(--cn-400));
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover { background-color: rgb(var(--cn-300)); }
+
+/* ---------- Focus rings (keyboard parity) ---------- */
+:focus-visible {
+  outline: 2px solid rgb(var(--color-accent) / 0.7);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   Zen-Derived Theme Layer — auto-generated accent color variants,
+   compact-mode animation curves, branded surface colors.
+   Adapted from Zen Browser's zen-theme.css (MPL-2.0).
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Brand surfaces (Zen dark/paper palette) ── */
+  --zen-branding-dark: #101010;
+  --zen-branding-paper: #e2e2e2;
+  --zen-branding-bg: light-dark(var(--zen-branding-paper), var(--zen-branding-dark));
+
+  /* ── Accent-derived color generation (Zen primary-color mixer) ── */
+  --zen-primary-color: var(--color-accent-1);
+  --zen-colors-primary: light-dark(
+    color-mix(in srgb, var(--zen-primary-color) 50%, black 50%),
+    color-mix(in srgb, var(--zen-primary-color) 20%, var(--zen-branding-bg) 80%)
+  );
+  --zen-colors-secondary: light-dark(
+    color-mix(in srgb, var(--zen-colors-primary) 20%, white 80%),
+    color-mix(in srgb, var(--zen-primary-color) 30%, var(--zen-branding-bg) 70%)
+  );
+  --zen-colors-tertiary: light-dark(
+    color-mix(in srgb, var(--zen-primary-color) 2%, white 98%),
+    color-mix(in srgb, var(--zen-primary-color) 1%, var(--zen-branding-bg) 99%)
+  );
+  --zen-colors-border: light-dark(
+    color-mix(in srgb, var(--zen-colors-secondary) 50%, transparent),
+    color-mix(in srgb, var(--zen-colors-secondary) 20%, rgb(79, 79, 79))
+  );
+
+  /* ── Compact-mode animation curves ── */
+  --zen-sidebar-transition: 0.15s ease;
+  --zen-toolbar-flash-popup-duration: 800ms;
+  --zen-toolbar-hide-after-hover-duration: 1000ms;
+  --zen-sidebar-keep-hover-duration: 150ms;
+  --zen-workspace-switch-duration: 200ms;
+
+  /* ── Compact-mode geometry ── */
+  --zen-element-separation: 8px;
+  --zen-compact-float: var(--zen-element-separation);
+  --zen-toolbox-max-width: 74px;
+  --zen-outside-window-edge-offset-h: 200px;
+  --zen-outside-window-edge-offset-v: 100px;
+
+  /* ── Workspace navigation ── */
+  --zen-workspace-swipe-delta-multiplier: 100;
+  --zen-workspace-dnd-switch-padding: 20px;
+}

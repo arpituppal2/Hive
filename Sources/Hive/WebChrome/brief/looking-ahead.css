@@ -1,0 +1,516 @@
+/* ============================================================
+   Morning Brief — Looking Ahead section.
+   Loaded only when the looking-ahead feature flag is on.
+   ============================================================ */
+
+/* Local tokens layered on top of style.css. Kept here so the file is
+   self-contained when style.css doesn't ship the same names yet. */
+:root {
+  --looking-ahead-bleed: clamp(20px, 3vw, 40px);
+}
+
+
+/* ── Section + card layout ───────────────────────────── */
+
+.looking-ahead-section {
+  row-gap: 0;
+  margin-top: clamp(56px, calc(8.4vw - 14px), 84px);
+}
+
+.looking-ahead-card {
+  position: relative;
+  isolation: isolate;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+  column-gap: 1.5rem;
+  row-gap: clamp(20px, 3vw, 28px);
+  padding-top: clamp(24px, 3vw, 36px);
+  padding-bottom: clamp(14px, 2vw, 22px);
+}
+
+.looking-ahead-card::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: calc(-1 * var(--looking-ahead-bleed));
+  right: calc(-1 * var(--looking-ahead-bleed));
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0.5px 0.5px 0.5px rgba(0, 0, 0, 0.08),
+    0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+
+/* ── Intro column (title + lead + toast) ─────────────── */
+
+.looking-ahead-card .looking-ahead-intro.section-title-group {
+  grid-column: 1 / 5;
+  grid-row: 1;
+  align-self: start;
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65em;
+  max-width: 26ch;
+  pointer-events: none;
+}
+
+.looking-ahead-title.section-title {
+  /* Other section titles inherit `.section-title`'s clamp(20px, 3vw, 32px)
+     left inset, but the looking-ahead card's intro column starts flush with
+     column 1 — keeping the inset would push the title right of the lead
+     paragraph below it. Zero it out so the title lines up with the lead. */
+  padding-left: 0;
+  opacity: 1;
+}
+
+.looking-ahead-lead {
+  font-size: 1em;
+  line-height: 1.7;
+  color: var(--text-body);
+  text-wrap: pretty;
+}
+
+@media screen and (min-width: 901px) {
+  .looking-ahead-lead {
+    padding-right: 16px;
+  }
+}
+
+/* ── "Saved." toast ───────────────────────────────────── */
+
+.looking-ahead-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  width: max-content;
+  max-width: none;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin: 0;
+  padding: 0.4em 0.55em;
+  font-size: 0.75em;
+  line-height: 1.25;
+  white-space: nowrap;
+  color: rgba(40, 40, 45, 0.78);
+  background: color-mix(in srgb, var(--yellow) 32%, #fff);
+  border: none;
+  border-radius: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.28s ease,
+    visibility 0.28s ease;
+}
+
+.looking-ahead-toast[hidden] {
+  display: none;
+}
+
+.looking-ahead-toast--visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.looking-ahead-toast__check {
+  flex-shrink: 0;
+  width: 0.85em;
+  height: 0.85em;
+  background: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 7.5L6 10L10.5 4.5' stroke='%231a1a1a' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .looking-ahead-toast {
+    transition: none;
+  }
+}
+
+
+/* ── Stack column (prompt + textarea) ────────────────── */
+
+.looking-ahead-stack {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  align-self: start;
+  row-gap: clamp(20px, 3vw, 28px);
+  min-width: 0;
+}
+
+.looking-ahead-prompt {
+  grid-column: 6 / -1;
+  grid-row: 1;
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.85em;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+
+/* ── Field shell (shared between custom + simple variants) ── */
+
+.looking-ahead-custom-wrap {
+  --looking-ahead-field-pad-x: 0.75rem;
+  --looking-ahead-field-pad-y: 0.625rem;
+  --looking-ahead-field-bg: #ffffff;
+  --looking-ahead-field-bg-hover: #fbfbfb;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 2.75em;
+  padding: 0 var(--looking-ahead-field-pad-x);
+  border-radius: 12px;
+  background: var(--looking-ahead-field-bg);
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.looking-ahead-custom-wrap.is-multiline {
+  align-items: flex-start;
+  padding-top: var(--looking-ahead-field-pad-y);
+  padding-bottom: var(--looking-ahead-field-pad-y);
+}
+
+.looking-ahead-custom-wrap:not(:focus-within):hover {
+  background: var(--looking-ahead-field-bg-hover);
+}
+
+.looking-ahead-custom-wrap:focus-within {
+  background: var(--looking-ahead-field-bg-hover);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.looking-ahead-custom-input {
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 1em;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--text-body);
+  resize: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.looking-ahead-custom-wrap.is-multiline .looking-ahead-custom-input {
+  white-space: pre-wrap;
+}
+
+.looking-ahead-custom-input::placeholder {
+  font-weight: 400;
+  color: rgba(60, 60, 67, 0.6);
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.looking-ahead-custom-wrap:focus-within .looking-ahead-custom-input,
+.looking-ahead-custom-input:focus {
+  color: var(--text-body);
+}
+
+.looking-ahead-custom-wrap:focus-within .looking-ahead-custom-input::placeholder {
+  opacity: 1;
+  color: rgba(60, 60, 67, 0.6);
+}
+
+.looking-ahead-custom-input:focus {
+  outline: none;
+}
+
+
+/* ── Simple variant (textarea-only) ──────────────────── */
+
+.looking-ahead-section--simple .looking-ahead-prompt {
+  grid-column: 6 / -1;
+  grid-row: 1;
+  align-self: start;
+  padding-top: 0.48em;
+}
+
+.looking-ahead-section--simple .looking-ahead-intent {
+  grid-column: 6 / -1;
+  grid-row: 2;
+  min-width: 0;
+  pointer-events: auto;
+  margin-bottom: 10px;
+}
+
+.looking-ahead-section--simple .looking-ahead-intent-wrap {
+  margin: 0 10px 0 0;
+  min-height: calc(1.7em * 5 + var(--looking-ahead-field-pad-y) * 2);
+  align-items: flex-start;
+  padding-top: var(--looking-ahead-field-pad-y);
+  padding-bottom: var(--looking-ahead-field-pad-y);
+  background: var(--looking-ahead-field-bg);
+}
+
+.looking-ahead-section--simple .looking-ahead-intent-wrap:not(:focus-within):hover,
+.looking-ahead-section--simple .looking-ahead-intent-wrap:focus-within {
+  background: var(--looking-ahead-field-bg);
+}
+
+.looking-ahead-section--simple .looking-ahead-intent-wrap:focus-within {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.looking-ahead-section--simple .looking-ahead-intent-input::placeholder {
+  color: rgba(60, 60, 67, 0.48);
+}
+
+.looking-ahead-section--simple .looking-ahead-intent-wrap:focus-within .looking-ahead-intent-input,
+.looking-ahead-section--simple .looking-ahead-intent-input:focus {
+  color: var(--text);
+}
+
+.looking-ahead-section--simple .looking-ahead-intent-wrap:focus-within .looking-ahead-intent-input::placeholder {
+  opacity: 0.35;
+  color: rgba(60, 60, 67, 0.45);
+}
+
+.looking-ahead-section--simple .looking-ahead-intent-input {
+  min-height: calc(1.7em * 5);
+  color: var(--text);
+  white-space: pre-wrap;
+  resize: none;
+  overflow: hidden;
+}
+
+.looking-ahead-section--simple .looking-ahead-intent-wrap.is-multiline .looking-ahead-intent-input {
+  overflow: auto;
+}
+
+@media screen and (min-width: 901px) {
+  .looking-ahead-section--simple .looking-ahead-stack {
+    row-gap: clamp(10px, 1.5vw, 16px);
+  }
+
+  .looking-ahead-section--simple .looking-ahead-prompt {
+    font-size: 0.95em;
+    line-height: 1.45;
+  }
+}
+
+
+/* ── Responsive: Tablet ──────────────────────────────── */
+
+@media screen and (max-width: 1160px) {
+  .looking-ahead-card .looking-ahead-intro.section-title-group {
+    grid-column: 1 / 5;
+    grid-row: 1;
+    max-width: 22ch;
+  }
+
+  .looking-ahead-lead {
+    font-size: 0.95em;
+    line-height: 1.65;
+  }
+
+  .looking-ahead-prompt {
+    grid-column: 5 / -1;
+  }
+
+  .looking-ahead-section--simple .looking-ahead-prompt,
+  .looking-ahead-section--simple .looking-ahead-intent {
+    grid-column: 5 / -1;
+  }
+}
+
+@media screen and (min-width: 901px) and (max-width: 1100px) {
+  .looking-ahead-card .looking-ahead-intro.section-title-group {
+    max-width: 32ch;
+  }
+
+  .looking-ahead-lead {
+    font-size: 0.88em;
+    line-height: 1.65;
+    padding-right: 28px;
+    max-width: none;
+  }
+
+  .looking-ahead-toast {
+    align-items: flex-start;
+    width: auto;
+    max-width: 17ch;
+    white-space: normal;
+    text-wrap: pretty;
+  }
+
+  .looking-ahead-toast__check {
+    margin-top: 0.12em;
+  }
+}
+
+
+/* ── Responsive: Single column ────────────────────────── */
+
+@media screen and (max-width: 900px) {
+  .looking-ahead-card {
+    row-gap: 20px;
+  }
+
+  .looking-ahead-card .looking-ahead-intro.section-title-group {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    max-width: none;
+    width: 100%;
+  }
+
+  .looking-ahead-lead {
+    max-width: none;
+    width: 100%;
+    padding-right: 0;
+  }
+
+  .looking-ahead-stack {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .looking-ahead-prompt {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .looking-ahead-section--simple .looking-ahead-prompt,
+  .looking-ahead-section--simple .looking-ahead-intent {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .looking-ahead-section--simple .looking-ahead-prompt {
+    text-align: left;
+    justify-self: stretch;
+    width: 100%;
+    max-width: none;
+    padding-top: 0;
+  }
+
+  .looking-ahead-section--simple .looking-ahead-stack {
+    justify-items: stretch;
+  }
+
+  .looking-ahead-section--simple .looking-ahead-intent {
+    margin-left: -9px;
+    margin-right: -9px;
+    margin-bottom: 0;
+  }
+
+  .looking-ahead-section--simple .looking-ahead-intent-wrap {
+    margin-right: 0;
+  }
+
+  .looking-ahead-card .looking-ahead-intro .looking-ahead-toast {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: auto;
+    z-index: 4;
+    margin: 0;
+    pointer-events: none;
+  }
+}
+
+
+/* ── Dark mode ──────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --placeholder: rgba(235, 225, 210, 0.52);
+    --placeholder-muted: rgba(235, 225, 210, 0.4);
+    --surface-raised: #1a1a1a;
+    --surface-hover: #1e1e1e;
+  }
+
+  .looking-ahead-card::before {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0.5px 0.5px 0.5px rgba(0, 0, 0, 0.2),
+      0 0 3px rgba(0, 0, 0, 0.15);
+  }
+
+  .looking-ahead-custom-wrap {
+    --looking-ahead-field-bg: var(--surface-raised);
+    --looking-ahead-field-bg-hover: var(--surface-hover);
+    background: var(--looking-ahead-field-bg);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+
+  .looking-ahead-custom-wrap:focus-within {
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+
+  .looking-ahead-section--simple .looking-ahead-intent-wrap:not(:focus-within):hover,
+  .looking-ahead-section--simple .looking-ahead-intent-wrap:focus-within {
+    background: var(--looking-ahead-field-bg);
+  }
+
+  .looking-ahead-section--simple .looking-ahead-intent-wrap:focus-within {
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+
+  .looking-ahead-section--simple .looking-ahead-intent-wrap:focus-within .looking-ahead-intent-input,
+  .looking-ahead-section--simple .looking-ahead-intent-input:focus {
+    color: var(--text);
+  }
+
+  .looking-ahead-section--simple .looking-ahead-intent-input::placeholder {
+    color: var(--placeholder-muted);
+  }
+
+  .looking-ahead-section--simple .looking-ahead-intent-wrap:focus-within .looking-ahead-intent-input::placeholder {
+    opacity: 0.35;
+    color: var(--placeholder-muted);
+  }
+
+  .looking-ahead-custom-input::placeholder {
+    color: var(--placeholder);
+  }
+
+  .looking-ahead-custom-wrap:focus-within .looking-ahead-custom-input,
+  .looking-ahead-custom-input:focus {
+    color: var(--text-body);
+  }
+
+  .looking-ahead-custom-wrap:focus-within .looking-ahead-custom-input::placeholder {
+    opacity: 1;
+    color: var(--placeholder);
+  }
+
+  .looking-ahead-toast {
+    color: rgba(235, 225, 210, 0.82);
+    background: color-mix(in srgb, var(--yellow) 22%, #2a2a28);
+  }
+
+  .looking-ahead-toast__check {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 7.5L6 10L10.5 4.5' stroke='%23ebe1d2' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+}

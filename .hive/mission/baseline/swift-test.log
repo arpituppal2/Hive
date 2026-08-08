@@ -1,0 +1,2241 @@
+Building for debugging...
+[Computing dependencies]
+[Using on-disk description]
+warning: missing creator for mutated node: ('/Users/arpituppal/Downloads/Hive/.build/out/Products/Debug/mlx-swift_Cmlx.bundle/Contents/MacOS')
+[3 / 78]
+Build complete! (1.19 sec)
+Test Suite 'All tests' started at 2026-08-07 00:47:57.608.
+Test Suite 'All tests' passed at 2026-08-07 00:47:57.610.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.002) seconds
+◇ Test run started.
+↳ Testing Library Version: 2067.1
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Dispatcher" started.
+◇ Suite "OnboardingPrefs" started.
+◇ Suite "RetrievalRankerFilter" started.
+◇ Suite "PromiseBadgeModel" started.
+◇ Suite "SpaceGroups" started.
+◇ Suite "SourceFetcher" started.
+◇ Suite ToolRegistryTests started.
+◇ Suite "ResearchHandoffAdapter" started.
+◇ Suite "HibernationPolicy" started.
+◇ Suite ToolInvocationFactoryTests started.
+◇ Suite "TaskStore" started.
+◇ Suite "BYOKRuntimeSSE" started.
+◇ Suite "SwarmResearchPresentation" started.
+◇ Suite "ContextScope" started.
+◇ Suite "BriefStore" started.
+◇ Suite "RendererFailureEvent" started.
+◇ Suite "BrowserImportEngine" started.
+◇ Suite "PersistenceHealthPolicy" started.
+◇ Suite "BookmarkDeletionPolicy" started.
+◇ Suite "VoiceTurnDisclosure" started.
+◇ Suite "ChromePrefsStore" started.
+◇ Suite "VoiceCommandCoordinator" started.
+◇ Suite "SwarmResearchReducer" started.
+◇ Suite "SessionRestorePolicy" started.
+◇ Suite "JSONValue" started.
+◇ Suite "CitationFormatter" started.
+◇ Suite "WebSearchProvider" started.
+◇ Suite "HostContextPolicy" started.
+◇ Suite "SwarmOrchestratorRanker" started.
+◇ Suite "ProjectStore" started.
+◇ Suite "SwarmResponseContextPolicy" started.
+◇ Suite "SessionFileStore" started.
+◇ Suite "RetentionCapability" started.
+◇ Suite "HostContextAdmission" started.
+◇ Suite "MockRuntime" started.
+◇ Suite "WebSearchModels" started.
+◇ Suite "TabGroup" started.
+◇ Suite "ContextRedactor" started.
+◇ Suite "SitePermissionPolicy" started.
+◇ Suite "PreferenceExtractor" started.
+◇ Suite "RendererRecoveryController" started.
+◇ Suite "PageCaptureAdmission" started.
+◇ Suite "HotMemoryStore" started.
+◇ Suite "ScribeCoordinator" started.
+◇ Suite "DispatcherCellPrompt" started.
+◇ Suite "PersistenceHealth" started.
+◇ Suite "StudioWorkspace" started.
+◇ Suite "ClaimExtractor" started.
+◇ Suite "BrowserSession" started.
+◇ Suite "ResearchHandoffCoordinator" started.
+◇ Suite "BrowserSessionStore" started.
+◇ Suite "ContextRequestCoordinator" started.
+◇ Suite "HiveReadiness" started.
+◇ Suite "DownloadControlStateMachine" started.
+◇ Suite "CrashRecoveryPolicy" started.
+◇ Suite "BrowserPageActionPolicy" started.
+◇ Suite "BrowserTab AI Context" started.
+◇ Suite "ResearchRecorder" started.
+◇ Suite "HiveSheet" started.
+◇ Suite "SwarmRunState" started.
+◇ Suite "ResponseLifecycleToken" started.
+◇ Suite "BrowserSessionPrivacy" started.
+◇ Suite "HoneycombStore" started.
+◇ Suite "HiveSessionEvidence" started.
+◇ Suite "Download Filename Policy" started.
+◇ Suite "TabFocusNavigator" started.
+◇ Suite "DownloadHistoryPolicy" started.
+◇ Suite "PreferenceMemory" started.
+◇ Suite RiskClassTests started.
+◇ Suite "BrowserChromePreferences" started.
+◇ Suite "TerminalDownloadRecord" started.
+◇ Suite "HiveColorToken" started.
+◇ Suite "HistoryImportPolicy" started.
+◇ Suite "HotMemoryPersistence" started.
+◇ Suite "ModelManifest" started.
+◇ Suite "TabDropCoordinate" started.
+◇ Suite "NavigationLoadObservation" started.
+◇ Suite "PageCapture" started.
+◇ Suite "ResearchHandoffSupervisor" started.
+◇ Suite "BrowserSessionIntegrity" started.
+◇ Suite "ReaderModeModel" started.
+◇ Suite "AutoArchivePolicy" started.
+◇ Suite "EventLedgerStore" started.
+◇ Suite "ArchivedTab" started.
+◇ Suite "SourceAndClaim" started.
+◇ Suite "SwarmResponsePolicy" started.
+◇ Suite "Page Capture Request Ledger" started.
+◇ Suite "BrowserModels" started.
+◇ Suite "HistoryClearPolicy" started.
+◇ Suite "SessionDurabilityContract" started.
+◇ Suite "WebViewSessionBroker" started.
+◇ Suite "CommandRegistry" started.
+◇ Suite "EmbeddingRuntime" started.
+◇ Suite "NavigationAttemptRegistry" started.
+◇ Suite PolicyEngineTests started.
+◇ Suite "KeychainHMACKeyStore" started.
+◇ Suite "ChromiumHibernationAdapter" started.
+◇ Suite "OverlayPresentationPolicy" started.
+◇ Suite InputFieldTests started.
+◇ Suite "PrivacyReportSummary" started.
+◇ Suite "StreamCancellation" started.
+◇ Suite "HostContextPolicyStore" started.
+◇ Suite "NavigationBlockNotice" started.
+◇ Suite "BrowserContextPolicy" started.
+◇ Suite "NavigationHealthObservation" started.
+◇ Suite "ResearchWorkerClient" started.
+◇ Suite "VaneSSEParser" started.
+◇ Suite "TreeTabModel" started.
+◇ Suite "SwarmResearchSession" started.
+◇ Suite "HostContextHotMemory" started.
+◇ Suite "BeeQueue" started.
+◇ Suite "SwarmIntentRouter" started.
+◇ Suite "CellPromptLoader" started.
+◇ Suite "SwarmResponseContract" started.
+◇ Suite "Page Capture Delivery Policy" started.
+◇ Suite "HotMemoryRankerFiltering" started.
+◇ Suite "BrowserDownload" started.
+◇ Suite "TabInsertionPlanner" started.
+◇ Suite "RendererRecovery" started.
+◇ Suite "BrowserImportMergePolicy" started.
+◇ Suite "SearchEngine" started.
+◇ Suite "TavilySearchProvider" started.
+◇ Suite "SwarmOrchestrator" started.
+◇ Suite "LoRA adapter resolution" started.
+◇ Suite "TabAttachmentSummary" started.
+◇ Suite "BookmarkImportPolicy" started.
+◇ Suite "ContextScopeSummary" started.
+◇ Suite "TrustedTurnGateway" started.
+◇ Test pageContextBrokerFulfill() started.
+◇ Test pageContextBrokerTimeoutReturnsNil() started.
+◇ Suite "TabOrganizationNormalizer" started.
+◇ Suite "DispatcherStreamingAvailability" started.
+◇ Test disabledPageReturnsNoModelContext() started.
+◇ Test allowedPageStillScopesAsUntrustedData() started.
+◇ Test pageContextBrokerOverwriteCancelsFirst() started.
+◇ Test pageContextBrokerRejectsDisallowedContext() started.
+◇ Test hiveCoreVersionIsRebuildBaseline() started.
+◇ Test fmfPreferenceCannotBypassPolicyForForbiddenRole() started.
+◇ Test prefsDecodeWithoutHasCompletedOnboardingDefaultsFalse() started.
+◇ Test byokRoleRoutesToMockWhenUnconfigured() started.
+◇ Test mlxPreferenceNeverFabricatesInference() started.
+◇ Test honestyInvariantHoldsUnderEveryPreference() started.
+◇ Test mlxRuntimeReportsAvailability() started.
+◇ Test hasCompletedOnboardingDefaultsToFalse() started.
+◇ Test byokServedRoleIgnoresPreferenceButStaysHonest() started.
+◇ Test mlxRuntimeRejectsUnsupportedRoles() started.
+◇ Test byokPreferenceNeverFabricatesRemote() started.
+◇ Test autoPreferenceMatchesDefaultChain() started.
+◇ Test honestyInvariantHoldsAcrossAllRoles() started.
+◇ Test ruleBasedRoleRoutesToMock() started.
+◇ Test spaceCarriesGroupsThroughCodable() started.
+◇ Test fmfForbiddenInstructionRoleFallsBackToMockWhenNoMlx() started.
+◇ Test malformedOutputDegradesToNil() started.
+◇ Test spaceForwardCompatDecodesMissingGroupsAndDefaultedFields() started.
+◇ Test emptyAllowListIsHonored() started.
+◇ Test existingSpaceCallersUnaffectedByNewField() started.
+◇ Test browserTabCarriesPromiseFields() started.
+◇ Test hasCompletedOnboardingRoundTripsThroughCodable() started.
+◇ Test objectWrapperDegradesToNil() started.
+◇ Test productionRankContractIsParsed() started.
+◇ Test spaceGroupsDefaultEmptyAndRoundTrip() started.
+◇ Test fetchRejectsSSRFBeforeAnyNetwork() started.
+◇ Test allowListKeepsOnlyKnownIDs() started.
+◇ Test defaultRegistryContainsCoreTools() started.
+◇ Test registerAndLookup() started.
+◇ Test productionContractMissingRanksDegrades() started.
+◇ Test browserTabDecodesOldSessionWithoutPromiseFields() started.
+◇ Test unknownIDsAreDroppedNeverExpanded() started.
+◇ Test followsRedirectsWithinCapAndRevalidatesPolicy() started.
+◇ Test capsRedirectLoops() started.
+◇ Test registerReplacesExisting() started.
+◇ Test redirectToBlockedSchemeIsDenied() started.
+◇ Test rejectsNonHTTPSchemes() started.
+◇ Test redirectToPrivateHostIsDenied() started.
+◇ Test allowsPublicHosts() started.
+◇ Test surfacesHTTPErrors() started.
+◇ Test blocksPrivateAndLoopbackHosts() started.
+◇ Test acceptsNormalizedHTMLWithParameters() started.
+◇ Test tabWithAudioIsDeferredEvenWhenIdle() started.
+◇ Test activeTabNeverHibernates() started.
+◇ Test producesDeterministicTextExtraction() started.
+◇ Test timesOutSlowFetches() started.
+◇ Test everyFactoryStaysSchemaValidUnderDrift() started.
+◇ Test promiseRoundTripsThroughCodable() started.
+◇ Test extractsTitleDescriptionAndBody() started.
+◇ Test browserNavigateFactoryRejectsNonHTTPSchemes() started.
+◇ Test mixedRealisticWindow() started.
+◇ Test customThresholdsAreHonored() started.
+◇ Test precedencePinnedInsideFoldedGroupStillNeverHibernates() started.
+◇ Test capsContentSize() started.
+◇ Test browserNavigateFactoryRequiresConfirmation() started.
+◇ Test metaDescriptionWorksInEitherAttributeOrder() started.
+◇ Test tabWithNoUrlIsNeverHibernated() started.
+◇ Test fencedJsonBlockIsParsed() started.
+◇ Test pinnedTabNeverHibernatesEvenWhenVeryIdle() started.
+◇ Test tabInFoldedGroupHibernatesImmediately() started.
+◇ Test reconciliationRepairsSourceWithoutLedgerEventAndIsIdempotent() started.
+◇ Test studioApplyFactoryRequiresConfirmationAtT3() started.
+◇ Test tabWithActiveDownloadIsDeferredEvenWhenIdle() started.
+◇ Test tabWithNilSpaceIDTreatedAsInactiveSpace() started.
+◇ Test studioRunCheckFactoryAcceptsSafeCommandAndDeniesDestructive() started.
+◇ Test mediaAndDownloadProtectionApplyBeforeFoldAndAgeRules() started.
+◇ Test bgTabInActiveSpaceHibernatesAt15MinBoundary() started.
+◇ Test rejectsBinaryContentTypes() started.
+◇ Test tabInInactiveSpaceHibernatesAt5MinBoundary() started.
+◇ Test blockedTasksDetectIncompleteDependencies() started.
+◇ Test actionInboxExcludesDoneAndOrdersOverdue() started.
+◇ Test omittedExpiryIsAcceptedAndStoredAsNil() started.
+◇ Test expiredCapabilityIsRejectedBeforePersistence() started.
+◇ Test tabInUnfoldedGroupDoesNotHibernateByTheFoldRule() started.
+◇ Test tamperedBodyIsRejectedBeforeEitherStoreIsTouched() started.
+◇ Test durableRetentionRequiresExplicitApproval() started.
+◇ Test createAndRetrieveTaskRoundTripsAllFields() started.
+◇ Test capabilityIsSingleUseAndConsentIsAudited() started.
+◇ Test updateTaskTransitionsStateAndClearsDueDate() started.
+◇ Test reconciliationAdoptsExistingAuditWithoutDuplicatingIt() started.
+◇ Test validPayloadPersistsSourceAndFullTransportMetadata() started.
+◇ Test legacyNumericTimestampIsAcceptedWithoutPrecisionLossInWireValue() started.
+◇ Test dependencyGraphAddRemoveAndQuery() started.
+◇ Test successfulIngestClearsRecoveryJournal() started.
+◇ Test privateContentFailsClosedWithoutPersistence() started.
+◇ Test taskSourceLinksResolve() started.
+◇ Test workspaceAndProfileIsolationRejectsForeignEntries() started.
+◇ Test privateMemoryRequiresActiveScopeOptIn() started.
+◇ Test recoveryJournalRejectsSourceWithoutCanonicalHash() started.
+◇ Test streamsOpenAICompatibleSSEAndSendsResolvedKey() started.
+◇ Test explicitNullExpiryIsAcceptedAsNoExpiry() started.
+◇ Test deletionMetadataSurvivesAndSourceCanBeExplicitlyDeleted() started.
+◇ Test failedEmptyStateHasHonestFallback() started.
+◇ Test cancellationIsNormalTerminationAndDoesNotBecomeProviderFailure() started.
+◇ Test recoveryJournalRedactsPageProseButPreservesRepairMetadata() started.
+◇ Test ignoresCommentsMalformedFramesAndEmptyDeltas() started.
+◇ Test projectTaggedMemoryStaysDormantWithoutActiveProject() started.
+◇ Test sourceIdentityRemainsValidatedByReducer() started.
+◇ Test pageOnlyScopeKeepsCurrentPageButDisablesDurableContext() started.
+◇ Test duplicateContentReusesSourceButCreatesSecondAuditEvent() started.
+◇ Test cancelledStateKeepsPartialAnswerAndExplainsStop() started.
+◇ Test rejectsStreamWithNoValidEvents() started.
+◇ Test "classifies a first renderer failure as an automatic retry" started.
+◇ Test "decoded diagnostics are sanitized too" started.
+◇ Test "event diagnostics strip URL secrets and bound failure text" started.
+◇ Test stopsAtDoneAndIgnoresFramesAfterIt() started.
+◇ Test projectIsolationRejectsForeignAndUntaggedEntries() started.
+◇ Test "plan initializer clamps untrusted retry delays" started.
+◇ Test "classifies a crash loop as recovery-only" started.
+◇ Test rejectsEmptyChoicesFrame() started.
+◇ Test completedStateUsesRenderedContentAndSources() started.
+◇ Test "deleting a folder removes all descendants at every depth" started.
+◇ Test parseSafariHistoryExtractsEntry() started.
+◇ Test capabilityBindingRejectsWrongScopeProjectOrHash() started.
+◇ Test parseChromiumHistoryReturnsEmptyForMissingDB() started.
+◇ Test legacyScopePayloadDefaultsHotMemoryToEnabled() started.
+◇ Test "missing bookmark IDs are safe no-ops" started.
+◇ Test parseSafariHistoryReturnsEmptyForMissingDB() started.
+◇ Test "event metadata round-trips without page content" started.
+◇ Test createBriefLinksSources() started.
+◇ Test parseChromiumHistoryExtractsEntry() started.
+◇ Test "only a session failure is degraded and disclosed" started.
+◇ Test "healthy state remains quiet" started.
+◇ Test "confirmation states that no action ran and gives only typed controls" started.
+◇ Test "deleting a leaf removes only that bookmark" started.
+◇ Test updateBriefEditsAndReconcilesSources() started.
+◇ Test createAndRetrieveBrief() started.
+◇ Test "active lifecycle states have stable copy" started.
+◇ Test exportMarkdownIncludesSources() started.
+◇ Test "cyclic child metadata cannot expand deletion forever" started.
+◇ Test "pending clarification takes precedence over completed state" started.
+◇ Test selectedTabsAreAnExplicitNarrowing() started.
+◇ Test searchBriefsFindsByTitle() started.
+◇ Test "terminal states explain safe outcomes" started.
+◇ Test "clarification explains missing fields without exposing classifier details" started.
+◇ Test deleteBriefTypeChecked() started.
+◇ Test "idle and completed states are quiet without a pending decision" started.
+◇ Test privateContentRequiresExplicitScopeOptIn() started.
+◇ Test "a failed session write latches without clearing other failures" started.
+◇ Test saveThenLoadRoundTrips() started.
+◇ Test recordClosedTabDedupsByURLAndCapsAt25() started.
+◇ Test loadQuarantinesCorruptFileAndReturnsDefaults() started.
+◇ Test "pinned and essential tabs restore eagerly without an active tab" started.
+◇ Test unsupportedActionDoesNotRequestConfirmation() started.
+◇ Test actionRequiresExplicitConfirmationBeforeExecutorRuns() started.
+◇ Test cancellationClearsPendingConfirmation() started.
+◇ Test rejectsThreeMalformedDataFrames() started.
+◇ Test "all three stores are represented without hiding any failure" started.
+◇ Test objectRoundTripsThroughCodable() started.
+◇ Test runningAnswerPreservesContentAndStopsLoading() started.
+◇ Test accumulatesSourcesChunksNoticesAndRelatedQuestions() started.
+◇ Test "disabling lazy restore makes every durable tab eager" started.
+◇ Test ignoresInvalidSourceURLsForDurableCitationState() started.
+◇ Test mixedPreferenceAndRecommendationKeepsWorkRoute() started.
+◇ Test loadReturnsDefaultsWhenNoFileExists() started.
+◇ Test "only the first active flag wins; later flags stay background" started.
+◇ Test researchWithoutProviderIsUnsupportedWithoutLooping() started.
+◇ Test attachableToASendableRequest() started.
+◇ Test deduplicatesSourcesByCanonicalURLAndPreservesFirstOrder() started.
+◇ Test cancellationAndFailureAreDistinctTerminalStates() started.
+◇ Test explicitPreferenceRoutesToOrganize() started.
+◇ Test completionUsesFinalResultOnlyToFillMissingFields() started.
+◇ Test pageQuestionWithoutPageDoesNotWidenScope() started.
+◇ Test cancellingRejectsLateExecutorResult() started.
+◇ Test terminalStateIgnoresLateProviderEvents() started.
+◇ Test "normalizes empty and duplicate IDs while preserving first order" started.
+◇ Test "shows a recovery prompt only after a crash with durable content" started.
+◇ Test "every failure combination has a non-empty disclosure" started.
+◇ Test formatsInlineCitationsAndFooter() started.
+◇ Test "decoding repairs non-canonical origin keys" started.
+◇ Test handlesEmptySources() started.
+◇ Test "excludes transient blank tabs" started.
+◇ Test "default follows session permission" started.
+◇ Test searchOneShotMatchesStreamResult() started.
+◇ Test "excluded order follows saved index and never contains durable tabs" started.
+◇ Test deduplicatesSourcesByURL() started.
+◇ Test "preserves non-default ports and trims a trailing host dot" started.
+◇ Test "allow cannot override a session that excludes page context" started.
+◇ Test "excludes private tabs even when pinned, essential, or active" started.
+◇ Test runningEmptyStateIsLoadingAndNotTerminal() started.
+◇ Test "rejects credentials and non-web URLs" started.
+◇ Test "private browsing always wins over an allow decision" started.
+◇ Test "unavailable pages fail closed" started.
+◇ Test "returns an empty plan with no prompt for empty input" started.
+◇ Test writeThenLoadRoundTripsPayload() started.
+◇ Test missingFileReturnsNone() started.
+◇ Test "preserves saved index order in eager and lazy sets" started.
+◇ Test "canonicalizes a web origin and drops page data" started.
+◇ Test "block overrides a session that allows page context" started.
+◇ Test "bounds and redacts untrusted page titles" started.
+◇ Test corruptMainWithoutBackupReturnsCorruptWithNilRecovery() started.
+◇ Test failedEncodeLeavesExistingMainIntact() started.
+◇ Test "admits same profile and workspace tabs" started.
+◇ Test processRunsFullPipelineWhenRankerSkipped() started.
+◇ Test clarificationAttemptsAreBounded() started.
+◇ Test rankerStepRunsAndReportsHonestDecision() started.
+◇ Test providerReportsError() started.
+◇ Test customPrevURLAndEncoderAreHonored() started.
+◇ Test mockProviderEmitsSourcesAndChunks() started.
+◇ Test missingMainWithBackupRecoversInsteadOfFreshStart() started.
+◇ Test secondWriteRotatesPriorGoodFileToBackup() started.
+◇ Test focusModeRawValues() started.
+◇ Test "setting a decision changes only the canonical origin" started.
+◇ Test "redacts query fragments and userinfo from tab metadata" started.
+◇ Test "handles a non-positive title budget safely" started.
+◇ Test "default visibility remains backward compatible" started.
+◇ Test "blocked page scope excludes page content" started.
+◇ Test "private page remains excluded even if scope is allowed" started.
+◇ Test resultAccumulatesSourcesAndAnswer() started.
+◇ Test "rejects malformed and non-web URLs" started.
+◇ Test everyTabGroupHasUniqueID() started.
+◇ Test "rejects tabs from another workspace or profile" started.
+◇ Test "rejects private active or referenced tabs" started.
+◇ Test supportsEveryRole() started.
+◇ Test deterministicForSameInput() started.
+◇ Test privateTabsCannotPersistDecisions() started.
+◇ Test getAllProjectsFiltersByLifecycle() started.
+◇ Test sourceEqualityUsesID() started.
+◇ Test tabGroupDefaultsAreHiveAmberAndUnfolded() started.
+◇ Test glutenFreeSet() started.
+◇ Test normalizesHostsWithoutBroadeningOrigin() started.
+◇ Test "blocked explicit tab is excluded rather than admitted" started.
+◇ Test popupPolicyPreservesUserLinksAndBlocksDeniedScripts() started.
+◇ Test defaultsToAskAndResolvesStoredDecision() started.
+◇ Test "authoritative referenced-tab policy rejects blocked and unavailable pages" started.
+◇ Test exportProjectRendersMarkdownWithTaskGroups() started.
+◇ Test privateTabsAlwaysResolveAsk() started.
+◇ Test providerIsMockAndNeverReal() started.
+◇ Test corruptMainFileIsQuarantinedAndBackupRestored() started.
+◇ Test deleteProjectCascadesMembership() started.
+◇ Test treeNutsAllergy() started.
+◇ Test authorityRejectsMutationWrongKeyIssuerAndMissingSignature() started.
+◇ Test registryAllowsOnlyOneConcurrentReservation() started.
+◇ Test emptyInputProducesNoCandidates() started.
+◇ Test veganSet() started.
+◇ Test registryBindsApprovalToOneJournalAndEvent() started.
+◇ Test tabGroupCodableRoundTrips() started.
+◇ Test caseInsensitivity() started.
+◇ Test peanutAllergy() started.
+◇ Test mixedPreferenceAndRequestExtractsPreference() started.
+◇ Test projectTaskMembership() started.
+◇ Test "delayed retry attempt becomes stale after navigation or recovery" started.
+◇ Test vegetarianWithdraw() started.
+◇ Test randomAuthorityStartsAtVersionOne() started.
+◇ Test authoritySignsAndVerifiesCanonicalClaimsAfterCodableRoundTrip() started.
+◇ Test createAndRetrieveProject() started.
+◇ Test evidenceIsBoundedTo240Chars() started.
+◇ Test redactsKeyAssignments() started.
+◇ Test redactsBearerTokens() started.
+◇ Test registryReleaseAllowsRetryBeforePersistence() started.
+◇ Test scopeProducesHonestSummary() started.
+◇ Test "allowed page scope admits eligible page" started.
+◇ Test "duplicate native failure callbacks are idempotent" started.
+◇ Test generateWithCellPromptWorksForAllMappedRoles() started.
+◇ Test updateProjectEditsTitlePurposeAndLifecycle() started.
+◇ Test "first failure allows exactly one automatic retry" started.
+◇ Test allowsNonPrivatePageCapture() started.
+◇ Test whitespaceTrimming() started.
+◇ Test "second failure stops automatic retries and exposes recovery" started.
+◇ Test rejectsExpiredFutureAndMismatchedCapabilities() started.
+◇ Test vegetarianSetAlternatePhrasing() started.
+◇ Test generateWithCellPromptRoutesThroughDispatcher() started.
+◇ Test shortTextNotTruncated() started.
+◇ Test "crash loop never auto-retries" started.
+◇ Test "out-of-order failure starts a fresh burst" started.
+◇ Test scopeBindingExcludesForeignProfileWorkspaceAndProjectMemory() started.
+◇ Test validatesScopedCapabilityShape() started.
+◇ Test redactsPrivateKeyBlocks() started.
+◇ Test registryPersistsReplayProtectionAcrossRestart() started.
+◇ Test autoCaptureTriageDegradesToMockSkip() started.
+◇ Test vegetarianWithdrawAlternatePhrasing() started.
+◇ Test privatePageNeverReachesPageQA() started.
+◇ Test disabledPageNeverReachesPageQA() started.
+◇ Test pageOnlyScopeExcludesHotMemoryFromAssembly() started.
+◇ Test disabledPageNeverReachesCaptureScribe() started.
+◇ Test truncationKeepsHeadAndTailWithMarker() started.
+◇ Test leavesOrdinaryProseUntouched() started.
+◇ Test confidenceIsClampedTo01() started.
+◇ Test deniesPrivatePageCapture() started.
+◇ Test redactsShortLabeledPasswords() started.
+◇ Test sensitivityLabelsPrivateBrowsingAndNonHTTPS() started.
+◇ Test currentContextScopeCapsAtFifteenEntries() started.
+◇ Test askOnPageDegradesToMockPageDoesNotSay() started.
+◇ Test evidencePreservesOriginalText() started.
+◇ Test autoCaptureTriageNeverThrowsOnDispatcherError() started.
+◇ Test generateWithCellPromptFallsBackWithoutLoader() started.
+◇ Test setActiveProjectKeepsRecentlyAccessedOldProjectNodes() started.
+◇ Test veganWithdraw() started.
+◇ Test "in-memory stores disclose their ephemeral state" started.
+◇ Test forgettingOtherNodeKeepsPageContext() started.
+◇ Test "manual retry is one-shot and recovery clears only after success" started.
+◇ Test vegetarianSet() started.
+◇ Test forgetNodeRemovesEntryAndReportsSuccess() started.
+◇ Test sesameAllergy() started.
+◇ Test "file-backed stores disclose durable state" started.
+◇ Test shellfishAllergy() started.
+◇ Test "delayed retry attempt becomes stale after a newer failure" started.
+◇ Test "invalid storage paths fail instead of pretending to be durable" started.
+◇ Test runCheckReturnsCommandOutput() started.
+◇ Test nonPreferenceTextProducesNoCandidates() started.
+◇ Test forgetNodeBlocksReAddition() started.
+◇ Test accessRecordsAndBumpsEntry() started.
+◇ Test rejectsAbsoluteAndHomePaths() started.
+◇ Test rollbackRestoresOriginal() started.
+◇ Test usesCitationNumberNotMarkerPosition() started.
+◇ Test extractsMultipleClaimsForMultipleCitations() started.
+◇ Test "snapshot keeps sanitized diagnostics only" started.
+◇ Test runCheckRequiresRoot() started.
+◇ Test explicitSourceHintOutranksBrowsed() started.
+◇ Test diffShowsChangedLinesWithHunk() started.
+◇ Test activeProjectNodesIncludedInContext() started.
+◇ Test outOfRangeCitationIsUnmatched() started.
+◇ Test newFileEditRollbackDeletes() started.
+◇ Test adjacentCitationsShareThePrecedingSentence() started.
+◇ Test resolvesPathsInsideRoot() started.
+◇ Test malformedZeroCitationIsUnmatched() started.
+◇ Test forgottenNodeExcludedFromAssembly() started.
+◇ Test repeatAccessEnrichesLabelFromWarmUp() started.
+◇ Test applyEditBacksUpAndWrites() started.
+◇ Test "expired crash burst receives a fresh automatic retry budget" started.
+◇ Test assembleContextAlwaysIncludesCurrentPage() started.
+◇ Test "failure state is isolated per tab" started.
+◇ Test noMarkersProducesNoClaims() started.
+◇ Test readsExistingFile() started.
+◇ Test runCheckTimesOut() started.
+◇ Test relevanceGateOutranksHotterButIrrelevantMemory() started.
+◇ Test credentialedAndNonHTTPURLsFailBeforeFetch() started.
+◇ Test unmatchedWhenNoOverlap() started.
+◇ Test staleEntriesEvictedAfterHotWindow() started.
+◇ Test forgettingCurrentPageClearsPageContext() started.
+◇ Test gitRestoreRejectsNoRoot() started.
+◇ Test successfulHandoffUsesNonPrivateSessionRetention() started.
+◇ Test containsIsFalseWithoutRoot() started.
+◇ Test privateBrowsingFailsBeforeFetchOrIngest() started.
+◇ Test unicodeBeforeCitationKeepsSpanOffsetsSafe() started.
+◇ Test runCheckRunsInWorkspace() started.
+◇ Test capacityEvictsColdestEntry() started.
+◇ Test workerFailureDoesNotReachIngest() started.
+◇ Test diffIdenticalIsNoChanges() started.
+◇ Test repeatedAccessRanksAboveSingleAccess() started.
+◇ Test rejectsTraversalEscape() started.
+◇ Test browserSessionDefaultsEmptyForwardCompat() started.
+◇ Test gitRestoreRejectsTraversal() started.
+◇ Test currentContextScopeResolvesRealLabelsFromHoneycomb() started.
+◇ Test explicitTopLayoutStillRoundTrips() started.
+◇ Test extractsClaimWithVerbatimSpanAndResolvableOffsets() started.
+◇ Test browserSessionCodableRoundTrips() started.
+◇ Test diffEmptyToContent() started.
+◇ Test symlinkEscapeIsRejected() started.
+◇ Test sessionLoadResultEquality() started.
+◇ Test gitRestoreRejectsWithoutGitRepo() started.
+◇ Test realSupervisorPathPersistsSessionSourceAndAudit() started.
+◇ Test forgetAndClearRemoveEntries() started.
+◇ Test scoreFloorFiltersNoise() started.
+◇ Test clearWipesForgottenSet() started.
+◇ Test queryBoostRanksSemanticMatchFirst() started.
+◇ Test rejectsWriteToDirectory() started.
+◇ Test runCheckReportsFailure() started.
+◇ Test detectsGitRepository() started.
+◇ Test diffHandlesInsertionAndDeletion() started.
+◇ Test entryLabelAndContentRenderInlineWithoutHoneycomb() started.
+◇ Test writeSyncRotatesPriorGoodFileToBackup() started.
+◇ Test unmatchedWhenSourceTextMissing() started.
+◇ Test writeSyncThenLoadRoundTrips() started.
+◇ Test flushWritesImmediatelyAndCancelsDebounce() started.
+◇ Test corruptFileWithNoBackupReturnsCorruptNilRecovered() started.
+◇ Test externalAttributionIsNeverExtracted() started.
+◇ Test olderHotEntryPayloadWithoutProjectIDStillDecodes() started.
+◇ Test windowDecodesMissingOptionalFieldsToDefaults() started.
+◇ Test untaggedMemoryIsNotGlobalByAccident() started.
+◇ Test assembleContextOrdersHotNodesByRelevance() started.
+◇ Test "in-flight transition rejects before response side effects" started.
+◇ Test "any failed bootstrap invariant emits a fail marker" started.
+◇ Test "obsolete request fails closed after a newer transition" started.
+◇ Test "rapid transitions converge on newest scope" started.
+◇ Test loadReturnsNoneWhenNoFileExists() started.
+◇ Test "duplicate or contradictory requests are rejected while one is pending" started.
+◇ Test unforgetNodeAllowsReAddition() started.
+◇ Test askOnPageHandlesNoPageText() started.
+◇ Test registryReservesNonceExactlyOnce() started.
+◇ Test "terminal cleanup resets control state" started.
+◇ Test loadQuarantinesCorruptFileAndRecoversFromBackup() started.
+◇ Test "a request timeout re-enables the last actionable control" started.
+◇ Test "only hosted HTTP(S) pages expose page actions" started.
+◇ Test "private web pages retain ordinary page actions" started.
+◇ Test "resume is represented as a pending request until native state confirms it" started.
+◇ Test "ready report emits a deterministic pass marker" started.
+◇ Test "crashes outside the window are not a loop" started.
+◇ Test "request binds its explicit scope before orchestration" started.
+◇ Test "transient tabs without a live URL do not expose page actions" started.
+◇ Test "allows one automatic retry before showing recovery" started.
+◇ Test "custom retry schedule remains bounded" started.
+◇ Test assembleContextPromptFormatsAllSections() started.
+◇ Test "crash loops never auto-retry" started.
+◇ Test "crashes spaced within the last-crash window reset after the fixed burst window" started.
+◇ Test "recording exactly at the five-minute boundary starts a new burst" started.
+◇ Test "control state is codable without runtime controller data" started.
+◇ Test privateMemoryIsRejectedAtAdmission() started.
+◇ Test disabledAIContextRoundTripsThroughCodable() started.
+◇ Test "web schemes require a non-empty host" started.
+◇ Test "diagnostics are bounded before they enter smoke logs" started.
+◇ Test "automatic retry delays are bounded and use the configured schedule" started.
+◇ Test "pause is represented as a pending request until native state confirms it" started.
+◇ Test recordFallsBackToMetadataOnEnrichFailure() started.
+◇ Test recordEmptySourcesProducesNoBrief() started.
+◇ Test activeStatesAreOnlyRunningAndStopping() started.
+◇ Test recordDedupsByContentHashAcrossEnrichedRuns() started.
+◇ Test currentContextScopeFallsBackHonestlyWithoutHoneycomb() started.
+◇ Test "retry limit is configurable but never negative" started.
+◇ Test recordTreatsHostileSnippetsAsInertData() started.
+◇ Test repeatedIdenticalClaimRetainsBothEvidenceEdges() started.
+◇ Test newTabsAllowAIContextByDefault() started.
+◇ Test recordReportsUnmatchedCitations() started.
+◇ Test nodeRoundTripPreservesSheet() started.
+◇ Test legacySessionsDefaultAIContextToAllowed() started.
+◇ Test recordExtractsAndLinksClaims() started.
+◇ Test "closed tab removal prevents stale identifier inheritance" started.
+◇ Test labelsAndSymbolsAreStableForDenseStatusUI() started.
+◇ Test "negative tab counts are fail-closed to zero" started.
+◇ Test duplicateURLsKeepCitationOccurrenceMappings() started.
+◇ Test "stop invalidates the active response without creating a replacement" started.
+◇ Test "evidence marker is deterministic and contains lifecycle facts only" started.
+◇ Test "a newer response invalidates the older response" started.
+◇ Test recordRespectsEnrichLimit() started.
+◇ Test formulaVersionConstant() started.
+◇ Test "request identifiers remain monotonic across repeated cancellation" started.
+◇ Test csvSkipsEmptyLines() started.
+◇ Test recordDedupsByURL() started.
+◇ Test formulaArithmetic() started.
+◇ Test leavesUniqueNameUntouched() started.
+◇ Test setActiveProjectEvictsStaleOldProjectNodes() started.
+◇ Test stateRoundTripsAsCodableValue() started.
+◇ Test recordPreservesSnippetAlongsideFetchedContent() started.
+◇ Test resumableFailureMetadataRoundTrips() started.
+◇ Test formulaUnknownCell() started.
+◇ Test searchFindsNodesByMetadataText() started.
+◇ Test deleteNodeCascadesToEdges() started.
+◇ Test sanitizesTraversalAndControlCharacters() started.
+◇ Test formulaParseErrors() started.
+◇ Test recordEnrichesSourcesWithFetchedContent() started.
+◇ Test formulaDivisionByZero() started.
+◇ Test "normalizes empty and duplicate IDs while preserving first order" started.
+◇ Test usesFallbackForBlankOrDotOnlyNames() started.
+◇ Test storeEncodesSanitizedProjectionAndBackup() started.
+◇ Test projectionOmitsPrivateTabsAndRepairsReferences() started.
+◇ Test "supports non-wrapping boundaries" started.
+◇ Test storeCreatesAndRetrievesSheet() started.
+◇ Test formulaResultIsDeterministic() started.
+◇ Test "moves in both directions and wraps by default" started.
+◇ Test csvHandlesCRLFImports() started.
+◇ Test "starts at the direction boundary without a current focus" started.
+◇ Test deleteNodeRemovesFromStore() started.
+◇ Test removesOnlyMatchingTerminalRows() started.
+◇ Test loadSyncStaticMatchesActorLoad() started.
+◇ Test preservesExtensionWhenResolvingCollision() started.
+◇ Test projectionOmitsPrivateArchivedRecords() started.
+◇ Test interruptedAndCanceledRowsAreTerminal() started.
+◇ Test "does not leave the supplied projection for an unknown focus ID" started.
+◇ Test updateNodeReturnsNilForMissingNode() started.
+◇ Test getNodesInBatchPreservesRequestedOrderAndOmitsMissing() started.
+◇ Test sha256IsDeterministic() started.
+◇ Test csvRaggedRowsNeverShiftGrid() started.
+◇ Test activeRowsAreNeverRemovableHistory() started.
+◇ Test privatePageNeverReachesCaptureScribe() started.
+◇ Test fromRejectsNonArtifactNode() started.
+◇ Test insertAndGetEdges() started.
+◇ Test getNeighborsRespectsDepth() started.
+◇ Test allPrivateWindowFallsBackToNoActiveTab() started.
+◇ Test storeDeletesSheet() started.
+◇ Test deleteOlderThanRemovesExpiredNodes() started.
+◇ Test edgeExistsCorrectly() started.
+◇ Test wordOverlapFallbackBoostsWithoutHoneycomb() started.
+◇ Test "returns nil for an empty projection" started.
+◇ Test sheetFormulaVersionRoundTripsThroughStore() started.
+◇ Test formulaCellReferences() started.
+◇ Test dedupByTypeAndContentHash() started.
+◇ Test recordPersistsSourcesAndCreatesLinkedBrief() started.
+◇ Test storeLinksAndFetchesSources() started.
+◇ Test storeCsvRoundTripHelper() started.
+◇ Test defaultsUseVerticalLayoutAndHiddenBookmarkBar() started.
+◇ Test csvRoundTripPreservesValues() started.
+◇ Test countEdgesFiltersByRelation() started.
+◇ Test csvHeaderOnlySheet() started.
+◇ Test missingLegacyKeysUseSafeDefaults() started.
+◇ Test storeUpdatesSheet() started.
+◇ Test insertNodeWithAllNodeTypes() started.
+◇ Test formulaAggregates() started.
+◇ Test minimumTrustLevelsMatchLadder() started.
+◇ Test getNodeReturnsNilForMissing() started.
+◇ Test validValuesRoundTripThroughCodable() started.
+◇ Test legacyRuntimeAndPathKeysAreIgnoredOnDecode() started.
+◇ Test trustLevelRankIsNumeric() started.
+◇ Test lightModeSurfaceIsWarmPaperNotPureWhite() started.
+◇ Test equalityRoundTripsStableMetadata() started.
+◇ Test insertAndGetNode() started.
+◇ Test sensitiveURLComponentsAreRemovedAtConstruction() started.
+◇ Test numberDisplayTextNeverTrapsOnHugeValues() started.
+◇ Test everyDarkModeTokenCaseDistinct() started.
+◇ Test noTokenIsPureBlackOrWhite() started.
+◇ Test backgroundIsWarmMahoganyNotPureBlack() started.
+◇ Test csvEscapesQuotedFields() started.
+◇ Test inkIsCandlelightCreamNotPureWhite() started.
+◇ Test accentIsHiveAmberDarkMode() started.
+◇ Test clearDeletesPersistenceFile() started.
+◇ Test codableRoundTripContainsOnlyStableHistoryFields() started.
+◇ Test interruptedStateRoundTripsWithoutBecomingCanceled() started.
+◇ Test csvEmptySheet() started.
+◇ Test corruptFilePreservedAndStartsEmpty() started.
+◇ Test updateNodeRecordsRevisionHistory() started.
+◇ Test rgbComponentsRoundTripFromHex() started.
+◇ Test getEdgesFiltersByRelation() started.
+◇ Test forbiddenValuesNeverPresentInDarkMode() started.
+◇ Test terminalStateRequiresCompletionOrCancellation() started.
+◇ Test updateNodeChangesLabelAndTimestamp() started.
+◇ Test fullContextScopeFlagsSurviveRestart() started.
+◇ Test progressIsClampedToHistoryBounds() started.
+◇ Test formulaCellReferenceHelpers() started.
+◇ Test hexDropsLeadingHash() started.
+◇ Test lightModeAccentIsHiveAmber() started.
+◇ Test unknownLayoutNormalizesToSafeDefault() started.
+◇ Test forgetSticksAcrossRestart() started.
+◇ Test importsOnlyWebHistoryAndSanitizesMetadata() started.
+◇ Test noDedupWhenHashIsNil() started.
+◇ Test alphaTokensUseCanonicalBasesAndOpacities() started.
+◇ Test returnsChronologicalOrderAndRetainsNewestLimit() started.
+◇ Test keepsNewestDuplicateAndSkipsExistingURLs() started.
+◇ Test formulaAggregateOverEmptyRange() started.
+◇ Test storeBumpsFormulaVersionOnContentChange() started.
+◇ Test invalidLimitSkipsAllCandidates() started.
+◇ Test findNodeByTypeAndHash() started.
+◇ Test sharedRepoGroupsCohort() started.
+◇ Test nilPersistenceURLKeepsStoreInMemoryOnly() started.
+◇ Test supportsWithdrawalAndAllergySignals() started.
+◇ Test saveAndReloadRoundTripsEntriesForgottenAndProject() started.
+◇ Test noDuplicateBaseModelAcrossRoleObjects() started.
+◇ Test missingFileStartsEmpty() started.
+◇ Test weightRepoContracts() started.
+◇ Test countNodesFiltersByType() started.
+◇ Test allWeightSetsAreDistinctAndMlxPrefixed() started.
+◇ Test preferenceEntersOnlyRelevantAssembledContext() started.
+◇ Test getNeighborsReturnsDirectConnections() started.
+◇ Test searchRespectsLimit() started.
+◇ Test getNodesInBatchHandlesEmptyAndDuplicates() started.
+◇ Test doesNotTreatARequestAsAPersistentPreference() started.
+◇ Test "supports variable rendered widths" started.
+◇ Test everyRoleHasAnEntry() started.
+◇ Test searchFindsNodesByLabel() started.
+◇ Test "uses the actual midpoint for before and after" started.
+◇ Test extractsExplicitFirstPersonPreference() started.
+◇ Test tiersAreSelfConsistent() started.
+◇ Test durablePreferenceIsIdempotentAndReplacesOldValue() started.
+◇ Test captureDeduplicatesSourceByURL() started.
+◇ Test pageContextIsEphemeralNotPersisted() started.
+◇ Test loraRolesHaveVerifiedHeldOutVerdict() started.
+◇ Test localOnlyGuardsTrustBoundary() started.
+◇ Test "clamps finite coordinates at the target boundaries" started.
+◇ Test "a load that has not started remains pending" started.
+◇ Test recreatedSupervisorRepairsAStagedJournalRecord() started.
+◇ Test "rejects invalid dimensions and non-finite coordinates" started.
+◇ Test emptySearchReturnsEmptyArray() started.
+◇ Test sha256ProducesDifferentHashesForDifferentInputs() started.
+◇ Test failedCaptureRecordsFailureEvent() started.
+◇ Test relevanceIsTaxonomyAwareAndNotGlobalNoise() started.
+◇ Test rejectsEmptyAndSharedStoragePaths() started.
+◇ Test "valid active selection and ordering are preserved" started.
+◇ Test keyMaterialAndSignaturesSurviveSupervisorRecreation() started.
+◇ Test skipsActiveTab() started.
+◇ Test contentHashDedupAcrossSameType() started.
+◇ Test captureCreatesSourceAndCaptureNodes() started.
+◇ Test "already idle does not count as completion" started.
+◇ Test skipsFoldedGroupMemberEvenWhenCold() started.
+◇ Test "empty groups are preserved as user state" started.
+◇ Test returnsEmptyForEmptyTabs() started.
+◇ Test flagsColdTab() started.
+◇ Test browserTabRoundTripsReaderModeFlag() started.
+◇ Test "normalization removes private tabs and dangling references" started.
+◇ Test mixesConditionsCorrectly() started.
+◇ Test durableApprovalIsSingleUseThroughTheCompositionRoot() started.
+◇ Test "completion requires a loading to idle transition" started.
+◇ Test skipsPinnedTab() started.
+◇ Test createsParentDirectoriesAndUsesPositiveActiveVersion() started.
+◇ Test skipsNoURLNewTab() started.
+◇ Test skipsPrivateTabEvenWhenCold() started.
+◇ Test browserTabDefaultsToReaderModeOff() started.
+◇ Test recordedEventPreservesAllFields() started.
+◇ Test getEventsSupportsLimitAndOffset() started.
+◇ Test skipsRecentTab() started.
+◇ Test parentChildEventChain() started.
+◇ Test recordEventsWithAllPolicyDecisions() started.
+◇ Test getEventReturnsNilForMissing() started.
+◇ Test getChildEventsReturnsEmptyForNoChildren() started.
+◇ Test deleteByProvenance() started.
+◇ Test recordIfAbsentRejectsConflictingEventWithSameID() started.
+◇ Test "backup recovery carries semantic repair metadata" started.
+◇ Test getEventsBySession() started.
+◇ Test nilFieldsRoundTripCorrectly() started.
+◇ Test recordEventsWithAllConsentStates() started.
+◇ Test getProjectNodesReturnsBelongingNodes() started.
+◇ Test insertNodeWithSpecialCharactersInLabel() started.
+◇ Test getEventsByDateRange() started.
+◇ Test deleteAll() started.
+◇ Test emptyContextIDsRoundTrip() started.
+◇ Test "store reports repairs for a malformed primary payload" started.
+◇ Test "empty spaces and tabs do not invent restore state" started.
+◇ Test deleteOlderThan() started.
+◇ Test contentHashCrossTypeNoDedup() started.
+◇ Test insertEdgeWithAllRelationTypes() started.
+◇ Test deleteEdge() started.
+◇ Test noDedupWhenCheckDedupIsFalse() started.
+◇ Test getNodesByTypeReturnsCorrectSubset() started.
+◇ Test countEventsWithFilters() started.
+◇ Test rollbackReferencePreserved() started.
+◇ Test deleteByProvenanceRemovesMatchingNodes() started.
+◇ Test getEventsByProject() started.
+◇ Test recordEventsWithAllVerificationResults() started.
+◇ Test recordEventsWithAllActionKinds() started.
+◇ Test getFailedEvents() started.
+◇ Test errorDescriptionIsPreserved() started.
+◇ Test recordAndGetEvent() started.
+◇ Test getEventsByActor() started.
+◇ Test "current response is eligible for application" started.
+◇ Test decodesMissingOptionalsFromJSON() started.
+◇ Test getEventsByActionKind() started.
+◇ Test recordIfAbsentAcceptsEquivalentEventAfterSQLiteDateNormalization() started.
+◇ Test updateClaimFreshnessReturnsNilForMissing() started.
+◇ Test roundtripsCorrectly() started.
+◇ Test getEventsByResult() started.
+◇ Test correctClaimReplacesEvidenceSpans() started.
+◇ Test getEventsMinTrustLevel() started.
+◇ Test readerArtifactHoldsExtractedContent() started.
+◇ Test "superseded browser context becomes an explicit context change" started.
+◇ Test claimFromNodeHandlesMissingMetadata() started.
+◇ Test recordEventsWithAllTrustLevels() started.
+◇ Test "cancellation drops the response instead of mutating the UI" started.
+◇ Test getUnverifiedEvents() started.
+◇ Test sourceFromNodeHandlesMissingMetadata() started.
+◇ Test "diagnostics preserve provider, context, timing, and page provenance" started.
+◇ Test createAndRetrieveClaim() started.
+◇ Test sourceWithoutTitleUsesURLAsLabel() started.
+◇ Test linkClaimToSource() started.
+◇ Test sourceQualityScoreIsClamped() started.
+◇ Test sourceQualityScoreRoundTrips() started.
+◇ Test createAndRetrieveSource() started.
+◇ Test correctClaimReturnsNilForMissing() started.
+◇ Test sourceDedupByContentHash() started.
+◇ Test claimConfidenceIsClamped() started.
+◇ Test deleteClaimRemovesNodeAndEdges() started.
+◇ Test claimFromNodeReturnsNilForWrongType() started.
+◇ Test searchClaims() started.
+◇ Test updateClaimFreshness() started.
+◇ Test getAllSources() started.
+◇ Test correctClaimUpdatesTextAndConfidence() started.
+◇ Test getAllClaims() started.
+◇ Test linkClaimToSourceIsIdempotent() started.
+◇ Test sourceMetadataRoundTrips() started.
+◇ Test emptyHistoryIsAnIdempotentNoOp() started.
+◇ Test deleteSourceCascadesEvidenceEdges() started.
+◇ Test negativeCountsFailClosedToNoOp() started.
+◇ Test sourceFromNodeReturnsNilForWrongType() started.
+◇ Test userDefinedCommandRoundTripsAndValidatesWebURLs() started.
+◇ Test defaultSpaceIsNamedDefault() started.
+◇ Test findSourceByURL() started.
+◇ Test markContradictionBetweenClaims() started.
+◇ Test evidenceSpanWithoutQuote() started.
+◇ Test tabPositionHasExactlyTwoLayouts() started.
+◇ Test spaceRemoveTabWhenActiveSurvivesKeepsActiveTabID() started.
+◇ Test getContradictingClaims() started.
+◇ Test removingTabDropsPendingAndTombstones() started.
+◇ Test claimDedupByTextHash() started.
+◇ Test browserTabCodableRoundTrips() started.
+◇ Test failedEncodeDoesNotRotatePrimaryOrBackup() started.
+◇ Test claimEvidenceSpansRoundTrip() started.
+◇ Test browserSessionLifecycleFieldsRoundTripAndPrivateDataStaysExcluded() started.
+◇ Test getClaimsForSource() started.
+◇ Test multipleCanceledRequestsRemainDistinct() started.
+◇ Test spaceCodableRoundTrips() started.
+◇ Test legacyBrowserSessionPayloadDefaultsLifecycleFields() started.
+◇ Test canceledAutoRequestOnlyConsumesItsOwnCallback() started.
+◇ Test spaceMoveForeignTabIsNoOp() started.
+◇ Test pendingAutoRequestIsAutoUntilCallbackArrives() started.
+◇ Test userDefinedCommandRejectsUnsafeOrMalformedURLs() started.
+◇ Test manualAndAutoGenerationsRemainDistinct() started.
+◇ Test newTabFactorySetsActiveAndPrivacyAndSpace() started.
+◇ Test spaceAddTabIsIdempotentAndOrderPreserving() started.
+◇ Test nonEmptyHistoryReturnsCountAndPersists() started.
+◇ Test tabPositionCodableRoundTrips() started.
+◇ Test hiveClosedTabCapIs25() started.
+◇ Test secondWritePreservesPreviousPrimaryAsBackup() started.
+◇ Test spaceMoveTabClampsOutOfRangeIndex() started.
+◇ Test tabDensityHasThreeSteps() started.
+◇ Test userPrefsCodableRoundTrips() started.
+◇ Test spaceMoveTabToEnd() started.
+◇ Test closedTabRecordCodableRoundTrips() started.
+◇ Test slashCommandSearchIncludesAliasesAndKeywords() started.
+◇ Test tabPositionDisplayNamesAreHuman() started.
+◇ Test everyBrowserTabHasAUniqueID() started.
+◇ Test spaceMoveTabWithinLeftward() started.
+◇ Test slashCommandsExposeOnlyExplicitAliases() started.
+◇ Test tabPositionToggledFlipsBetweenTheTwo() started.
+◇ Test spaceMoveTabSameIndexIsNoOp() started.
+◇ Test systemEmbedderIsAvailableAndCorrectDimension() started.
+◇ Test userDefinedCommandsDefaultEmptyAndPersistInPrefs() started.
+◇ Test slashAliasResolvesExactlyAndNormalizesInput() started.
+◇ Test searchFiltersByKeyword() started.
+◇ Test slashAliasCollisionIsNotExecutableOrDisplayed() started.
+◇ Test commandDefinitionDecodesWithoutLegacySlashAliases() started.
+◇ Test privateTabPrivacyRoundTripsThroughCodable() started.
+◇ Test userPrefsDefaultsShipVerticalStandardGoogle() started.
+◇ Test spaceMoveTabToFront() started.
+◇ Test defaultCatalogIncludesCoreCommands() started.
+◇ Test restoreIsLosslessForBlobOntoAFreshSlot() started.
+◇ Test "new navigation invalidates the previous attempt for the same tab" started.
+◇ Test "invalidating a tab rejects pending callbacks" started.
+◇ Test spaceMoveTabWithinRightward() started.
+◇ Test spaceRemoveTabClearsActiveTabID() started.
+◇ Test captureOverwritesAndManyTabsCoexist() started.
+◇ Test captureNilStateLeavesNoTrail() started.
+◇ Test approvalScopeKeyIgnoresPresentationAndProvenanceChanges() started.
+◇ Test browserTabDisplayTitleFallsBackThroughHostToNewTab() started.
+◇ Test "remove reports whether state existed and is idempotent" started.
+◇ Test "attempts are isolated between tabs" started.
+◇ Test searchReturnsAllForEmptyQuery() started.
+◇ Test searchFiltersByTitle() started.
+◇ Test targetEnvelopeWithUndeclaredKeyIsDenied() started.
+◇ Test emptyBrokerReportsEmpty() started.
+◇ Test captureThenRestoreDrainsTheBlob() started.
+◇ Test wrongTypedArgumentIsDenied() started.
+◇ Test approvalScopeKeyIncludesToolAndCanonicalValues() started.
+◇ Test developerToolsAreDisabledByDefault() started.
+◇ Test definitionForID() started.
+◇ Test pathTraversalIsDeniedBySchema() started.
+◇ Test approvalScopeKeyHandlesNonConformingDoublesWithoutCrashing() started.
+◇ Test approvalScopeKeyDoesNotCollapseValueTypes() started.
+◇ Test trustFloorIsEnforced() started.
+◇ Test missingRequiredArgumentIsDenied() started.
+◇ Test readToolWithValidArgsIsAllowed() started.
+◇ Test versionRotationIsExplicitAndOldAuthorityDoesNotAcceptNewVersion() started.
+◇ Test runCheckToolDeniesDestructiveCommandViaPolicy() started.
+◇ Test undeclaredArgumentIsDenied() started.
+◇ Test clearDropsABlobSoIdsDontResurrect() started.
+◇ Test unregisteredToolIsDenied() started.
+◇ Test approvalScopeKeyIsStableForEquivalentStructuredInvocations() started.
+◇ Test everyDefaultToolAcceptsValidInvocation() started.
+◇ Test actToolRequestsConfirmation() started.
+◇ Test alreadyHibernatedTabsAreNotSelectedAgain() started.
+◇ Test filePathRejectsDriveColonAndBackslash() started.
+◇ Test constructorNormalizesInvalidNegativeValues() started.
+◇ Test typedValuesMatchFieldTypes() started.
+◇ Test provisionsOnceAndLoadsTheSameMaterialAcrossProviderInstances() started.
+◇ Test evidenceAndRollbackRoundTrip() started.
+◇ Test openingCommandPaletteDismissesTabSearch() started.
+◇ Test aggregatesMeasuredCountsAndExcludesPrivateTabs() started.
+◇ Test clampsNegativeCountsAndSkipsTabsWithoutMeasuredBlocks() started.
+◇ Test commandDenyListBlocksDestructivePatterns() started.
+◇ Test corruptMaterialIsRejectedAndNeverOverwritten() started.
+◇ Test filePathRejectsTraversal() started.
+◇ Test protectsActivePinnedEssentialMediaAndDownloads() started.
+◇ Test sortsByCountThenHostAndCapsTopSites() started.
+◇ Test effectiveWakeURLPreservesSavedURLAndRejectsBlankPages() started.
+◇ Test urlRejectsNonHTTPS() started.
+◇ Test customThresholdsRemainDeterministic() started.
+◇ Test collapsedGroupMembersHibernateImmediately() started.
+◇ Test developerToolsAllowedWhenExplicitlyEnabled() started.
+◇ Test concurrentProvisioningConvergesOnOnePersistedKey() started.
+◇ Test openingTabSearchDismissesCommandPalette() started.
+◇ Test backendWriteFailureAndMissingReadbackFailClosed() started.
+◇ Test targetEnvelopeRunsThroughPolicy() started.
+◇ Test appliesWorkspaceThresholdsAndSkipsUnsupportedTabs() started.
+◇ Test recentlyAudibleTabIsDeferredWithinGraceWindow() started.
+◇ Test collapsedGroupNeverOverridesSafetyGuards() started.
+◇ Test allValuesTargetWinsOverArguments() started.
+◇ Test dispatcherFallbackStreamsHonestMockOutput() started.
+◇ Test explicitCollapseIncludesMRUTabButOrdinaryMRUTabStaysWarm() started.
+◇ Test "missing storage resolves the default policy" started.
+◇ Test "older sequenced mutations cannot overwrite newer durable decisions" started.
+◇ Test "default reset removes one origin and resetAll removes every origin" started.
+◇ Test capturingMediaTabIsNeverHibernated() started.
+◇ Test "allow and block survive a new store instance" started.
+◇ Test "persisted data contains only canonical origins and decisions" started.
+◇ Test mockProducerStopsAfterConsumerTerminates() started.
+◇ Test activeGroupCannotCollapseButInactiveGroupCan() started.
+◇ Test "malformed storage fails closed to an empty policy" started.
+◇ Test protectedSchemeTabIsNeverHibernated() started.
+◇ Test "invalid URLs are rejected without creating a file" started.
+◇ Test "failed persistence rolls back policy and sequence state" started.
+◇ Test privatePageIsExcludedByDefaultAndAllowedOnlyByExplicitManifest() started.
+◇ Test formEntryTabIsNeverHibernated() started.
+◇ Test emptySchemeStillHasSafeFallbackMessage() started.
+◇ Test privatePageIsRemovedDuringHotMemoryAssembly() started.
+◇ Test delimiterLikePageContentStaysInsideTheDataBoundary() started.
+◇ Test defaultManifestExcludesHistoryAndScreenshots() started.
+◇ Test pageContextCarriesPrivateProvenance() started.
+◇ Test isProtectedSchemeHandlesKnownAndUnknownSchemes() started.
+◇ Test normalizesSchemeAndExplainsNoLoad() started.
+◇ Test URLCredentialsNeverReachContextBlock() started.
+◇ Test "idle samples do not emit a false timeout" started.
+◇ Test nonHTTPSPageIsExcludedByDefault() started.
+◇ Test "loading then idle completes exactly once" started.
+◇ Test restoredActiveGroupIsExpandedBeforeFirstRender() started.
+◇ Test incompatibleWorkerProtocolIsRejectedAtReadyHandshake() started.
+◇ Test privateBrowsingIsRejectedBeforeExecutableLookup() started.
+◇ Test envelopeRejectsTamperedBodyHashBeforePersistence() started.
+◇ Test unsignedExecutableFailsCodeSignatureGate() started.
+◇ Test publicPageIsBoundedRedactedAndMarkedAsData() started.
+◇ Test missingWorkerIsReportedOnlyAfterRequestValidation() started.
+◇ Test absentContentTypeIsEncodedAsExplicitJSONNull() started.
+◇ Test releaseRequirementPolicyRejectsBroadOrWrongRequirements() started.
+◇ Test handoffEnvelopeRoundTripsTransportMetadata() started.
+◇ Test dispatcherProducerStopsAfterConsumerTerminates() started.
+◇ Test hasAncestorWalksParentChain() started.
+◇ Test "an observed loading navigation times out exactly once" started.
+◇ Test timedOutWorkerIsTerminatedAndReaped() started.
+◇ Test invalidSchemesAndCredentialsAreRejected() started.
+◇ Test chromeUserPrefsDecodeOldJSONDefaultsTreeModeOff() started.
+◇ Test parentTabIDRoundTripsThroughCodable() started.
+◇ Test oversizedWorkerOutputIsRejectedAfterThePipeIsDrained() started.
+◇ Test verifyReportsSuccessForCompletedJob() started.
+◇ Test "a timeout is terminal and cannot be completed by a late idle sample" started.
+◇ Test endpointRejectsNonServiceBaseURLs() started.
+◇ Test autoRetryExhaustedJobStaysFailed() started.
+◇ Test parseSourcesEvent() started.
+◇ Test cancelTransitionsPendingJobToCancelled() started.
+◇ Test endpointPreservesRootAndBasePathWithOrWithoutTrailingSlash() started.
+◇ Test runningJobsReturnsEmptyForCompletedJob() started.
+◇ Test parseMalformedJSONReturnsUnknown() started.
+◇ Test verifyReportsUnverifiedForPendingJob() started.
+◇ Test startTransitionsJobToRunningAndCompletes() started.
+◇ Test runningJobsIncludesJobsDuringExecution() started.
+◇ Test parseDoneEvent() started.
+◇ Test retryRefusesJobAtMaxAttempts() started.
+◇ Test startIgnoresNonexistentJob() started.
+◇ Test startIgnoresAlreadyRunningJob() started.
+◇ Test chromeUserPrefsRoundTripsTreeMode() started.
+◇ Test pendingJobsFiltersCorrectly() started.
+◇ Test browserTabCarriesParentTabID() started.
+◇ Test verifyReportsNotFoundForMissingJob() started.
+◇ Test parseErrorEvent() started.
+◇ Test verifyReportsFailureForFailedJob() started.
+◇ Test cancelIsIdempotent() started.
+◇ Test "allowed scope retains current page" started.
+◇ Test enqueueStoresJobAsPending() started.
+◇ Test buildRequestCanCarryJsonSchema() started.
+◇ Test endpointRejectsMalformedOrUnknownPaths() started.
+◇ Test retryRestartsFailedJob() started.
+◇ Test "does not extract preference from attributed external content" started.
+◇ Test "keeps navigation as a confirmation-gated proposal" started.
+◇ Test publishesRunningEventsAndCompletedFinalResult() started.
+◇ Test parseSSEWrappedLine() started.
+◇ Test retryStartsFreshStateAndCanCompleteAfterFailure() started.
+◇ Test parseAnswerEvent() started.
+◇ Test "accepts research only when a provider is configured" started.
+◇ Test extractSectionFallsBackToShortHeaderWhenParentheticalMissing() started.
+◇ Test providerCancellationPublishesCancelledState() started.
+◇ Test retryRefusesNonFailedJob() started.
+◇ Test "route set remains limited to advisory question paths" started.
+◇ Test jobWithMultipleAttemptsRetriesOnFailure() started.
+◇ Test allJobsReturnsAllEnqueuedJobs() started.
+◇ Test parseUnknownEvent() started.
+◇ Test loadSystemPromptReturnsNilForUnmappedRole() started.
+◇ Test "accepts a page question only when an active page is in scope" started.
+◇ Test newRunInvalidatesOldRun() started.
+◇ Test "blocked scope rejects current page before assembly" started.
+◇ Test buildRequestInjectsSystemPrompt() started.
+◇ Test "text and voice adapters preserve the same user intent and tab scope" started.
+◇ Test autoCaptureRequiresSwarmConsent() started.
+◇ Test "ambiguous action asks for target instead of guessing" started.
+◇ Test allowListRestrictsRenderedHotNodes() started.
+◇ Test cancelPublishesCancelledAndIgnoresLateProviderEvents() started.
+◇ Test loadSystemPromptReturnsNilForMissingFile() started.
+◇ Test staleOrCanceledRequestsHaveNoEffects(_:) started.
+◇ Test cellFileReturnsCorrectSubdirAndFileName() started.
+◇ Test "keeps supported actions confirmation-gated" started.
+◇ Test privateContentHasNoEffectsRegardlessOfRequestKind() started.
+◇ Test buildRequestFallsBackToEmptySystemForMissingFile() started.
+◇ Test "requires a configured provider for research" started.
+◇ Test cellRoleMappingCoversAllRolesWithCellFiles() started.
+◇ Test "contract contains only user input and explicit tab references" started.
+◇ Test "routes explicit memory instruction to organize" started.
+◇ Test "routes a generic question without widening context" started.
+◇ Test loadSystemPromptExtractsSectionsFromMarkdown() started.
+◇ Test allowListOrderIsRespectedAtRender() started.
+◇ Test "is pure and returns no persistence or execution effect" started.
+◇ Test browserDownloadProgressTextWithTotal() started.
+◇ Test browserDownloadCodableRoundTrip() started.
+◇ Test browserDownloadProgressTextUnknownTotal() started.
+◇ Test allowListCannotExpandBeyondAssembledSet() started.
+◇ Test rejectsImplicitGroupChanges() started.
+◇ Test rankerListingCarriesIDsAndLabels() started.
+◇ Test movesBeforeAndAfterByStableID() started.
+◇ Test rejectsDuplicateIDs() started.
+◇ Test "returns explicit preference while retaining recommendation route" started.
+◇ Test browserDownloadDisplayNameFallsBackToHost() started.
+◇ Test "policy allows one automatic retry, then shows recovery" started.
+◇ Test "second distinct failure in the same burst exposes recovery" started.
+◇ Test browserDownloadDefaultsDisplayNameFromURL() started.
+◇ Test rejectsPinnedAndEssentialBoundaryCrossings() started.
+◇ Test "preference extraction uses only the original transcript" started.
+◇ Test "manual retry is available only for a visible recovery surface" started.
+◇ Test searchURLForDuckDuckGoEncodesQuery() started.
+◇ Test "requires an active page for page questions" started.
+◇ Test searchURLEncodesAmpersandAndPlusSoTheyDoNotBreakParsing() started.
+◇ Test manualCapturePersistsButRespectsSwarmConsent() started.
+◇ Test rejectsSelfAndMissingTargets() started.
+◇ Test omnibarNumericDecimalIsNotTreatedAsHost() started.
+◇ Test capReportsOnlyImportedRowsThatRemainRetained() started.
+◇ Test "five-minute burst reset restores a fresh automatic retry" started.
+◇ Test rejectsCrossWorkspaceMoves() started.
+◇ Test invalidLimitSkipsWithoutRetaining() started.
+◇ Test "duplicate termination events are idempotent" started.
+◇ Test "page questions select the page QA role without widening scope" started.
+◇ Test deduplicatesExistingURLsUsingSharedCanonicalization() started.
+◇ Test "retry budget follows the fixed burst anchor at the five-minute boundary" started.
+◇ Test "policy clamps invalid retry delays" started.
+◇ Test eachEnginePointsAtItsOwnHost() started.
+◇ Test "invalidating an automatic attempt rejects stale adapter work" started.
+◇ Test omnibarBareHostGetsHttpsPrefix() started.
+◇ Test omnibarSingleWordWithoutDotIsSearch() started.
+◇ Test omnibarSpacesMeanSearchQuery() started.
+◇ Test preservesOldestToNewestOrderAfterGlobalCap() started.
+◇ Test omnibarLocalHostsAreURLsNotSearches() started.
+◇ Test omnibarUnknownSchemeWordColonDoesNotShadowHost() started.
+◇ Test omnibarTrimsWhitespace() started.
+◇ Test omnibarInternalRoutesRemainExplicitlyNavigable() started.
+◇ Test isUnavailableWithEmptyKey() started.
+◇ Test omnibarUnsafeSchemesAreBlockedNotSearched() started.
+◇ Test omnibarSchemePrefixedIsHonoredAsIs() started.
+◇ Test emptyQueryProducesNoSearchURL() started.
+◇ Test "crash loop escalates and the burst resets at five minutes" started.
+◇ Test resolveEngineFromDisplayNameFallsBackToGoogle() started.
+◇ Test omnibarEmptyReturnsNil() started.
+◇ Test displayNameIsCorrect() started.
+◇ Test explicitKeyInitAlwaysSucceeds() started.
+◇ Test omnibarResolutionUsesConfiguredSearchEngine() started.
+◇ Test streamSummarizeLogsPartialThenCompletion() started.
+◇ Test "recovery and tab removal clear controller state" started.
+◇ Test "unavailable and duplicate classifications fail closed without inflating counts" started.
+◇ Test "failure diagnostics retain only safe bounded metadata" started.
+◇ Test isAvailableWithKey() started.
+◇ Test quickAskLogsModelCallToLedger() started.
+◇ Test "private page visibility remains private content" started.
+◇ Test loraRolesDegradeObservablyNotSilently() started.
+◇ Test "private browsing never reports admitted attachments" started.
+◇ Test "all selected tabs admitted" started.
+◇ Test "empty selection has no warning" started.
+◇ Test "unclassified selected IDs fail closed as missing" started.
+◇ Test normalizesWebURLsAndRejectsUnsafeInputs() started.
+◇ Test deduplicatesExistingAndRepeatedURLs() started.
+◇ Test "classifier mirrors profile workspace private URL and active-page boundaries" started.
+◇ Test "mixed classifications explain why attachments are not admitted" started.
+◇ Test "active page is unavailable when page context is disabled" started.
+◇ Test "site policy blocks an otherwise eligible active tab" started.
+◇ Test "negative attachment counts are clamped" started.
+◇ Test "private and unavailable page states are visibly excluded" started.
+◇ Test "workspace summary exposes scoped categories without identifiers" started.
+◇ Test "missing audit ledger prevents a consequential executor from running" started.
+◇ Test "private boundary is visibly unavailable" started.
+◇ Test "routes a generic request without expanding its declared scope" started.
+◇ Test "page-only summary excludes saved context" started.
+◇ Test "private scope is denied before execution or persistence" started.
+◇ Test "site policy block is visible and excludes the current page" started.
+◇ Test "cancel clears a pending request and prevents a later confirmation" started.
+◇ Test "confirmation keeps the original privacy scope across a follow-up" started.
+◇ Test "gateway records bounded route metadata without page body" started.
+◇ Test "action remains confirmation-gated" started.
+◇ Test "research without a configured provider is honest and never executes" started.
+◇ Test "AI-disabled page scope is denied instead of silently becoming title-only context" started.
+◇ Test "explicit preference is persisted, but derived page text cannot create preference" started.
+◇ Test byokRequiresAResolvedKey() started.
+◇ Test repairsDuplicateProfilesAndGroupsDeterministically() started.
+◇ Test resolvedByokKeyIsAdvertisedAsStreaming() started.
+◇ Test dropsPrivateAndDuplicateTabsKeepingFirstOccurrence() started.
+◇ Test unavailableLocalFallbackIsNotAdvertisedAsStreaming() started.
+◇ Test repairsActiveAndClearsCrossWorkspaceSplit() started.
+◇ Test preservesOrderWithinStableSemanticZones() started.
+◇ Test repairsMissingScopesAndClearsInvalidGroups() started.
+◇ Test rejectsWorkspaceAndProfileMismatchForExistingRecords() started.
+◇ Test preservesWorkspaceBlockOrderWhileNormalizingEachWorkspace() started.
+✔ Test disabledPageReturnsNoModelContext() passed after 0.157 seconds.
+✔ Test allowedPageStillScopesAsUntrustedData() passed after 0.307 seconds.
+✔ Test hiveCoreVersionIsRebuildBaseline() passed after 0.314 seconds.
+◇ Test case passing 1 argument disposition → .canceledAuto to staleOrCanceledRequestsHaveNoEffects(_:) started.
+◇ Test case passing 1 argument disposition → .stale to staleOrCanceledRequestsHaveNoEffects(_:) started.
+✔ Test mlxRuntimeReportsAvailability() passed after 0.321 seconds.
+✔ Test hasCompletedOnboardingDefaultsToFalse() passed after 0.321 seconds.
+✔ Test prefsDecodeWithoutHasCompletedOnboardingDefaultsFalse() passed after 0.321 seconds.
+✔ Test mlxRuntimeRejectsUnsupportedRoles() passed after 0.321 seconds.
+✔ Test existingSpaceCallersUnaffectedByNewField() passed after 0.321 seconds.
+✔ Test emptyAllowListIsHonored() passed after 0.321 seconds.
+✔ Test spaceCarriesGroupsThroughCodable() passed after 0.321 seconds.
+✔ Test spaceForwardCompatDecodesMissingGroupsAndDefaultedFields() passed after 0.321 seconds.
+✔ Test browserTabCarriesPromiseFields() passed after 0.321 seconds.
+✔ Test malformedOutputDegradesToNil() passed after 0.321 seconds.
+✔ Test hasCompletedOnboardingRoundTripsThroughCodable() passed after 0.321 seconds.
+✔ Test spaceGroupsDefaultEmptyAndRoundTrip() passed after 0.321 seconds.
+✔ Test allowListKeepsOnlyKnownIDs() passed after 0.321 seconds.
+✔ Test objectWrapperDegradesToNil() passed after 0.322 seconds.
+✔ Test productionRankContractIsParsed() passed after 0.322 seconds.
+✔ Test productionContractMissingRanksDegrades() passed after 0.321 seconds.
+✔ Test registerAndLookup() passed after 0.321 seconds.
+✔ Test unknownIDsAreDroppedNeverExpanded() passed after 0.321 seconds.
+✔ Test defaultRegistryContainsCoreTools() passed after 0.322 seconds.
+✔ Test registerReplacesExisting() passed after 0.322 seconds.
+✔ Test rejectsNonHTTPSchemes() passed after 0.322 seconds.
+✔ Test browserTabDecodesOldSessionWithoutPromiseFields() passed after 0.322 seconds.
+✔ Test tabWithAudioIsDeferredEvenWhenIdle() passed after 0.321 seconds.
+✔ Test activeTabNeverHibernates() passed after 0.321 seconds.
+✔ Test browserNavigateFactoryRejectsNonHTTPSchemes() passed after 0.322 seconds.
+✔ Test promiseRoundTripsThroughCodable() passed after 0.322 seconds.
+✔ Test everyFactoryStaysSchemaValidUnderDrift() passed after 0.322 seconds.
+✔ Test mixedRealisticWindow() passed after 0.322 seconds.
+✔ Test customThresholdsAreHonored() passed after 0.322 seconds.
+✔ Test fetchRejectsSSRFBeforeAnyNetwork() passed after 0.322 seconds.
+✔ Test precedencePinnedInsideFoldedGroupStillNeverHibernates() passed after 0.322 seconds.
+✔ Test browserNavigateFactoryRequiresConfirmation() passed after 0.322 seconds.
+✔ Test allowsPublicHosts() passed after 0.322 seconds.
+✔ Test pinnedTabNeverHibernatesEvenWhenVeryIdle() passed after 0.322 seconds.
+✔ Test tabInFoldedGroupHibernatesImmediately() passed after 0.322 seconds.
+✔ Test fencedJsonBlockIsParsed() passed after 0.322 seconds.
+✔ Test tabWithNoUrlIsNeverHibernated() passed after 0.322 seconds.
+✔ Test tabWithActiveDownloadIsDeferredEvenWhenIdle() passed after 0.322 seconds.
+✔ Test blocksPrivateAndLoopbackHosts() passed after 0.322 seconds.
+✔ Test bgTabInActiveSpaceHibernatesAt15MinBoundary() passed after 0.322 seconds.
+✔ Test tabWithNilSpaceIDTreatedAsInactiveSpace() passed after 0.322 seconds.
+✔ Test studioRunCheckFactoryAcceptsSafeCommandAndDeniesDestructive() passed after 0.322 seconds.
+✔ Test studioApplyFactoryRequiresConfirmationAtT3() passed after 0.322 seconds.
+✔ Test mediaAndDownloadProtectionApplyBeforeFoldAndAgeRules() passed after 0.322 seconds.
+✔ Test metaDescriptionWorksInEitherAttributeOrder() passed after 0.322 seconds.
+✔ Test tabInUnfoldedGroupDoesNotHibernateByTheFoldRule() passed after 0.322 seconds.
+✔ Test extractsTitleDescriptionAndBody() passed after 0.322 seconds.
+✔ Test producesDeterministicTextExtraction() passed after 0.322 seconds.
+✔ Test durableRetentionRequiresExplicitApproval() passed after 0.322 seconds.
+✔ Test tamperedBodyIsRejectedBeforeEitherStoreIsTouched() passed after 0.322 seconds.
+✔ Test expiredCapabilityIsRejectedBeforePersistence() passed after 0.322 seconds.
+✔ Test createAndRetrieveTaskRoundTripsAllFields() passed after 0.322 seconds.
+✔ Test omittedExpiryIsAcceptedAndStoredAsNil() passed after 0.322 seconds.
+✔ Test legacyNumericTimestampIsAcceptedWithoutPrecisionLossInWireValue() passed after 0.322 seconds.
+✔ Test privateContentFailsClosedWithoutPersistence() passed after 0.322 seconds.
+✔ Test validPayloadPersistsSourceAndFullTransportMetadata() passed after 0.322 seconds.
+✔ Test workspaceAndProfileIsolationRejectsForeignEntries() passed after 0.322 seconds.
+✔ Test privateMemoryRequiresActiveScopeOptIn() passed after 0.322 seconds.
+✔ Test recoveryJournalRejectsSourceWithoutCanonicalHash() passed after 0.322 seconds.
+✔ Test capabilityIsSingleUseAndConsentIsAudited() passed after 0.322 seconds.
+✔ Test reconciliationRepairsSourceWithoutLedgerEventAndIsIdempotent() passed after 0.322 seconds.
+✔ Test failedEmptyStateHasHonestFallback() passed after 0.322 seconds.
+✔ Test reconciliationAdoptsExistingAuditWithoutDuplicatingIt() passed after 0.322 seconds.
+✔ Test projectTaggedMemoryStaysDormantWithoutActiveProject() passed after 0.322 seconds.
+✔ Test recoveryJournalRedactsPageProseButPreservesRepairMetadata() passed after 0.322 seconds.
+✔ Test sourceIdentityRemainsValidatedByReducer() passed after 0.322 seconds.
+✔ Test pageOnlyScopeKeepsCurrentPageButDisablesDurableContext() passed after 0.322 seconds.
+✔ Test tabInInactiveSpaceHibernatesAt5MinBoundary() passed after 0.322 seconds.
+✔ Test cancelledStateKeepsPartialAnswerAndExplainsStop() passed after 0.322 seconds.
+✔ Test "classifies a first renderer failure as an automatic retry" passed after 0.322 seconds.
+✔ Test successfulIngestClearsRecoveryJournal() passed after 0.322 seconds.
+✔ Test "event diagnostics strip URL secrets and bound failure text" passed after 0.322 seconds.
+✔ Test "plan initializer clamps untrusted retry delays" passed after 0.322 seconds.
+✔ Test "classifies a crash loop as recovery-only" passed after 0.322 seconds.
+✔ Test "decoded diagnostics are sanitized too" passed after 0.322 seconds.
+✔ Test projectIsolationRejectsForeignAndUntaggedEntries() passed after 0.322 seconds.
+✔ Test completedStateUsesRenderedContentAndSources() passed after 0.322 seconds.
+✔ Test "deleting a folder removes all descendants at every depth" passed after 0.322 seconds.
+✔ Test capabilityBindingRejectsWrongScopeProjectOrHash() passed after 0.323 seconds.
+✔ Test legacyScopePayloadDefaultsHotMemoryToEnabled() passed after 0.323 seconds.
+✔ Test "event metadata round-trips without page content" passed after 0.323 seconds.
+✔ Test parseSafariHistoryReturnsEmptyForMissingDB() passed after 0.323 seconds.
+✔ Test parseChromiumHistoryReturnsEmptyForMissingDB() passed after 0.323 seconds.
+✔ Test parseSafariHistoryExtractsEntry() passed after 0.323 seconds.
+✔ Test "missing bookmark IDs are safe no-ops" passed after 0.323 seconds.
+✔ Test explicitNullExpiryIsAcceptedAsNoExpiry() passed after 0.323 seconds.
+✔ Test "confirmation states that no action ran and gives only typed controls" passed after 0.323 seconds.
+✔ Test "only a session failure is degraded and disclosed" passed after 0.323 seconds.
+✔ Test "deleting a leaf removes only that bookmark" passed after 0.323 seconds.
+✔ Test "healthy state remains quiet" passed after 0.323 seconds.
+✔ Test "active lifecycle states have stable copy" passed after 0.323 seconds.
+✔ Test parseChromiumHistoryExtractsEntry() passed after 0.323 seconds.
+✔ Test actionInboxExcludesDoneAndOrdersOverdue() passed after 0.323 seconds.
+✔ Test deletionMetadataSurvivesAndSourceCanBeExplicitlyDeleted() passed after 0.323 seconds.
+✔ Test "cyclic child metadata cannot expand deletion forever" passed after 0.323 seconds.
+✔ Test "pending clarification takes precedence over completed state" passed after 0.323 seconds.
+✔ Test selectedTabsAreAnExplicitNarrowing() passed after 0.323 seconds.
+✔ Test createAndRetrieveBrief() passed after 0.323 seconds.
+✔ Test "terminal states explain safe outcomes" passed after 0.323 seconds.
+✔ Test "clarification explains missing fields without exposing classifier details" passed after 0.323 seconds.
+✔ Test updateTaskTransitionsStateAndClearsDueDate() passed after 0.324 seconds.
+✔ Test "idle and completed states are quiet without a pending decision" passed after 0.323 seconds.
+✔ Test privateContentRequiresExplicitScopeOptIn() passed after 0.323 seconds.
+✔ Test "a failed session write latches without clearing other failures" passed after 0.323 seconds.
+✔ Test searchBriefsFindsByTitle() passed after 0.323 seconds.
+✔ Test saveThenLoadRoundTrips() passed after 0.323 seconds.
+✔ Test loadQuarantinesCorruptFileAndReturnsDefaults() passed after 0.323 seconds.
+✔ Test "pinned and essential tabs restore eagerly without an active tab" passed after 0.323 seconds.
+✔ Test unsupportedActionDoesNotRequestConfirmation() passed after 0.323 seconds.
+✔ Test "all three stores are represented without hiding any failure" passed after 0.323 seconds.
+✔ Test objectRoundTripsThroughCodable() passed after 0.323 seconds.
+✔ Test runningAnswerPreservesContentAndStopsLoading() passed after 0.323 seconds.
+✔ Test accumulatesSourcesChunksNoticesAndRelatedQuestions() passed after 0.323 seconds.
+✔ Test "disabling lazy restore makes every durable tab eager" passed after 0.323 seconds.
+✔ Test ignoresInvalidSourceURLsForDurableCitationState() passed after 0.323 seconds.
+✔ Test mixedPreferenceAndRecommendationKeepsWorkRoute() passed after 0.323 seconds.
+✔ Test "only the first active flag wins; later flags stay background" passed after 0.323 seconds.
+✔ Test attachableToASendableRequest() passed after 0.323 seconds.
+✔ Test deduplicatesSourcesByCanonicalURLAndPreservesFirstOrder() passed after 0.323 seconds.
+✔ Test cancellationAndFailureAreDistinctTerminalStates() passed after 0.323 seconds.
+✔ Test explicitPreferenceRoutesToOrganize() passed after 0.323 seconds.
+✔ Test completionUsesFinalResultOnlyToFillMissingFields() passed after 0.323 seconds.
+✔ Test pageQuestionWithoutPageDoesNotWidenScope() passed after 0.323 seconds.
+✔ Test terminalStateIgnoresLateProviderEvents() passed after 0.323 seconds.
+✔ Test "normalizes empty and duplicate IDs while preserving first order" passed after 0.323 seconds.
+✔ Test "shows a recovery prompt only after a crash with durable content" passed after 0.323 seconds.
+✔ Test "every failure combination has a non-empty disclosure" passed after 0.323 seconds.
+✔ Test exportMarkdownIncludesSources() passed after 0.324 seconds.
+✔ Test "decoding repairs non-canonical origin keys" passed after 0.323 seconds.
+✔ Test handlesEmptySources() passed after 0.323 seconds.
+✔ Test "excludes transient blank tabs" passed after 0.323 seconds.
+✔ Test "default follows session permission" passed after 0.323 seconds.
+✔ Test "excluded order follows saved index and never contains durable tabs" passed after 0.324 seconds.
+✔ Test deduplicatesSourcesByURL() passed after 0.323 seconds.
+✔ Test "preserves non-default ports and trims a trailing host dot" passed after 0.323 seconds.
+✔ Test "allow cannot override a session that excludes page context" passed after 0.323 seconds.
+✔ Test "excludes private tabs even when pinned, essential, or active" passed after 0.323 seconds.
+✔ Test runningEmptyStateIsLoadingAndNotTerminal() passed after 0.323 seconds.
+✔ Test "rejects credentials and non-web URLs" passed after 0.323 seconds.
+✔ Test "private browsing always wins over an allow decision" passed after 0.323 seconds.
+✔ Test "unavailable pages fail closed" passed after 0.323 seconds.
+✔ Test "returns an empty plan with no prompt for empty input" passed after 0.323 seconds.
+✔ Test writeThenLoadRoundTripsPayload() passed after 0.323 seconds.
+✔ Test missingFileReturnsNone() passed after 0.323 seconds.
+✔ Test loadReturnsDefaultsWhenNoFileExists() passed after 0.323 seconds.
+✔ Test "preserves saved index order in eager and lazy sets" passed after 0.324 seconds.
+✔ Test "block overrides a session that allows page context" passed after 0.323 seconds.
+✔ Test "canonicalizes a web origin and drops page data" passed after 0.323 seconds.
+✔ Test "bounds and redacts untrusted page titles" passed after 0.323 seconds.
+✔ Test duplicateContentReusesSourceButCreatesSecondAuditEvent() passed after 0.324 seconds.
+✔ Test formatsInlineCitationsAndFooter() passed after 0.324 seconds.
+✔ Test "admits same profile and workspace tabs" passed after 0.323 seconds.
+✔ Test failedEncodeLeavesExistingMainIntact() passed after 0.323 seconds.
+✔ Test corruptMainWithoutBackupReturnsCorruptWithNilRecovery() passed after 0.323 seconds.
+✔ Test providerReportsError() passed after 0.323 seconds.
+✔ Test customPrevURLAndEncoderAreHonored() passed after 0.323 seconds.
+✔ Test focusModeRawValues() passed after 0.323 seconds.
+✔ Test "setting a decision changes only the canonical origin" passed after 0.323 seconds.
+✔ Test "redacts query fragments and userinfo from tab metadata" passed after 0.323 seconds.
+✔ Test "default visibility remains backward compatible" passed after 0.323 seconds.
+✔ Test "handles a non-positive title budget safely" passed after 0.323 seconds.
+✔ Test "blocked page scope excludes page content" passed after 0.323 seconds.
+✔ Test "private page remains excluded even if scope is allowed" passed after 0.323 seconds.
+✔ Test missingMainWithBackupRecoversInsteadOfFreshStart() passed after 0.323 seconds.
+✔ Test "rejects malformed and non-web URLs" passed after 0.323 seconds.
+✔ Test resultAccumulatesSourcesAndAnswer() passed after 0.323 seconds.
+✔ Test "rejects tabs from another workspace or profile" passed after 0.323 seconds.
+✔ Test "rejects private active or referenced tabs" passed after 0.323 seconds.
+✔ Test everyTabGroupHasUniqueID() passed after 0.323 seconds.
+✔ Test supportsEveryRole() passed after 0.323 seconds.
+✔ Test privateTabsCannotPersistDecisions() passed after 0.323 seconds.
+✔ Test sourceEqualityUsesID() passed after 0.323 seconds.
+✔ Test tabGroupDefaultsAreHiveAmberAndUnfolded() passed after 0.323 seconds.
+✔ Test glutenFreeSet() passed after 0.323 seconds.
+✔ Test normalizesHostsWithoutBroadeningOrigin() passed after 0.323 seconds.
+✔ Test secondWriteRotatesPriorGoodFileToBackup() passed after 0.323 seconds.
+✔ Test popupPolicyPreservesUserLinksAndBlocksDeniedScripts() passed after 0.323 seconds.
+✔ Test defaultsToAskAndResolvesStoredDecision() passed after 0.323 seconds.
+✔ Test "blocked explicit tab is excluded rather than admitted" passed after 0.323 seconds.
+✔ Test privateTabsAlwaysResolveAsk() passed after 0.323 seconds.
+✔ Test createBriefLinksSources() passed after 0.324 seconds.
+✔ Test corruptMainFileIsQuarantinedAndBackupRestored() passed after 0.324 seconds.
+✔ Test treeNutsAllergy() passed after 0.323 seconds.
+✔ Test authorityRejectsMutationWrongKeyIssuerAndMissingSignature() passed after 0.323 seconds.
+✔ Test emptyInputProducesNoCandidates() passed after 0.323 seconds.
+✔ Test veganSet() passed after 0.323 seconds.
+✔ Test registryBindsApprovalToOneJournalAndEvent() passed after 0.323 seconds.
+✔ Test tabGroupCodableRoundTrips() passed after 0.323 seconds.
+✔ Test caseInsensitivity() passed after 0.323 seconds.
+✔ Test mixedPreferenceAndRequestExtractsPreference() passed after 0.323 seconds.
+✔ Test peanutAllergy() passed after 0.323 seconds.
+✔ Test deleteBriefTypeChecked() passed after 0.324 seconds.
+✔ Test "delayed retry attempt becomes stale after navigation or recovery" passed after 0.323 seconds.
+✔ Test vegetarianWithdraw() passed after 0.323 seconds.
+✔ Test randomAuthorityStartsAtVersionOne() passed after 0.323 seconds.
+✔ Test authoritySignsAndVerifiesCanonicalClaimsAfterCodableRoundTrip() passed after 0.323 seconds.
+✔ Test evidenceIsBoundedTo240Chars() passed after 0.323 seconds.
+✔ Test dependencyGraphAddRemoveAndQuery() passed after 0.325 seconds.
+✔ Test redactsBearerTokens() passed after 0.323 seconds.
+✔ Test registryReleaseAllowsRetryBeforePersistence() passed after 0.323 seconds.
+✔ Test "allowed page scope admits eligible page" passed after 0.324 seconds.
+✔ Test "duplicate native failure callbacks are idempotent" passed after 0.323 seconds.
+✔ Test updateBriefEditsAndReconcilesSources() passed after 0.325 seconds.
+✔ Test scopeProducesHonestSummary() passed after 0.323 seconds.
+✔ Test redactsKeyAssignments() passed after 0.323 seconds.
+✔ Test allowsNonPrivatePageCapture() passed after 0.324 seconds.
+✔ Test "first failure allows exactly one automatic retry" passed after 0.323 seconds.
+✔ Test "authoritative referenced-tab policy rejects blocked and unavailable pages" passed after 0.323 seconds.
+✔ Test whitespaceTrimming() passed after 0.324 seconds.
+✔ Test shortTextNotTruncated() passed after 0.324 seconds.
+✔ Test vegetarianSetAlternatePhrasing() passed after 0.324 seconds.
+✔ Test rejectsExpiredFutureAndMismatchedCapabilities() passed after 0.324 seconds.
+✔ Test "second failure stops automatic retries and exposes recovery" passed after 0.324 seconds.
+✔ Test "crash loop never auto-retries" passed after 0.324 seconds.
+✔ Test taskSourceLinksResolve() passed after 0.325 seconds.
+✔ Test "out-of-order failure starts a fresh burst" passed after 0.324 seconds.
+✔ Test scopeBindingExcludesForeignProfileWorkspaceAndProjectMemory() passed after 0.324 seconds.
+✔ Test validatesScopedCapabilityShape() passed after 0.324 seconds.
+✔ Test vegetarianWithdrawAlternatePhrasing() passed after 0.323 seconds.
+✔ Test disabledPageNeverReachesPageQA() passed after 0.323 seconds.
+✔ Test truncationKeepsHeadAndTailWithMarker() passed after 0.323 seconds.
+✔ Test pageOnlyScopeExcludesHotMemoryFromAssembly() passed after 0.324 seconds.
+✔ Test disabledPageNeverReachesCaptureScribe() passed after 0.323 seconds.
+✔ Test leavesOrdinaryProseUntouched() passed after 0.323 seconds.
+✔ Test redactsShortLabeledPasswords() passed after 0.324 seconds.
+✔ Test sensitivityLabelsPrivateBrowsingAndNonHTTPS() passed after 0.324 seconds.
+✔ Test confidenceIsClampedTo01() passed after 0.323 seconds.
+✔ Test privatePageNeverReachesPageQA() passed after 0.324 seconds.
+✔ Test deniesPrivatePageCapture() passed after 0.324 seconds.
+✔ Test redactsPrivateKeyBlocks() passed after 0.323 seconds.
+✔ Test recordClosedTabDedupsByURLAndCapsAt25() passed after 0.325 seconds.
+✔ Test evidencePreservesOriginalText() passed after 0.324 seconds.
+✔ Test currentContextScopeCapsAtFifteenEntries() passed after 0.324 seconds.
+✔ Test "manual retry is one-shot and recovery clears only after success" passed after 0.323 seconds.
+✔ Test "in-memory stores disclose their ephemeral state" passed after 0.323 seconds.
+✔ Test createAndRetrieveProject() passed after 0.324 seconds.
+✔ Test forgettingOtherNodeKeepsPageContext() passed after 0.324 seconds.
+✔ Test vegetarianSet() passed after 0.324 seconds.
+✔ Test shellfishAllergy() passed after 0.324 seconds.
+✔ Test forgetNodeRemovesEntryAndReportsSuccess() passed after 0.324 seconds.
+✔ Test "delayed retry attempt becomes stale after a newer failure" passed after 0.324 seconds.
+✔ Test sesameAllergy() passed after 0.324 seconds.
+✔ Test "invalid storage paths fail instead of pretending to be durable" passed after 0.324 seconds.
+✔ Test nonPreferenceTextProducesNoCandidates() passed after 0.324 seconds.
+✔ Test forgetNodeBlocksReAddition() passed after 0.324 seconds.
+✔ Test accessRecordsAndBumpsEntry() passed after 0.324 seconds.
+✔ Test rejectsAbsoluteAndHomePaths() passed after 0.324 seconds.
+✔ Test registryPersistsReplayProtectionAcrossRestart() passed after 0.324 seconds.
+✔ Test rollbackRestoresOriginal() passed after 0.324 seconds.
+✔ Test veganWithdraw() passed after 0.323 seconds.
+✔ Test usesCitationNumberNotMarkerPosition() passed after 0.324 seconds.
+✔ Test extractsMultipleClaimsForMultipleCitations() passed after 0.324 seconds.
+✔ Test "snapshot keeps sanitized diagnostics only" passed after 0.324 seconds.
+✔ Test runCheckRequiresRoot() passed after 0.324 seconds.
+✔ Test diffShowsChangedLinesWithHunk() passed after 0.324 seconds.
+✔ Test "file-backed stores disclose durable state" passed after 0.324 seconds.
+✔ Test outOfRangeCitationIsUnmatched() passed after 0.324 seconds.
+✔ Test deleteProjectCascadesMembership() passed after 0.324 seconds.
+✔ Test adjacentCitationsShareThePrecedingSentence() passed after 0.324 seconds.
+✔ Test resolvesPathsInsideRoot() passed after 0.324 seconds.
+✔ Test malformedZeroCitationIsUnmatched() passed after 0.324 seconds.
+✔ Test forgottenNodeExcludedFromAssembly() passed after 0.324 seconds.
+✔ Test repeatAccessEnrichesLabelFromWarmUp() passed after 0.324 seconds.
+✔ Test newFileEditRollbackDeletes() passed after 0.324 seconds.
+✔ Test "expired crash burst receives a fresh automatic retry budget" passed after 0.324 seconds.
+✔ Test assembleContextAlwaysIncludesCurrentPage() passed after 0.324 seconds.
+✔ Test "failure state is isolated per tab" passed after 0.324 seconds.
+✔ Test noMarkersProducesNoClaims() passed after 0.324 seconds.
+✔ Test applyEditBacksUpAndWrites() passed after 0.324 seconds.
+✔ Test readsExistingFile() passed after 0.324 seconds.
+✔ Test setActiveProjectKeepsRecentlyAccessedOldProjectNodes() passed after 0.324 seconds.
+✔ Test credentialedAndNonHTTPURLsFailBeforeFetch() passed after 0.324 seconds.
+✔ Test unmatchedWhenNoOverlap() passed after 0.324 seconds.
+✔ Test gitRestoreRejectsNoRoot() passed after 0.324 seconds.
+✔ Test forgettingCurrentPageClearsPageContext() passed after 0.324 seconds.
+✔ Test successfulHandoffUsesNonPrivateSessionRetention() passed after 0.324 seconds.
+✔ Test containsIsFalseWithoutRoot() passed after 0.324 seconds.
+✔ Test privateBrowsingFailsBeforeFetchOrIngest() passed after 0.324 seconds.
+✔ Test unicodeBeforeCitationKeepsSpanOffsetsSafe() passed after 0.324 seconds.
+✔ Test updateProjectEditsTitlePurposeAndLifecycle() passed after 0.325 seconds.
+✔ Test capacityEvictsColdestEntry() passed after 0.324 seconds.
+✔ Test workerFailureDoesNotReachIngest() passed after 0.324 seconds.
+✔ Test rejectsTraversalEscape() passed after 0.324 seconds.
+✔ Test diffIdenticalIsNoChanges() passed after 0.324 seconds.
+✔ Test gitRestoreRejectsTraversal() passed after 0.324 seconds.
+✔ Test explicitTopLayoutStillRoundTrips() passed after 0.324 seconds.
+✔ Test extractsClaimWithVerbatimSpanAndResolvableOffsets() passed after 0.324 seconds.
+✔ Test diffEmptyToContent() passed after 0.324 seconds.
+✔ Test browserSessionDefaultsEmptyForwardCompat() passed after 0.324 seconds.
+✔ Test browserSessionCodableRoundTrips() passed after 0.324 seconds.
+✔ Test sessionLoadResultEquality() passed after 0.324 seconds.
+✔ Test symlinkEscapeIsRejected() passed after 0.324 seconds.
+✔ Test activeProjectNodesIncludedInContext() passed after 0.324 seconds.
+✔ Test getAllProjectsFiltersByLifecycle() passed after 0.325 seconds.
+✔ Test forgetAndClearRemoveEntries() passed after 0.324 seconds.
+✔ Test clearWipesForgottenSet() passed after 0.324 seconds.
+✔ Test currentContextScopeResolvesRealLabelsFromHoneycomb() passed after 0.324 seconds.
+✔ Test exportProjectRendersMarkdownWithTaskGroups() passed after 0.325 seconds.
+✔ Test rejectsWriteToDirectory() passed after 0.324 seconds.
+✔ Test detectsGitRepository() passed after 0.324 seconds.
+✔ Test diffHandlesInsertionAndDeletion() passed after 0.324 seconds.
+✔ Test entryLabelAndContentRenderInlineWithoutHoneycomb() passed after 0.324 seconds.
+✔ Test blockedTasksDetectIncompleteDependencies() passed after 0.327 seconds.
+✔ Test unmatchedWhenSourceTextMissing() passed after 0.324 seconds.
+✔ Test projectTaskMembership() passed after 0.325 seconds.
+✔ Test writeSyncThenLoadRoundTrips() passed after 0.324 seconds.
+✔ Test corruptFileWithNoBackupReturnsCorruptNilRecovered() passed after 0.324 seconds.
+✔ Test externalAttributionIsNeverExtracted() passed after 0.324 seconds.
+✔ Test windowDecodesMissingOptionalFieldsToDefaults() passed after 0.324 seconds.
+✔ Test olderHotEntryPayloadWithoutProjectIDStillDecodes() passed after 0.324 seconds.
+✔ Test untaggedMemoryIsNotGlobalByAccident() passed after 0.324 seconds.
+✔ Test "any failed bootstrap invariant emits a fail marker" passed after 0.324 seconds.
+✔ Test writeSyncRotatesPriorGoodFileToBackup() passed after 0.324 seconds.
+✔ Test "duplicate or contradictory requests are rejected while one is pending" passed after 0.324 seconds.
+✔ Test loadReturnsNoneWhenNoFileExists() passed after 0.324 seconds.
+✔ Test unforgetNodeAllowsReAddition() passed after 0.324 seconds.
+✔ Test "terminal cleanup resets control state" passed after 0.324 seconds.
+✔ Test registryReservesNonceExactlyOnce() passed after 0.324 seconds.
+✔ Test "a request timeout re-enables the last actionable control" passed after 0.324 seconds.
+✔ Test "only hosted HTTP(S) pages expose page actions" passed after 0.324 seconds.
+✔ Test "private web pages retain ordinary page actions" passed after 0.324 seconds.
+✔ Test "resume is represented as a pending request until native state confirms it" passed after 0.324 seconds.
+✔ Test "crashes outside the window are not a loop" passed after 0.324 seconds.
+✔ Test "allows one automatic retry before showing recovery" passed after 0.324 seconds.
+✔ Test "ready report emits a deterministic pass marker" passed after 0.324 seconds.
+✔ Test "transient tabs without a live URL do not expose page actions" passed after 0.324 seconds.
+✔ Test "crash loops never auto-retry" passed after 0.324 seconds.
+✔ Test "crashes spaced within the last-crash window reset after the fixed burst window" passed after 0.324 seconds.
+✔ Test "recording exactly at the five-minute boundary starts a new burst" passed after 0.324 seconds.
+✔ Test "control state is codable without runtime controller data" passed after 0.324 seconds.
+✔ Test "custom retry schedule remains bounded" passed after 0.324 seconds.
+✔ Test privateMemoryIsRejectedAtAdmission() passed after 0.324 seconds.
+✔ Test "web schemes require a non-empty host" passed after 0.324 seconds.
+✔ Test disabledAIContextRoundTripsThroughCodable() passed after 0.324 seconds.
+✔ Test "diagnostics are bounded before they enter smoke logs" passed after 0.324 seconds.
+✔ Test "pause is represented as a pending request until native state confirms it" passed after 0.324 seconds.
+✔ Test recordEmptySourcesProducesNoBrief() passed after 0.324 seconds.
+✔ Test activeStatesAreOnlyRunningAndStopping() passed after 0.324 seconds.
+✔ Test realSupervisorPathPersistsSessionSourceAndAudit() passed after 0.325 seconds.
+✔ Test currentContextScopeFallsBackHonestlyWithoutHoneycomb() passed after 0.324 seconds.
+✔ Test "retry limit is configurable but never negative" passed after 0.324 seconds.
+✔ Test loadQuarantinesCorruptFileAndRecoversFromBackup() passed after 0.324 seconds.
+✔ Test newTabsAllowAIContextByDefault() passed after 0.324 seconds.
+✔ Test assembleContextPromptFormatsAllSections() passed after 0.324 seconds.
+✔ Test nodeRoundTripPreservesSheet() passed after 0.324 seconds.
+✔ Test recordTreatsHostileSnippetsAsInertData() passed after 0.324 seconds.
+✔ Test "closed tab removal prevents stale identifier inheritance" passed after 0.324 seconds.
+✔ Test legacySessionsDefaultAIContextToAllowed() passed after 0.324 seconds.
+✔ Test labelsAndSymbolsAreStableForDenseStatusUI() passed after 0.324 seconds.
+✔ Test "negative tab counts are fail-closed to zero" passed after 0.324 seconds.
+✔ Test "stop invalidates the active response without creating a replacement" passed after 0.324 seconds.
+✔ Test "evidence marker is deterministic and contains lifecycle facts only" passed after 0.324 seconds.
+✔ Test "a newer response invalidates the older response" passed after 0.324 seconds.
+✔ Test "automatic retry delays are bounded and use the configured schedule" passed after 0.324 seconds.
+✔ Test recordReportsUnmatchedCitations() passed after 0.324 seconds.
+✔ Test formulaVersionConstant() passed after 0.324 seconds.
+✔ Test "request identifiers remain monotonic across repeated cancellation" passed after 0.324 seconds.
+✔ Test csvSkipsEmptyLines() passed after 0.324 seconds.
+✔ Test recordFallsBackToMetadataOnEnrichFailure() passed after 0.325 seconds.
+✔ Test formulaArithmetic() passed after 0.324 seconds.
+✔ Test leavesUniqueNameUntouched() passed after 0.324 seconds.
+✔ Test recordExtractsAndLinksClaims() passed after 0.325 seconds.
+✔ Test stateRoundTripsAsCodableValue() passed after 0.324 seconds.
+✔ Test resumableFailureMetadataRoundTrips() passed after 0.324 seconds.
+✔ Test formulaUnknownCell() passed after 0.324 seconds.
+✔ Test recordDedupsByContentHashAcrossEnrichedRuns() passed after 0.325 seconds.
+✔ Test searchFindsNodesByMetadataText() passed after 0.324 seconds.
+✔ Test sanitizesTraversalAndControlCharacters() passed after 0.324 seconds.
+✔ Test formulaParseErrors() passed after 0.324 seconds.
+✔ Test recordPreservesSnippetAlongsideFetchedContent() passed after 0.324 seconds.
+✔ Test formulaDivisionByZero() passed after 0.324 seconds.
+✔ Test "normalizes empty and duplicate IDs while preserving first order" passed after 0.324 seconds.
+✔ Test usesFallbackForBlankOrDotOnlyNames() passed after 0.324 seconds.
+✔ Test runCheckReturnsCommandOutput() passed after 0.326 seconds.
+✔ Test "supports non-wrapping boundaries" passed after 0.324 seconds.
+✔ Test deleteNodeCascadesToEdges() passed after 0.324 seconds.
+✔ Test projectionOmitsPrivateTabsAndRepairsReferences() passed after 0.324 seconds.
+✔ Test formulaResultIsDeterministic() passed after 0.324 seconds.
+✔ Test "moves in both directions and wraps by default" passed after 0.324 seconds.
+✔ Test "starts at the direction boundary without a current focus" passed after 0.324 seconds.
+✔ Test csvHandlesCRLFImports() passed after 0.324 seconds.
+✔ Test removesOnlyMatchingTerminalRows() passed after 0.324 seconds.
+✔ Test loadSyncStaticMatchesActorLoad() passed after 0.324 seconds.
+✔ Test storeEncodesSanitizedProjectionAndBackup() passed after 0.324 seconds.
+✔ Test preservesExtensionWhenResolvingCollision() passed after 0.325 seconds.
+✔ Test projectionOmitsPrivateArchivedRecords() passed after 0.324 seconds.
+✔ Test interruptedAndCanceledRowsAreTerminal() passed after 0.324 seconds.
+✔ Test "does not leave the supplied projection for an unknown focus ID" passed after 0.324 seconds.
+✔ Test updateNodeReturnsNilForMissingNode() passed after 0.324 seconds.
+✔ Test deleteNodeRemovesFromStore() passed after 0.324 seconds.
+✔ Test sha256IsDeterministic() passed after 0.324 seconds.
+✔ Test csvRaggedRowsNeverShiftGrid() passed after 0.324 seconds.
+✔ Test privatePageNeverReachesCaptureScribe() passed after 0.324 seconds.
+✔ Test fromRejectsNonArtifactNode() passed after 0.324 seconds.
+✔ Test activeRowsAreNeverRemovableHistory() passed after 0.324 seconds.
+✔ Test recordRespectsEnrichLimit() passed after 0.325 seconds.
+✔ Test recordDedupsByURL() passed after 0.325 seconds.
+✔ Test allPrivateWindowFallsBackToNoActiveTab() passed after 0.324 seconds.
+✔ Test storeCreatesAndRetrievesSheet() passed after 0.325 seconds.
+✔ Test runCheckRunsInWorkspace() passed after 0.326 seconds.
+✔ Test storeDeletesSheet() passed after 0.324 seconds.
+✔ Test "returns nil for an empty projection" passed after 0.325 seconds.
+✔ Test insertAndGetEdges() passed after 0.324 seconds.
+✔ Test recordEnrichesSourcesWithFetchedContent() passed after 0.325 seconds.
+✔ Test storeCsvRoundTripHelper() passed after 0.324 seconds.
+✔ Test formulaCellReferences() passed after 0.324 seconds.
+✔ Test edgeExistsCorrectly() passed after 0.324 seconds.
+✔ Test csvRoundTripPreservesValues() passed after 0.324 seconds.
+✔ Test defaultsUseVerticalLayoutAndHiddenBookmarkBar() passed after 0.324 seconds.
+✔ Test sheetFormulaVersionRoundTripsThroughStore() passed after 0.324 seconds.
+✔ Test csvHeaderOnlySheet() passed after 0.324 seconds.
+✔ Test missingLegacyKeysUseSafeDefaults() passed after 0.324 seconds.
+✔ Test gitRestoreRejectsWithoutGitRepo() passed after 0.326 seconds.
+✔ Test getNodesInBatchPreservesRequestedOrderAndOmitsMissing() passed after 0.325 seconds.
+✔ Test formulaAggregates() passed after 0.324 seconds.
+✔ Test minimumTrustLevelsMatchLadder() passed after 0.324 seconds.
+✔ Test validValuesRoundTripThroughCodable() passed after 0.324 seconds.
+✔ Test getNodeReturnsNilForMissing() passed after 0.324 seconds.
+✔ Test legacyRuntimeAndPathKeysAreIgnoredOnDecode() passed after 0.324 seconds.
+✔ Test lightModeSurfaceIsWarmPaperNotPureWhite() passed after 0.324 seconds.
+✔ Test equalityRoundTripsStableMetadata() passed after 0.324 seconds.
+✔ Test trustLevelRankIsNumeric() passed after 0.324 seconds.
+✔ Test sensitiveURLComponentsAreRemovedAtConstruction() passed after 0.324 seconds.
+✔ Test dedupByTypeAndContentHash() passed after 0.325 seconds.
+✔ Test numberDisplayTextNeverTrapsOnHugeValues() passed after 0.325 seconds.
+✔ Test everyDarkModeTokenCaseDistinct() passed after 0.324 seconds.
+✔ Test noTokenIsPureBlackOrWhite() passed after 0.324 seconds.
+✔ Test backgroundIsWarmMahoganyNotPureBlack() passed after 0.324 seconds.
+✔ Test csvEscapesQuotedFields() passed after 0.324 seconds.
+✔ Test inkIsCandlelightCreamNotPureWhite() passed after 0.325 seconds.
+✔ Test accentIsHiveAmberDarkMode() passed after 0.325 seconds.
+✔ Test clearDeletesPersistenceFile() passed after 0.325 seconds.
+✔ Test interruptedStateRoundTripsWithoutBecomingCanceled() passed after 0.325 seconds.
+✔ Test codableRoundTripContainsOnlyStableHistoryFields() passed after 0.324 seconds.
+✔ Test csvEmptySheet() passed after 0.325 seconds.
+✔ Test rgbComponentsRoundTripFromHex() passed after 0.325 seconds.
+✔ Test corruptFilePreservedAndStartsEmpty() passed after 0.325 seconds.
+✔ Test runCheckReportsFailure() passed after 0.326 seconds.
+✔ Test getNeighborsRespectsDepth() passed after 0.325 seconds.
+✔ Test terminalStateRequiresCompletionOrCancellation() passed after 0.324 seconds.
+✔ Test forbiddenValuesNeverPresentInDarkMode() passed after 0.324 seconds.
+✔ Test insertAndGetNode() passed after 0.325 seconds.
+✔ Test storeLinksAndFetchesSources() passed after 0.325 seconds.
+✔ Test hexDropsLeadingHash() passed after 0.324 seconds.
+✔ Test formulaCellReferenceHelpers() passed after 0.324 seconds.
+✔ Test unknownLayoutNormalizesToSafeDefault() passed after 0.324 seconds.
+✔ Test fullContextScopeFlagsSurviveRestart() passed after 0.324 seconds.
+✔ Test importsOnlyWebHistoryAndSanitizesMetadata() passed after 0.324 seconds.
+✔ Test countEdgesFiltersByRelation() passed after 0.325 seconds.
+✔ Test alphaTokensUseCanonicalBasesAndOpacities() passed after 0.324 seconds.
+✔ Test formulaAggregateOverEmptyRange() passed after 0.325 seconds.
+✔ Test returnsChronologicalOrderAndRetainsNewestLimit() passed after 0.325 seconds.
+✔ Test keepsNewestDuplicateAndSkipsExistingURLs() passed after 0.324 seconds.
+✔ Test invalidLimitSkipsAllCandidates() passed after 0.325 seconds.
+✔ Test sharedRepoGroupsCohort() passed after 0.324 seconds.
+✔ Test nilPersistenceURLKeepsStoreInMemoryOnly() passed after 0.324 seconds.
+✔ Test supportsWithdrawalAndAllergySignals() passed after 0.324 seconds.
+✔ Test saveAndReloadRoundTripsEntriesForgottenAndProject() passed after 0.325 seconds.
+✔ Test forgetSticksAcrossRestart() passed after 0.324 seconds.
+✔ Test weightRepoContracts() passed after 0.324 seconds.
+✔ Test noDuplicateBaseModelAcrossRoleObjects() passed after 0.324 seconds.
+✔ Test progressIsClampedToHistoryBounds() passed after 0.324 seconds.
+✔ Test lightModeAccentIsHiveAmber() passed after 0.324 seconds.
+✔ Test noDedupWhenHashIsNil() passed after 0.325 seconds.
+✔ Test findNodeByTypeAndHash() passed after 0.325 seconds.
+✔ Test allWeightSetsAreDistinctAndMlxPrefixed() passed after 0.324 seconds.
+✔ Test storeUpdatesSheet() passed after 0.325 seconds.
+✔ Test countNodesFiltersByType() passed after 0.325 seconds.
+✔ Test updateNodeRecordsRevisionHistory() passed after 0.325 seconds.
+✔ Test everyRoleHasAnEntry() passed after 0.325 seconds.
+✔ Test "supports variable rendered widths" passed after 0.325 seconds.
+✔ Test doesNotTreatARequestAsAPersistentPreference() passed after 0.325 seconds.
+✔ Test getEdgesFiltersByRelation() passed after 0.325 seconds.
+✔ Test extractsExplicitFirstPersonPreference() passed after 0.325 seconds.
+✔ Test tiersAreSelfConsistent() passed after 0.325 seconds.
+✔ Test getNodesInBatchHandlesEmptyAndDuplicates() passed after 0.325 seconds.
+✔ Test "uses the actual midpoint for before and after" passed after 0.325 seconds.
+✔ Test insertNodeWithAllNodeTypes() passed after 0.325 seconds.
+✔ Test getNeighborsReturnsDirectConnections() passed after 0.325 seconds.
+✔ Test loraRolesHaveVerifiedHeldOutVerdict() passed after 0.325 seconds.
+✔ Test pageContextIsEphemeralNotPersisted() passed after 0.325 seconds.
+✔ Test missingFileStartsEmpty() passed after 0.324 seconds.
+✔ Test localOnlyGuardsTrustBoundary() passed after 0.325 seconds.
+✔ Test "rejects invalid dimensions and non-finite coordinates" passed after 0.325 seconds.
+✔ Test "a load that has not started remains pending" passed after 0.325 seconds.
+✔ Test searchFindsNodesByLabel() passed after 0.325 seconds.
+✔ Test sha256ProducesDifferentHashesForDifferentInputs() passed after 0.325 seconds.
+✔ Test emptySearchReturnsEmptyArray() passed after 0.325 seconds.
+✔ Test relevanceIsTaxonomyAwareAndNotGlobalNoise() passed after 0.325 seconds.
+✔ Test preferenceEntersOnlyRelevantAssembledContext() passed after 0.325 seconds.
+✔ Test rejectsEmptyAndSharedStoragePaths() passed after 0.325 seconds.
+✔ Test skipsActiveTab() passed after 0.325 seconds.
+✔ Test "valid active selection and ordering are preserved" passed after 0.325 seconds.
+✔ Test captureDeduplicatesSourceByURL() passed after 0.325 seconds.
+✔ Test recordPersistsSourcesAndCreatesLinkedBrief() passed after 0.326 seconds.
+✔ Test failedCaptureRecordsFailureEvent() passed after 0.325 seconds.
+✔ Test "already idle does not count as completion" passed after 0.325 seconds.
+✔ Test skipsFoldedGroupMemberEvenWhenCold() passed after 0.325 seconds.
+✔ Test returnsEmptyForEmptyTabs() passed after 0.325 seconds.
+✔ Test "clamps finite coordinates at the target boundaries" passed after 0.325 seconds.
+✔ Test "empty groups are preserved as user state" passed after 0.325 seconds.
+✔ Test "normalization removes private tabs and dangling references" passed after 0.325 seconds.
+✔ Test "completion requires a loading to idle transition" passed after 0.325 seconds.
+✔ Test skipsPinnedTab() passed after 0.325 seconds.
+✔ Test browserTabRoundTripsReaderModeFlag() passed after 0.325 seconds.
+✔ Test skipsNoURLNewTab() passed after 0.325 seconds.
+✔ Test browserTabDefaultsToReaderModeOff() passed after 0.325 seconds.
+✔ Test mixesConditionsCorrectly() passed after 0.325 seconds.
+✔ Test contentHashDedupAcrossSameType() passed after 0.325 seconds.
+✔ Test keyMaterialAndSignaturesSurviveSupervisorRecreation() passed after 0.325 seconds.
+✔ Test skipsPrivateTabEvenWhenCold() passed after 0.325 seconds.
+✔ Test skipsRecentTab() passed after 0.325 seconds.
+✔ Test recordedEventPreservesAllFields() passed after 0.325 seconds.
+✔ Test storeBumpsFormulaVersionOnContentChange() passed after 0.325 seconds.
+✔ Test createsParentDirectoriesAndUsesPositiveActiveVersion() passed after 0.325 seconds.
+✔ Test getEventReturnsNilForMissing() passed after 0.325 seconds.
+✔ Test searchRespectsLimit() passed after 0.325 seconds.
+✔ Test captureCreatesSourceAndCaptureNodes() passed after 0.325 seconds.
+✔ Test getChildEventsReturnsEmptyForNoChildren() passed after 0.325 seconds.
+✔ Test "backup recovery carries semantic repair metadata" passed after 0.325 seconds.
+✔ Test parentChildEventChain() passed after 0.325 seconds.
+✔ Test recreatedSupervisorRepairsAStagedJournalRecord() passed after 0.325 seconds.
+✔ Test recordEventsWithAllPolicyDecisions() passed after 0.325 seconds.
+✔ Test recordIfAbsentRejectsConflictingEventWithSameID() passed after 0.325 seconds.
+✔ Test deleteByProvenance() passed after 0.325 seconds.
+✔ Test nilFieldsRoundTripCorrectly() passed after 0.325 seconds.
+✔ Test durableApprovalIsSingleUseThroughTheCompositionRoot() passed after 0.325 seconds.
+✔ Test "store reports repairs for a malformed primary payload" passed after 0.325 seconds.
+✔ Test insertNodeWithSpecialCharactersInLabel() passed after 0.325 seconds.
+✔ Test "empty spaces and tabs do not invent restore state" passed after 0.325 seconds.
+✔ Test getEventsBySession() passed after 0.325 seconds.
+✔ Test emptyContextIDsRoundTrip() passed after 0.325 seconds.
+✔ Test deleteAll() passed after 0.325 seconds.
+✔ Test recordEventsWithAllConsentStates() passed after 0.325 seconds.
+✔ Test contentHashCrossTypeNoDedup() passed after 0.325 seconds.
+✔ Test deleteEdge() passed after 0.325 seconds.
+✔ Test noDedupWhenCheckDedupIsFalse() passed after 0.325 seconds.
+✔ Test flagsColdTab() passed after 0.325 seconds.
+✔ Test countEventsWithFilters() passed after 0.325 seconds.
+✔ Test getProjectNodesReturnsBelongingNodes() passed after 0.325 seconds.
+✔ Test rollbackReferencePreserved() passed after 0.325 seconds.
+✔ Test getEventsSupportsLimitAndOffset() passed after 0.325 seconds.
+✔ Test durablePreferenceIsIdempotentAndReplacesOldValue() passed after 0.326 seconds.
+✔ Test "current response is eligible for application" passed after 0.325 seconds.
+✔ Test deleteByProvenanceRemovesMatchingNodes() passed after 0.325 seconds.
+✔ Test decodesMissingOptionalsFromJSON() passed after 0.325 seconds.
+✔ Test insertEdgeWithAllRelationTypes() passed after 0.325 seconds.
+✔ Test recordEventsWithAllVerificationResults() passed after 0.325 seconds.
+✔ Test getEventsByProject() passed after 0.325 seconds.
+✔ Test errorDescriptionIsPreserved() passed after 0.325 seconds.
+✔ Test recordAndGetEvent() passed after 0.325 seconds.
+✔ Test roundtripsCorrectly() passed after 0.325 seconds.
+✔ Test updateClaimFreshnessReturnsNilForMissing() passed after 0.325 seconds.
+✔ Test readerArtifactHoldsExtractedContent() passed after 0.325 seconds.
+✔ Test recordIfAbsentAcceptsEquivalentEventAfterSQLiteDateNormalization() passed after 0.325 seconds.
+✔ Test claimFromNodeHandlesMissingMetadata() passed after 0.325 seconds.
+✔ Test "superseded browser context becomes an explicit context change" passed after 0.325 seconds.
+✔ Test getFailedEvents() passed after 0.325 seconds.
+✔ Test "cancellation drops the response instead of mutating the UI" passed after 0.325 seconds.
+✔ Test correctClaimReplacesEvidenceSpans() passed after 0.325 seconds.
+✔ Test "diagnostics preserve provider, context, timing, and page provenance" passed after 0.325 seconds.
+✔ Test getEventsByResult() passed after 0.325 seconds.
+✔ Test getEventsByActionKind() passed after 0.325 seconds.
+✔ Test getEventsMinTrustLevel() passed after 0.325 seconds.
+✔ Test sourceFromNodeHandlesMissingMetadata() passed after 0.325 seconds.
+✔ Test sourceQualityScoreIsClamped() passed after 0.325 seconds.
+✔ Test recordEventsWithAllTrustLevels() passed after 0.325 seconds.
+✔ Test createAndRetrieveClaim() passed after 0.325 seconds.
+✔ Test getUnverifiedEvents() passed after 0.325 seconds.
+✔ Test correctClaimReturnsNilForMissing() passed after 0.325 seconds.
+✔ Test sourceWithoutTitleUsesURLAsLabel() passed after 0.325 seconds.
+✔ Test sourceQualityScoreRoundTrips() passed after 0.325 seconds.
+✔ Test claimConfidenceIsClamped() passed after 0.325 seconds.
+✔ Test getNodesByTypeReturnsCorrectSubset() passed after 0.325 seconds.
+✔ Test createAndRetrieveSource() passed after 0.325 seconds.
+✔ Test claimFromNodeReturnsNilForWrongType() passed after 0.325 seconds.
+✔ Test sourceDedupByContentHash() passed after 0.325 seconds.
+✔ Test linkClaimToSource() passed after 0.325 seconds.
+✔ Test emptyHistoryIsAnIdempotentNoOp() passed after 0.325 seconds.
+✔ Test searchClaims() passed after 0.325 seconds.
+✔ Test getEventsByActor() passed after 0.325 seconds.
+✔ Test negativeCountsFailClosedToNoOp() passed after 0.325 seconds.
+✔ Test recordEventsWithAllActionKinds() passed after 0.326 seconds.
+✔ Test updateClaimFreshness() passed after 0.325 seconds.
+✔ Test userDefinedCommandRoundTripsAndValidatesWebURLs() passed after 0.325 seconds.
+✔ Test linkClaimToSourceIsIdempotent() passed after 0.325 seconds.
+✔ Test sourceMetadataRoundTrips() passed after 0.325 seconds.
+✔ Test defaultSpaceIsNamedDefault() passed after 0.325 seconds.
+✔ Test getAllClaims() passed after 0.325 seconds.
+✔ Test tabPositionHasExactlyTwoLayouts() passed after 0.325 seconds.
+✔ Test spaceRemoveTabWhenActiveSurvivesKeepsActiveTabID() passed after 0.325 seconds.
+✔ Test browserTabCodableRoundTrips() passed after 0.325 seconds.
+✔ Test sourceFromNodeReturnsNilForWrongType() passed after 0.325 seconds.
+✔ Test removingTabDropsPendingAndTombstones() passed after 0.325 seconds.
+✔ Test failedEncodeDoesNotRotatePrimaryOrBackup() passed after 0.325 seconds.
+✔ Test browserSessionLifecycleFieldsRoundTripAndPrivateDataStaysExcluded() passed after 0.325 seconds.
+✔ Test evidenceSpanWithoutQuote() passed after 0.325 seconds.
+✔ Test deleteSourceCascadesEvidenceEdges() passed after 0.325 seconds.
+✔ Test correctClaimUpdatesTextAndConfidence() passed after 0.325 seconds.
+✔ Test spaceCodableRoundTrips() passed after 0.325 seconds.
+✔ Test canceledAutoRequestOnlyConsumesItsOwnCallback() passed after 0.325 seconds.
+✔ Test legacyBrowserSessionPayloadDefaultsLifecycleFields() passed after 0.325 seconds.
+✔ Test spaceMoveForeignTabIsNoOp() passed after 0.325 seconds.
+✔ Test manualAndAutoGenerationsRemainDistinct() passed after 0.325 seconds.
+✔ Test pendingAutoRequestIsAutoUntilCallbackArrives() passed after 0.325 seconds.
+✔ Test userDefinedCommandRejectsUnsafeOrMalformedURLs() passed after 0.325 seconds.
+✔ Test newTabFactorySetsActiveAndPrivacyAndSpace() passed after 0.325 seconds.
+✔ Test spaceAddTabIsIdempotentAndOrderPreserving() passed after 0.325 seconds.
+✔ Test nonEmptyHistoryReturnsCountAndPersists() passed after 0.325 seconds.
+✔ Test hiveClosedTabCapIs25() passed after 0.325 seconds.
+✔ Test tabPositionCodableRoundTrips() passed after 0.325 seconds.
+✔ Test tabDensityHasThreeSteps() passed after 0.325 seconds.
+✔ Test claimDedupByTextHash() passed after 0.325 seconds.
+✔ Test spaceMoveTabClampsOutOfRangeIndex() passed after 0.325 seconds.
+✔ Test spaceMoveTabToEnd() passed after 0.325 seconds.
+✔ Test deleteClaimRemovesNodeAndEdges() passed after 0.326 seconds.
+✔ Test userPrefsCodableRoundTrips() passed after 0.325 seconds.
+✔ Test closedTabRecordCodableRoundTrips() passed after 0.325 seconds.
+✔ Test tabPositionDisplayNamesAreHuman() passed after 0.325 seconds.
+✔ Test everyBrowserTabHasAUniqueID() passed after 0.325 seconds.
+✔ Test multipleCanceledRequestsRemainDistinct() passed after 0.325 seconds.
+✔ Test spaceMoveTabWithinLeftward() passed after 0.325 seconds.
+✔ Test spaceMoveTabSameIndexIsNoOp() passed after 0.325 seconds.
+✔ Test slashCommandsExposeOnlyExplicitAliases() passed after 0.325 seconds.
+✔ Test tabPositionToggledFlipsBetweenTheTwo() passed after 0.325 seconds.
+✔ Test slashAliasResolvesExactlyAndNormalizesInput() passed after 0.325 seconds.
+✔ Test userDefinedCommandsDefaultEmptyAndPersistInPrefs() passed after 0.325 seconds.
+✔ Test findSourceByURL() passed after 0.326 seconds.
+✔ Test searchFiltersByKeyword() passed after 0.325 seconds.
+✔ Test commandDefinitionDecodesWithoutLegacySlashAliases() passed after 0.325 seconds.
+✔ Test slashAliasCollisionIsNotExecutableOrDisplayed() passed after 0.325 seconds.
+✔ Test userPrefsDefaultsShipVerticalStandardGoogle() passed after 0.325 seconds.
+✔ Test privateTabPrivacyRoundTripsThroughCodable() passed after 0.325 seconds.
+✔ Test spaceMoveTabToFront() passed after 0.325 seconds.
+✔ Test restoreIsLosslessForBlobOntoAFreshSlot() passed after 0.325 seconds.
+✔ Test slashCommandSearchIncludesAliasesAndKeywords() passed after 0.325 seconds.
+✔ Test defaultCatalogIncludesCoreCommands() passed after 0.325 seconds.
+✔ Test "new navigation invalidates the previous attempt for the same tab" passed after 0.325 seconds.
+✔ Test "invalidating a tab rejects pending callbacks" passed after 0.325 seconds.
+✔ Test spaceMoveTabWithinRightward() passed after 0.325 seconds.
+✔ Test spaceRemoveTabClearsActiveTabID() passed after 0.325 seconds.
+✔ Test captureOverwritesAndManyTabsCoexist() passed after 0.325 seconds.
+✔ Test secondWritePreservesPreviousPrimaryAsBackup() passed after 0.325 seconds.
+✔ Test captureNilStateLeavesNoTrail() passed after 0.325 seconds.
+✔ Test browserTabDisplayTitleFallsBackThroughHostToNewTab() passed after 0.325 seconds.
+✔ Test "remove reports whether state existed and is idempotent" passed after 0.325 seconds.
+✔ Test searchReturnsAllForEmptyQuery() passed after 0.325 seconds.
+✔ Test targetEnvelopeWithUndeclaredKeyIsDenied() passed after 0.325 seconds.
+✔ Test "attempts are isolated between tabs" passed after 0.325 seconds.
+✔ Test emptyBrokerReportsEmpty() passed after 0.325 seconds.
+✔ Test approvalScopeKeyIgnoresPresentationAndProvenanceChanges() passed after 0.325 seconds.
+✔ Test captureThenRestoreDrainsTheBlob() passed after 0.325 seconds.
+✔ Test wrongTypedArgumentIsDenied() passed after 0.325 seconds.
+✔ Test developerToolsAreDisabledByDefault() passed after 0.325 seconds.
+✔ Test approvalScopeKeyIncludesToolAndCanonicalValues() passed after 0.325 seconds.
+✔ Test definitionForID() passed after 0.325 seconds.
+✔ Test searchFiltersByTitle() passed after 0.325 seconds.
+✔ Test pathTraversalIsDeniedBySchema() passed after 0.325 seconds.
+✔ Test approvalScopeKeyDoesNotCollapseValueTypes() passed after 0.325 seconds.
+✔ Test approvalScopeKeyHandlesNonConformingDoublesWithoutCrashing() passed after 0.325 seconds.
+✔ Test trustFloorIsEnforced() passed after 0.325 seconds.
+✔ Test missingRequiredArgumentIsDenied() passed after 0.325 seconds.
+✔ Test readToolWithValidArgsIsAllowed() passed after 0.325 seconds.
+✔ Test runCheckToolDeniesDestructiveCommandViaPolicy() passed after 0.325 seconds.
+✔ Test clearDropsABlobSoIdsDontResurrect() passed after 0.325 seconds.
+✔ Test versionRotationIsExplicitAndOldAuthorityDoesNotAcceptNewVersion() passed after 0.325 seconds.
+✔ Test everyDefaultToolAcceptsValidInvocation() passed after 0.325 seconds.
+✔ Test actToolRequestsConfirmation() passed after 0.325 seconds.
+✔ Test constructorNormalizesInvalidNegativeValues() passed after 0.325 seconds.
+✔ Test alreadyHibernatedTabsAreNotSelectedAgain() passed after 0.325 seconds.
+✔ Test typedValuesMatchFieldTypes() passed after 0.325 seconds.
+✔ Test unregisteredToolIsDenied() passed after 0.325 seconds.
+✔ Test provisionsOnceAndLoadsTheSameMaterialAcrossProviderInstances() passed after 0.325 seconds.
+✔ Test approvalScopeKeyIsStableForEquivalentStructuredInvocations() passed after 0.325 seconds.
+✔ Test filePathRejectsDriveColonAndBackslash() passed after 0.325 seconds.
+✔ Test openingCommandPaletteDismissesTabSearch() passed after 0.325 seconds.
+✔ Test undeclaredArgumentIsDenied() passed after 0.325 seconds.
+✔ Test getAllSources() passed after 0.326 seconds.
+✔ Test claimEvidenceSpansRoundTrip() passed after 0.326 seconds.
+✔ Test evidenceAndRollbackRoundTrip() passed after 0.325 seconds.
+✔ Test aggregatesMeasuredCountsAndExcludesPrivateTabs() passed after 0.325 seconds.
+✔ Test clampsNegativeCountsAndSkipsTabsWithoutMeasuredBlocks() passed after 0.325 seconds.
+✔ Test filePathRejectsTraversal() passed after 0.325 seconds.
+✔ Test effectiveWakeURLPreservesSavedURLAndRejectsBlankPages() passed after 0.325 seconds.
+✔ Test protectsActivePinnedEssentialMediaAndDownloads() passed after 0.325 seconds.
+✔ Test sortsByCountThenHostAndCapsTopSites() passed after 0.325 seconds.
+✔ Test customThresholdsRemainDeterministic() passed after 0.325 seconds.
+✔ Test openingTabSearchDismissesCommandPalette() passed after 0.325 seconds.
+✔ Test collapsedGroupMembersHibernateImmediately() passed after 0.325 seconds.
+✔ Test urlRejectsNonHTTPS() passed after 0.325 seconds.
+✔ Test developerToolsAllowedWhenExplicitlyEnabled() passed after 0.325 seconds.
+✔ Test commandDenyListBlocksDestructivePatterns() passed after 0.325 seconds.
+✔ Test appliesWorkspaceThresholdsAndSkipsUnsupportedTabs() passed after 0.325 seconds.
+✔ Test targetEnvelopeRunsThroughPolicy() passed after 0.325 seconds.
+✔ Test recentlyAudibleTabIsDeferredWithinGraceWindow() passed after 0.325 seconds.
+✔ Test allValuesTargetWinsOverArguments() passed after 0.325 seconds.
+✔ Test collapsedGroupNeverOverridesSafetyGuards() passed after 0.325 seconds.
+✔ Test explicitCollapseIncludesMRUTabButOrdinaryMRUTabStaysWarm() passed after 0.325 seconds.
+✔ Test "missing storage resolves the default policy" passed after 0.325 seconds.
+✔ Test "older sequenced mutations cannot overwrite newer durable decisions" passed after 0.325 seconds.
+✔ Test capturingMediaTabIsNeverHibernated() passed after 0.325 seconds.
+✔ Test backendWriteFailureAndMissingReadbackFailClosed() passed after 0.325 seconds.
+✔ Test corruptMaterialIsRejectedAndNeverOverwritten() passed after 0.326 seconds.
+✔ Test activeGroupCannotCollapseButInactiveGroupCan() passed after 0.325 seconds.
+✔ Test protectedSchemeTabIsNeverHibernated() passed after 0.325 seconds.
+✔ Test "allow and block survive a new store instance" passed after 0.325 seconds.
+✔ Test "invalid URLs are rejected without creating a file" passed after 0.325 seconds.
+✔ Test "persisted data contains only canonical origins and decisions" passed after 0.325 seconds.
+✔ Test emptySchemeStillHasSafeFallbackMessage() passed after 0.325 seconds.
+✔ Test formEntryTabIsNeverHibernated() passed after 0.325 seconds.
+✔ Test "failed persistence rolls back policy and sequence state" passed after 0.325 seconds.
+✔ Test privatePageIsExcludedByDefaultAndAllowedOnlyByExplicitManifest() passed after 0.325 seconds.
+✔ Test defaultManifestExcludesHistoryAndScreenshots() passed after 0.325 seconds.
+✔ Test privatePageIsRemovedDuringHotMemoryAssembly() passed after 0.325 seconds.
+✔ Test pageContextCarriesPrivateProvenance() passed after 0.325 seconds.
+✔ Test isProtectedSchemeHandlesKnownAndUnknownSchemes() passed after 0.325 seconds.
+✔ Test normalizesSchemeAndExplainsNoLoad() passed after 0.325 seconds.
+✔ Test delimiterLikePageContentStaysInsideTheDataBoundary() passed after 0.325 seconds.
+✔ Test nonHTTPSPageIsExcludedByDefault() passed after 0.325 seconds.
+✔ Test "loading then idle completes exactly once" passed after 0.325 seconds.
+✔ Test privateBrowsingIsRejectedBeforeExecutableLookup() passed after 0.325 seconds.
+✔ Test URLCredentialsNeverReachContextBlock() passed after 0.325 seconds.
+✔ Test "idle samples do not emit a false timeout" passed after 0.325 seconds.
+✔ Test "malformed storage fails closed to an empty policy" passed after 0.326 seconds.
+✔ Test envelopeRejectsTamperedBodyHashBeforePersistence() passed after 0.325 seconds.
+✔ Test restoredActiveGroupIsExpandedBeforeFirstRender() passed after 0.326 seconds.
+✔ Test missingWorkerIsReportedOnlyAfterRequestValidation() passed after 0.325 seconds.
+✔ Test publicPageIsBoundedRedactedAndMarkedAsData() passed after 0.325 seconds.
+✔ Test absentContentTypeIsEncodedAsExplicitJSONNull() passed after 0.325 seconds.
+✔ Test "an observed loading navigation times out exactly once" passed after 0.325 seconds.
+✔ Test releaseRequirementPolicyRejectsBroadOrWrongRequirements() passed after 0.325 seconds.
+✔ Test hasAncestorWalksParentChain() passed after 0.325 seconds.
+✔ Test unsignedExecutableFailsCodeSignatureGate() passed after 0.325 seconds.
+✔ Test invalidSchemesAndCredentialsAreRejected() passed after 0.325 seconds.
+✔ Test chromeUserPrefsDecodeOldJSONDefaultsTreeModeOff() passed after 0.325 seconds.
+✔ Test handoffEnvelopeRoundTripsTransportMetadata() passed after 0.325 seconds.
+✔ Test "a timeout is terminal and cannot be completed by a late idle sample" passed after 0.325 seconds.
+✔ Test endpointRejectsNonServiceBaseURLs() passed after 0.325 seconds.
+✔ Test parentTabIDRoundTripsThroughCodable() passed after 0.325 seconds.
+✔ Test "default reset removes one origin and resetAll removes every origin" passed after 0.326 seconds.
+✔ Test parseSourcesEvent() passed after 0.325 seconds.
+✔ Test endpointPreservesRootAndBasePathWithOrWithoutTrailingSlash() passed after 0.325 seconds.
+✔ Test parseMalformedJSONReturnsUnknown() passed after 0.325 seconds.
+✔ Test browserTabCarriesParentTabID() passed after 0.325 seconds.
+✔ Test parseErrorEvent() passed after 0.325 seconds.
+✔ Test chromeUserPrefsRoundTripsTreeMode() passed after 0.325 seconds.
+✔ Test parseDoneEvent() passed after 0.325 seconds.
+✔ Test endpointRejectsMalformedOrUnknownPaths() passed after 0.325 seconds.
+✔ Test "does not extract preference from attributed external content" passed after 0.325 seconds.
+✔ Test "keeps navigation as a confirmation-gated proposal" passed after 0.325 seconds.
+✔ Test parseSSEWrappedLine() passed after 0.325 seconds.
+✔ Test "allowed scope retains current page" passed after 0.325 seconds.
+✔ Test "route set remains limited to advisory question paths" passed after 0.325 seconds.
+✔ Test parseAnswerEvent() passed after 0.325 seconds.
+✔ Test parseUnknownEvent() passed after 0.325 seconds.
+✔ Test "accepts research only when a provider is configured" passed after 0.325 seconds.
+✔ Test "accepts a page question only when an active page is in scope" passed after 0.325 seconds.
+✔ Test extractSectionFallsBackToShortHeaderWhenParentheticalMissing() passed after 0.325 seconds.
+✔ Test "blocked scope rejects current page before assembly" passed after 0.325 seconds.
+✔ Test "text and voice adapters preserve the same user intent and tab scope" passed after 0.325 seconds.
+✔ Test "ambiguous action asks for target instead of guessing" passed after 0.325 seconds.
+✔ Test autoCaptureRequiresSwarmConsent() passed after 0.325 seconds.
+✔ Test allowListRestrictsRenderedHotNodes() passed after 0.325 seconds.
+✔ Test buildRequestInjectsSystemPrompt() passed after 0.325 seconds.
+✔ Test buildRequestCanCarryJsonSchema() passed after 0.325 seconds.
+✔ Test cellFileReturnsCorrectSubdirAndFileName() passed after 0.325 seconds.
+✔ Test "keeps supported actions confirmation-gated" passed after 0.325 seconds.
+✔ Test privateContentHasNoEffectsRegardlessOfRequestKind() passed after 0.325 seconds.
+✔ Test loadSystemPromptReturnsNilForMissingFile() passed after 0.325 seconds.
+✔ Test cellRoleMappingCoversAllRolesWithCellFiles() passed after 0.325 seconds.
+✔ Test "contract contains only user input and explicit tab references" passed after 0.325 seconds.
+✔ Test "requires a configured provider for research" passed after 0.325 seconds.
+✔ Test staleOrCanceledRequestsHaveNoEffects(_:) with 2 test cases passed after 0.325 seconds.
+✔ Test "routes explicit memory instruction to organize" passed after 0.325 seconds.
+✔ Test "routes a generic question without widening context" passed after 0.325 seconds.
+✔ Test "is pure and returns no persistence or execution effect" passed after 0.325 seconds.
+✔ Test browserDownloadCodableRoundTrip() passed after 0.325 seconds.
+✔ Test loadSystemPromptExtractsSectionsFromMarkdown() passed after 0.325 seconds.
+✔ Test allowListOrderIsRespectedAtRender() passed after 0.325 seconds.
+✔ Test allowListCannotExpandBeyondAssembledSet() passed after 0.325 seconds.
+✔ Test rejectsImplicitGroupChanges() passed after 0.325 seconds.
+✔ Test getClaimsForSource() passed after 0.327 seconds.
+✔ Test rankerListingCarriesIDsAndLabels() passed after 0.325 seconds.
+✔ Test movesBeforeAndAfterByStableID() passed after 0.325 seconds.
+✔ Test rejectsDuplicateIDs() passed after 0.325 seconds.
+✔ Test browserDownloadDisplayNameFallsBackToHost() passed after 0.325 seconds.
+✔ Test "second distinct failure in the same burst exposes recovery" passed after 0.325 seconds.
+✔ Test "policy allows one automatic retry, then shows recovery" passed after 0.325 seconds.
+✔ Test browserDownloadDefaultsDisplayNameFromURL() passed after 0.325 seconds.
+✔ Test rejectsPinnedAndEssentialBoundaryCrossings() passed after 0.325 seconds.
+✔ Test "preference extraction uses only the original transcript" passed after 0.325 seconds.
+✔ Test "returns explicit preference while retaining recommendation route" passed after 0.325 seconds.
+✔ Test browserDownloadProgressTextUnknownTotal() passed after 0.325 seconds.
+✔ Test markContradictionBetweenClaims() passed after 0.327 seconds.
+✔ Test "requires an active page for page questions" passed after 0.325 seconds.
+✔ Test rejectsSelfAndMissingTargets() passed after 0.325 seconds.
+✔ Test manualCapturePersistsButRespectsSwarmConsent() passed after 0.325 seconds.
+✔ Test omnibarNumericDecimalIsNotTreatedAsHost() passed after 0.325 seconds.
+✔ Test searchURLEncodesAmpersandAndPlusSoTheyDoNotBreakParsing() passed after 0.325 seconds.
+✔ Test searchURLForDuckDuckGoEncodesQuery() passed after 0.325 seconds.
+✔ Test rejectsCrossWorkspaceMoves() passed after 0.325 seconds.
+✔ Test invalidLimitSkipsWithoutRetaining() passed after 0.325 seconds.
+✔ Test "five-minute burst reset restores a fresh automatic retry" passed after 0.325 seconds.
+✔ Test "page questions select the page QA role without widening scope" passed after 0.325 seconds.
+✔ Test browserDownloadProgressTextWithTotal() passed after 0.325 seconds.
+✔ Test getContradictingClaims() passed after 0.327 seconds.
+✔ Test "policy clamps invalid retry delays" passed after 0.325 seconds.
+✔ Test "retry budget follows the fixed burst anchor at the five-minute boundary" passed after 0.325 seconds.
+✔ Test omnibarBareHostGetsHttpsPrefix() passed after 0.325 seconds.
+✔ Test eachEnginePointsAtItsOwnHost() passed after 0.325 seconds.
+✔ Test deduplicatesExistingURLsUsingSharedCanonicalization() passed after 0.325 seconds.
+✔ Test "manual retry is available only for a visible recovery surface" passed after 0.325 seconds.
+✔ Test omnibarSingleWordWithoutDotIsSearch() passed after 0.325 seconds.
+✔ Test omnibarLocalHostsAreURLsNotSearches() passed after 0.325 seconds.
+✔ Test omnibarUnknownSchemeWordColonDoesNotShadowHost() passed after 0.325 seconds.
+✔ Test omnibarSpacesMeanSearchQuery() passed after 0.325 seconds.
+✔ Test capReportsOnlyImportedRowsThatRemainRetained() passed after 0.325 seconds.
+✔ Test preservesOldestToNewestOrderAfterGlobalCap() passed after 0.325 seconds.
+✔ Test "invalidating an automatic attempt rejects stale adapter work" passed after 0.325 seconds.
+✔ Test omnibarInternalRoutesRemainExplicitlyNavigable() passed after 0.325 seconds.
+✔ Test omnibarUnsafeSchemesAreBlockedNotSearched() passed after 0.325 seconds.
+✔ Test isUnavailableWithEmptyKey() passed after 0.325 seconds.
+✔ Test emptyQueryProducesNoSearchURL() passed after 0.325 seconds.
+✔ Test "crash loop escalates and the burst resets at five minutes" passed after 0.325 seconds.
+✔ Test displayNameIsCorrect() passed after 0.325 seconds.
+✔ Test omnibarTrimsWhitespace() passed after 0.325 seconds.
+✔ Test omnibarEmptyReturnsNil() passed after 0.325 seconds.
+✔ Test resolveEngineFromDisplayNameFallsBackToGoogle() passed after 0.325 seconds.
+✔ Test omnibarResolutionUsesConfiguredSearchEngine() passed after 0.325 seconds.
+✔ Test omnibarSchemePrefixedIsHonoredAsIs() passed after 0.325 seconds.
+✔ Test "unavailable and duplicate classifications fail closed without inflating counts" passed after 0.325 seconds.
+✔ Test isAvailableWithKey() passed after 0.325 seconds.
+✔ Test "recovery and tab removal clear controller state" passed after 0.325 seconds.
+✔ Test "private page visibility remains private content" passed after 0.325 seconds.
+✔ Test "duplicate termination events are idempotent" passed after 0.325 seconds.
+✔ Test "private browsing never reports admitted attachments" passed after 0.325 seconds.
+✔ Test "empty selection has no warning" passed after 0.325 seconds.
+✔ Test "all selected tabs admitted" passed after 0.325 seconds.
+✔ Test "unclassified selected IDs fail closed as missing" passed after 0.325 seconds.
+✔ Test normalizesWebURLsAndRejectsUnsafeInputs() passed after 0.325 seconds.
+✔ Test loraRolesDegradeObservablyNotSilently() passed after 0.325 seconds.
+✔ Test "mixed classifications explain why attachments are not admitted" passed after 0.325 seconds.
+✔ Test "classifier mirrors profile workspace private URL and active-page boundaries" passed after 0.325 seconds.
+✔ Test explicitKeyInitAlwaysSucceeds() passed after 0.325 seconds.
+✔ Test deduplicatesExistingAndRepeatedURLs() passed after 0.325 seconds.
+✔ Test "site policy blocks an otherwise eligible active tab" passed after 0.325 seconds.
+✔ Test "active page is unavailable when page context is disabled" passed after 0.325 seconds.
+✔ Test "negative attachment counts are clamped" passed after 0.325 seconds.
+✔ Test "private and unavailable page states are visibly excluded" passed after 0.325 seconds.
+✔ Test "workspace summary exposes scoped categories without identifiers" passed after 0.325 seconds.
+✔ Test "page-only summary excludes saved context" passed after 0.325 seconds.
+✔ Test "private boundary is visibly unavailable" passed after 0.325 seconds.
+✔ Test "site policy block is visible and excludes the current page" passed after 0.325 seconds.
+✔ Test "failure diagnostics retain only safe bounded metadata" passed after 0.325 seconds.
+✔ Test byokRequiresAResolvedKey() passed after 0.292 seconds.
+✔ Test resolvedByokKeyIsAdvertisedAsStreaming() passed after 0.292 seconds.
+✔ Test repairsDuplicateProfilesAndGroupsDeterministically() passed after 0.292 seconds.
+✔ Test preservesOrderWithinStableSemanticZones() passed after 0.291 seconds.
+✔ Test repairsMissingScopesAndClearsInvalidGroups() passed after 0.282 seconds.
+✔ Test rejectsWorkspaceAndProfileMismatchForExistingRecords() passed after 0.282 seconds.
+✔ Test preservesWorkspaceBlockOrderWhileNormalizingEachWorkspace() passed after 0.282 seconds.
+✔ Test dropsPrivateAndDuplicateTabsKeepingFirstOccurrence() passed after 0.292 seconds.
+✔ Test repairsActiveAndClearsCrossWorkspaceSplit() passed after 0.294 seconds.
+✔ Suite "OnboardingPrefs" passed after 0.343 seconds.
+✔ Suite "SpaceGroups" passed after 0.343 seconds.
+✔ Suite "RetrievalRankerFilter" passed after 0.343 seconds.
+✔ Suite ToolRegistryTests passed after 0.343 seconds.
+✔ Suite "PromiseBadgeModel" passed after 0.343 seconds.
+✔ Suite "HibernationPolicy" passed after 0.343 seconds.
+✔ Suite ToolInvocationFactoryTests passed after 0.343 seconds.
+✔ Suite "ResearchHandoffAdapter" passed after 0.343 seconds.
+✔ Test byokRoleRoutesToMockWhenUnconfigured() passed after 0.341 seconds.
+✔ Test byokServedRoleIgnoresPreferenceButStaysHonest() passed after 0.341 seconds.
+✔ Suite "TaskStore" passed after 0.344 seconds.
+✔ Suite "ContextScope" passed after 0.344 seconds.
+✔ Suite "SwarmResearchPresentation" passed after 0.344 seconds.
+✔ Suite "RendererFailureEvent" passed after 0.344 seconds.
+✔ Test ruleBasedRoleRoutesToMock() passed after 0.341 seconds.
+✔ Suite "BookmarkDeletionPolicy" passed after 0.344 seconds.
+✔ Test fmfPreferenceCannotBypassPolicyForForbiddenRole() passed after 0.342 seconds.
+✔ Suite "BrowserImportEngine" passed after 0.344 seconds.
+✔ Suite "VoiceTurnDisclosure" passed after 0.344 seconds.
+✔ Suite "PersistenceHealthPolicy" passed after 0.344 seconds.
+✔ Suite "BriefStore" passed after 0.344 seconds.
+✔ Suite "ChromePrefsStore" passed after 0.344 seconds.
+✔ Suite "SessionRestorePolicy" passed after 0.344 seconds.
+✔ Suite "JSONValue" passed after 0.344 seconds.
+✔ Suite "SwarmResearchReducer" passed after 0.344 seconds.
+✔ Suite "CitationFormatter" passed after 0.344 seconds.
+✔ Suite "HostContextPolicy" passed after 0.344 seconds.
+✔ Suite "SessionFileStore" passed after 0.344 seconds.
+✔ Suite "SwarmResponseContextPolicy" passed after 0.344 seconds.
+✔ Suite "WebSearchModels" passed after 0.344 seconds.
+✔ Suite "TabGroup" passed after 0.344 seconds.
+✔ Suite "HostContextAdmission" passed after 0.344 seconds.
+✔ Suite "SitePermissionPolicy" passed after 0.344 seconds.
+✔ Suite "PreferenceExtractor" passed after 0.344 seconds.
+✔ Test registryAllowsOnlyOneConcurrentReservation() passed after 0.340 seconds.
+✔ Suite "RendererRecoveryController" passed after 0.344 seconds.
+✔ Suite "ContextRedactor" passed after 0.344 seconds.
+✔ Suite "PageCaptureAdmission" passed after 0.344 seconds.
+✔ Suite "PersistenceHealth" passed after 0.344 seconds.
+✔ Suite "ProjectStore" passed after 0.344 seconds.
+✔ Suite "ClaimExtractor" passed after 0.344 seconds.
+✔ Suite "ResearchHandoffCoordinator" passed after 0.344 seconds.
+✔ Suite "BrowserSession" passed after 0.344 seconds.
+✔ Suite "HiveReadiness" passed after 0.345 seconds.
+✔ Suite "DownloadControlStateMachine" passed after 0.345 seconds.
+✔ Suite "BrowserPageActionPolicy" passed after 0.345 seconds.
+✔ Suite "CrashRecoveryPolicy" passed after 0.345 seconds.
+✔ Suite "BrowserTab AI Context" passed after 0.345 seconds.
+✔ Suite "SwarmRunState" passed after 0.345 seconds.
+✔ Suite "HiveSheet" passed after 0.345 seconds.
+✔ Suite "HiveSessionEvidence" passed after 0.345 seconds.
+✔ Suite "ResponseLifecycleToken" passed after 0.345 seconds.
+✔ Suite "Download Filename Policy" passed after 0.345 seconds.
+✔ Suite "TabFocusNavigator" passed after 0.345 seconds.
+✔ Suite "BrowserSessionPrivacy" passed after 0.346 seconds.
+✔ Suite "DownloadHistoryPolicy" passed after 0.346 seconds.
+✔ Test researchWithoutProviderIsUnsupportedWithoutLooping() passed after 0.342 seconds.
+✔ Test searchOneShotMatchesStreamResult() passed after 0.342 seconds.
+✔ Suite "BrowserChromePreferences" passed after 0.346 seconds.
+✔ Test flushWritesImmediatelyAndCancelsDebounce() passed after 0.341 seconds.
+✔ Suite RiskClassTests passed after 0.346 seconds.
+✔ Suite "TerminalDownloadRecord" passed after 0.346 seconds.
+✔ Suite "HotMemoryPersistence" passed after 0.346 seconds.
+✔ Suite "HiveColorToken" passed after 0.346 seconds.
+✔ Suite "HistoryImportPolicy" passed after 0.346 seconds.
+✔ Suite "ModelManifest" passed after 0.346 seconds.
+✔ Suite "PreferenceMemory" passed after 0.346 seconds.
+✔ Suite "TabDropCoordinate" passed after 0.346 seconds.
+✔ Suite "NavigationLoadObservation" passed after 0.346 seconds.
+✔ Suite "ResearchHandoffSupervisor" passed after 0.346 seconds.
+✔ Suite "AutoArchivePolicy" passed after 0.346 seconds.
+✔ Suite "PageCapture" passed after 0.346 seconds.
+✔ Suite "BrowserSessionIntegrity" passed after 0.346 seconds.
+✔ Suite "ReaderModeModel" passed after 0.346 seconds.
+✔ Test staleEntriesEvictedAfterHotWindow() passed after 0.341 seconds.
+✔ Suite "ArchivedTab" passed after 0.346 seconds.
+✔ Suite "SwarmResponsePolicy" passed after 0.346 seconds.
+✔ Suite "HistoryClearPolicy" passed after 0.346 seconds.
+✔ Suite "Page Capture Request Ledger" passed after 0.346 seconds.
+✔ Suite "SessionDurabilityContract" passed after 0.346 seconds.
+✔ Suite "SourceAndClaim" passed after 0.346 seconds.
+✔ Suite "WebViewSessionBroker" passed after 0.346 seconds.
+✔ Suite "CommandRegistry" passed after 0.346 seconds.
+✔ Suite "NavigationAttemptRegistry" passed after 0.346 seconds.
+✔ Suite "BrowserModels" passed after 0.346 seconds.
+✔ Suite "PrivacyReportSummary" passed after 0.346 seconds.
+✔ Suite PolicyEngineTests passed after 0.346 seconds.
+✔ Suite InputFieldTests passed after 0.346 seconds.
+✔ Test concurrentProvisioningConvergesOnOnePersistedKey() passed after 0.338 seconds.
+✔ Suite "OverlayPresentationPolicy" passed after 0.346 seconds.
+✔ Suite "NavigationBlockNotice" passed after 0.346 seconds.
+✔ Suite "HostContextPolicyStore" passed after 0.346 seconds.
+✔ Suite "ChromiumHibernationAdapter" passed after 0.346 seconds.
+✔ Suite "NavigationHealthObservation" passed after 0.346 seconds.
+✔ Suite "BrowserContextPolicy" passed after 0.346 seconds.
+✔ Suite "TreeTabModel" passed after 0.346 seconds.
+✔ Suite "VaneSSEParser" passed after 0.346 seconds.
+✔ Suite "SwarmIntentRouter" passed after 0.346 seconds.
+✔ Suite "SwarmResponseContract" passed after 0.346 seconds.
+✔ Suite "HostContextHotMemory" passed after 0.346 seconds.
+✔ Test publishesRunningEventsAndCompletedFinalResult() passed after 0.337 seconds.
+✔ Suite "HotMemoryRankerFiltering" passed after 0.346 seconds.
+✔ Test providerCancellationPublishesCancelledState() passed after 0.337 seconds.
+✔ Suite "Page Capture Delivery Policy" passed after 0.346 seconds.
+✔ Test cancelPublishesCancelledAndIgnoresLateProviderEvents() passed after 0.337 seconds.
+✔ Suite "TabInsertionPlanner" passed after 0.346 seconds.
+✔ Suite "BrowserDownload" passed after 0.346 seconds.
+✔ Suite "RendererRecovery" passed after 0.346 seconds.
+✔ Suite "BrowserImportMergePolicy" passed after 0.346 seconds.
+✔ Suite "TavilySearchProvider" passed after 0.346 seconds.
+✔ Suite "TabAttachmentSummary" passed after 0.346 seconds.
+✔ Suite "SearchEngine" passed after 0.346 seconds.
+✔ Suite "BookmarkImportPolicy" passed after 0.346 seconds.
+✔ Suite "LoRA adapter resolution" passed after 0.346 seconds.
+✔ Suite "ContextScopeSummary" passed after 0.346 seconds.
+✔ Test setActiveProjectEvictsStaleOldProjectNodes() passed after 0.342 seconds.
+✔ Test updateNodeChangesLabelAndTimestamp() passed after 0.341 seconds.
+✔ Test pageContextBrokerTimeoutReturnsNil() passed after 0.347 seconds.
+✔ Suite "TabOrganizationNormalizer" passed after 0.347 seconds.
+✔ Test deleteOlderThanRemovesExpiredNodes() passed after 0.342 seconds.
+✔ Test redirectToPrivateHostIsDenied() passed after 0.346 seconds.
+✔ Test surfacesHTTPErrors() passed after 0.346 seconds.
+✔ Test redirectToBlockedSchemeIsDenied() passed after 0.346 seconds.
+✔ Test retryStartsFreshStateAndCanCompleteAfterFailure() passed after 0.339 seconds.
+✔ Test newRunInvalidatesOldRun() passed after 0.339 seconds.
+✔ Test rejectsBinaryContentTypes() passed after 0.346 seconds.
+✔ Test capsContentSize() passed after 0.346 seconds.
+✔ Test pageContextBrokerFulfill() passed after 0.348 seconds.
+✔ Test pageContextBrokerRejectsDisallowedContext() passed after 0.347 seconds.
+✔ Test stopsAtDoneAndIgnoresFramesAfterIt() passed after 0.346 seconds.
+✔ Test ignoresCommentsMalformedFramesAndEmptyDeltas() passed after 0.347 seconds.
+✔ Test acceptsNormalizedHTMLWithParameters() passed after 0.347 seconds.
+✔ Test rejectsEmptyChoicesFrame() passed after 0.347 seconds.
+✔ Test streamsOpenAICompatibleSSEAndSendsResolvedKey() passed after 0.347 seconds.
+✔ Test rejectsStreamWithNoValidEvents() passed after 0.347 seconds.
+✔ Test "missing audit ledger prevents a consequential executor from running" passed after 0.339 seconds.
+✔ Suite "RetentionCapability" passed after 0.350 seconds.
+✔ Test rejectsThreeMalformedDataFrames() passed after 0.347 seconds.
+✔ Test "rapid transitions converge on newest scope" passed after 0.346 seconds.
+✔ Suite "BrowserSessionStore" passed after 0.351 seconds.
+✔ Test cancellationClearsPendingConfirmation() passed after 0.348 seconds.
+✔ Test "research without a configured provider is honest and never executes" passed after 0.340 seconds.
+✔ Test "obsolete request fails closed after a newer transition" passed after 0.346 seconds.
+✔ Suite "KeychainHMACKeyStore" passed after 0.351 seconds.
+✔ Test "AI-disabled page scope is denied instead of silently becoming title-only context" passed after 0.340 seconds.
+✔ Suite "HoneycombStore" passed after 0.353 seconds.
+✔ Test fmfForbiddenInstructionRoleFallsBackToMockWhenNoMlx() passed after 0.352 seconds.
+✔ Test "private scope is denied before execution or persistence" passed after 0.343 seconds.
+✔ Test "routes a generic request without expanding its declared scope" passed after 0.343 seconds.
+✔ Test deterministicForSameInput() passed after 0.350 seconds.
+✔ Suite "SwarmResearchSession" passed after 0.353 seconds.
+✔ Test "cancel clears a pending request and prevents a later confirmation" passed after 0.343 seconds.
+✔ Test deleteOlderThan() passed after 0.346 seconds.
+✔ Test "gateway records bounded route metadata without page body" passed after 0.343 seconds.
+✔ Test actionRequiresExplicitConfirmationBeforeExecutorRuns() passed after 0.351 seconds.
+✔ Test duplicateURLsKeepCitationOccurrenceMappings() passed after 0.349 seconds.
+✔ Test clarificationAttemptsAreBounded() passed after 0.351 seconds.
+✔ Test cancellationIsNormalTerminationAndDoesNotBecomeProviderFailure() passed after 0.352 seconds.
+✔ Test pageContextBrokerOverwriteCancelsFirst() passed after 0.354 seconds.
+✔ Test mockProviderEmitsSourcesAndChunks() passed after 0.353 seconds.
+✔ Suite "BYOKRuntimeSSE" passed after 0.357 seconds.
+✔ Test verifyReportsNotFoundForMissingJob() passed after 0.348 seconds.
+✔ Suite "WebSearchProvider" passed after 0.360 seconds.
+✔ Test verifyReportsUnverifiedForPendingJob() passed after 0.351 seconds.
+✔ Test "confirmation keeps the original privacy scope across a follow-up" passed after 0.350 seconds.
+✔ Test getEventsByDateRange() passed after 0.354 seconds.
+✔ Test "explicit preference is persisted, but derived page text cannot create preference" passed after 0.350 seconds.
+✔ Test followsRedirectsWithinCapAndRevalidatesPolicy() passed after 0.361 seconds.
+✔ Test startIgnoresNonexistentJob() passed after 0.353 seconds.
+✔ Test repeatedIdenticalClaimRetainsBothEvidenceEdges() passed after 0.358 seconds.
+✔ Test loadSystemPromptReturnsNilForUnmappedRole() passed after 0.354 seconds.
+✔ Test buildRequestFallsBackToEmptySystemForMissingFile() passed after 0.354 seconds.
+✔ Suite "EventLedgerStore" passed after 0.363 seconds.
+✔ Test "action remains confirmation-gated" passed after 0.353 seconds.
+✔ Test pendingJobsFiltersCorrectly() passed after 0.355 seconds.
+✔ Suite "ResearchRecorder" passed after 0.364 seconds.
+✔ Suite "CellPromptLoader" passed after 0.364 seconds.
+✔ Suite "TrustedTurnGateway" passed after 0.364 seconds.
+✔ Test processRunsFullPipelineWhenRankerSkipped() passed after 0.361 seconds.
+✔ Test enqueueStoresJobAsPending() passed after 0.355 seconds.
+✔ Test retryRefusesJobAtMaxAttempts() passed after 0.355 seconds.
+✔ Test retryRefusesNonFailedJob() passed after 0.355 seconds.
+✔ Test autoCaptureTriageDegradesToMockSkip() passed after 0.361 seconds.
+✔ Test unavailableLocalFallbackIsNotAdvertisedAsStreaming() passed after 0.321 seconds.
+✔ Test askOnPageDegradesToMockPageDoesNotSay() passed after 0.361 seconds.
+✔ Suite "DispatcherStreamingAvailability" passed after 0.365 seconds.
+✔ Test capsRedirectLoops() passed after 0.365 seconds.
+✔ Test autoCaptureTriageNeverThrowsOnDispatcherError() passed after 0.364 seconds.
+✔ Test mockProducerStopsAfterConsumerTerminates() passed after 0.362 seconds.
+✔ Test askOnPageHandlesNoPageText() passed after 0.367 seconds.
+✔ Suite "ScribeCoordinator" passed after 0.372 seconds.
+✔ Test cancelTransitionsPendingJobToCancelled() passed after 0.364 seconds.
+✔ Test systemEmbedderIsAvailableAndCorrectDimension() passed after 0.365 seconds.
+✔ Suite "EmbeddingRuntime" passed after 0.373 seconds.
+✔ Test "in-flight transition rejects before response side effects" passed after 0.373 seconds.
+✔ Test autoPreferenceMatchesDefaultChain() passed after 0.377 seconds.
+✔ Test quickAskLogsModelCallToLedger() passed after 0.375 seconds.
+✔ Test "request binds its explicit scope before orchestration" passed after 0.380 seconds.
+✔ Suite "ContextRequestCoordinator" passed after 0.385 seconds.
+✔ Test allJobsReturnsAllEnqueuedJobs() passed after 0.380 seconds.
+✔ Test cancelIsIdempotent() passed after 0.381 seconds.
+✔ Test dispatcherProducerStopsAfterConsumerTerminates() passed after 0.386 seconds.
+✔ Test streamSummarizeLogsPartialThenCompletion() passed after 0.413 seconds.
+✔ Suite "SwarmOrchestrator" passed after 0.423 seconds.
+✔ Test cancellingRejectsLateExecutorResult() passed after 0.423 seconds.
+✔ Suite "VoiceCommandCoordinator" passed after 0.427 seconds.
+✔ Test timesOutSlowFetches() passed after 0.442 seconds.
+✔ Suite "SourceFetcher" passed after 0.445 seconds.
+✔ Test dispatcherFallbackStreamsHonestMockOutput() passed after 0.437 seconds.
+✔ Suite "StreamCancellation" passed after 0.445 seconds.
+✔ Test verifyReportsSuccessForCompletedJob() passed after 0.460 seconds.
+✔ Test startTransitionsJobToRunningAndCompletes() passed after 0.467 seconds.
+✔ Test startIgnoresAlreadyRunningJob() passed after 0.475 seconds.
+✔ Test verifyReportsFailureForFailedJob() passed after 0.484 seconds.
+✔ Test retryRestartsFailedJob() passed after 0.484 seconds.
+✔ Test runCheckTimesOut() passed after 0.514 seconds.
+✔ Suite "StudioWorkspace" passed after 0.519 seconds.
+✔ Test autoRetryExhaustedJobStaysFailed() passed after 0.520 seconds.
+✔ Test providerIsMockAndNeverReal() passed after 0.527 seconds.
+✔ Suite "MockRuntime" passed after 0.531 seconds.
+✔ Test runningJobsReturnsEmptyForCompletedJob() passed after 0.563 seconds.
+✔ Test runningJobsIncludesJobsDuringExecution() passed after 0.691 seconds.
+✔ Test explicitSourceHintOutranksBrowsed() passed after 0.740 seconds.
+✔ Test repeatedAccessRanksAboveSingleAccess() passed after 0.755 seconds.
+✔ Test scoreFloorFiltersNoise() passed after 0.755 seconds.
+✔ Test assembleContextOrdersHotNodesByRelevance() passed after 0.755 seconds.
+✔ Test queryBoostRanksSemanticMatchFirst() passed after 0.757 seconds.
+✔ Test relevanceGateOutranksHotterButIrrelevantMemory() passed after 0.757 seconds.
+✔ Test wordOverlapFallbackBoostsWithoutHoneycomb() passed after 0.805 seconds.
+✔ Suite "HotMemoryStore" passed after 0.811 seconds.
+✔ Test incompatibleWorkerProtocolIsRejectedAtReadyHandshake() passed after 0.802 seconds.
+✔ Test oversizedWorkerOutputIsRejectedAfterThePipeIsDrained() passed after 0.817 seconds.
+✔ Test jobWithMultipleAttemptsRetriesOnFailure() passed after 0.901 seconds.
+✔ Suite "BeeQueue" passed after 0.910 seconds.
+✔ Test timedOutWorkerIsTerminatedAndReaped() passed after 3.460 seconds.
+✔ Suite "ResearchWorkerClient" passed after 3.469 seconds.
+✔ Test mlxPreferenceNeverFabricatesInference() passed after 6.963 seconds.
+✔ Test rankerStepRunsAndReportsHonestDecision() passed after 7.425 seconds.
+✔ Suite "SwarmOrchestratorRanker" passed after 7.429 seconds.
+✔ Test generateWithCellPromptRoutesThroughDispatcher() passed after 7.491 seconds.
+✔ Test generateWithCellPromptFallsBackWithoutLoader() passed after 8.289 seconds.
+✔ Test byokPreferenceNeverFabricatesRemote() passed after 9.027 seconds.
+✔ Test generateWithCellPromptWorksForAllMappedRoles() passed after 44.212 seconds.
+✔ Suite "DispatcherCellPrompt" passed after 44.216 seconds.
+✔ Test honestyInvariantHoldsAcrossAllRoles() passed after 45.015 seconds.
+✔ Test honestyInvariantHoldsUnderEveryPreference() passed after 57.859 seconds.
+✔ Suite "Dispatcher" passed after 57.861 seconds.
+✔ Test run with 983 tests in 130 suites passed after 57.861 seconds.

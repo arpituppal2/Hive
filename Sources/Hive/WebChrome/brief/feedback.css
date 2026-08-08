@@ -1,0 +1,570 @@
+/* ============================================================
+   Morning Brief — in-brief quality feedback layer.
+   Loaded only when the contextBuilderMorningBriefFeedbackEnabled flag is on.
+   Quiet by default so the brief still reads like a brief; affordances
+   brighten on hover/focus and selected states are unmistakable.
+   ============================================================ */
+
+:root {
+  --fb-line: rgba(0, 0, 0, 0.12);
+  --fb-correct: #1f8f4e;
+  --fb-incorrect: #d23b3b;
+}
+
+/* ── Grading focus ─────────────────────────────────────── */
+
+.fb-optional-boundary {
+  grid-column: 1 / -1;
+  margin-block: clamp(4px, 1cqw, 12px) clamp(-6px, -1cqw, 0px);
+}
+
+.fb-optional-boundary__card {
+  display: grid;
+  grid-template-columns: minmax(24px, 1fr) auto minmax(24px, 1fr);
+  column-gap: clamp(12px, 2cqw, 24px);
+  row-gap: 9px;
+  align-items: center;
+  padding-block: 2px;
+  font-family: var(--font-body);
+}
+
+.fb-optional-boundary__card::before,
+.fb-optional-boundary__card::after {
+  content: "";
+  grid-row: 1;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.fb-optional-boundary__card::before {
+  grid-column: 1;
+}
+
+.fb-optional-boundary__card::after {
+  grid-column: 3;
+}
+
+.fb-optional-boundary__eyebrow {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(15px, calc(12px + 0.4cqw), 18px);
+  font-style: italic;
+  font-weight: 550;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: rgba(0, 0, 0, 0.66);
+  white-space: nowrap;
+}
+
+.fb-optional-boundary__message {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  max-width: 90ch;
+  margin: 0 auto;
+  font-size: clamp(11px, calc(9px + 0.35cqw), 13px);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--text-body);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.fb-section--optional .section-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.fb-optional-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--text-muted);
+}
+
+/* ── Per-item controls ──────────────────────────────────── */
+
+/* app.js drops an empty slot in each item's content column; feedback.js fills
+   it. The slot is a block so the controls sit on their own line under the
+   item, including inside flex content columns. */
+.fb-controls-slot {
+  display: block;
+}
+
+.fb-item-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(10px, 1.4vw, 18px);
+  margin: 8px 0 2px;
+  padding: 2px 0;
+  font-family: var(--font-body);
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+}
+
+.fb-item-controls:hover,
+.fb-item-controls:focus-within {
+  opacity: 1;
+}
+
+.fb-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fb-control-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Toggle group + buttons ─────────────────────────────── */
+
+.fb-toggle-group {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.fb-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  margin: 0;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--text-body);
+  background: transparent;
+  border: 1px solid var(--fb-line);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.fb-toggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.fb-toggle:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 1px;
+}
+
+.fb-toggle-glyph {
+  font-size: 13px;
+}
+
+.fb-toggle-text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Selected states — clearly filled, semantic per question. */
+.fb-toggle[aria-pressed="true"] {
+  background: var(--text);
+  color: #fff;
+  border-color: transparent;
+}
+
+.fb-correct .fb-toggle[data-value="true"][aria-pressed="true"] {
+  background: var(--fb-correct);
+  color: #fff;
+}
+
+.fb-correct .fb-toggle[data-value="false"][aria-pressed="true"] {
+  background: var(--fb-incorrect);
+  color: #fff;
+}
+
+.fb-useful .fb-toggle[aria-pressed="true"] {
+  background: var(--yellow);
+  color: #000;
+}
+
+/* ── Section completeness ───────────────────────────────── */
+
+/* Sits at the end of the section, aligned to the content column (outer col 6),
+   matching the body text rather than the left rank rail. */
+.fb-completeness {
+  grid-column: 6 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--fb-line);
+  font-family: var(--font-body);
+}
+
+.fb-completeness-q {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.fb-complete .fb-toggle[data-value="true"][aria-pressed="true"] {
+  background: var(--fb-correct);
+  color: #fff;
+}
+
+.fb-missing-note,
+.fb-correct-note {
+  flex-basis: 100%;
+  margin-top: 4px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--fb-line);
+  border-radius: 8px;
+  resize: vertical;
+}
+
+.fb-missing-note[hidden],
+.fb-correct-note[hidden] {
+  display: none;
+}
+
+.fb-missing-note:focus-visible,
+.fb-correct-note:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 1px;
+}
+
+.fb-missing-note.is-invalid,
+.fb-correct-note.is-invalid {
+  border-color: var(--fb-incorrect);
+  background: rgba(210, 59, 59, 0.08);
+}
+
+.fb-missing-note.is-invalid:focus-visible,
+.fb-correct-note.is-invalid:focus-visible {
+  outline-color: var(--fb-incorrect);
+}
+
+/* ── Fixed submit pill ──────────────────────────────────── */
+/* Hidden until the reader rates anything; then it slides up from the bottom
+   of the viewport. Floats above the brief, centered, never in the page flow. */
+
+.fb-submit-fixed {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(18px, 4vh, 36px);
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 22px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+  background: var(--yellow);
+  border: none;
+  border-radius: 999px;
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.18),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(10px);
+  transition:
+    opacity 0.24s ease,
+    transform 0.24s ease,
+    visibility 0.24s,
+    background 0.2s ease;
+}
+
+.fb-submit-fixed.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.fb-submit-fixed:hover {
+  filter: brightness(0.96);
+}
+
+.fb-submit-fixed:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
+
+/* The running count of things rated, tucked in a soft chip. */
+.fb-submit-fixed__count:not(:empty) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+}
+
+.fb-submit-fixed.is-done {
+  background: var(--fb-correct);
+  color: #fff;
+}
+
+/* ── Submit celebration ───────────────────────────────── */
+
+.fb-celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(255, 229, 0, 0.22), rgba(255, 255, 255, 0) 58%);
+  animation: fb-celebration-fade 3.2s ease both;
+}
+
+.fb-celebration__card {
+  position: relative;
+  z-index: 1;
+  width: min(390px, calc(100vw - 48px));
+  padding: 34px 30px 30px;
+  text-align: center;
+  color: #111;
+  background: var(--yellow);
+  border: 2px solid #111;
+  border-radius: 24px;
+  box-shadow:
+    0 26px 70px rgba(0, 0, 0, 0.24),
+    8px 9px 0 rgba(17, 17, 17, 0.9);
+  animation: fb-celebration-card 3.2s cubic-bezier(0.18, 0.89, 0.32, 1.24) both;
+}
+
+.fb-celebration__mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  font-size: 24px;
+  color: var(--yellow);
+  background: #111;
+  border-radius: 50%;
+  box-shadow: 0 0 0 7px rgba(17, 17, 17, 0.1);
+}
+
+.fb-celebration__eyebrow {
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fb-celebration__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 8vw, 48px);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+}
+
+.fb-celebration__message {
+  max-width: 30ch;
+  margin: 16px auto 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 550;
+  line-height: 1.45;
+}
+
+.fb-celebration__confetti-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.fb-celebration__confetti {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 9px;
+  height: 18px;
+  background: var(--fb-color);
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  animation: fb-confetti-burst 1.55s cubic-bezier(0.18, 0.75, 0.3, 1) var(--fb-delay) both;
+}
+
+.fb-celebration__confetti.is-round {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+@keyframes fb-celebration-fade {
+  0%, 100% { opacity: 0; }
+  8%, 78% { opacity: 1; }
+}
+
+@keyframes fb-celebration-card {
+  0% { opacity: 0; transform: translateY(28px) scale(0.7) rotate(-5deg); }
+  10% { opacity: 1; }
+  18% { transform: translateY(0) scale(1.06) rotate(1.5deg); }
+  25%, 76% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+  100% { opacity: 0; transform: translateY(-18px) scale(0.96) rotate(1deg); }
+}
+
+@keyframes fb-confetti-burst {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(0); }
+  12%, 75% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--fb-x)), calc(-50% + var(--fb-y))) scale(1) rotate(var(--fb-r));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fb-item-controls,
+  .fb-toggle,
+  .fb-submit-fixed {
+    transition: none;
+  }
+
+  .fb-celebration {
+    animation: fb-celebration-fade 2.4s linear both;
+  }
+
+  .fb-celebration__card {
+    animation: none;
+  }
+
+  .fb-celebration__confetti-field {
+    display: none;
+  }
+}
+
+/* ── Freeform feedback widget (bottom-left) ──────────────── */
+
+.fb-preview {
+  position: fixed;
+  left: clamp(16px, 3vw, 32px);
+  bottom: clamp(16px, 4vh, 32px);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.fb-preview-fab {
+  align-self: flex-start;
+  padding: 11px 22px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+  background: var(--yellow);
+  border: none;
+  border-radius: 999px;
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.18),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+.fb-preview-fab:hover {
+  filter: brightness(0.96);
+}
+
+.fb-preview-fab:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
+
+/* An explicit `display` would otherwise override the `hidden` attribute's `display: none`. */
+.fb-preview-form[hidden] {
+  display: none;
+}
+
+.fb-preview-form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: min(340px, 80vw);
+  padding: 14px;
+  background: var(--bg, #fff);
+  border: 1px solid var(--fb-line);
+  border-radius: 14px;
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.18),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.fb-preview-note {
+  width: 100%;
+  resize: vertical;
+  padding: 9px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-body);
+  background: transparent;
+  border: 1px solid var(--fb-line);
+  border-radius: 9px;
+  box-sizing: border-box;
+}
+
+.fb-preview-note:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 1px;
+}
+
+.fb-preview-send {
+  align-self: flex-start;
+  padding: 8px 18px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: #000;
+  background: var(--yellow);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.fb-preview-send:hover {
+  filter: brightness(0.96);
+}
+
+.fb-preview-status:not(:empty) {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-muted);
+}
