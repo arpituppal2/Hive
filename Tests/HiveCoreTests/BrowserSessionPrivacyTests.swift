@@ -118,4 +118,24 @@ struct BrowserSessionPrivacyTests {
         }
         _ = store // Keep the initializer/API covered without awaiting the actor.
     }
+
+@Test func nilSessionIDDoesNotLeakThroughSanitization() {
+        let session = BrowserSession(windows: [])
+        let sanitized = session.sanitizedForPersistence
+        #expect(sanitized.windows.isEmpty)
+    }
+
+    @Test func mixedPublicAndPrivateTabsSanitizesIndependently() {
+        let pub = BrowserTab(id: "pub", url: URL(string: "https://pub.example"))
+        let prv = BrowserTab(id: "prv", isPrivate: true)
+        let session = BrowserSession(windows: [BrowserSessionWindow(
+            spaces: [Space(id: "sp", name: "Mix", tabIDs: ["pub", "prv"])],
+            tabs: [pub, prv],
+            activeSpaceID: "sp",
+            activeTabID: "pub"
+        )])
+        let s = session.sanitizedForPersistence
+        #expect(s.windows[0].tabs.count == 1)
+        #expect(s.windows[0].tabs[0].id == "pub")
+    }
 }

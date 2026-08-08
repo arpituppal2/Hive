@@ -276,4 +276,30 @@ struct ResearchHandoffSupervisorTests {
         let reopenedJournal = try HandoffRecoveryJournal(path: paths.journal)
         #expect(try await reopenedJournal.count() == 0)
     }
+
+@Test func versionComparisonIsCorrect() async throws {
+        let (honeycomb, ledger) = try makeStores()
+        let paths = makePaths()
+        let backend = MemoryBackend()
+        defer { try? FileManager.default.removeItem(at: paths.root) }
+        let supervisor = try await ResearchHandoffSupervisor(
+            honeycomb: honeycomb, ledger: ledger,
+            registryPath: paths.registry, journalPath: paths.journal,
+            issuerID: "version-test", keychainBackend: backend
+        )
+        #expect(supervisor.activeKeyVersion > 0)
+    }
+
+    @Test func supervisorActiveKeyVersionIsPositive() async throws {
+        let (honeycomb, ledger) = try makeStores()
+        let paths = makePaths()
+        defer { try? FileManager.default.removeItem(at: paths.root) }
+        let backend = MemoryBackend()
+        let supervisor = try await ResearchHandoffSupervisor(
+            honeycomb: honeycomb, ledger: ledger,
+            registryPath: paths.registry, journalPath: paths.journal,
+            issuerID: "version-positive", keychainBackend: backend
+        )
+        #expect(supervisor.activeKeyVersion >= 1)
+    }
 }

@@ -49,4 +49,17 @@ struct BrowserChromePreferencesTests {
         #expect(decoded.openBriefOnNewTab == false)
         #expect(decoded.normalized.openBriefOnNewTab == false)
     }
+
+@Test func memorySaverDisabledRoundTrips() throws {
+        let original = BrowserChromePreferences(isMemorySaverEnabled: false)
+        let data = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(BrowserChromePreferences.self, from: data)
+        #expect(decoded.isMemorySaverEnabled == false)
+    }
+
+    @Test func layoutNormalizationIsIdempotent() {
+        let prefs = BrowserChromePreferences(layout: "Diagonal")
+        let normalized = prefs.normalized
+        #expect(normalized.normalized == normalized)
+    }
 }

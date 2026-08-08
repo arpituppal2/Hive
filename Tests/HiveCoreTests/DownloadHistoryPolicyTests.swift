@@ -64,4 +64,18 @@ struct DownloadHistoryPolicyTests {
             isInterrupted: true
         ))
     }
+
+@Test func completedNotCanceledIsRemovableHistory() {
+        #expect(DownloadHistoryPolicy.shouldRemoveFromHistory(
+            id: requestedID, requestedID: requestedID,
+            isComplete: true, isCanceled: false, isInterrupted: false
+        ))
+    }
+
+    @Test func alreadyCanceledNotRequestedIsNotRemovable() {
+        #expect(!DownloadHistoryPolicy.shouldRemoveFromHistory(
+            id: UUID(), requestedID: requestedID,
+            isComplete: false, isCanceled: true, isInterrupted: false
+        ))
+    }
 }

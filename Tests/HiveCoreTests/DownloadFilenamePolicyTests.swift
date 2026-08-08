@@ -41,4 +41,16 @@ struct DownloadFilenamePolicyTests {
         #expect(decoded.state == .failed)
         #expect(decoded.resumeData == Data([1, 2, 3]))
     }
+
+@Test func veryLongNameIsTruncatedToReasonableLength() {
+        let longName = String(repeating: "a", count: 300) + ".pdf"
+        let result = DownloadFilenamePolicy.sanitizedFilename(longName)
+        #expect(result.count <= 260)
+        #expect(!result.isEmpty)
+    }
+
+    @Test func emojiNameIsSanitized() {
+        let result = DownloadFilenamePolicy.sanitizedFilename("photo\u{1F4F7}.png")
+        #expect(!result.isEmpty)
+    }
 }

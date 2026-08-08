@@ -73,4 +73,20 @@ struct PersistenceHealthPolicyTests {
             }
         }
     }
+
+@Test("equality includes all three flags")
+    func equalityIncludesAllFlags() {
+        let a = PersistenceHealthPolicy(knowledgeDegraded: true, auditDegraded: false, sessionDegraded: false)
+        let b = PersistenceHealthPolicy(knowledgeDegraded: true, auditDegraded: false, sessionDegraded: false)
+        #expect(a == b)
+        #expect(a != PersistenceHealthPolicy(knowledgeDegraded: false, auditDegraded: false, sessionDegraded: false))
+    }
+
+    @Test("knowledgeAndAuditBothDegradedTitleIsSpecific")
+    func knowledgeAndAuditDegraded() {
+        let policy = PersistenceHealthPolicy(knowledgeDegraded: true, auditDegraded: true, sessionDegraded: false)
+        #expect(policy.isDegraded)
+        #expect(!policy.title.isEmpty)
+        #expect(policy.title != "Storage available")
+    }
 }

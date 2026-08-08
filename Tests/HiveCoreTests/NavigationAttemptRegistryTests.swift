@@ -48,4 +48,18 @@ struct NavigationAttemptRegistryTests {
         #expect(registry.remove(tabID: "tab-a"))
         #expect(!registry.remove(tabID: "tab-a"))
     }
+
+@Test("issue returns monotonically increasing IDs")
+    func issueIDsAreMonotonic() {
+        let registry = NavigationAttemptRegistry()
+        let a = registry.issue(for: "tab-x")
+        let b = registry.issue(for: "tab-x")
+        #expect(a < b)
+    }
+
+    @Test("removing nonexistent tab returns false")
+    func removeNonExistentReturnsFalse() {
+        let registry = NavigationAttemptRegistry()
+        #expect(!registry.remove(tabID: "ghost"))
+    }
 }

@@ -113,4 +113,17 @@ struct WebChromeBridgeContractTests {
         #expect(doc.contains("hive."), "WEB_CHROME_BRIDGE.md must document the api(name, params) surface.")
         #expect(doc.contains("api("), "WEB_CHROME_BRIDGE.md must document the JS api(name, params) helper.")
     }
+
+@Test func bridgeMethodsUseDotNotationOnly() throws {
+        let registered = try registeredMethods()
+        for method in registered {
+            #expect(!method.contains("_"),
+                    "Bridge methods must use dot notation (hive.x.y), not underscores: \(method)")
+        }
+    }
+
+    @Test func calledSurfaceIsNotNull() throws {
+        let called = try calledMethods()
+        #expect(!called.isEmpty, "Expected at least 1 api() call site in app.js")
+    }
 }

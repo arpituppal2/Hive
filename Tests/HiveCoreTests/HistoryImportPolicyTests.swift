@@ -68,4 +68,20 @@ struct HistoryImportPolicyTests {
         #expect(decision.entries.isEmpty)
         #expect(decision.skippedCount == 1)
     }
+
+@Test func emptyCandidatesProducesEmptyDecision() {
+        let decision = HistoryImportPolicy.merge(existingURLs: [], candidates: [])
+        #expect(decision.entries.isEmpty)
+        #expect(decision.skippedCount == 0)
+    }
+
+    @Test func limitExceedingCountReturnsAll() {
+        let candidates = [
+            ImportedHistoryEntry(url: URL(string: "https://a.example")!, title: "A", visitDate: older),
+            ImportedHistoryEntry(url: URL(string: "https://b.example")!, title: "B", visitDate: newer)
+        ]
+        let decision = HistoryImportPolicy.merge(existingURLs: [], candidates: candidates, limit: 100)
+        #expect(decision.entries.count == 2)
+        #expect(decision.skippedCount == 0)
+    }
 }

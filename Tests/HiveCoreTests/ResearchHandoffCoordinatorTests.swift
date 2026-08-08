@@ -253,4 +253,39 @@ struct ResearchHandoffCoordinatorTests {
         #expect(event.sessionID == "integration-session")
         #expect(event.verificationResult == .verified)
     }
+
+@Test func nilSessionIDDefaultsToNilIngest() async throws {
+        let fetched = fetchedSource()
+        let ingested = ingestedSource()
+        let recorder = CallRecorder()
+        let coordinator = ResearchHandoffCoordinator(
+            fetch: { url in
+                recorder.recordFetch(url: url, isPrivate: false)
+                return fetched
+            },
+            ingest: { payload, privacy, sessionID in
+                recorder.recordIngest(payload: payload, privacy: privacy, sessionID: sessionID)
+                return ingested
+            }
+        )
+        let result = try await coordinator.handoff(url: URL(string: "https://example.com")!)
+        let calls = recorder.snapshot()
+        #expect(calls.ingestedSessions == [nil])
+        #expect(result.ingested == ingested)
+    }
+
+    @Test func fetchThrowsBeforeIngest() async {
+        let recorder = CallRecorder()
+        let coordinator = ResearchHandoffCoordinator(
+            fetch: { _ in throw ResearchWorkerClient.ResearchWorkerError.executableUnavailable },
+            ingest: { payload, privacy, sessionID in
+                recorder.recordIngest(payload: payload, privacy: privacy, sessionID: sessionID)
+                return ingestedSource()
+            }
+        )
+        await #expect(throws: ResearchWorkerClient.ResearchWorkerError.self) {
+            _ = try await coordinator.handoff(url: URL(string: "https://example.com")!)
+        }
+        #expect(recorder.snapshot().ingestCount == 0)
+    }
 }
