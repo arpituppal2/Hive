@@ -4156,10 +4156,12 @@ final class BrowserState {
             dispatcher: .shared, hotMemory: hotMemory, ledger: eventLedger,
             honeycomb: honeycomb
         )
-        // Parallel multi-model council for AI queries — with Tavily search if configured
+        // Parallel multi-model council for AI queries — with Tavily + Vane search if configured
         let tavilyKey = self.tavilyAPIKey
         let searchProvider: WebSearchProvider? = tavilyKey.isEmpty ? nil : TavilySearchProvider(apiKey: tavilyKey)
-        modelCouncil = ModelCouncil(dispatcher: .shared, searchProvider: searchProvider)
+        let vaneURL = self.vaneBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        let vaneProvider: WebSearchProvider? = vaneURL.isEmpty ? nil : VaneSearchProvider(baseURL: URL(string: vaneURL) ?? URL(string: "http://localhost:3000")!)
+        modelCouncil = ModelCouncil(dispatcher: .shared, searchProvider: searchProvider, vaneProvider: vaneProvider)
         if let swarmOrchestrator {
             contextRequestCoordinator = ContextRequestCoordinator(
                 hotMemory: hotMemory,

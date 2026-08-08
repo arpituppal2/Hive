@@ -117,10 +117,12 @@ public final class ModelCouncil {
 
     private let dispatcher: Dispatcher
     private let searchProvider: WebSearchProvider?
+    private let vaneProvider: WebSearchProvider?
 
-    public init(dispatcher: Dispatcher = .shared, searchProvider: WebSearchProvider? = nil) {
+    public init(dispatcher: Dispatcher = .shared, searchProvider: WebSearchProvider? = nil, vaneProvider: WebSearchProvider? = nil) {
         self.dispatcher = dispatcher
         self.searchProvider = searchProvider
+        self.vaneProvider = vaneProvider
     }
 
     // MARK: Public API
@@ -299,7 +301,7 @@ public final class ModelCouncil {
         case .tavilyCloud:
             return try await queryTavily(question: question)
         case .vaneLocal:
-            return try await queryMLX(question: question, context: context) // Fallback to MLX
+            return try await queryVane(question: question)
         case .byokRemote:
             return try await queryBYOK(question: question, context: context)
         }
@@ -348,6 +350,37 @@ public final class ModelCouncil {
             }
         }
         // No search provider configured — honest degradation
+        return ProviderResult(
+            answer: "",
+            confidence: 0,
+            citations: []
+        )
+    }
+
+    /// Query the user's self-hosted Vane (formerly Perplexica) instance.
+    /// Uses the VaneSearchProvider when a base URL is configured;
+    /// falls back to empty honest response when unavailable.
+    private func queryVane(question: String) async throws -> ProviderResult {
+        if let vane = vaneProvider, await vane.isAvailable() {
+            do {
+                let result = try await vane.search(query: question, focusMode: .webSearch)
+                let answer = result.answer.isEmpty
+                    ? result.sources.prefix(5).map { "[\($0.title)](\($0.url)): \($0.snippet)" }.joined(separator: "\n\n")
+                    : result.answer
+                return ProviderResult(
+                    answer: answer,
+                    confidence: 0.82,
+                    citations: result.sources.map { $0.url }
+                )
+            } catch {
+                return ProviderResult(
+                    answer: "",
+                    confidence: 0,
+                    citations: []
+                )
+            }
+        }
+        // No Vane configured — honest empty response
         return ProviderResult(
             answer: "",
             confidence: 0,
