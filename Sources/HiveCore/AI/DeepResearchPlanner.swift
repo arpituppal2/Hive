@@ -349,7 +349,7 @@ public final class DeepResearchPlanner {
     }
 
     /// Returns true if host is a private, loopback, link-local, or reserved address.
-    private func isPrivateHost(_ host: String) -> Bool {
+    func isPrivateHost(_ host: String) -> Bool { let host = host.lowercased()
         // Block hostnames that resolve to private ranges
         let blockedPatterns = [
             "localhost", "127.0.0.1", "::1", "0.0.0.0",
@@ -371,7 +371,7 @@ public final class DeepResearchPlanner {
     }
 
     /// Basic HTML-to-text extraction: strip tags, scripts, styles, collapse whitespace.
-    private func extractTextFromHTML(_ html: String) -> String {
+    func extractTextFromHTML(_ html: String) -> String {
         var text = html
         // Remove script and style blocks
         let scriptPattern = try? NSRegularExpression(pattern: "<(script|style)[^>]*>.*?</\\1>", options: [.dotMatchesLineSeparators, .caseInsensitive])

@@ -337,7 +337,7 @@ public final class ModelCouncil {
     }
 
     /// Fallback local synthesis when the chair model is unavailable.
-    private func localSynthesize(active: [CouncilResponse]) -> Synthesis {
+    func localSynthesize(active: [CouncilResponse]) -> Synthesis {
         let confidences = active.map { $0.confidence }
         let avgConfidence = confidences.reduce(0, +) / Double(confidences.count)
         let hasConsensus = confidences.allSatisfy { $0 > 0.7 }
@@ -355,7 +355,7 @@ public final class ModelCouncil {
     }
 
     /// Parse the chair model's structured response.
-    private func parseChairResponse(_ text: String, active: [CouncilResponse]) -> Synthesis {
+    func parseChairResponse(_ text: String, active: [CouncilResponse]) -> Synthesis {
         var answer = ""
         var agreements: [String] = []
         var disagreements: [String] = []
@@ -416,13 +416,13 @@ public final class ModelCouncil {
 
 // MARK: - Supporting Types
 
-private struct ProviderResult: Sendable {
+struct ProviderResult: Sendable {
     public let answer: String
     public let confidence: Double
     public let citations: [String]
 }
 
-private struct Synthesis {
+struct Synthesis {
     public let answer: String
     public let reasoning: String
     public let agreements: [String]
