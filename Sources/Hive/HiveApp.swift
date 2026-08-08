@@ -1,7 +1,6 @@
 import SwiftUI
 import CefSwiftUI
 import Foundation
-import Sparkle
 
 // MARK: - HiveApp
 //
@@ -16,18 +15,9 @@ struct HiveApp: CefSwiftApp {
     static var cefConfiguration: CefConfiguration {
         var config = CefConfiguration.default
 
-        // The local smoke harness opts into an isolated CEF root. Chromium's
-        // `--user-data-dir` is not mapped by CefSwift to `cef_settings_t`, so
-        // the harness must configure CEF's root/cache paths explicitly. This
-        // environment override is deliberately opt-in; normal launches keep
-        // the production default under Application Support.
         let environment = ProcessInfo.processInfo.environment
         let isReadinessSmoke = environment["HIVE_EMIT_READINESS_MARKER"] == "1"
         if isReadinessSmoke {
-            // The isolated CLI smoke process must not block on the user's
-            // login keychain while CEF initializes. This is scoped strictly
-            // to the readiness harness; normal launches retain CefSwift's
-            // automatic secure-storage policy and real Keychain behavior.
             config.safeStorage = .mockKeychain
         }
         if isReadinessSmoke,
@@ -39,29 +29,16 @@ struct HiveApp: CefSwiftApp {
             let temporaryPath = temporaryRoot.path.hasSuffix("/")
                 ? temporaryRoot.path
                 : temporaryRoot.path + "/"
-            // This override is exclusively for the local smoke harness. Keep
-            // it inside the OS temporary directory and derive the log path so
-            // inherited environment variables cannot redirect CEF output or
-            // production data to an arbitrary location.
             if rootPath.hasPrefix(temporaryPath) {
                 config.rootCachePath = root
-                // Leave cachePath nil so CefSwift maps it to the same
-                // canonicalized root path. Supplying a sibling URL here can
-                // differ only by macOS's /var → /private/var resolution and
-                // makes CEF reject an otherwise valid isolated cache.
                 config.logFile = root.appendingPathComponent("cef.log", isDirectory: false)
             }
         }
 
         config.customSchemes = [
-            // displayIsolated: hive:// content can only be displayed from
-            // same-scheme pages — arbitrary sites cannot iframe the start
-            // page (defense in depth on top of the bridge session token).
             CefCustomScheme(name: WebChromeBridge.schemeName,
                             options: [.standard, .secure, .corsEnabled, .fetchEnabled, .displayIsolated])
         ]
-        // Debug builds expose DevTools on localhost so the web chrome can be
-        // verified headlessly (and inspected) — never shipped enabled.
         #if DEBUG
         config.remoteDebuggingPort = 9223
         #endif
@@ -72,20 +49,9 @@ struct HiveApp: CefSwiftApp {
     @State private var showOnboarding: Bool = !UserDefaults.standard.bool(forKey: "HiveHasSeenOnboarding")
     @State private var showCrashReport = false
 
-    // Sparkle auto-update controller — initialized once and retained for
-    // the process lifetime so the "Check for Updates…" menu item works.
-    private let updaterController = SPUStandardUpdaterController(
-        startingUpdater: true,
-        updaterDelegate: nil,
-        userDriverDelegate: nil
-    )
-
     init() {
-        // Install crash signal handlers early — before CEF, before web content.
         CrashReporter.install()
 
-        // If a crash occurred in the previous session and the user has opted
-        // into crash reporting, flag the report for review.
         if UserDefaults.standard.bool(forKey: CrashReporter.optInKey),
            CrashReporter.previousCrashLog() != nil {
             _showCrashReport = State(initialValue: true)
@@ -117,13 +83,11 @@ struct HiveApp: CefSwiftApp {
                 .onReceive(NotificationCenter.default.publisher(
                     for: Notification.Name("HiveRequestNewWindow")
                 )) { _ in
-                    // The web chrome's ⌘N bridge lands here; SwiftUI
-                    // WindowGroup handles the actual window creation.
                     NSApp.sendAction(Selector(("newWindow:")), to: nil, from: nil)
                 }
         }
         .commands {
-            BrowserCommands(state: state, updater: updaterController)
+            BrowserCommands(state: state)
         }
 
         Settings {
@@ -139,7 +103,6 @@ struct HiveApp: CefSwiftApp {
 
 struct BrowserCommands: Commands {
     @Bindable var state: BrowserState
-    let updater: SPUStandardUpdaterController
 
     var body: some Commands {
         CommandGroup(after: .newItem) {
@@ -150,7 +113,6 @@ struct BrowserCommands: Commands {
             Button("Reopen Closed Tab") { state.reopenLastClosed() }
                 .keyboardShortcut("t", modifiers: [.command, .shift])
             Divider()
-            // Cmd+1-9 tab switching — Chrome-compatible, uses visible tab order
             ForEach(1...min(9, state.visibleTabs.count), id: \.self) { i in
                 Button("Tab \(i)") {
                     state.selectTab(id: state.visibleTabs[i-1].id)
@@ -207,7 +169,6 @@ struct BrowserCommands: Commands {
                 Button("Find in Page...") { state.openFindBar() }
                     .keyboardShortcut("f", modifiers: .command)
                 Divider()
-                // Page zoom — Chrome/Edge/Safari parity (⌘+ / ⌘- / ⌘0).
                 Button("Zoom In") { state.zoomIn() }
                     .keyboardShortcut("+", modifiers: .command)
                 Button("Zoom Out") { state.zoomOut() }
@@ -220,7 +181,6 @@ struct BrowserCommands: Commands {
             }
             Button("Enter Full Screen") { state.toggleFullscreen() }
                 .keyboardShortcut("f", modifiers: [.control, .command])
-
         }
 
         CommandGroup(replacing: .windowList) {
@@ -229,8 +189,6 @@ struct BrowserCommands: Commands {
             Button("Previous Workspace") { state.previousWorkspace() }
                 .keyboardShortcut("[", modifiers: [.command, .option])
             Divider()
-            // Direct-jump Space 1-9 (⌘⌥1-9) — Arc/Zen parity for workspace
-            // switching, matching the gradient badges in the vertical sidebar.
             ForEach(Array(state.workspacesForCurrentProfile.enumerated()), id: \.element.id) { index, workspace in
                 if index < 9 {
                     Button("Space \(index + 1): \(workspace.name)") {
@@ -244,9 +202,6 @@ struct BrowserCommands: Commands {
                 Button("Profile: \(profile.name)") { state.switchProfile(to: profile.id) }
             }
             Divider()
-            // Zen-parity split shortcuts. ⌃⌥V splits side-by-side (vertical
-            // divider), ⌃⌥H splits top-and-bottom (horizontal divider),
-            // ⌃⌥U unsplits. Both orientations persist across restarts.
             Button("Split View (Side by Side)") {
                 state.splitWithNextTab(orientation: .sideBySide)
             }
@@ -259,19 +214,11 @@ struct BrowserCommands: Commands {
                 .keyboardShortcut("u", modifiers: [.control, .option])
         }
 
-        // Intercept Cmd+Q: save the session, flush hot memory, then quit cleanly.
         CommandGroup(replacing: .appTermination) {
             Button("Quit Hive") {
                 Task { await state.saveNowAndQuit() }
             }
             .keyboardShortcut("q", modifiers: .command)
-        }
-
-        // Sparkle: Check for Updates… in the app menu
-        CommandGroup(after: .appInfo) {
-            Button("Check for Updates…") {
-                updater.checkForUpdates(nil)
-            }
         }
     }
 }
