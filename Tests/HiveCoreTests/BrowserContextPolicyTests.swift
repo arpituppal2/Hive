@@ -31,3 +31,29 @@ func allowedPageStillScopesAsUntrustedData() {
     #expect(scoped?.text.contains("ordinary page text") == true)
     #expect(BrowserContextPolicy.untrustedPageBlock(page)?.contains("UNTRUSTED_PAGE_DATA") == true)
 }
+
+@Test
+func hiveInternalPagesAreNeverScoped() {
+    let page = PageContext(
+        tabID: "tab-1",
+        url: URL(string: "hive://start"),
+        title: "New Tab",
+        text: "internal content",
+        aiContextAllowed: true
+    )
+    #expect(BrowserContextPolicy.scopePage(page) == nil)
+}
+
+@Test
+func pageWithEmptyTextIsScoped() {
+    let page = PageContext(
+        tabID: "tab-2",
+        url: URL(string: "https://blank.example"),
+        title: "Blank",
+        text: "",
+        aiContextAllowed: true
+    )
+    let scoped = BrowserContextPolicy.scopePage(page)
+    #expect(scoped != nil)
+    #expect(scoped?.text.isEmpty == true)
+}

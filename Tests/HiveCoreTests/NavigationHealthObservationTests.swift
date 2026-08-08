@@ -55,4 +55,12 @@ struct NavigationHealthObservationTests {
         #expect(!lateCompletion)
         #expect(observation.state == .timedOut)
     }
+
+    @Test("consecutive loading observations without idle do not complete")
+    func consecutiveLoadingNoComplete() {
+        var observation = NavigationHealthObservation()
+        _ = observation.observe(isLoading: true)
+        _ = observation.observe(isLoading: true)
+        #expect(observation.state == .loading)
+    }
 }

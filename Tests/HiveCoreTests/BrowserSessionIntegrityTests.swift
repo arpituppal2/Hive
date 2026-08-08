@@ -154,6 +154,31 @@ struct BrowserSessionIntegrityTests {
         #expect(report.removedDanglingTabReferences == 1)
     }
 
+    @Test("archived public tabs survive normalization")
+    func archivedPublicTabsSurvive() {
+        let session = BrowserSession(
+            archivedTabs: [
+                ArchivedTab(id: "arch-pub", title: "Public Archive", url: URL(string: "https://example.com")!, isPrivate: false),
+                ArchivedTab(id: "arch-priv", title: "Private Archive", isPrivate: true)
+            ]
+        )
+        let normalization = session.normalizedForRestore
+        #expect(normalization.session.archivedTabs.map(\.id) == ["arch-pub"])
+    }
+
+    @Test("window without spaces is still valid after normalization")
+    func emptyWindowNormalizes() {
+        let session = BrowserSession(windows: [BrowserSessionWindow(
+            spaces: [],
+            tabs: [],
+            activeSpaceID: nil,
+            activeTabID: nil
+        )])
+        let normalization = session.normalizedForRestore
+        #expect(normalization.session.windows.count == 1)
+        #expect(normalization.session.windows[0].spaces.isEmpty)
+    }
+
     @Test("valid active selection and ordering are preserved")
     func preservesValidSelectionAndOrder() {
         let first = BrowserTab(id: "first")
