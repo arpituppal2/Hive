@@ -34,9 +34,10 @@ struct ExtensionsToolbar: View {
     }
 
     private func handleExtensionTap(_ ext: ExtensionItem) {
-        // Real extensions open their own popover/panel. Until install support
-        // ships, a pinned icon opens the extensions manager — never a fake
-        // assistant response pretending to be the extension.
+        // Extension install support is gated on CEF extension API maturity.
+        // When ready, extensions open their own popover/panel via
+        // CefExtensionManager. Until then, a pinned icon opens the extensions
+        // manager — never a fake assistant response pretending to be the extension.
         state.isExtensionsManagerOpen = true
     }
 

@@ -84,17 +84,44 @@ enum CrashReporter {
 
     /// Submit a crash report. Only called if the user has opted in AND
     /// explicitly approved this specific report.
+    ///
+    /// The crash log is already sanitized (no URLs, page titles, form values,
+    /// or browsing content). The server receives only: signal number, app
+    /// version, macOS version, and a sanitized stack trace.
     static func submitCrashLog(at url: URL) async -> Bool {
         guard UserDefaults.standard.bool(forKey: optInKey) else { return false }
         guard let data = try? Data(contentsOf: url) else { return false }
 
-        // TODO: Replace with actual submission endpoint
-        // POST https://crash.hivebrowser.com/api/v1/crash
-        // Headers: Content-Type: application/octet-stream
-        // The server should never receive user browsing data — logs are
-        // sanitized before writing.
-        _ = data
-        return true
+        let endpoint = "https://crash.hivebrowser.com/api/v1/crash"
+        guard var components = URLComponents(string: endpoint) else { return false }
+        // Attach app version as query param so the server can route without
+        // parsing the body before accepting.
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+        let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
+        components.queryItems = [
+            URLQueryItem(name: "version", value: appVersion),
+            URLQueryItem(name: "build", value: buildNumber),
+        ]
+        guard let requestURL = components.url else { return false }
+
+        var request = URLRequest(url: requestURL)
+        request.httpMethod = "POST"
+        request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
+        request.setValue("Hive/\(appVersion)", forHTTPHeaderField: "User-Agent")
+        request.httpBody = data
+        request.timeoutInterval = 30
+
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else { return false }
+            // 201 Created or 202 Accepted means the server received it.
+            // 4xx/5xx means the endpoint is down — the user can retry next launch.
+            return httpResponse.statusCode == 201 || httpResponse.statusCode == 202
+        } catch {
+            // Network unreachable, DNS failure, or timeout — not a crash bug.
+            // The marker file persists; the user can retry next launch.
+            return false
+        }
     }
 
     /// Clear the last-crash marker after the user has reviewed the report.

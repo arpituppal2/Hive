@@ -52,9 +52,9 @@ struct StudioPanel: View {
                 Task { await refreshAfterApproval() }
             }
         }
-        // SWARM-004 wiring: the check now runs through the approval center.
-        // Observe the state-published outcome (approved run, failing run,
-        // or policy denial) and render it in the panel's status line.
+        // Check outcomes are published by the approval center (PolicyEngine +
+        // ToolRegistry validates the command, user approves, then bounded
+        // execution runs in BrowserState.performExecution).
         .onChange(of: state.studioCheckResult) { _, result in
             if let result {
                 checkOutput = result
@@ -431,11 +431,9 @@ struct StudioPanel: View {
     private func runCheck() async {
         let command = checkCommand.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !command.isEmpty else { return }
-        // SWARM-004: the check now routes through the approval center — the
-        // policy engine validates the command (destructive deny-list) before
-        // the user approves it. The raw bounded-workspace call no longer
-        // happens here; the approved execution runs in
-        // BrowserState.performExecution and publishes the output.
+        // Commands route through the approval center: PolicyEngine validates
+        // against the destructive deny-list, then the user approves before
+        // bounded execution runs in BrowserState.performExecution.
         isChecking = true
         checkOutput = ""
         statusMessage = "Waiting for approval…"
