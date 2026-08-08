@@ -18,7 +18,7 @@ Usage:
   scripts/verify-research-worker.sh --worker PATH --requirement PATH --team-id TEAM
 
 Options:
-  --app PATH                 Signed HiveChromium.app bundle. The worker and
+  --app PATH                 Signed Hive.app bundle. The worker and
                              requirement are located inside its Resources tree.
   --worker PATH              Explicit hive-fetch-worker path for CI fixtures.
   --requirement PATH         Explicit hive-worker-requirement.txt path.
@@ -108,15 +108,15 @@ if [[ -n "$APP_PATH" ]]; then
   bundle_candidates=()
   while IFS= read -r -d '' candidate; do
     [[ -n "$candidate" ]] && bundle_candidates[${#bundle_candidates[@]}]="$candidate"
-  done < <(find "$APP_PATH/Contents/Resources" -type d -name '*_HiveChromium.bundle' -path '*/Contents/Resources/*_HiveChromium.bundle' -print0)
-  [[ "${#bundle_candidates[@]}" -eq 1 ]] || fail "expected exactly one HiveChromium SwiftPM resource bundle inside the app"
+  done < <(find "$APP_PATH/Contents/Resources" -type d -name '*_Hive.bundle' -path '*/Contents/Resources/*_Hive.bundle' -print0)
+  [[ "${#bundle_candidates[@]}" -eq 1 ]] || fail "expected exactly one Hive SwiftPM resource bundle inside the app"
   RESOURCE_BUNDLE="${bundle_candidates[0]}"
   expected_prefix="$RESOURCE_BUNDLE/Contents/Resources/ResearchWorker/"
-  [[ "$WORKER_PATH" == "$expected_prefix"* ]] || fail "worker is not inside the expected HiveChromium resource bundle"
+  [[ "$WORKER_PATH" == "$expected_prefix"* ]] || fail "worker is not inside the expected Hive resource bundle"
 
   REQUIREMENT_PATH="$RESOURCE_BUNDLE/Contents/Resources/ResearchWorker/hive-worker-requirement.txt"
   codesign --verify --deep --strict --verbose=2 "$APP_PATH" >/dev/null 2>&1 || fail "app bundle strict code-signature verification failed"
-  codesign --verify --strict --verbose=2 "$RESOURCE_BUNDLE" >/dev/null 2>&1 || fail "HiveChromium resource bundle signature verification failed"
+  codesign --verify --strict --verbose=2 "$RESOURCE_BUNDLE" >/dev/null 2>&1 || fail "Hive resource bundle signature verification failed"
 else
   [[ -x "$WORKER_PATH" ]] || fail "worker is not executable: $WORKER_PATH"
   [[ -n "$REQUIREMENT_PATH" ]] || fail "--requirement is required with --worker"

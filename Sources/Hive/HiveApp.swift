@@ -1,282 +1,277 @@
 import SwiftUI
-import HiveCore
+import CefSwiftUI
+import Foundation
+import Sparkle
 
-// The Hive Browser — single macOS product. Multi-window + restoration arrives later.
-// Swarm is integrated inside Hive (home, sidebar, omnibar modes)
-// but the agent layer is the owner's lane — the browser never blocks on it.
+// MARK: - HiveApp
+//
+// The Hive Browser — Chromium-backed via CefSwiftUI, native SwiftUI chrome shell.
+// Built from scratch around CEF 148 (Chromium 148.0.7778.218).
 
 @main
-struct HiveApp: App {
+struct HiveApp: CefSwiftApp {
 
-    // The window's observable chrome state. Created once, persisted to disk via ChromePrefsStore
-    // (atomic writes, corrupt-file quarantine — never silently discards user data). A fresh
-    // install starts with one "New Tab"; the user's prefs (layout, density, search engine) are
-    // restored immediately, before the first paint, so layout never "snaps".
-    @State private var state: ChromeState
-    private let menuBarController = MenuBarController()
-    private let servicesProvider = ServicesMenuProvider()
+    /// Custom schemes registered in every CEF process. `hive://` serves the
+    /// hand-drawn web chrome (start page) — see WebChromeHandler.swift.
+    static var cefConfiguration: CefConfiguration {
+        var config = CefConfiguration.default
+
+        // The local smoke harness opts into an isolated CEF root. Chromium's
+        // `--user-data-dir` is not mapped by CefSwift to `cef_settings_t`, so
+        // the harness must configure CEF's root/cache paths explicitly. This
+        // environment override is deliberately opt-in; normal launches keep
+        // the production default under Application Support.
+        let environment = ProcessInfo.processInfo.environment
+        let isReadinessSmoke = environment["HIVE_EMIT_READINESS_MARKER"] == "1"
+        if isReadinessSmoke {
+            // The isolated CLI smoke process must not block on the user's
+            // login keychain while CEF initializes. This is scoped strictly
+            // to the readiness harness; normal launches retain CefSwift's
+            // automatic secure-storage policy and real Keychain behavior.
+            config.safeStorage = .mockKeychain
+        }
+        if isReadinessSmoke,
+           let rootPath = environment["HIVE_CEF_ROOT_CACHE_PATH"],
+           !rootPath.isEmpty {
+            let root = URL(fileURLWithPath: rootPath, isDirectory: true).resolvingSymlinksInPath()
+            let temporaryRoot = FileManager.default.temporaryDirectory.resolvingSymlinksInPath()
+            let rootPath = root.path
+            let temporaryPath = temporaryRoot.path.hasSuffix("/")
+                ? temporaryRoot.path
+                : temporaryRoot.path + "/"
+            // This override is exclusively for the local smoke harness. Keep
+            // it inside the OS temporary directory and derive the log path so
+            // inherited environment variables cannot redirect CEF output or
+            // production data to an arbitrary location.
+            if rootPath.hasPrefix(temporaryPath) {
+                config.rootCachePath = root
+                // Leave cachePath nil so CefSwift maps it to the same
+                // canonicalized root path. Supplying a sibling URL here can
+                // differ only by macOS's /var → /private/var resolution and
+                // makes CEF reject an otherwise valid isolated cache.
+                config.logFile = root.appendingPathComponent("cef.log", isDirectory: false)
+            }
+        }
+
+        config.customSchemes = [
+            // displayIsolated: hive:// content can only be displayed from
+            // same-scheme pages — arbitrary sites cannot iframe the start
+            // page (defense in depth on top of the bridge session token).
+            CefCustomScheme(name: WebChromeBridge.schemeName,
+                            options: [.standard, .secure, .corsEnabled, .fetchEnabled, .displayIsolated])
+        ]
+        // Debug builds expose DevTools on localhost so the web chrome can be
+        // verified headlessly (and inspected) — never shipped enabled.
+        #if DEBUG
+        config.remoteDebuggingPort = 9223
+        #endif
+        return config
+    }
+
+    @State private var state = BrowserState()
+    @State private var showOnboarding: Bool = !UserDefaults.standard.bool(forKey: "HiveHasSeenOnboarding")
+    @State private var showCrashReport = false
+
+    // Sparkle auto-update controller — initialized once and retained for
+    // the process lifetime so the "Check for Updates…" menu item works.
+    private let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true,
+        updaterDelegate: nil,
+        userDriverDelegate: nil
+    )
 
     init() {
-        // Load durable prefs synchronously before the UI mounts so the first frame's layout is
-        // correct (no "snap" from default to the user's saved layout). loadSync is nonisolated
-        // + non-throwing (corrupt files are quarantined; a missing file returns defaults).
-        let prefs = ChromePrefsStore.loadSync()
-        // Session restore (design doc §9): load the full session the same way — synchronously,
-        // before the first paint, so restored tabs/spaces are present immediately. Three
-        // outcomes the store distinguishes so Hive never SILENTLY starts fresh over an
-        // unreadable session (the crash-only trust contract):
-        //   .restored → bring the saved session back; paint it on frame zero.
-        //   .none     → no session file (first launch / cleared); seed one new tab.
-        //   .corrupt  → unreadable → quarantine it, try the rolling backup, set a recovery
-        //               notice so BrowserWindow surfaces "Restore last session vs Start fresh".
-        var recovery: SessionRecoveryNotice = .none
-        var restoredSession: BrowserSession? = nil
-        switch BrowserSessionStore.loadSync() {
-        case .restored(let session, _): restoredSession = session
-        case .none:                  break
-        case .corrupt(_, let backup, _):
-            if let backup { restoredSession = backup; recovery = .recoveredFromBackup }
-            else { recovery = .lostNoBackup }
-        }
-        // Open (or create) the durable knowledge + audit stores. These live on disk in
-        // the user's Application Support folder and survive across launches.
-        let appSupportDir: URL? = {
-            guard let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
-                .appendingPathComponent("Hive", isDirectory: true) else { return nil }
-            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-            return dir
-        }()
-        let honeycomb: HoneycombStore? = {
-            guard let dir = appSupportDir else { return nil }
-            return try? HoneycombStore(path: dir.appendingPathComponent("honeycomb.sqlite").path)
-        }()
-        let eventLedger: EventLedgerStore? = {
-            guard let dir = appSupportDir else { return nil }
-            return try? EventLedgerStore(path: dir.appendingPathComponent("event_ledger.sqlite").path)
-        }()
-        // Locate the Swarm Cell prompt directory. The directory is declared as a SwiftPM
-        // resource in Package.swift, so it is copied into the module's resource bundle. A
-        // packaged macOS app also keeps it in the main bundle's Resources. We check those
-        // first, then fall back to repo-root / executable-relative paths for dev workflows.
-        // If no directory is found, the loader stays nil and generation falls back to a bare
-        // role prompt (still honest, just less specific).
-        let cellPromptLoader: CellPromptLoader? = {
-            let candidates: [URL] = [
-                // 1. SwiftPM module resource bundle (swift run / Xcode run)
-                Bundle.module.url(forResource: "Swarm_System_Prompts", withExtension: nil),
-                // 2. Packaged app Resources directory
-                Bundle.main.url(forResource: "Swarm_System_Prompts", withExtension: nil),
-                // 3. Running from the repo root (legacy dev layout)
-                URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-                    .appendingPathComponent("Swarm_System_Prompts", isDirectory: true),
-                // 4. Next to the built executable
-                Bundle.main.executableURL?.deletingLastPathComponent()
-                    .appendingPathComponent("Swarm_System_Prompts", isDirectory: true),
-                // 5. Inside the app bundle Resources directory (legacy path)
-                Bundle.main.resourceURL?.appendingPathComponent("Swarm_System_Prompts", isDirectory: true),
-            ].compactMap { $0 }
-            for candidate in candidates {
-                var isDir: ObjCBool = false
-                if FileManager.default.fileExists(atPath: candidate.path, isDirectory: &isDir), isDir.boolValue {
-                    return CellPromptLoader(promptsDir: candidate)
-                }
-            }
-            return nil
-        }()
+        // Install crash signal handlers early — before CEF, before web content.
+        CrashReporter.install()
 
-        let secretStore = KeychainSecretStore()
-        let s = ChromeState(prefs: prefs,
-                            prefsStore: ChromePrefsStore(),
-                            sessionStore: BrowserSessionStore(),
-                            honeycomb: honeycomb,
-                            eventLedger: eventLedger,
-                            secretStore: secretStore,
-                            cellPromptLoader: cellPromptLoader)
-        if let session = restoredSession, !session.windows.isEmpty {
-            s.restore(from: session, recovery: recovery)
-        }
-        // Always leave the window instantly usable: restore handles the no/empty-session case,
-        // but guard any path where restore didn't seed a tab.
-        if s.tabs.isEmpty { s.newTab() }
-        _state = State(initialValue: s)
-
-        // Wire BYOK if the user has configured a remote model. This is async and must happen
-        // after the secret store is available; it updates the shared Dispatcher singleton.
-        // refreshBYOKDispatcher is @MainActor because it reads prefs from the observable state.
-        Task { @MainActor in await s.refreshBYOKDispatcher() }
-
-        // Compile the built-in content blocker at launch (privacy-first, non-blocking).
-        // If compilation fails, the blocker is inert — no blocking, no breakage.
-        // The result is cached by WKContentRuleListStore; subsequent launches recompile
-        // only after app updates (the store tracks identifier + version).
-        Task {
-            if s.prefs.contentBlockerEnabled {
-                try? await ContentBlockerController.shared.compileBuiltInRules()
-            }
-        }
-
-        // Install the menu bar item for quick tab/space switching.
-        menuBarController.install(with: s)
-
-        // Register macOS Services menu handlers (Open URL in Hive, Search in Hive).
-        servicesProvider.register(with: s)
-
-        // Refresh the safe browsing blocklist on launch.
-        Task { await SafeBrowsingController.shared.refreshBlocklist() }
-
-        // Schedule the first automatic update check (Sparkle handles scheduling;
-        // this is a manual trigger in case Sparkle is not yet linked).
-        if UpdateManager.shared.automaticallyChecksForUpdates {
-            Task { UpdateManager.shared.checkForUpdates() }
-        }
-
-        // Register for memory-pressure notifications to evict panel webviews.
-        NotificationCenter.default.addObserver(
-            forName: NSNotification.Name("NSApplicationMemoryPressure"),
-            object: nil, queue: .main
-        ) { _ in
-            Task { @MainActor in WebPanelManager.shared.evictAll() }
-        }
-
-        // Register for app termination to flush the session synchronously.
-        // This ensures tabs/spaces/state are persisted before the process exits,
-        // so the next launch can restore exactly where the user left off.
-        NotificationCenter.default.addObserver(
-            forName: NSApplication.willTerminateNotification,
-            object: nil, queue: .main
-        ) { [s] _ in
-                MainActor.assumeIsolated { s.flushSessionSync() }
+        // If a crash occurred in the previous session and the user has opted
+        // into crash reporting, flag the report for review.
+        if UserDefaults.standard.bool(forKey: CrashReporter.optInKey),
+           CrashReporter.previousCrashLog() != nil {
+            _showCrashReport = State(initialValue: true)
         }
     }
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "main") {
             BrowserWindow()
                 .environment(state)
-                .environment(\.hiveChromeState, state)
-                .environment(\.webPanelManager, WebPanelManager.shared)
-                .preferredColorScheme(state.resolvedColorScheme)
-                .frame(minWidth: 960, idealWidth: 1200, minHeight: 640, idealHeight: 800)
+                .frame(minWidth: 960, idealWidth: 1280, minHeight: 640, idealHeight: 800)
+                .sheet(isPresented: $showOnboarding) {
+                    OnboardingSheet()
+                        .environment(state)
+                }
+                .alert("Crash Detected", isPresented: $showCrashReport) {
+                    Button("Submit Report") {
+                        if let url = CrashReporter.previousCrashLog() {
+                            Task { _ = await CrashReporter.submitCrashLog(at: url) }
+                        }
+                        CrashReporter.clearLastCrash()
+                    }
+                    Button("Don't Send", role: .cancel) {
+                        CrashReporter.clearLastCrash()
+                    }
+                } message: {
+                    Text("Hive quit unexpectedly last time. A sanitized crash report is ready to help us fix the issue. No browsing data is included.")
+                }
+                .onReceive(NotificationCenter.default.publisher(
+                    for: Notification.Name("HiveRequestNewWindow")
+                )) { _ in
+                    // The web chrome's ⌘N bridge lands here; SwiftUI
+                    // WindowGroup handles the actual window creation.
+                    NSApp.sendAction(Selector(("newWindow:")), to: nil, from: nil)
+                }
         }
-        .windowStyle(.hiddenTitleBar)
         .commands {
-            BrowserCommands()
+            BrowserCommands(state: state, updater: updaterController)
         }
 
         Settings {
-            HiveSettingsView(state: state)
-                .preferredColorScheme(state.resolvedColorScheme)
-                .frame(width: 600, height: 500)
-                .background(Color.hiveBackground)
+            SettingsView(state: state)
+                .frame(width: 620, height: 440)
+                .background(.background)
         }
         .windowResizability(.contentSize)
     }
 }
 
-// MARK: - BrowserCommands (keyboard parity)
-//
-// The full switcher-parity keyboard surface so anyone from Chrome/Safari/Arc/Zen/Brave/Firefox
-// feels at home on day one. Every shortcut below is also discoverable from the menu bar.
-//
-//   Tab/window   ⌘T new  •  ⌘W close  •  ⌘⇧T reopen  •  ⌘1–⌘9 select-by-ordinal
-//   Navigation   ⌘[ back  •  ⌘] forward  •  ⌘R reload  •  ⌘. stop  •  ⌘L focus address
-//   Layout       ⌘⇧L toggle H↔V  •  ⌘⇧[ prev tab  •  ⌘⇧] next tab
-//   Find         ⌘F find-in-page overlay bar
-//
-// ChromeState (non-isolated @Observable) is reached by reading it from the Environment inside
-// the Commands body (so we don't stash a non-Sendable class in a struct that crosses isolation).
+// MARK: - BrowserCommands
 
 struct BrowserCommands: Commands {
+    @Bindable var state: BrowserState
+    let updater: SPUStandardUpdaterController
+
     var body: some Commands {
-        // New Tab / Close / Reopen — flank the existing File menu.
         CommandGroup(after: .newItem) {
-            envButton("New Tab", key: "t", mods: .command) { $0.newTab() }
-            envButton("New Private Tab", key: "n", mods: [.command, .shift]) { $0.newTab(isPrivate: true) }
+            Button("New Tab") { state.showFloatingURLBar(opensNewTab: true) }
+                .keyboardShortcut("t", modifiers: .command)
+            Button("Close Tab") { state.closeActiveTab() }
+                .keyboardShortcut("w", modifiers: .command)
+            Button("Reopen Closed Tab") { state.reopenLastClosed() }
+                .keyboardShortcut("t", modifiers: [.command, .shift])
             Divider()
-            envButton("Close Tab", key: "w", mods: .command) {
-                if let id = $0.activeTabID { $0.closeTab(id) }
+            // Cmd+1-9 tab switching — Chrome-compatible, uses visible tab order
+            ForEach(1...min(9, state.visibleTabs.count), id: \.self) { i in
+                Button("Tab \(i)") {
+                    state.selectTab(id: state.visibleTabs[i-1].id)
+                }
+                .keyboardShortcut(KeyEquivalent(Character("\(i)")), modifiers: .command)
             }
-            envButton("Reopen Closed Tab", key: "t", mods: [.command, .shift]) { $0.reopenLastClosed() }
+            Divider()
+            Button("New Private Tab") { state.newPrivateTab() }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+            if state.canUseWebPageActions {
+                Button("Summarize Page") { state.summarizeCurrentPage() }
+                    .keyboardShortcut("s", modifiers: [.option])
+            }
+            Button("Voice Mode") { state.toggleVoiceMode() }
+                .keyboardShortcut("v", modifiers: [.shift, .option])
         }
 
-        // Navigation — back / forward / reload / stop / focus address.
         CommandGroup(after: .textEditing) {
-            envButton("Back", key: "[", mods: .command) { $0.requestNav(.back) }
-            envButton("Forward", key: "]", mods: .command) { $0.requestNav(.forward) }
-            envButton("Reload Page", key: "r", mods: .command) { $0.requestNav(.reload) }
-            envButton("Stop", key: ".", mods: .command) { $0.requestNav(.stop) }
+            Button("Back") { state.goBack() }
+                .keyboardShortcut("[", modifiers: .command)
+            Button("Forward") { state.goForward() }
+                .keyboardShortcut("]", modifiers: .command)
+            Button("Reload") { state.reload() }
+                .keyboardShortcut("r", modifiers: .command)
+            Button("Stop") { state.stop() }
+                .keyboardShortcut(".", modifiers: .command)
             Divider()
-            envButton("Focus Address Bar", key: "l", mods: .command) { $0.focusOmnibar() }
+            Button("Show History") { state.isHistoryPanelOpen = true }
+                .keyboardShortcut("y", modifiers: .command)
+            Button("Show Downloads") { state.isDownloadsPanelOpen = true }
+                .keyboardShortcut("j", modifiers: [.command, .shift])
+            Divider()
+            Button("Focus Address Bar") { state.showFloatingURLBar(prefill: state.activeModel?.url?.absoluteString ?? "", opensNewTab: false) }
+                .keyboardShortcut("l", modifiers: .command)
         }
 
-        // Spaces — prev/next (⌘⌥[ / ⌘⌥]) and direct-jump by index (⌘⌥1-9).
         CommandGroup(replacing: .sidebar) {
-            envButton("Show Previous Space", key: "[", mods: [.command, .option]) { $0.cycleSpaces(forward: false) }
-            envButton("Show Next Space", key: "]", mods: [.command, .option]) { $0.cycleSpaces(forward: true) }
+            Button("Toggle Tab Layout") { state.toggleLayout() }
+                .keyboardShortcut("l", modifiers: [.command, .shift])
+            Button("Toggle Compact Mode") { state.toggleCompactMode() }
+                .keyboardShortcut("l", modifiers: [.command, .shift, .option])
+            Button("Toggle Bookmarks Bar") { state.showBookmarksBar.toggle() }
+                .keyboardShortcut("b", modifiers: [.command, .shift])
+            Button("Bookmarks Manager") { state.openBookmarksManager() }
+                .keyboardShortcut("b", modifiers: [.command, .option])
+        }
+
+        CommandGroup(after: .toolbar) {
+            Button("Command Palette...") { state.openCommandPalette() }
+                .keyboardShortcut("k", modifiers: .command)
+            Button("Search Tabs...") { state.openTabSearch() }
+                .keyboardShortcut("a", modifiers: [.command, .shift])
+            if state.canUseWebPageActions {
+                Button("Find in Page...") { state.openFindBar() }
+                    .keyboardShortcut("f", modifiers: .command)
+                Divider()
+                // Page zoom — Chrome/Edge/Safari parity (⌘+ / ⌘- / ⌘0).
+                Button("Zoom In") { state.zoomIn() }
+                    .keyboardShortcut("+", modifiers: .command)
+                Button("Zoom Out") { state.zoomOut() }
+                    .keyboardShortcut("-", modifiers: .command)
+                Button("Actual Size") { state.resetZoom() }
+                    .keyboardShortcut("0", modifiers: .command)
+                Divider()
+                Button("Print...") { state.printCurrentPage() }
+                    .keyboardShortcut("p", modifiers: .command)
+            }
+            Button("Enter Full Screen") { state.toggleFullscreen() }
+                .keyboardShortcut("f", modifiers: [.control, .command])
+
+        }
+
+        CommandGroup(replacing: .windowList) {
+            Button("Next Workspace") { state.nextWorkspace() }
+                .keyboardShortcut("]", modifiers: [.command, .option])
+            Button("Previous Workspace") { state.previousWorkspace() }
+                .keyboardShortcut("[", modifiers: [.command, .option])
             Divider()
-            ForEach(1..<10) { idx in
-                envButton("Space \(idx)", key: String(idx), mods: [.command, .option]) { state in
-                    guard state.spaces.count > idx - 1 else { return }
-                    state.switchSpace(to: state.spaces[idx - 1].id)
+            // Direct-jump Space 1-9 (⌘⌥1-9) — Arc/Zen parity for workspace
+            // switching, matching the gradient badges in the vertical sidebar.
+            ForEach(Array(state.workspacesForCurrentProfile.enumerated()), id: \.element.id) { index, workspace in
+                if index < 9 {
+                    Button("Space \(index + 1): \(workspace.name)") {
+                        state.switchWorkspace(to: workspace.id)
+                    }
+                    .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: [.command, .option])
                 }
             }
             Divider()
-            envButton("Toggle Tab Layout", key: "l", mods: [.command, .shift]) { $0.toggleLayout() }
+            ForEach(state.profiles) { profile in
+                Button("Profile: \(profile.name)") { state.switchProfile(to: profile.id) }
+            }
             Divider()
-            envButton("Capture Page to Hive", key: "s", mods: [.command, .shift]) { $0.captureActivePage() }
-            envButton("Toggle Reader Mode", key: "r", mods: [.command, .shift]) { $0.toggleReaderMode() }
-            envButton("Toggle Downloads", key: "j", mods: [.command, .shift]) { $0.toggleDownloadsPanel() }
-            envButton("Toggle Reading List", key: "l", mods: [.command, .shift]) { $0.toggleReadingListPanel() }
-            Divider()
-            envButton("Show History", key: "y", mods: .command) { $0.executeCommand(.showHistory) }
-            envButton("Toggle Bookmark Bar", key: "b", mods: [.command, .shift]) { $0.executeCommand(.toggleBookmarkBar) }
-            envButton("Print Page…", key: "p", mods: .command) { $0.executeCommand(.printPage) }
+            // Zen-parity split shortcuts. ⌃⌥V splits side-by-side (vertical
+            // divider), ⌃⌥H splits top-and-bottom (horizontal divider),
+            // ⌃⌥U unsplits. Both orientations persist across restarts.
+            Button("Split View (Side by Side)") {
+                state.splitWithNextTab(orientation: .sideBySide)
+            }
+            .keyboardShortcut("v", modifiers: [.control, .option])
+            Button("Split View (Top and Bottom)") {
+                state.splitWithNextTab(orientation: .topBottom)
+            }
+            .keyboardShortcut("h", modifiers: [.control, .option])
+            Button("Unsplit") { state.unsplit() }
+                .keyboardShortcut("u", modifiers: [.control, .option])
         }
-    }
 
-    // Button that reads ChromeState from the app's commands environment and runs `body($0)`.
-    // SwiftUI Commands build on the main actor, so the menu-action closure is main-actor —
-    // safe to mutate the observable.
-    @ViewBuilder
-    fileprivate func envButton(_ title: String, key: String, mods: EventModifiers,
-                               _ body: @escaping (ChromeState) -> Void) -> some View {
-        Button(title) {
-            guard let state = stateEnv else { return }
-            body(state)
+        // Intercept Cmd+Q: save the session, flush hot memory, then quit cleanly.
+        CommandGroup(replacing: .appTermination) {
+            Button("Quit Hive") {
+                Task { await state.saveNowAndQuit() }
+            }
+            .keyboardShortcut("q", modifiers: .command)
         }
-        .keyboardShortcut(KeyEquivalent(Character(key)), modifiers: mods)
-        .environment(\.hiveChromeState, stateEnv)
-    }
 
-    @Environment(\.hiveChromeState) fileprivate var stateEnv
-}
-
-// MARK: - Environment passthrough for the commands scene
-//
-// `Commands` is a value type built at scene-init time; it can't legally hold a non-Sendable
-// @Observable across its lifetime in a strict-concurrency world. So we thread the shared
-// ChromeState through a custom EnvironmentKey that the App seeds once in `.commands { }`.
-
-private struct HiveChromeStateKey: EnvironmentKey {
-    static let defaultValue: ChromeState? = nil
-}
-
-extension EnvironmentValues {
-    var hiveChromeState: ChromeState? {
-        get { self[HiveChromeStateKey.self] }
-        set { self[HiveChromeStateKey.self] = newValue }
-    }
-}
-
-// MARK: - WebPanelManager environment key
-
-private struct WebPanelManagerKey: EnvironmentKey {
-    static let defaultValue: WebPanelManager = WebPanelManager.shared
-}
-
-extension EnvironmentValues {
-    var webPanelManager: WebPanelManager {
-        get { self[WebPanelManagerKey.self] }
-        set { self[WebPanelManagerKey.self] = newValue }
+        // Sparkle: Check for Updates… in the app menu
+        CommandGroup(after: .appInfo) {
+            Button("Check for Updates…") {
+                updater.checkForUpdates(nil)
+            }
+        }
     }
 }

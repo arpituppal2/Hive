@@ -2,11 +2,11 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VALIDATOR="$ROOT_DIR/scripts/verify-hivechromium-entitlements.sh"
-SOURCE="$ROOT_DIR/Sources/HiveChromium/HiveChromium.entitlements"
+VALIDATOR="$ROOT_DIR/scripts/verify-hive-entitlements.sh"
+SOURCE="$ROOT_DIR/Sources/Hive/Hive.entitlements"
 
 fail() {
-  printf 'test-hivechromium-entitlements: %s\n' "$1" >&2
+  printf 'test-hive-entitlements: %s\n' "$1" >&2
   exit 1
 }
 
@@ -42,4 +42,4 @@ cp "$SOURCE" "$fixture_dir/unexpected.plist"
   fail "could not create unexpected-key fixture"
 expect_rejected "$fixture_dir/unexpected.plist" "unexpected-key"
 
-printf 'HiveChromium entitlement fixtures passed\n'
+printf 'Hive entitlement fixtures passed\n'

@@ -4445,41 +4445,41 @@ struct BrowserSessionStoreTests {
     }
 }
 
-// MARK: - ChromiumHibernationAdapter
+// MARK: - HibernationAdapter
 
-@Suite("ChromiumHibernationAdapter")
-struct ChromiumHibernationAdapterTests {
+@Suite("HibernationAdapter")
+struct HibernationAdapterTests {
 
     private let now = Date(timeIntervalSince1970: 1_000_000)
 
     @Test func activeGroupCannotCollapseButInactiveGroupCan() {
-        #expect(!ChromiumHibernationAdapter.canCollapseGroup(
+        #expect(!HibernationAdapter.canCollapseGroup(
             memberTabIDs: ["active", "other"], activeTabID: "active"))
-        #expect(ChromiumHibernationAdapter.canCollapseGroup(
+        #expect(HibernationAdapter.canCollapseGroup(
             memberTabIDs: ["other"], activeTabID: "active"))
-        #expect(ChromiumHibernationAdapter.canCollapseGroup(
+        #expect(HibernationAdapter.canCollapseGroup(
             memberTabIDs: ["other"], activeTabID: nil))
     }
 
     @Test func explicitCollapseIncludesMRUTabButOrdinaryMRUTabStaysWarm() {
-        #expect(ChromiumHibernationAdapter.shouldIncludeInCandidateSet(
+        #expect(HibernationAdapter.shouldIncludeInCandidateSet(
             tabID: "collapsed", isMRU: true, collapsedGroupTabIDs: ["collapsed"]))
-        #expect(!ChromiumHibernationAdapter.shouldIncludeInCandidateSet(
+        #expect(!HibernationAdapter.shouldIncludeInCandidateSet(
             tabID: "recent", isMRU: true, collapsedGroupTabIDs: []))
-        #expect(ChromiumHibernationAdapter.shouldIncludeInCandidateSet(
+        #expect(HibernationAdapter.shouldIncludeInCandidateSet(
             tabID: "old", isMRU: false, collapsedGroupTabIDs: []))
     }
 
     @Test func restoredActiveGroupIsExpandedBeforeFirstRender() {
-        #expect(!ChromiumHibernationAdapter.restoredCollapseState(
+        #expect(!HibernationAdapter.restoredCollapseState(
             isCollapsed: true,
             memberTabIDs: ["active", "other"],
             activeTabID: "active"))
-        #expect(ChromiumHibernationAdapter.restoredCollapseState(
+        #expect(HibernationAdapter.restoredCollapseState(
             isCollapsed: true,
             memberTabIDs: ["other"],
             activeTabID: "active"))
-        #expect(!ChromiumHibernationAdapter.restoredCollapseState(
+        #expect(!HibernationAdapter.restoredCollapseState(
             isCollapsed: false,
             memberTabIDs: ["other"],
             activeTabID: "active"))
@@ -4489,21 +4489,21 @@ struct ChromiumHibernationAdapterTests {
         let activeWorkspace = UUID()
         let inactiveWorkspace = UUID()
         let tabs = [
-            ChromiumHibernationAdapter.TabCandidate(
+            HibernationAdapter.TabCandidate(
                 id: "active-space-young", workspaceID: activeWorkspace,
                 hasPage: true, lastAccessed: now.addingTimeInterval(-899)),
-            ChromiumHibernationAdapter.TabCandidate(
+            HibernationAdapter.TabCandidate(
                 id: "active-space-ready", workspaceID: activeWorkspace,
                 hasPage: true, lastAccessed: now.addingTimeInterval(-900)),
-            ChromiumHibernationAdapter.TabCandidate(
+            HibernationAdapter.TabCandidate(
                 id: "inactive-space-ready", workspaceID: inactiveWorkspace,
                 hasPage: true, lastAccessed: now.addingTimeInterval(-300)),
-            ChromiumHibernationAdapter.TabCandidate(
+            HibernationAdapter.TabCandidate(
                 id: "new-tab", workspaceID: inactiveWorkspace,
                 hasPage: false, lastAccessed: now.addingTimeInterval(-9999))
         ]
 
-        let result = ChromiumHibernationAdapter.evaluate(
+        let result = HibernationAdapter.evaluate(
             tabs: tabs, activeTabID: "front", activeWorkspaceID: activeWorkspace,
             mediaPlayingTabIDs: [], activeDownloadTabIDs: [], now: now)
 
@@ -4514,21 +4514,21 @@ struct ChromiumHibernationAdapterTests {
         let workspace = UUID()
         let old = now.addingTimeInterval(-10_000)
         let tabs = [
-            ChromiumHibernationAdapter.TabCandidate(id: "active", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "active", workspaceID: workspace,
                                                     hasPage: true, lastAccessed: old),
-            ChromiumHibernationAdapter.TabCandidate(id: "pinned", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "pinned", workspaceID: workspace,
                                                     isPinned: true, hasPage: true, lastAccessed: old),
-            ChromiumHibernationAdapter.TabCandidate(id: "essential", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "essential", workspaceID: workspace,
                                                     isEssential: true, hasPage: true, lastAccessed: old),
-            ChromiumHibernationAdapter.TabCandidate(id: "media", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "media", workspaceID: workspace,
                                                     hasPage: true, lastAccessed: old),
-            ChromiumHibernationAdapter.TabCandidate(id: "download", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "download", workspaceID: workspace,
                                                     hasPage: true, lastAccessed: old),
-            ChromiumHibernationAdapter.TabCandidate(id: "eligible", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "eligible", workspaceID: workspace,
                                                     hasPage: true, lastAccessed: old)
         ]
 
-        let result = ChromiumHibernationAdapter.evaluate(
+        let result = HibernationAdapter.evaluate(
             tabs: tabs, activeTabID: "active", activeWorkspaceID: workspace,
             mediaPlayingTabIDs: ["media"], activeDownloadTabIDs: ["download"], now: now)
 
@@ -4537,10 +4537,10 @@ struct ChromiumHibernationAdapterTests {
 
     @Test func collapsedGroupMembersHibernateImmediately() {
         let workspace = UUID()
-        let collapsed = ChromiumHibernationAdapter.TabCandidate(
+        let collapsed = HibernationAdapter.TabCandidate(
             id: "collapsed", workspaceID: workspace, hasPage: true,
             lastAccessed: now)
-        let result = ChromiumHibernationAdapter.evaluate(
+        let result = HibernationAdapter.evaluate(
             tabs: [collapsed], activeTabID: "other", activeWorkspaceID: workspace,
             mediaPlayingTabIDs: [], activeDownloadTabIDs: [],
             collapsedGroupTabIDs: ["collapsed"], now: now)
@@ -4552,20 +4552,20 @@ struct ChromiumHibernationAdapterTests {
         let workspace = UUID()
         let old = now.addingTimeInterval(-10_000)
         let tabs = [
-            ChromiumHibernationAdapter.TabCandidate(id: "active", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "active", workspaceID: workspace,
                                                     hasPage: true, lastAccessed: old),
-            ChromiumHibernationAdapter.TabCandidate(id: "pinned", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "pinned", workspaceID: workspace,
                                                     isPinned: true, hasPage: true, lastAccessed: old),
-            ChromiumHibernationAdapter.TabCandidate(id: "essential", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "essential", workspaceID: workspace,
                                                     isEssential: true, hasPage: true, lastAccessed: old),
-            ChromiumHibernationAdapter.TabCandidate(id: "media", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "media", workspaceID: workspace,
                                                     hasPage: true, lastAccessed: old),
-            ChromiumHibernationAdapter.TabCandidate(id: "download", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "download", workspaceID: workspace,
                                                     hasPage: true, lastAccessed: old),
-            ChromiumHibernationAdapter.TabCandidate(id: "eligible", workspaceID: workspace,
+            HibernationAdapter.TabCandidate(id: "eligible", workspaceID: workspace,
                                                     hasPage: true, lastAccessed: old)
         ]
-        let result = ChromiumHibernationAdapter.evaluate(
+        let result = HibernationAdapter.evaluate(
             tabs: tabs, activeTabID: "active", activeWorkspaceID: workspace,
             mediaPlayingTabIDs: ["media"], activeDownloadTabIDs: ["download"],
             collapsedGroupTabIDs: Set(tabs.map(\.id)), now: now)
@@ -4575,12 +4575,12 @@ struct ChromiumHibernationAdapterTests {
 
     @Test func customThresholdsRemainDeterministic() {
         let workspace = UUID()
-        let tab = ChromiumHibernationAdapter.TabCandidate(
+        let tab = HibernationAdapter.TabCandidate(
             id: "tab", workspaceID: workspace, hasPage: true,
             lastAccessed: now.addingTimeInterval(-60))
         let thresholds = HibernationPolicy.Thresholds(bgActiveSpaceSec: 30, inactiveSpaceSec: 10)
 
-        let result = ChromiumHibernationAdapter.evaluate(
+        let result = HibernationAdapter.evaluate(
             tabs: [tab], activeTabID: "other", activeWorkspaceID: workspace,
             mediaPlayingTabIDs: [], activeDownloadTabIDs: [], now: now,
             thresholds: thresholds)
@@ -4591,10 +4591,10 @@ struct ChromiumHibernationAdapterTests {
     @Test func capturingMediaTabIsNeverHibernated() {
         let workspace = UUID()
         let old = now.addingTimeInterval(-10_000)
-        let capturing = ChromiumHibernationAdapter.TabCandidate(
+        let capturing = HibernationAdapter.TabCandidate(
             id: "call", workspaceID: workspace, hasPage: true,
             lastAccessed: old, isCapturingMedia: true)
-        let result = ChromiumHibernationAdapter.evaluate(
+        let result = HibernationAdapter.evaluate(
             tabs: [capturing], activeTabID: "other", activeWorkspaceID: workspace,
             mediaPlayingTabIDs: [], activeDownloadTabIDs: [],
             collapsedGroupTabIDs: ["call"], now: now)
@@ -4605,10 +4605,10 @@ struct ChromiumHibernationAdapterTests {
     @Test func formEntryTabIsNeverHibernated() {
         let workspace = UUID()
         let old = now.addingTimeInterval(-10_000)
-        let drafting = ChromiumHibernationAdapter.TabCandidate(
+        let drafting = HibernationAdapter.TabCandidate(
             id: "draft", workspaceID: workspace, hasPage: true,
             lastAccessed: old, hasFormEntry: true)
-        let result = ChromiumHibernationAdapter.evaluate(
+        let result = HibernationAdapter.evaluate(
             tabs: [drafting], activeTabID: "other", activeWorkspaceID: workspace,
             mediaPlayingTabIDs: [], activeDownloadTabIDs: [], now: now)
         #expect(result.isEmpty)
@@ -4618,20 +4618,20 @@ struct ChromiumHibernationAdapterTests {
         let workspace = UUID()
         let old = now.addingTimeInterval(-10_000)
         let tabs = [
-            ChromiumHibernationAdapter.TabCandidate(
+            HibernationAdapter.TabCandidate(
                 id: "hive", workspaceID: workspace, hasPage: true,
                 lastAccessed: old, urlScheme: "hive"),
-            ChromiumHibernationAdapter.TabCandidate(
+            HibernationAdapter.TabCandidate(
                 id: "about", workspaceID: workspace, hasPage: true,
                 lastAccessed: old, urlScheme: "about"),
-            ChromiumHibernationAdapter.TabCandidate(
+            HibernationAdapter.TabCandidate(
                 id: "chrome", workspaceID: workspace, hasPage: true,
                 lastAccessed: old, urlScheme: "chrome"),
-            ChromiumHibernationAdapter.TabCandidate(
+            HibernationAdapter.TabCandidate(
                 id: "web", workspaceID: workspace, hasPage: true,
                 lastAccessed: old, urlScheme: "https")
         ]
-        let result = ChromiumHibernationAdapter.evaluate(
+        let result = HibernationAdapter.evaluate(
             tabs: tabs, activeTabID: "other", activeWorkspaceID: workspace,
             mediaPlayingTabIDs: [], activeDownloadTabIDs: [], now: now)
         #expect(result == ["web"])
@@ -4640,41 +4640,41 @@ struct ChromiumHibernationAdapterTests {
     @Test func recentlyAudibleTabIsDeferredWithinGraceWindow() {
         let workspace = UUID()
         let old = now.addingTimeInterval(-10_000)
-        let tabs = [ChromiumHibernationAdapter.TabCandidate(
+        let tabs = [HibernationAdapter.TabCandidate(
             id: "just-audible", workspaceID: workspace, hasPage: true,
             lastAccessed: old)]
         // Not currently playing audio, but audible within the grace window: deferred.
-        let deferred = ChromiumHibernationAdapter.evaluate(
+        let deferred = HibernationAdapter.evaluate(
             tabs: tabs, activeTabID: "other", activeWorkspaceID: workspace,
             mediaPlayingTabIDs: [], activeDownloadTabIDs: [],
             recentlyAudibleTabIDs: ["just-audible"], now: now)
         #expect(deferred.isEmpty)
         // Without the recent-audio signal the same tab is eligible.
-        let eligible = ChromiumHibernationAdapter.evaluate(
+        let eligible = HibernationAdapter.evaluate(
             tabs: tabs, activeTabID: "other", activeWorkspaceID: workspace,
             mediaPlayingTabIDs: [], activeDownloadTabIDs: [], now: now)
         #expect(eligible == ["just-audible"])
     }
 
     @Test func isProtectedSchemeHandlesKnownAndUnknownSchemes() {
-        #expect(ChromiumHibernationAdapter.isProtectedScheme("hive"))
-        #expect(ChromiumHibernationAdapter.isProtectedScheme("about"))
-        #expect(ChromiumHibernationAdapter.isProtectedScheme("chrome"))
-        #expect(ChromiumHibernationAdapter.isProtectedScheme("chrome-extension"))
-        #expect(ChromiumHibernationAdapter.isProtectedScheme("ABOUT")) // case-insensitive
-        #expect(!ChromiumHibernationAdapter.isProtectedScheme("https"))
-        #expect(!ChromiumHibernationAdapter.isProtectedScheme("http"))
-        #expect(!ChromiumHibernationAdapter.isProtectedScheme("file"))
-        #expect(!ChromiumHibernationAdapter.isProtectedScheme(nil))
+        #expect(HibernationAdapter.isProtectedScheme("hive"))
+        #expect(HibernationAdapter.isProtectedScheme("about"))
+        #expect(HibernationAdapter.isProtectedScheme("chrome"))
+        #expect(HibernationAdapter.isProtectedScheme("chrome-extension"))
+        #expect(HibernationAdapter.isProtectedScheme("ABOUT")) // case-insensitive
+        #expect(!HibernationAdapter.isProtectedScheme("https"))
+        #expect(!HibernationAdapter.isProtectedScheme("http"))
+        #expect(!HibernationAdapter.isProtectedScheme("file"))
+        #expect(!HibernationAdapter.isProtectedScheme(nil))
     }
 
     @Test func alreadyHibernatedTabsAreNotSelectedAgain() {
         let workspace = UUID()
         let old = now.addingTimeInterval(-10_000)
-        let sleeping = ChromiumHibernationAdapter.TabCandidate(
+        let sleeping = HibernationAdapter.TabCandidate(
             id: "sleeping", workspaceID: workspace, hasPage: true,
             isHibernated: true, lastAccessed: old)
-        let result = ChromiumHibernationAdapter.evaluate(
+        let result = HibernationAdapter.evaluate(
             tabs: [sleeping], activeTabID: "other", activeWorkspaceID: workspace,
             mediaPlayingTabIDs: [], activeDownloadTabIDs: [],
             collapsedGroupTabIDs: ["sleeping"], now: now)
@@ -4684,17 +4684,17 @@ struct ChromiumHibernationAdapterTests {
 
     @Test func effectiveWakeURLPreservesSavedURLAndRejectsBlankPages() {
         let saved = URL(string: "https://example.com/remembered")!
-        #expect(ChromiumHibernationAdapter.effectiveWakeURL(
+        #expect(HibernationAdapter.effectiveWakeURL(
             currentURL: nil, savedURL: saved) == saved)
-        #expect(ChromiumHibernationAdapter.effectiveWakeURL(
+        #expect(HibernationAdapter.effectiveWakeURL(
             currentURL: URL(string: "https://example.com/current"), savedURL: saved)
             == URL(string: "https://example.com/current"))
-        #expect(ChromiumHibernationAdapter.effectiveWakeURL(
+        #expect(HibernationAdapter.effectiveWakeURL(
             currentURL: URL(string: "about:blank"), savedURL: saved) == saved,
             "a blank live renderer must fall back to a valid wake destination")
-        #expect(ChromiumHibernationAdapter.effectiveWakeURL(
+        #expect(HibernationAdapter.effectiveWakeURL(
             currentURL: nil, savedURL: URL(string: "about:blank")) == nil)
-        #expect(ChromiumHibernationAdapter.effectiveWakeURL(
+        #expect(HibernationAdapter.effectiveWakeURL(
             currentURL: nil, savedURL: nil) == nil)
     }
 }

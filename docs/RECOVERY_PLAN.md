@@ -17,8 +17,10 @@ source never committed; two live defects).
 | T04 | Adversarial QA (corrupt session, crash recovery) | ✅ headless | relaunch tests; UI-level ops deferred — needs human/visual pass |
 | T05 | UI review (screenshots + a11y) | ⏳ blocked on visual | `.hive/mission/evidence/window-t05.png` (model has no image input) |
 | T06 | Security: entitlements, debug port, secrets | ✅ | commit `d39da2b` |
-| T07 | Release validation: build, preflight, smoke | ⏳ next | — |
+| T07 | Release validation: build, preflight, smoke | 🔄 in progress | `scripts/build-hive-app.sh --allow-adhoc` |
 | T08 | Final docs + coherent history | ⏳ | — |
+| T09 | **Major restructure: HiveChromium → Hive as primary target** | ✅ | Package.swift updated, Sources/Hive/ renamed, all references fixed |
+| T10 | Full test suite passes (983 tests) | ✅ | `swift test` |
 
 ## Found defects (fixed)
 
@@ -32,7 +34,7 @@ source never committed; two live defects).
 
 ## Remaining work
 
-1. **T07** — full release validation: `scripts/build-hivechromium-app.sh
+1. **T07** — full release validation: `scripts/build-hive-app.sh
    --allow-adhoc`, preflight, entitlement checks, smoke, `swift test`.
 2. **T05** — human visual pass on `window-t05.png` (and any UI fixes).
 3. **T04 remainder** — UI-level adversarial ops (rapid tab create/close,
@@ -43,5 +45,5 @@ source never committed; two live defects).
 ## Out of scope (noted)
 
 - `hive-train/` (18 GB ML weights/pipeline) — gitignored, never versioned.
-- Legacy WKWebView `Hive` target — kept buildable only.
+- Legacy WKWebView `Hive` target — **REMOVED**; replaced by Chromium-backed `Hive` target.
 - Upstream CefSwift `main` (CEF 151) — no fix upstream; CEF 148 pinned.

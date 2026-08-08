@@ -2,22 +2,22 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-APP_PATH="${ROOT_DIR}/dist/HiveChromium.app"
+APP_PATH="${ROOT_DIR}/dist/Hive.app"
 
 fail() {
-  printf 'verify-hivechromium-entitlement-application: %s\n' "$1" >&2
+  printf 'verify-hive-entitlement-application: %s\n' "$1" >&2
   exit 1
 }
 
 usage() {
   cat <<'USAGE'
-Audit entitlements embedded in a signed HiveChromium.app.
+Audit entitlements embedded in a signed Hive.app.
 
 Usage:
-  scripts/verify-hivechromium-entitlement-application.sh [--app PATH]
+  scripts/verify-hive-entitlement-application.sh [--app PATH]
 
 The CEF framework, helpers, main executable, and outer app must carry exactly
-HiveChromium.entitlements. The Rust research worker and SwiftPM resource bundle
+Hive.entitlements. The Rust research worker and SwiftPM resource bundle
 must carry no entitlements. This is a read-only audit and does not sign or
 modify the app.
 USAGE
@@ -51,16 +51,16 @@ APP_PATH="$(cd "$APP_PATH" && pwd)"
 
 FRAMEWORKS="$APP_PATH/Contents/Frameworks"
 CEF_FRAMEWORK="$FRAMEWORKS/Chromium Embedded Framework.framework"
-MAIN_EXECUTABLE="$APP_PATH/Contents/MacOS/HiveChromium"
+MAIN_EXECUTABLE="$APP_PATH/Contents/MacOS/Hive"
 [[ -d "$CEF_FRAMEWORK" ]] || fail "missing CEF framework"
 [[ -x "$MAIN_EXECUTABLE" ]] || fail "missing main executable"
 
 HELPERS=(
-  "HiveChromium Helper.app"
-  "HiveChromium Helper (Alerts).app"
-  "HiveChromium Helper (GPU).app"
-  "HiveChromium Helper (Plugin).app"
-  "HiveChromium Helper (Renderer).app"
+  "Hive Helper.app"
+  "Hive Helper (Alerts).app"
+  "Hive Helper (GPU).app"
+  "Hive Helper (Plugin).app"
+  "Hive Helper (Renderer).app"
 )
 
 CEF_PATHS=("$APP_PATH" "$MAIN_EXECUTABLE" "$CEF_FRAMEWORK" "$CEF_FRAMEWORK/Chromium Embedded Framework")
@@ -80,10 +80,10 @@ done
 
 RESOURCE_BUNDLE=""
 while IFS= read -r -d '' candidate; do
-  [[ -z "$RESOURCE_BUNDLE" ]] || fail "multiple HiveChromium resource bundles found"
+  [[ -z "$RESOURCE_BUNDLE" ]] || fail "multiple Hive resource bundles found"
   RESOURCE_BUNDLE="$candidate"
-done < <(find "$APP_PATH/Contents/Resources" -type d -name '*_HiveChromium.bundle' -path '*/Contents/Resources/*_HiveChromium.bundle' -print0 2>/dev/null)
-[[ -n "$RESOURCE_BUNDLE" ]] || fail "HiveChromium resource bundle is missing"
+done < <(find "$APP_PATH/Contents/Resources" -type d -name '*_Hive.bundle' -path '*/Contents/Resources/*_Hive.bundle' -print0 2>/dev/null)
+[[ -n "$RESOURCE_BUNDLE" ]] || fail "Hive resource bundle is missing"
 WORKER="$RESOURCE_BUNDLE/Contents/Resources/ResearchWorker/hive-fetch-worker"
 [[ -x "$WORKER" ]] || fail "research worker is missing"
 
@@ -98,7 +98,7 @@ require_policy() {
   plist="$(mktemp "$TEMP_DIR/policy.XXXXXX")"
   codesign -d --entitlements :- "$path" > "$plist" 2>/dev/null || fail "could not read entitlements: $name"
   [[ -s "$plist" ]] || fail "CEF/app path has no entitlements: $name"
-  "$ROOT_DIR/scripts/verify-hivechromium-entitlements.sh" "$plist" >/dev/null || \
+  "$ROOT_DIR/scripts/verify-hive-entitlements.sh" "$plist" >/dev/null || \
     fail "unexpected CEF/app entitlements: $name"
 }
 

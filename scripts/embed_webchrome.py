@@ -14,8 +14,8 @@ import pathlib
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-WEB = ROOT / "Sources" / "HiveChromium" / "WebChrome"
-OUT = ROOT / "Sources" / "HiveChromium" / "WebChromeAssets.swift"
+WEB = ROOT / "Sources" / "Hive" / "WebChrome"
+OUT = ROOT / "Sources" / "Hive" / "WebChromeAssets.swift"
 
 FILES = [
     ("indexHTML", "index.html", "text/html"),
@@ -51,7 +51,7 @@ def main() -> int:
         entries.append((name, path.read_text(), mime))
 
     lines = [
-        "// AUTO-GENERATED from Sources/HiveChromium/WebChrome/* — do not edit by hand.",
+        "// AUTO-GENERATED from Sources/Hive/WebChrome/* — do not edit by hand.",
         "// Regenerate with: python3 Scripts/embed_webchrome.py",
         "// The web chrome ships as Swift constants because the CEF bundler does not",
         "// copy SwiftPM resources into the .app (same pattern as CefBridge.javascriptShim).",

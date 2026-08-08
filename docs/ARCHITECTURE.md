@@ -7,8 +7,7 @@ SwiftUI chrome, CEF web content.
 
 | Target | Role |
 | --- | --- |
-| `HiveChromium` | The shipping browser (CEF-backed). `@main` at `Sources/HiveChromium/HiveChromiumApp.swift`. |
-| `Hive` | Legacy WKWebView-based browser, kept buildable, not shipped. |
+| `Hive` | The shipping browser (CEF-backed). `@main` at `Sources/Hive/HiveApp.swift`. |
 | `HiveCore` | Platform-agnostic core: browser model, session persistence, policies, AI/swarm orchestration, honeycomb memory. ~77 test files. |
 | `HiveWebKitSmoke` | Opt-in dev smoke target (not a product). |
 
@@ -26,14 +25,14 @@ Third-party:
 
 ## Process model
 
-`HiveChromium.app` is a CEF *browser process*. Web content runs in CEF's own
+`Hive.app` is a CEF *browser process*. Web content runs in CEF's own
 helper (renderer) processes. The SwiftUI chrome (tabs, address bar, panels) is
 native UI; the start page is web content served by the app itself.
 
 ## Web chrome: the `hive://` scheme
 
-- `WebChromeBridge` (`Sources/HiveChromium/WebChromeHandler.swift`) serves
-  `hive://start/` (assets in `Sources/HiveChromium/WebChrome/`) via
+- `WebChromeBridge` (`Sources/Hive/WebChromeHandler.swift`) serves
+  `hive://start/` (assets in `Sources/Hive/WebChrome/`) via
   `HiveSchemeHandler`.
 - A per-session `sessionToken` is embedded in the start page; every JS→Swift
   bridge call (`hive.*`) must present it.
@@ -53,7 +52,7 @@ native UI; the start page is web content served by the app itself.
 
 ## Session persistence
 
-- `ChromiumBrowserState` (the single source of truth) autosaves to
+- `BrowserState` (the single source of truth) autosaves to
   `session.json` under Application Support; `session.prev.json` keeps the
   previous snapshot; corrupt files are quarantined, never silently reset —
   recovery surfaces through `SessionRecoveryBanner`/`SessionRepairNotice`.
@@ -78,11 +77,11 @@ native UI; the start page is web content served by the app itself.
 ## Build & verify (developer)
 
 ```sh
-swift build --product HiveChromium          # compile
-swift test                                  # 983 tests / 130 suites
-swift package cef bundle --product HiveChromium \
+swift build --product Hive          # compile
+swift test                          # 983 tests / 130 suites
+swift package cef bundle --product Hive \
   --configuration debug --output dist-debug --bundle-id com.hive.browser.debug --sign -
-scripts/build-hivechromium-app.sh --allow-adhoc   # release app bundle
-scripts/preflight-hivechromium-app.sh             # packaging preflight
-scripts/smoke-test-hivechromium-app.sh            # two-launch smoke
+scripts/build-hive-app.sh --allow-adhoc   # release app bundle
+scripts/preflight-hive-app.sh             # packaging preflight
+scripts/smoke-test-hive-app.sh            # two-launch smoke
 ```

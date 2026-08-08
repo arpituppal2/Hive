@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENTITLEMENTS_PATH="${1:-Sources/HiveChromium/HiveChromium.entitlements}"
+ENTITLEMENTS_PATH="${1:-Sources/Hive/Hive.entitlements}"
 
 fail() {
-  printf 'verify-hivechromium-entitlements: %s\n' "$1" >&2
+  printf 'verify-hive-entitlements: %s\n' "$1" >&2
   exit 1
 }
 
@@ -45,5 +45,5 @@ while IFS= read -r line; do
   [[ "$allowed" -eq 1 ]] || fail "unexpected entitlement key: $key"
 done < <(/usr/libexec/PlistBuddy -c 'Print :' "$ENTITLEMENTS_PATH" 2>/dev/null)
 
-printf 'HiveChromium entitlements valid: %s\n' "$ENTITLEMENTS_PATH"
+printf 'Hive entitlements valid: %s\n' "$ENTITLEMENTS_PATH"
 printf '%s\n' 'Reviewed allowlist: JIT, unsigned executable memory, CEF library validation'

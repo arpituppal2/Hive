@@ -1,117 +1,124 @@
 {
-  "mission": "Hive Browser one-shot autonomous recovery and ship",
-  "started": "2026-08-07T00:00:00Z",
-  "branch": "mission/recovery-and-ship",
   "tasks": [
     {
-      "id": "T01",
-      "subsystem": "repo",
-      "owner": "coordinator",
-      "status": "completed",
-      "dependencies": [],
-      "files": [],
-      "evidence": "Baseline: swift build (HiveChromium) 0 errors; swift test 983/130 suites pass; smoke readiness PASS; two-launch session recovery PASS",
-      "risks": []
-    },
-    {
-      "id": "T02",
-      "subsystem": "repo",
+      "id": "T001",
+      "name": "Repository census and baseline",
+      "subsystem": "build",
       "owner": "coordinator",
       "status": "in_progress",
-      "dependencies": [
-        "T01"
-      ],
-      "files": [
-        ".hive/mission/",
-        "docs/"
-      ],
-      "evidence": "ledger + docs being written",
-      "risks": []
+      "dependencies": [],
+      "files_claimed": [],
+      "test_evidence": "",
+      "commit_ref": "",
+      "remaining_risks": ""
     },
     {
-      "id": "T03",
-      "subsystem": "browser",
-      "owner": "coordinator",
-      "status": "completed",
-      "dependencies": [
-        "T02"
-      ],
-      "files": [
-        "Sources/HiveChromium/*"
-      ],
-      "evidence": "Bug A fixed: fresh isolated launch creates exactly 1 page target (was 2). Bug B fixed: hive://start/ renders (title 'New Tab \u2014 Hive', 6972 DOM bytes), fetch('hive://start/') -> 200, window.cefSwift present; session.json records 1 tabInfo. Root causes: setupDefaults double newTab() (duplicate removed); per-context scheme handler factories not inherited from global context (vendored CefSwift + replay on context creation). | CDP smoke flow: https://example.com/ nav -> 'Example Domain'; history.back -> hive://start/; reload OK; Browser.close + SIGTERM ignored (app quits only via Cmd+Q saveNowAndQuit); osascript quit canceled (-128, expected); SIGKILL crash-recovery relaunch restores exactly 1 hive://start tab. UI-level tab create/close/reorder deferred to T04.",
-      "risks": []
-    },
-    {
-      "id": "T04",
-      "subsystem": "browser",
-      "owner": "qa-agent",
+      "id": "T002",
+      "name": "Delete legacy Hive target",
+      "subsystem": "build",
+      "owner": "build-specialist",
       "status": "pending",
-      "dependencies": [
-        "T03"
-      ],
-      "files": [],
-      "evidence": "adversarial QA: malformed session, offline, cancel, rapid tab ops | Corrupt-session relaunch recovers to defaults (1 tab, no crash). UI-level adversarial ops deferred: needs interactive automation.",
-      "risks": []
+      "dependencies": ["T001"],
+      "files_claimed": ["Package.swift", "Sources/Hive/"],
+      "test_evidence": "",
+      "commit_ref": "",
+      "remaining_risks": ""
     },
     {
-      "id": "T05",
+      "id": "T003",
+      "name": "Make HiveChromium the primary Hive target",
+      "subsystem": "build",
+      "owner": "build-specialist",
+      "status": "pending",
+      "dependencies": ["T002"],
+      "files_claimed": ["Package.swift", "Sources/HiveChromium/"],
+      "test_evidence": "",
+      "commit_ref": "",
+      "remaining_risks": ""
+    },
+    {
+      "id": "T004",
+      "name": "Complete HiveChromium browser fundamentals",
+      "subsystem": "browser",
+      "owner": "browser-lifecycle-specialist",
+      "status": "pending",
+      "dependencies": ["T003"],
+      "files_claimed": ["Sources/HiveChromium/"],
+      "test_evidence": "",
+      "commit_ref": "",
+      "remaining_risks": ""
+    },
+    {
+      "id": "T005",
+      "name": "Fix HiveCore for HiveChromium integration",
+      "subsystem": "core",
+      "owner": "core-specialist",
+      "status": "pending",
+      "dependencies": ["T003"],
+      "files_claimed": ["Sources/HiveCore/"],
+      "test_evidence": "",
+      "commit_ref": "",
+      "remaining_risks": ""
+    },
+    {
+      "id": "T006",
+      "name": "UI/HIG/accessibility review and polish",
       "subsystem": "ui",
       "owner": "ui-reviewer",
       "status": "pending",
-      "dependencies": [
-        "T03"
-      ],
-      "files": [
-        "Sources/HiveChromium/Views"
-      ],
-      "evidence": "Screenshot saved to .hive/mission/evidence/window-t05.png; model has no image input \u2014 visual/a11y verdict pending human review.",
-      "risks": []
+      "dependencies": ["T004"],
+      "files_claimed": ["Sources/HiveChromium/"],
+      "test_evidence": "",
+      "commit_ref": "",
+      "remaining_risks": ""
     },
     {
-      "id": "T06",
+      "id": "T007",
+      "name": "Security and privacy review",
       "subsystem": "security",
       "owner": "security-reviewer",
-      "status": "completed",
-      "dependencies": [
-        "T03"
-      ],
-      "files": [],
-      "evidence": "Entitlement fixtures pass (verify-hivechromium-entitlements.sh + test-hivechromium-entitlements.sh); devtools port 9223 #if DEBUG-gated; no secrets in Sources/scripts/native/.github/Tests (grep sweep); API keys env-injected (TAVILY_API_KEY) via KeychainSecretStore; runtime log contains no keys.",
-      "risks": []
+      "status": "pending",
+      "dependencies": ["T004"],
+      "files_claimed": ["Sources/HiveChromium/", "Sources/HiveCore/"],
+      "test_evidence": "",
+      "commit_ref": "",
+      "remaining_risks": ""
     },
     {
-      "id": "T07",
-      "subsystem": "release",
-      "owner": "coordinator",
-      "status": "completed",
-      "dependencies": [
-        "T04",
-        "T05",
-        "T06"
-      ],
-      "files": [
-        "dist/",
-        "scripts/"
-      ],
-      "evidence": "build-hivechromium-app.sh --allow-adhoc: valid on disk + DR satisfied; preflight PASS (5 helpers, bundle); smoke PASS (readiness <=60s); swift test 983/130 PASS.",
-      "risks": []
+      "id": "T008",
+      "name": "Swarm/AI graceful degradation",
+      "subsystem": "ai",
+      "owner": "ai-specialist",
+      "status": "pending",
+      "dependencies": ["T005"],
+      "files_claimed": ["Sources/HiveCore/AI/", "Sources/HiveChromium/"],
+      "test_evidence": "",
+      "commit_ref": "",
+      "remaining_risks": ""
     },
     {
-      "id": "T08",
-      "subsystem": "repo",
-      "owner": "coordinator",
-      "status": "in_progress",
-      "dependencies": [
-        "T07"
-      ],
-      "files": [
-        ".hive/mission/FINAL_VALIDATION.md",
-        "docs/*",
-        "THIRD_PARTY_NOTICES.md"
-      ],
-      "evidence": "docs (ARCHITECTURE, RECOVERY_PLAN, DECISIONS, THIRD_PARTY_NOTICES) + FINAL_VALIDATION.md written; commit + push pending.",
-      "risks": []
+      "id": "T009",
+      "name": "Full test suite and validation",
+      "subsystem": "test",
+      "owner": "qa-engineer",
+      "status": "pending",
+      "dependencies": ["T004", "T005", "T006", "T007", "T008"],
+      "files_claimed": [],
+      "test_evidence": "",
+      "commit_ref": "",
+      "remaining_risks": ""
+    },
+    {
+      "id": "T010",
+      "name": "Documentation and final validation",
+      "subsystem": "docs",
+      "owner": "release-engineer",
+      "status": "pending",
+      "dependencies": ["T009"],
+      "files_claimed": ["docs/", "THIRD_PARTY_NOTICES.md", ".hive/mission/FINAL_VALIDATION.md"],
+      "test_evidence": "",
+      "commit_ref": "",
+      "remaining_risks": ""
     }
   ]
 }

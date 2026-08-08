@@ -1,0 +1,336 @@
+{
+  "build_system": "swiftpm",
+  "targets": [
+    {
+      "name": "Hive",
+      "type": "executable",
+      "path": "Sources/Hive",
+      "dependencies": ["HiveCore"],
+      "resources": [
+        "Resources/Swarm_System_Prompts"
+      ],
+      "description": "Original Hive Browser — WKWebView-based, kept buildable while HiveChromium is brought up"
+    },
+    {
+      "name": "HiveChromium",
+      "type": "executable",
+      "path": "Sources/HiveChromium",
+      "dependencies": [
+        "CefSwiftUI (from CefSwift package)",
+        "HiveCore"
+      ],
+      "resources": [
+        "Resources/AppIcon.icns",
+        "Resources/ResearchWorker"
+      ],
+      "description": "New Chromium-backed Hive browser built around CefSwiftUI"
+    },
+    {
+      "name": "HiveWebKitSmoke",
+      "type": "executable",
+      "path": "Sources/HiveWebKitSmoke",
+      "dependencies": [],
+      "description": "Opt-in developer/runtime smoke target; requires live macOS window server and launches real WKWebView"
+    },
+    {
+      "name": "HiveCore",
+      "type": "library",
+      "path": "Sources/HiveCore",
+      "dependencies": [
+        "MLXLMCommon (from mlx-swift-examples)",
+        "MLXLLM (from mlx-swift-examples)"
+      ],
+      "description": "Core library shared by Hive and HiveChromium"
+    },
+    {
+      "name": "HiveCoreTests",
+      "type": "test",
+      "path": "Tests/HiveCoreTests",
+      "dependencies": ["HiveCore"],
+      "description": "Unit tests for HiveCore"
+    }
+  ],
+  "products": [
+    {
+      "name": "Hive",
+      "type": "executable",
+      "targets": ["Hive"]
+    },
+    {
+      "name": "HiveCore",
+      "type": "library",
+      "targets": ["HiveCore"]
+    },
+    {
+      "name": "HiveChromium",
+      "type": "executable",
+      "targets": ["HiveChromium"]
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "mlx-swift-examples",
+      "url": "https://github.com/ml-explore/mlx-swift-examples",
+      "version": "from: 2.29.1",
+      "resolved_version": "2.29.1",
+      "revision": "9bff95ca5f0b9e8c021acc4d71a2bbe4a7441631",
+      "products_used": ["MLXLMCommon", "MLXLLM"],
+      "transitive_dependencies": [
+        "mlx-swift (0.29.1)",
+        "swift-transformers (1.0.0)",
+        "swift-jinja (2.4.2)",
+        "swift-numerics (1.1.1)",
+        "swift-collections (1.6.0)",
+        "GzipSwift (6.0.1)"
+      ],
+      "description": "On-device ML inference; provides MLXLLM (model registry + trampoline) and MLXLMCommon (load/generate/UserInput/LoRAContainer)"
+    },
+    {
+      "name": "CefSwift",
+      "path": "Vendor/CefSwift",
+      "type": "local",
+      "products": [
+        "CefKit",
+        "CefSwiftUI",
+        "cef-helper (executable)",
+        "CefPlugin (command plugin)"
+      ],
+      "targets": [
+        "CCef (C headers + runtime loader)",
+        "CCefAppKit (AppKit integration)",
+        "CefKit (core Swift wrapper)",
+        "CefSwiftUI (SwiftUI integration)",
+        "cef-helper (helper process)"
+      ],
+      "description": "Vendored CEF wrapper (MIT, pinned upstream 0.1.0 @ 2dca11e) with per-request-context scheme handler fix"
+    }
+  ],
+  "scripts": [
+    {
+      "name": "build-hivechromium-app.sh",
+      "path": "scripts/build-hivechromium-app.sh",
+      "description": "Assembles signed HiveChromium app bundle; stages Rust worker, builds SwiftPM product, bundles CEF framework/helpers via CefPlugin, embeds resources/icon, signs nested code and outer app"
+    },
+    {
+      "name": "build-research-worker.sh",
+      "path": "scripts/build-research-worker.sh",
+      "description": "Builds and stages the Rust research worker (hive-fetch-worker) from native/hive-fetch-boundary; requires HIVE_WORKER_REQUIREMENT and Team ID"
+    },
+    {
+      "name": "verify-research-worker.sh",
+      "path": "scripts/verify-research-worker.sh",
+      "description": "Verifies signed Hive research worker: code signature, identifier, TeamIdentifier, designated requirement, and optionally stapled notarization ticket"
+    },
+    {
+      "name": "verify-hivechromium-entitlements.sh",
+      "path": "scripts/verify-hivechromium-entitlements.sh",
+      "description": "Validates HiveChromium.entitlements contains exactly the three required CEF keys (JIT, unsigned executable memory, disable-library-validation) and no others"
+    },
+    {
+      "name": "verify-hivechromium-entitlement-application.sh",
+      "path": "scripts/verify-hivechromium-entitlement-application.sh",
+      "description": "Verifies entitlements are correctly applied to the built app bundle"
+    },
+    {
+      "name": "test-hivechromium-entitlements.sh",
+      "path": "scripts/test-hivechromium-entitlements.sh",
+      "description": "Tests the entitlements file for validity and required keys"
+    },
+    {
+      "name": "preflight-hivechromium-app.sh",
+      "path": "scripts/preflight-hivechromium-app.sh",
+      "description": "Structural release preflight checks on the assembled HiveChromium.app"
+    },
+    {
+      "name": "smoke-test-hivechromium-app.sh",
+      "path": "scripts/smoke-test-hivechromium-app.sh",
+      "description": "Smoke tests the built HiveChromium app"
+    },
+    {
+      "name": "embed_webchrome.py",
+      "path": "scripts/embed_webchrome.py",
+      "description": "Python script for embedding Chrome resources"
+    },
+    {
+      "name": "generate_icon.py",
+      "path": "scripts/generate_icon.py",
+      "description": "Generates app icon from SVG source"
+    }
+  ],
+  "entitlements": [
+    {
+      "file": "Sources/HiveChromium/HiveChromium.entitlements",
+      "keys": [
+        {
+          "key": "com.apple.security.cs.allow-jit",
+          "value": true,
+          "purpose": "CEF/V8 JIT requirements"
+        },
+        {
+          "key": "com.apple.security.cs.allow-unsigned-executable-memory",
+          "value": true,
+          "purpose": "CEF/V8 JIT requirements"
+        },
+        {
+          "key": "com.apple.security.cs.disable-library-validation",
+          "value": true,
+          "purpose": "CEF's bundled framework/helpers may not share the app Team ID"
+        }
+      ],
+      "validation": "Strict allowlist enforced by verify-hivechromium-entitlements.sh; no other keys permitted"
+    }
+  ],
+  "resources": [
+    {
+      "target": "Hive",
+      "resources": [
+        {
+          "path": "Sources/Hive/Resources/Swarm_System_Prompts",
+          "type": "copy",
+          "description": "System prompts for AI swarm"
+        }
+      ]
+    },
+    {
+      "target": "HiveChromium",
+      "resources": [
+        {
+          "path": "Sources/HiveChromium/Resources/AppIcon.icns",
+          "type": "copy",
+          "description": "App icon"
+        },
+        {
+          "path": "Sources/HiveChromium/Resources/AppIcon.iconset",
+          "type": "directory",
+          "description": "Icon set source"
+        },
+        {
+          "path": "Sources/HiveChromium/Resources/AppIcon.svg",
+          "type": "file",
+          "description": "Vector icon source"
+        },
+        {
+          "path": "Sources/HiveChromium/Resources/HiveBrowser.icns",
+          "type": "file",
+          "description": "Alternative browser icon"
+        },
+        {
+          "path": "Sources/HiveChromium/Resources/Icon.iconset",
+          "type": "directory",
+          "description": "Additional icon set"
+        },
+        {
+          "path": "Sources/HiveChromium/Resources/ResearchWorker",
+          "type": "copy",
+          "description": "Staged Rust research worker (hive-fetch-worker binary + hive-worker-requirement.txt)",
+          "staged_by": "scripts/build-research-worker.sh",
+          "contents": [
+            "hive-fetch-worker (executable)",
+            "hive-worker-requirement.txt (designated requirement string)",
+            "README.md"
+          ]
+        }
+      ]
+    }
+  ],
+  "deployment_target": "macOS 14",
+  "swift_version": "6.0",
+  "web_engine": "CEF via CefSwift",
+  "cef_details": {
+    "cef_version": "148.0.10+g7ee53f5+chromium-148.0.7778.218",
+    "chromium_version": "148.0.7778.218",
+    "channel": "stable",
+    "platforms": [
+      "macosarm64 (minimal and standard)",
+      "macosx64 (minimal and standard)"
+    ],
+    "vendored_at": "Vendor/CefSwift",
+    "upstream_pinned": "0.1.0 @ 2dca11e",
+    "license": "MIT (CEF), BSD (Chromium)",
+    "notes": "Downloads and bundles CEF binaries via SwiftPM command plugin (CefPlugin); caches in .cef/"
+  },
+  "ai_runtime": "MLX (mlx-swift-examples)",
+  "mlx_details": {
+    "package": "mlx-swift-examples",
+    "version": "2.29.1",
+    "resolved_mlx_swift": "0.29.1",
+    "products_used": [
+      "MLXLLM: model registry + trampoline registering with ModelFactoryRegistry; enables free loadModelContainer(directory:)",
+      "MLXLMCommon: load/generate/UserInput/LoRAContainer"
+    ],
+    "note": "At 2.29.1 the examples renamed MLXLlama product to MLXLLM; public surface is LLMModelFactory/ModelContainer/Chat.Message; weights required for #if canImport(MLXLMCommon) path; otherwise falls back to Mock provider"
+  },
+  "rust_worker": {
+    "name": "hive-fetch-boundary",
+    "path": "native/hive-fetch-boundary",
+    "crate_type": "library + binaries",
+    "binaries": [
+      {
+        "name": "hive-fetch-worker",
+        "path": "src/main.rs",
+        "description": "Cross-platform SSRF-aware HTTP/TLS research fetch boundary for Hive"
+      },
+      {
+        "name": "hive-hostile-worker",
+        "path": "tests/support/hostile_worker.rs",
+        "features": ["test-support"]
+      },
+      {
+        "name": "hive-research-fixture-worker",
+        "path": "tests/support/research_fixture_worker.rs",
+        "features": ["test-support"]
+      }
+    ],
+    "dependencies": [
+      "base64 = 0.22",
+      "rustls = 0.23",
+      "sha2 = 0.10",
+      "serde = { version = 1, features = [derive] }",
+      "serde_json = 1",
+      "url = 2",
+      "webpki-roots = 0.26"
+    ],
+    "edition": "2021",
+    "license": "MIT",
+    "staged_by": "scripts/build-research-worker.sh",
+    "staged_to": "Sources/HiveChromium/Resources/ResearchWorker/",
+    "requirement_file": "hive-worker-requirement.txt (designated requirement string)",
+    "identifier": "com.hive.browser.research-worker",
+    "verification": "scripts/verify-research-worker.sh validates code signature, TeamIdentifier, designated requirement, and optionally stapled notarization ticket"
+  },
+  "ci": {
+    "workflow": ".github/workflows/hivechromium-release.yml",
+    "name": "HiveChromium Release",
+    "trigger": "push tags matching hive-v*.*.*",
+    "runs_on": "macos-15",
+    "environment": "hivechromium-release",
+    "timeout_minutes": 120,
+    "key_steps": [
+      "Checkout release ref",
+      "Select Xcode and inspect toolchain",
+      "Fail closed when protected release inputs are incomplete (validates all secrets)",
+      "Require explicit hardened-runtime policy (validates entitlements and scripts)",
+      "Import Developer ID certificate into ephemeral keychain",
+      "Build and assemble signed HiveChromium.app (via build-hivechromium-app.sh)",
+      "Verify signed bundle before notarization (preflight, worker verification, codesign)",
+      "Create notarization archive",
+      "Submit to Apple notarization (notarytool with API key)",
+      "Staple and verify notarization ticket",
+      "Assess with Gatekeeper (spctl)",
+      "Package DMG",
+      "Upload release artifact (14-day retention)",
+      "Remove ephemeral signing material",
+      "Publish: create draft GitHub release with DMG"
+    ],
+    "required_secrets": [
+      "DEVELOPER_ID_APPLICATION",
+      "DEVELOPER_ID_CERTIFICATE_P12",
+      "DEVELOPER_ID_CERTIFICATE_PASSWORD",
+      "APPLE_TEAM_ID",
+      "HIVE_WORKER_REQUIREMENT",
+      "APPLE_API_KEY_P8",
+      "APPLE_API_KEY_ID",
+      "APPLE_API_ISSUER_ID"
+    ]
+  }
+}

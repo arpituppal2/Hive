@@ -7,7 +7,6 @@ let package = Package(
     products: [
         .executable(name: "Hive", targets: ["Hive"]),
         .library(name: "HiveCore", targets: ["HiveCore"]),
-        .executable(name: "HiveChromium", targets: ["HiveChromium"]),
     ],
     dependencies: [
         // On-device inference. Pinned: mlx-swift-examples 2.29.1 pulls mlx-swift core
@@ -28,33 +27,28 @@ let package = Package(
         // per-request-context scheme handler fix can ship with the product; upstream
         // had no fix for profile-scoped custom schemes (verified 2026-08-07).
         .package(path: "Vendor/CefSwift"),
+
+        // Sparkle 2.x auto-update framework for in-app updates.
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.0"),
     ],
     targets: [
-        // The original Hive Browser — one macOS product, currently WKWebView-based.
-        // Kept buildable while the new HiveChromium target is brought up.
+        // The Hive Browser — Chromium-backed via CefSwiftUI, native SwiftUI chrome shell.
+        // Built from scratch around CEF 148 (Chromium 148.0.7778.218).
         .executableTarget(
             name: "Hive",
-            dependencies: ["HiveCore"],
-            path: "Sources/Hive",
-            resources: [
-                .copy("Resources/Swarm_System_Prompts")
-            ]
-        ),
-
-        // The new Chromium-backed Hive browser. Built from scratch around CefSwiftUI.
-        .executableTarget(
-            name: "HiveChromium",
             dependencies: [
                 .product(name: "CefSwiftUI", package: "CefSwift"),
+                .product(name: "Sparkle", package: "Sparkle"),
                 "HiveCore",
             ],
-            path: "Sources/HiveChromium",
+            path: "Sources/Hive",
             // The Rust worker is staged here by scripts/build-research-worker.sh
             // during an app release build. Keep it isolated from icons/source
             // assets; Bundle.module can then address only this helper.
             resources: [
                 .copy("Resources/AppIcon.icns"),
-                .copy("Resources/ResearchWorker")
+                .copy("Resources/ResearchWorker"),
+                .copy("Resources/Swarm_System_Prompts")
             ]
         ),
 
