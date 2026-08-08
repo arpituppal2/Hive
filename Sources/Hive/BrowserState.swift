@@ -1191,6 +1191,9 @@ final class BrowserState {
     /// Cleared when the council starts, populated incrementally as models respond.
     private(set) var councilLiveResponses: [CouncilResponse] = []
     private(set) var isCouncilConvening: Bool = false
+    private(set) var councilError: String? = nil
+    private(set) var agentError: String? = nil
+    private(set) var lastQuery: String = ""
 
     /// Handle to the in-flight council deliberation Task. Cancel to abort.
     private var councilDeliberationTask: Task<Void, Never>? = nil
@@ -2227,6 +2230,9 @@ final class BrowserState {
         isCouncilConvening = true
         latestCouncilVerdict = nil
         councilLiveResponses = []
+        councilError = nil
+        agentError = nil
+        lastQuery = question
         broadcastWebChromeState()
 
         let query = CouncilQuery(
@@ -2318,6 +2324,9 @@ final class BrowserState {
         deepResearchTask?.cancel()
         deepResearchTask = nil
         isCouncilConvening = false
+        councilError = nil
+        agentError = nil
+        lastQuery = ""
         UserDefaults.standard.removeObject(forKey: "HiveCouncilVerdict")
         broadcastWebChromeState()
     }
@@ -2333,6 +2342,9 @@ final class BrowserState {
         let trimmed = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
+        lastQuery = trimmed
+        councilError = nil
+        agentError = nil
         updateAgentTask(phase: "council", label: "Convening AI council…", progress: 0)
 
         agentPipelineTask = Task { [weak self] in
@@ -5111,7 +5123,10 @@ final class BrowserState {
             isCouncilConvening: isCouncilConvening,
             councilLiveResponses: councilLiveResponses.map { r in WebChromeCouncilResponse(provider: r.provider.rawValue, answer: r.answer, confidence: r.confidence, durationMS: Int(r.duration * 1000), status: r.status == .success ? "success" : "timeout") },
             deepResearchStep: researchDTO,
-            agentTask: agentTask
+            agentTask: agentTask,
+            councilError: councilError,
+            agentError: agentError,
+            lastQuery: lastQuery.isEmpty ? nil : lastQuery
         )
     }
 

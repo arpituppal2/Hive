@@ -65,16 +65,25 @@ struct HiveSchemeHandler: CefSchemeHandler {
     private func polarResponse(path: String) async -> CefSchemeResponse {
         let cleaned = path.hasPrefix("/polar") ? String(path.dropFirst(6)) : path
         let assetPath = cleaned == "/" || cleaned.isEmpty ? "/index.html" : cleaned
-        let key = "polar" + assetPath
-        if let asset = WebChromeAssets.polarAssets[key] {
-            let mime = WebChromeAssets.polarMimeType(assetPath)
-            if assetPath == "/index.html" || assetPath == "/" {
-                let branded = asset.replacingOccurrences(of: "Polar", with: "Hive")
-                return CefSchemeResponse(status: 200, mimeType: mime, body: Data(branded.utf8))
-            }
-            return CefSchemeResponse(status: 200, mimeType: mime, body: Data(asset.utf8))
+        switch assetPath {
+        case "/", "/index.html":
+            let branded = WebChromeAssets.polarIndex.replacingOccurrences(of: "Polar", with: "Hive")
+            return CefSchemeResponse(status: 200, mimeType: "text/html", body: Data(branded.utf8))
+        case "/assets/index-BY6JzNer.css":
+            return CefSchemeResponse(status: 200, mimeType: "text/css", body: Data(WebChromeAssets.polarCSS.utf8))
+        case "/assets/index-QWD3Wno1.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.polarAppJS.utf8))
+        case "/assets/agentSurface-TavgROI7.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.polarAgentSurfaceJS.utf8))
+        case "/assets/CommandPanelPage-CQPc9sFE.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.polarCommandPanelJS.utf8))
+        case "/assets/ModalAgentAppPage-DT0g5KTd.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.polarModalJS.utf8))
+        case "/assets/WindowAgentAppPage-CzJKotYB.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.polarWindowJS.utf8))
+        default:
+            return .notFound("No such Polar asset: \(assetPath)")
         }
-        return .notFound("No such Polar asset: \(assetPath)")
     }
 
     /// Serves the Morning Brief shell + its relative assets.
@@ -168,6 +177,9 @@ struct WebChromeStartData: Codable, Sendable {
     let councilLiveResponses: [WebChromeCouncilResponse]
     let deepResearchStep: WebChromeDeepResearchStep?
     let agentTask: WebChromeAgentTask?
+    let councilError: String?
+    let agentError: String?
+    let lastQuery: String?
 }
 
 struct WebChromeCouncilVerdict: Codable, Sendable {

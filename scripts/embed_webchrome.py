@@ -32,6 +32,14 @@ FILES = [
     ("briefAppJS", "brief/app.js", "application/javascript"),
     ("briefFeedbackJS", "brief/feedback.js", "application/javascript"),
     ("briefLookingAheadJS", "brief/looking-ahead.js", "application/javascript"),
+    # Polar AgentApp (copied from Polar bundle, legally authorized).
+    ("polarIndex", "polar/index.html", "text/html"),
+    ("polarCSS", "polar/assets/index-BY6JzNer.css", "text/css"),
+    ("polarAppJS", "polar/assets/index-QWD3Wno1.js", "application/javascript"),
+    ("polarAgentSurfaceJS", "polar/assets/agentSurface-TavgROI7.js", "application/javascript"),
+    ("polarCommandPanelJS", "polar/assets/CommandPanelPage-CQPc9sFE.js", "application/javascript"),
+    ("polarModalJS", "polar/assets/ModalAgentAppPage-DT0g5KTd.js", "application/javascript"),
+    ("polarWindowJS", "polar/assets/WindowAgentAppPage-CzJKotYB.js", "application/javascript"),
 ]
 
 # Fonts are binary; ship them base64-encoded and decode at runtime.
