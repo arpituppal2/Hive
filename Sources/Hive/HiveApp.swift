@@ -221,6 +221,15 @@ struct BrowserCommands: Commands {
                 .keyboardShortcut("u", modifiers: [.control, .option])
         }
 
+        // Sparkle updates (disabled when no feed URL is configured —
+        // e.g. ad-hoc / debug builds).
+        CommandGroup(after: .appInfo) {
+            Button("Check for Updates…") {
+                UpdateManager.shared.checkForUpdates()
+            }
+            .disabled(!UpdateManager.shared.canCheckForUpdates)
+        }
+
         CommandGroup(replacing: .appTermination) {
             Button("Quit Hive") {
                 Task { await state.saveNowAndQuit() }

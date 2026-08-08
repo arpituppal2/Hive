@@ -184,6 +184,22 @@ else
   printf '  adblock engine built and staged\n'
 fi
 
+printf '%s\n' '==> Staging Sparkle auto-update framework'
+SPARKLE_SOURCE="$BUILD_BIN_DIR/Sparkle.framework"
+if [[ -d "$SPARKLE_SOURCE" ]]; then
+  SPARKLE_DEST="$APP_PATH/Contents/Frameworks/Sparkle.framework"
+  ditto "$SPARKLE_SOURCE" "$SPARKLE_DEST"
+  # Rewrite the main binary's rpath reference so Sparkle is found inside
+  # the app bundle rather than the SPM build directory.
+  install_name_tool -change \
+    @rpath/Sparkle.framework/Versions/B/Sparkle \
+    @executable_path/../Frameworks/Sparkle.framework/Versions/B/Sparkle \
+    "$APP_PATH/Contents/MacOS/Hive" 2>/dev/null || true
+  printf '  Sparkle framework staged: %s\n' "$SPARKLE_DEST"
+else
+  printf '  Sparkle.framework not found at %s — skipping (ad-hoc build without Sparkle)\n' "$SPARKLE_SOURCE"
+fi
+
 printf '%s\n' '==> Signing embedded worker, CEF nested code, SwiftPM resources, and outer app'
 sign_path() {
   local path="$1"
@@ -233,6 +249,14 @@ sign_plain_path "$WORKER_PATH" --identifier com.hive.browser.research-worker --s
 ADBLOCK_DYLIB_DEST="$APP_PATH/Contents/Frameworks/libhive_adblock_ffi.dylib"
 if [[ -f "$ADBLOCK_DYLIB_DEST" ]]; then
   sign_plain_path "$ADBLOCK_DYLIB_DEST" --identifier com.hive.browser.adblock --sign "$SIGNING_IDENTITY"
+fi
+SPARKLE_DEST="$APP_PATH/Contents/Frameworks/Sparkle.framework"
+if [[ -d "$SPARKLE_DEST" ]]; then
+  # Sign Sparkle's nested binaries inside-out, then the framework itself.
+  while IFS= read -r -d '' binary; do
+    sign_plain_path "$binary" --identifier com.hive.browser.sparkle --sign "$SIGNING_IDENTITY"
+  done < <(find "$SPARKLE_DEST" -type f -perm +111 -print0 2>/dev/null)
+  sign_plain_path "$SPARKLE_DEST" --identifier com.hive.browser.sparkle --sign "$SIGNING_IDENTITY"
 fi
 sign_plain_path "$RESOURCE_DEST" --sign "$SIGNING_IDENTITY"
 sign_path "$APP_PATH/Contents/MacOS/Hive" --sign "$SIGNING_IDENTITY"

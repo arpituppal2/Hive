@@ -115,6 +115,8 @@ done
 # rather than silently leaving new code outside the signing contract.
 EXPECTED_NESTED_BUNDLES=(
   "$CEF_FRAMEWORK"
+  "$FRAMEWORKS/Sparkle.framework"
+  "$FRAMEWORKS/Sparkle.framework/Versions/B/Updater.app"
   "$FRAMEWORKS/Hive Helper.app"
   "$FRAMEWORKS/Hive Helper (Alerts).app"
   "$FRAMEWORKS/Hive Helper (GPU).app"

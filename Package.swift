@@ -28,6 +28,11 @@ let package = Package(
         // had no fix for profile-scoped custom schemes (verified 2026-08-07).
         .package(path: "Vendor/CefSwift"),
 
+        // Sparkle 2 — macOS auto-update framework. Powers automatic background
+        // update checks and the "Check for Updates…" menu item. Used by Chrome,
+        // Firefox, VS Code, and virtually every macOS app outside the App Store.
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.0"),
+
     ],
     targets: [
         // The Hive Browser — Chromium-backed via CefSwiftUI, native SwiftUI chrome shell.
@@ -36,6 +41,7 @@ let package = Package(
             name: "Hive",
             dependencies: [
                 .product(name: "CefSwiftUI", package: "CefSwift"),
+                .product(name: "Sparkle", package: "Sparkle"),
                 "HiveCore",
             ],
             path: "Sources/Hive",
@@ -70,5 +76,6 @@ let package = Package(
             dependencies: ["HiveCore"],
             path: "Tests/HiveCoreTests"
         ),
+
     ]
 )
