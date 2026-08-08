@@ -1539,3 +1539,65 @@ svg { display: block; }
   color: var(--accent-3, #34d399);
   background: color-mix(in srgb, var(--accent-3, #34d399) 12%, transparent);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Zen-Derived Compact Mode — sidebar auto-hide + hover reveal.
+   Adapted from Zen Browser's compact-mode CSS (MPL-2.0).
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Compact mode: hide sidebar, reveal on hover */
+body[data-compact="true"] {
+  /* Floating sidebar — slides off-screen, slides in on hover */
+  --sidebar-collapsed-x: calc(-1 * var(--sidebar-width, 260px) + var(--zen-element-separation, 8px) / 2 + 1px);
+}
+
+body[data-compact="true"] #chrome.sidebar {
+  position: fixed;
+  z-index: 100;
+  left: var(--sidebar-collapsed-x);
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-width, 260px);
+  transition: left var(--zen-sidebar-transition, 0.15s ease);
+  box-shadow: none;
+}
+
+/* Slide sidebar in when hovering over it or when active */
+body[data-compact="true"] #chrome.sidebar:hover,
+body[data-compact="true"] #chrome.sidebar[data-compact-active="true"] {
+  left: var(--zen-element-separation, 8px);
+  box-shadow: 0 0 24px rgba(0,0,0,0.25);
+}
+
+/* In compact mode, the toolbar collapses to a thin strip */
+body[data-compact="true"] .chrome--strip .toolbar {
+  height: var(--zen-element-separation, 8px);
+  overflow: hidden;
+  opacity: 0;
+  transition: height var(--zen-toolbar-flash-popup-duration, 800ms) ease,
+              opacity var(--zen-toolbar-flash-popup-duration, 800ms) ease;
+}
+
+/* Toolbar expands on hover (flash-popup) */
+body[data-compact="true"] .chrome--strip .toolbar:hover,
+body[data-compact="true"] .chrome--strip .toolbar[data-compact-active="true"] {
+  height: auto;
+  opacity: 1;
+}
+
+/* Compact mode: hide sidebar top buttons when collapsed */
+body[data-compact="true"] #chrome.sidebar:not(:hover):not([data-compact-active="true"]) .sidebar-top,
+body[data-compact="true"] #chrome.sidebar:not(:hover):not([data-compact-active="true"]) .navbtns {
+  visibility: hidden;
+  transition: visibility var(--zen-sidebar-keep-hover-duration, 150ms);
+}
+
+/* Workspace switch animation */
+body[data-workspace-switching="true"] .tab {
+  animation: workspaceFade var(--zen-workspace-switch-duration, 200ms) ease;
+}
+
+@keyframes workspaceFade {
+  0% { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}

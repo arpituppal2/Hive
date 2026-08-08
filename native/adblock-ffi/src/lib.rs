@@ -96,3 +96,36 @@ pub extern "C" fn engine_check_url(
         if engine.check_network_request(&request).should_block() { 1 } else { 0 }
     })
 }
+
+/// Returns a JSON array of CSS selectors that should be hidden on the given URL.
+/// The caller must free the returned string with engine_free_string().
+#[no_mangle]
+pub extern "C" fn engine_cosmetic_selectors(url_ptr: *const c_char) -> *mut c_char {
+    let url_str = match unsafe { CStr::from_ptr(url_ptr) }.to_str() {
+        Ok(s) => s,
+        Err(_) => return std::ptr::null_mut(),
+    };
+
+    ENGINE.with(|cell| {
+        let guard = cell.borrow();
+        let engine = match guard.as_ref() {
+            Some(e) => e,
+            None => return std::ptr::null_mut(),
+        };
+
+        let resources = engine.url_cosmetic_resources(url_str);
+        // Build JSON array from hidden selectors
+        let selectors: Vec<String> = resources.hide_selectors.into_iter().collect();
+        let json = serde_json::to_string(&selectors).unwrap_or_else(|_| "[]".to_string());
+        
+        let c_string = std::ffi::CString::new(json).unwrap_or_default();
+        c_string.into_raw()
+    })
+}
+
+/// Free a string returned by engine_cosmetic_selectors.
+#[no_mangle]
+pub extern "C" fn engine_free_string(ptr: *mut c_char) {
+    if ptr.is_null() { return; }
+    unsafe { drop(std::ffi::CString::from_raw(ptr)); }
+}

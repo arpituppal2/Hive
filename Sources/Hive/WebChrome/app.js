@@ -82,6 +82,30 @@
     });
   }
 
+  /* Zen compact-mode hover tracking — sets data-compact-active on sidebar/toolbar hover */
+  (function () {
+    var sidebar = document.getElementById('chrome');
+    if (!sidebar) return;
+    var keepTimer = null;
+    var keepDuration = 150;
+    sidebar.addEventListener('mouseenter', function () {
+      if (keepTimer) clearTimeout(keepTimer);
+      sidebar.dataset.compactActive = 'true';
+    });
+    sidebar.addEventListener('mouseleave', function () {
+      keepTimer = setTimeout(function () {
+        delete sidebar.dataset.compactActive;
+      }, keepDuration);
+    });
+    var toolbar = document.querySelector('.toolbar');
+    if (toolbar) {
+      toolbar.addEventListener('mouseenter', function () { toolbar.dataset.compactActive = 'true'; });
+      toolbar.addEventListener('mouseleave', function () {
+        setTimeout(function () { delete toolbar.dataset.compactActive; }, 800);
+      });
+    }
+  })();
+
   /* ---------------- state ---------------- */
 
   var state = {
