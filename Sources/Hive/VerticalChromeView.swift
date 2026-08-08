@@ -33,7 +33,7 @@ struct VerticalChromeView: View {
                             .foregroundStyle(HiveDesign.Text.primary)
                     }
                     .contextMenu {
-                        Button("New Workspace") { _ = state.addWorkspace(name: "New Workspace", colorHex: "#F5A623", iconName: "circle.fill") }
+                        Button("New Workspace") { _ = state.addWorkspace(name: "New Workspace", colorHex: "#F97316", iconName: "circle.fill") }
                         Divider()
                         ForEach(state.workspacesForCurrentProfile) { ws in
                             Button { state.switchWorkspace(to: ws.id) } label: {

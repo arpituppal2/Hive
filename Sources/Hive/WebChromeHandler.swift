@@ -798,7 +798,7 @@ enum WebChromeBridge {
             await MainActor.run {
                 _ = state.addWorkspace(
                     name: request.name,
-                    colorHex: request.colorHex ?? "#F5A623",
+                    colorHex: request.colorHex ?? "#F97316",
                     iconName: request.iconName ?? "circle.fill"
                 )
             }

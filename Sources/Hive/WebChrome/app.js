@@ -253,7 +253,7 @@
   }
 
   function sanitizeHex(h) {
-    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(h || '') ? h : '#8E5FEB';
+    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(h || '') ? h : '#F97316';
   }
 
   function groupHeaderHTML(g) {
@@ -559,6 +559,11 @@
   $('agentDock').addEventListener('keydown', function (e) {
     if (e.key === 'Escape') $('agentDock').hidden = true;
   });
+
+  // Wire static listeners once at init — never inside render functions
+  // (renderStartPage re-runs on every refresh; stacking listeners there
+  // would fire navigate('hive://brief/') N times per click).
+  $('btnOpenBrief').addEventListener('click', function () { navigate('hive://brief/'); });
 
   $('btnCouncil').addEventListener('click', function () {
     var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
@@ -1112,7 +1117,6 @@
 
   function renderStartPage() {
     if (IS_CHROME) return;
-    $('btnOpenBrief').addEventListener('click', function () { navigate('hive://brief'); });
     $('briefCard').hidden = false;
     var grid = $('topsitesGrid');
     grid.innerHTML = '';

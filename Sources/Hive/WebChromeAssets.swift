@@ -2112,7 +2112,7 @@ svg { display: block; }
   }
 
   function sanitizeHex(h) {
-    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(h || '') ? h : '#8E5FEB';
+    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(h || '') ? h : '#F97316';
   }
 
   function groupHeaderHTML(g) {
@@ -2418,6 +2418,11 @@ svg { display: block; }
   $('agentDock').addEventListener('keydown', function (e) {
     if (e.key === 'Escape') $('agentDock').hidden = true;
   });
+
+  // Wire static listeners once at init — never inside render functions
+  // (renderStartPage re-runs on every refresh; stacking listeners there
+  // would fire navigate('hive://brief/') N times per click).
+  $('btnOpenBrief').addEventListener('click', function () { navigate('hive://brief/'); });
 
   $('btnCouncil').addEventListener('click', function () {
     var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
@@ -2971,7 +2976,6 @@ svg { display: block; }
 
   function renderStartPage() {
     if (IS_CHROME) return;
-    $('btnOpenBrief').addEventListener('click', function () { navigate('hive://brief'); });
     $('briefCard').hidden = false;
     var grid = $('topsitesGrid');
     grid.innerHTML = '';
@@ -9904,11 +9908,21 @@ function initFooterReveal() {
         case "/index.html", "/": return "text/html"
         case "/styles.css", "/tokens.css": return "text/css"
         case "/app.js": return "application/javascript"
-        case "/brief", "/brief/", "/brief/index.html": return "text/html"
-        case "/brief/style.css", "/brief/feedback.css", "/brief/looking-ahead.css": return "text/css"
-        case "/brief/app.js", "/brief/feedback.js", "/brief/looking-ahead.js": return "application/javascript"
         default:
-            if path.hasPrefix("/brief/fonts/") { return "font/woff2" }
+            if path.hasPrefix("/brief/") { return "text/html" }
+            return "application/octet-stream"
+        }
+    }
+
+    /// MIME for a Morning Brief asset (host-form hive://brief/... — the
+    /// handler routes by host; the embed keeps text assets for dev parity).
+    static func briefMimeType(forPath path: String) -> String {
+        switch path {
+        case "/", "/index.html": return "text/html"
+        case "/style.css", "/feedback.css", "/looking-ahead.css": return "text/css"
+        case "/app.js", "/feedback.js", "/looking-ahead.js": return "application/javascript"
+        default:
+            if path.hasPrefix("/fonts/") { return "font/woff2" }
             return "application/octet-stream"
         }
     }

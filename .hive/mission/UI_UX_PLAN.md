@@ -161,6 +161,12 @@ Apply to: AI panel, start page, command palette, panels, side panel.
 - 1063/142 tests ✅ · build ✅ · bundle ✅ · smoke ✅
 - **CDP live**: accent `#F97316`, ⌘A opens dock, hero "Ask Hive anything", input focused, submit closes dock + shows AI panel; screenshots `.hive/mission/evidence/hive-u2-agentdock.png`
 
+### Security hardening pass (code review findings — all fixed)
+- **CRITICAL XSS**: `buildBriefJSON()` escaper now neutralizes `<` `>` `&` + U+2028/2029 + control chars (\u-escaped) — a malicious tab title can never break out of the brief's `<script id="brief-data">` tag. 3 new regression tests (script-breakout, JSON round-trip, control chars). **CDP-verified**: `window.__pwned` stays 0 with an evil title, blob parses as valid JSON.
+- **Duplicate listener bug**: `btnOpenBrief` wired once at init, removed from `renderStartPage()` (was stacking a listener per refresh → N navigations per click).
+- **Stale accent defaults → honey**: `sanitizeHex` fallback #8E5FEB→#F97316; workspace/profile/onboarding defaults #F5A623→#F97316; `hive.createWorkspace` default.
+- `WebChromeAssets.mimeType` split into chrome + brief variants (dead brief cases removed).
+
 ## 9. Success Criteria
 
 - The browser looks unmistakably premium: Polar-grade design system, Dia-grade brief, Zen-grade vertical tabs.

@@ -22,7 +22,7 @@ struct OnboardingSheet: View {
     @State private var importedBookmarkCount: Int = 0
     @State private var importedHistoryCount: Int = 0
     @State private var importError: String? = nil
-    @State private var selectedColorHex: String = "#F5A623"
+    @State private var selectedColorHex: String = "#F97316"
 
     private let totalSteps = 3
 

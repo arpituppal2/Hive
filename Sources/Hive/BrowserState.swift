@@ -2494,7 +2494,7 @@ final class BrowserState {
         }
     }
 
-    var browserAccentColorHex: String = "#F5A623"
+    var browserAccentColorHex: String = "#F97316"
     var savedPasswords: [SavedPassword] = []
     var safeBrowsingWarning: SafeBrowsingWarning? = nil
 
@@ -3042,7 +3042,7 @@ final class BrowserState {
             if let first = workspaces.first(where: { $0.profileID == id }) {
                 currentWorkspaceID = first.id
             } else {
-                let workspace = addWorkspace(name: "Default", colorHex: "#F5A623", iconName: "briefcase.fill", profileID: id)
+                let workspace = addWorkspace(name: "Default", colorHex: "#F97316", iconName: "briefcase.fill", profileID: id)
                 currentWorkspaceID = workspace.id
             }
             if !tabs.contains(where: { $0.workspaceID == currentWorkspaceID }) {
@@ -4836,11 +4836,11 @@ final class BrowserState {
     private func createDefaultProfiles() {
         // Chrome-like: single Default profile, single workspace, no pre-made tab groups.
         // Profiles, workspaces, and tab groups are created by the user as needed.
-        let defaultProfile = Profile(name: "Default", iconName: "person.fill", colorHex: "#F5A623")
+        let defaultProfile = Profile(name: "Default", iconName: "person.fill", colorHex: "#F97316")
         profiles = [defaultProfile]
         currentProfileID = defaultProfile.id
 
-        let defaultWorkspace = Workspace(name: "Default", colorHex: "#F5A623", iconName: "briefcase.fill", profileID: defaultProfile.id)
+        let defaultWorkspace = Workspace(name: "Default", colorHex: "#F97316", iconName: "briefcase.fill", profileID: defaultProfile.id)
         workspaces = [defaultWorkspace]
         currentWorkspaceID = defaultWorkspace.id
 
@@ -5109,16 +5109,32 @@ final class BrowserState {
     /// a source credit footer. Honest: when there is no history yet, the brief
     /// greets without inventing fake items.
     func buildBriefJSON() -> String {
+        // Hardened JSON escaper for untrusted browser data (tab titles, URLs,
+        // hosts — all network/user-controlled). Beyond standard JSON escapes it
+        // neutralizes '<' '>' '&' and U+2028/2029 so a malicious page title can
+        // never break out of the brief's <script id="brief-data"> tag or the
+        // JSON.parse boundary (</script>-breakout / XSS). Non-ASCII is passed
+        // through UTF-8 (valid in JSON) and control chars are \u-escaped.
         func esc(_ s: String) -> String {
             var out = ""
-            for ch in s {
-                switch ch {
-                case "\\": out += "\\\\"
-                case "\"": out += "\\\""
-                case "\n": out += "\\n"
-                case "\r": out += "\\r"
-                case "\t": out += "\\t"
-                default: out.append(ch)
+            for ch in s.unicodeScalars {
+                switch ch.value {
+                case 0x5C: out += "\\\\"            // backslash
+                case 0x22: out += "\\\""              // double quote
+                case 0x0A: out += "\\n"
+                case 0x0D: out += "\\r"
+                case 0x09: out += "\\t"
+                case 0x08: out += "\\b"
+                case 0x0C: out += "\\f"
+                case 0x3C: out += "\\u003c"           // < — kills </script> breakout
+                case 0x3E: out += "\\u003e"           // >
+                case 0x26: out += "\\u0026"           // &
+                case 0x2028: out += "\\u2028"         // JS line separator
+                case 0x2029: out += "\\u2029"         // JS paragraph separator
+                case 0x00...0x1F:
+                    out += String(format: "\\u%04X", ch.value)
+                default:
+                    out.unicodeScalars.append(ch)
                 }
             }
             return out

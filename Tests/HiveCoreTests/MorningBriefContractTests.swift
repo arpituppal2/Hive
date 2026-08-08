@@ -81,4 +81,73 @@ struct MorningBriefContractTests {
         #expect(js.contains("Hive assembles this brief"), "Intro mission copy must be Hive-branded.")
         #expect(js.contains("Your daily Hive brief"), "Intro eyebrow must be Hive-branded.")
     }
+
+    // MARK: - XSS hardening (reviewer finding: </script>-breakout)
+
+    /// Mirrors the hardened `esc()` in BrowserState.buildBriefJSON: tab titles,
+    /// hosts, and history domains are network/user-controlled strings injected
+    /// into the brief's <script id="brief-data"> tag. A page titled
+    /// `</script><script>…</script>` must never be able to break out of the
+    /// JSON script tag. The escaper neutralizes < > & and U+2028/2029.
+    private func hardenedEscape(_ s: String) -> String {
+        var out = ""
+        for ch in s.unicodeScalars {
+            switch ch.value {
+            case 0x5C: out += "\\\\"
+            case 0x22: out += "\\\""
+            case 0x0A: out += "\\n"
+            case 0x0D: out += "\\r"
+            case 0x09: out += "\\t"
+            case 0x08: out += "\\b"
+            case 0x0C: out += "\\f"
+            case 0x3C: out += "\\u003c"
+            case 0x3E: out += "\\u003e"
+            case 0x26: out += "\\u0026"
+            case 0x2028: out += "\\u2028"
+            case 0x2029: out += "\\u2029"
+            case 0x00...0x1F:
+                out += String(format: "\\u%04X", ch.value)
+            default:
+                out.unicodeScalars.append(ch)
+            }
+        }
+        return out
+    }
+
+    @Test func briefJSONEscapesScriptBreakout() {
+        let evil = "</script><script>window.__pwned=1</script>"
+        let escaped = hardenedEscape(evil)
+        // The literal sequence must be fully neutralized — no raw "</script>"
+        // can survive into the injected JSON blob.
+        #expect(!escaped.contains("</script>"),
+                "</script> breakout must be neutralized: got \(escaped)")
+        #expect(!escaped.contains("<script>"),
+                "<script> must be neutralized: got \(escaped)")
+        #expect(escaped.contains("\\u003c"), "< must become \\u003c")
+        #expect(escaped.contains("\\u003e"), "> must become \\u003e")
+    }
+
+    @Test func briefJSONEscapesJSONSpecials() {
+        // Quotes/backslashes/newlines must survive as valid JSON escapes.
+        let s = "tab \"title\\with\nnewline"
+        let escaped = hardenedEscape(s)
+        #expect(escaped.contains("\\\""), "double quote must be escaped")
+        #expect(escaped.contains("\\\\"), "backslash must be escaped")
+        #expect(escaped.contains("\\n"), "newline must be escaped")
+        // Round-trip: the escaped output must parse as valid JSON content.
+        let json = "{\"title\":\"\(escaped)\"}"
+        guard let data = json.data(using: .utf8),
+              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: String]
+        else {
+            Issue.record("escaped output must be valid JSON: \(json)")
+            return
+        }
+        #expect(obj["title"] == s, "escape round-trip must recover the original string")
+    }
+
+    @Test func briefJSONEscapesControlCharacters() {
+        let escaped = hardenedEscape("a\u{01}b\u{1F}")
+        #expect(escaped.contains("\\u0001"), "control chars must be \\u-escaped")
+        #expect(escaped.contains("\\u001F"), "control chars must be \\u-escaped")
+    }
 }

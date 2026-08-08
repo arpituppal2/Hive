@@ -60,7 +60,7 @@ enum HiveDesign {
 
     // MARK: - Accent
     //
-    // Warm amber #F5A623. Used <5% of the time:
+    // Warm honey #F97316. Used <5% of the time:
 
     //   - Active tab indicator / focus ring
     //   - Primary CTA
