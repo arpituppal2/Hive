@@ -40,6 +40,10 @@ the feature; `WebChromeBridgeContractTests` guards that direction.
 | `hive.agent.read` / `grep` / `evaluate` | Agent page inspection |
 | `hive.agent.snapshot` / `screenshot` / `scroll` / `wait` | Agent observation + pacing |
 | `hive.agent.reload` | Agent-triggered reload |
+| `hive.agent.tabs` | List page targets (id/title/url/active) |
+| `hive.agent.newTab` | Open a new tab to a URL |
+| `hive.agent.closeTab` | Close a tab by target id |
+| `hive.agent.activateTab` | Bring a tab to the foreground |
 
 ### Tabs, groups, workspaces
 

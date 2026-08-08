@@ -95,11 +95,14 @@ struct WebChromeBridgeContractTests {
     }
 
     @Test func agentToolSurfaceIsRegistered() throws {
+        // The full 16-tool agent surface (ROADMAP_2027): 12 observe/act tools
+        // plus 4 tab-management tools.
         let registered = try registeredMethods()
         let tools: Set<String> = [
-            "agent.click", "agent.evaluate", "agent.fill", "agent.grep",
-            "agent.navigate", "agent.read", "agent.screenshot", "agent.scroll",
-            "agent.snapshot", "agent.type", "agent.wait",
+            "agent.activateTab", "agent.click", "agent.closeTab", "agent.evaluate",
+            "agent.fill", "agent.grep", "agent.navigate", "agent.newTab",
+            "agent.read", "agent.reload", "agent.screenshot", "agent.scroll",
+            "agent.snapshot", "agent.tabs", "agent.type", "agent.wait",
         ]
         let absent = tools.subtracting(registered).sorted()
         #expect(absent.isEmpty, "Agent tool methods missing: \(absent).")

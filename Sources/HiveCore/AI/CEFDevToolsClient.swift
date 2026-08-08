@@ -47,7 +47,13 @@ public final class CDPClient {
     }
 
     /// Send a CDP command and await the JSON response as a dictionary.
-    public func send(method: String, params: [String: Any] = [:]) async throws -> [String: Any] {
+    ///
+    /// Every command is bounded by `timeout` — if CEF never responds (a
+    /// wedged target, e.g. cross-target commands like Target.closeTarget that
+    /// some CEF builds never acknowledge), the continuation resumes with a
+    /// clean CDPError instead of hanging the bridge call forever. The agent
+    /// pipeline must never stall on a silent CEF.
+    public func send(method: String, params: [String: Any] = [:], timeout: Duration = .seconds(30)) async throws -> [String: Any] {
         let id = nextID
         nextID += 1
 
@@ -59,8 +65,18 @@ public final class CDPClient {
 
         return try await withCheckedThrowingContinuation { continuation in
             pending[id] = continuation
+            // Bound the wait: resuming twice is impossible because both this
+            // and handleResponse remove the pending entry before resuming.
+            let timeoutTask = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: timeout)
+                guard let self else { return }
+                if let cont = self.pending.removeValue(forKey: id) {
+                    cont.resume(throwing: CDPError(code: -32000, message: "CDP command timed out after \(timeout): \(method)"))
+                }
+            }
             guard let data = try? JSONSerialization.data(withJSONObject: cmd, options: []),
                   let json = String(data: data, encoding: .utf8) else {
+                timeoutTask.cancel()
                 continuation.resume(throwing: CDPError(code: -1, message: "JSON serialization failed"))
                 pending.removeValue(forKey: id)
                 return

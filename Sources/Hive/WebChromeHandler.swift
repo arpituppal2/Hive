@@ -358,6 +358,28 @@ struct WebChromeAgentScreenshotResult: Codable, Sendable {
     let base64: String
 }
 
+struct WebChromeAgentTabInfo: Codable, Sendable {
+    let id: String
+    let title: String
+    let url: String
+    let active: Bool
+}
+
+struct WebChromeAgentTabsResult: Codable, Sendable {
+    let tabs: [WebChromeAgentTabInfo]
+    let count: Int
+}
+
+struct WebChromeAgentNewTab: Codable, Sendable {
+    let token: String
+    let url: String
+}
+
+struct WebChromeAgentTabID: Codable, Sendable {
+    let token: String
+    let id: String
+}
+
 struct WebChromeTextRequest: Codable, Sendable {
     let token: String
     let text: String
@@ -1088,6 +1110,36 @@ enum WebChromeBridge {
         bridge.register("hive.agent.reload") { (request: WebChromeToken) async throws -> Bool in
             try Self.authorize(request.token)
             try await state.cdpClient.reload()
+            return true
+        }
+
+        // ---- Tab management (completes the 16-tool agent surface) ----
+
+        bridge.register("hive.agent.tabs") { (request: WebChromeToken) async throws -> WebChromeAgentTabsResult in
+            try Self.authorize(request.token)
+            let tabs = try await state.cdpClient.listTabs()
+            return WebChromeAgentTabsResult(
+                tabs: tabs.map { tab in
+                    WebChromeAgentTabInfo(id: tab.id, title: tab.title, url: tab.url, active: tab.active)
+                },
+                count: tabs.count
+            )
+        }
+
+        bridge.register("hive.agent.newTab") { (request: WebChromeAgentNewTab) async throws -> String in
+            try Self.authorize(request.token)
+            return try await state.cdpClient.newTab(url: request.url)
+        }
+
+        bridge.register("hive.agent.closeTab") { (request: WebChromeAgentTabID) async throws -> Bool in
+            try Self.authorize(request.token)
+            try await state.cdpClient.closeTab(id: request.id)
+            return true
+        }
+
+        bridge.register("hive.agent.activateTab") { (request: WebChromeAgentTabID) async throws -> Bool in
+            try Self.authorize(request.token)
+            try await state.cdpClient.activateTab(id: request.id)
             return true
         }
     }

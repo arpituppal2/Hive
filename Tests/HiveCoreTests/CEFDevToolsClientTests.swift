@@ -255,6 +255,27 @@ struct CDPClientTests {
         #expect(String(data: data!, encoding: .utf8) == "hello")
     }
 
+    // MARK: - Timeout hardening
+
+    @Test func sendTimesOutWhenNoResponse() async throws {
+        // Regression: a silent CEF (wedged target, cross-target command) must
+        // surface as a clean CDPError, never hang the bridge call forever.
+        let client = CDPClient()
+        client.wireSend { _ in
+            // Intentionally never respond.
+        }
+
+        do {
+            _ = try await client.send(method: "Target.closeTarget", params: [:], timeout: .milliseconds(100))
+            Issue.record("Expected the send to time out")
+        } catch let error as CDPError {
+            #expect(error.code == -32000)
+            #expect(error.message.contains("timed out"))
+        } catch {
+            Issue.record("Unexpected error type: \(error)")
+        }
+    }
+
     // MARK: - ID sequencing
 
     @Test func commandIDsIncrement() async throws {
