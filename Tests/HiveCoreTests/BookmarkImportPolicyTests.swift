@@ -61,4 +61,17 @@ struct BookmarkImportPolicyTests {
         #expect(decision.entries.count == 1)
         #expect(decision.entries[0].title == "Spaced Title")
     }
+
+@Test func emptyTitleDefaultsToBookmark() {
+        let candidates = [ImportedBookmark(title: "", url: URL(string: "https://empty.example")!)]
+        let decision = BookmarkImportPolicy.merge(existingURLs: [], candidates: candidates)
+        #expect(decision.entries.count == 1)
+    }
+
+    @Test func nilURLIsSkipped() {
+        let candidates = [ImportedBookmark(title: "NoURL", url: URL(string: "https://valid.example")!)]
+        let decision = BookmarkImportPolicy.merge(existingURLs: [], candidates: candidates)
+        #expect(decision.entries.count == 1)
+        #expect(decision.entries[0].title == "NoURL")
+    }
 }

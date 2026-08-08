@@ -95,4 +95,14 @@ struct VoiceTurnDisclosureTests {
         #expect(VoiceTurnDisclosure.make(state: .idle, pendingDecision: nil) == nil)
         #expect(VoiceTurnDisclosure.make(state: .completed, pendingDecision: nil) == nil)
     }
+
+@Test("missingFieldsAreListedWhenPresent")
+    func missingFieldsListed() {
+        let decision = VoiceRouteDecision(
+            route: .clarification, confidence: 0.99, reason: "incomplete",
+            missingFields: ["target", "action"], clarificationPrompt: "What?"
+        )
+        let disclosure = VoiceTurnDisclosure.make(state: .clarifying, pendingDecision: decision)
+        #expect(disclosure?.detail.contains("target") == true)
+    }
 }

@@ -74,4 +74,14 @@ struct HiveSessionEvidenceTests {
         #expect(evidence.durableTabCount == 0)
         #expect(evidence.markerLine().hasPrefix("HIVE_SESSION_EVIDENCE "))
     }
+
+@Test("highSnapshotSequencePreserved")
+    func highSnapshot() {
+        let evidence = HiveSessionEvidence(
+            restoredFromDisk: true, priorCleanExit: true,
+            snapshotSequence: 9_999_999, durableTabCount: 42, writeSucceeded: true
+        )
+        #expect(evidence.snapshotSequence == 9_999_999)
+        #expect(evidence.durableTabCount == 42)
+    }
 }

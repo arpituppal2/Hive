@@ -112,4 +112,24 @@ struct ContextScopeSummaryTests {
         )
         #expect(summary.explicitTabCount == 0)
     }
+
+@Test("rows always have nonEmpty labels")
+    func rowsHaveLabels() {
+        let summary = ContextScopeSummary(scope: .browserDefault, isPrivateBrowsing: false)
+        for row in summary.rows {
+            #expect(!row.label.isEmpty)
+            #expect(!row.detail.isEmpty)
+        }
+    }
+
+    @Test("workspace default includes hot memory")
+    func workspaceDefaultIncludesHotMemory() {
+        let scope = ContextScope(
+            includesCurrentPage: true, includesHotMemory: true,
+            includesProjectNodes: false, includesPreferences: false
+        )
+        let summary = ContextScopeSummary(scope: scope, isPrivateBrowsing: false)
+        #expect(summary.rows.count >= 2)
+        #expect(summary.rows[1].isIncluded)
+    }
 }

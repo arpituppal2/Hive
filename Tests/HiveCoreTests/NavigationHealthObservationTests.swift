@@ -63,4 +63,10 @@ struct NavigationHealthObservationTests {
         _ = observation.observe(isLoading: true)
         #expect(observation.state == .loading)
     }
+
+@Test("stateTransitionsAreExhaustive")
+    func statesAreDefined() {
+        let states: [NavigationHealthObservation.State] = [.waitingForStart, .loading, .completed, .timedOut]
+        #expect(states.count == 4)
+    }
 }

@@ -92,4 +92,21 @@ struct StreamCancellationTests {
         // Either nil (cancelled) or a chunk — both are valid since cancellation may race
         _ = afterDrop
     }
+
+@Test func counterSnapshotIsConsistent() async throws {
+        let counter = StreamEventCounter()
+        await counter.recordChunk()
+        await counter.recordChunk()
+        await counter.markFinished()
+        let snap = await counter.snapshot()
+        #expect(snap.chunks == 2)
+        #expect(snap.finished)
+    }
+
+    @Test func counterDefaultsToNoChunks() async {
+        let counter = StreamEventCounter()
+        let snap = await counter.snapshot()
+        #expect(snap.chunks == 0)
+        #expect(!snap.finished)
+    }
 }

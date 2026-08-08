@@ -51,4 +51,21 @@ struct ResponseLifecycleTokenTests {
         let id = token.begin()
         #expect(id > 0)
     }
+
+@Test("cancel then begin produces fresh generation")
+    func cancelThenBeginIsFresh() {
+        let token = ResponseLifecycleToken()
+        let first = token.begin()
+        let cancelled = token.cancel()
+        let second = token.begin()
+        #expect(second > cancelled)
+        #expect(second > first)
+        #expect(token.isCurrent(second))
+    }
+
+    @Test("current is zero before any begin")
+    func currentIsZeroBeforeBegin() {
+        let token = ResponseLifecycleToken()
+        #expect(token.current() == 0)
+    }
 }

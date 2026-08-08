@@ -39,4 +39,10 @@ struct NavigationBlockNoticeTests {
         #expect(notice.detail.contains("URL type is not supported"))
         #expect(notice.accessibilityLabel.contains("Nothing") == false)
     }
+
+@Test func aboutBlankIsNotBlocked() {
+        let notice = NavigationBlockNotice(scheme: "  ")
+        #expect(notice.scheme.isEmpty)
+        #expect(notice.title == "Navigation blocked")
+    }
 }

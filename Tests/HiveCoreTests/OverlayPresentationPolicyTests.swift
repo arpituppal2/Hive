@@ -34,4 +34,16 @@ struct OverlayPresentationPolicyTests {
         let b = OverlayPresentationPolicy.State(commandPalettePresented: true, tabSearchPresented: false)
         #expect(a == b)
     }
+
+@Test func bothShownIsPossible() {
+        let state = OverlayPresentationPolicy.State(commandPalettePresented: true, tabSearchPresented: true)
+        #expect(state.commandPalettePresented)
+        #expect(state.tabSearchPresented)
+    }
+
+    @Test func policyNameIsStable() {
+        let state = OverlayPresentationPolicy.State(commandPalettePresented: false, tabSearchPresented: false)
+        #expect(!state.commandPalettePresented)
+        #expect(!state.tabSearchPresented)
+    }
 }

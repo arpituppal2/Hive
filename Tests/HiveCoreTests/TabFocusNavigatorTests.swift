@@ -46,4 +46,18 @@ struct TabFocusNavigatorTests {
         #expect(TabFocusNavigator.destination(in: [], focusedID: nil, direction: .next) == nil)
         #expect(TabFocusNavigator.destination(in: ["", ""], focusedID: "", direction: .previous) == nil)
     }
+
+@Test("wrappingAtBoundariesIsDefault")
+    func wrappingDefault() {
+        let ids = ["x", "y", "z"]
+        #expect(TabFocusNavigator.destination(in: ids, focusedID: "z", direction: .next) == "x")
+        #expect(TabFocusNavigator.destination(in: ids, focusedID: "x", direction: .previous) == "z")
+    }
+
+    @Test("singleElementListIsStable")
+    func singleElement() {
+        let ids = ["only"]
+        #expect(TabFocusNavigator.destination(in: ids, focusedID: "only", direction: .next) == "only")
+        #expect(TabFocusNavigator.destination(in: ids, focusedID: nil, direction: .previous) == "only")
+    }
 }

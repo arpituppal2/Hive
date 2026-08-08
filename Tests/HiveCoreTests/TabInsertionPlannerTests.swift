@@ -109,4 +109,23 @@ struct TabInsertionPlannerTests {
             activeWorkspaceID: workspace
         ) == nil)
     }
+
+@Test func identicalWorkspacesAllowMove() {
+        let items = [item("a"), item("b")]
+        let result = TabInsertionPlanner.reordered(
+            items: items, movingID: "b",
+            target: .init(tabID: "a", edge: .before),
+            activeWorkspaceID: workspace
+        )
+        #expect(result == ["b", "a"])
+    }
+
+    @Test func singleItemListCannotReorder() {
+        let items = [item("only")]
+        #expect(TabInsertionPlanner.reordered(
+            items: items, movingID: "only",
+            target: .init(tabID: "only", edge: .before),
+            activeWorkspaceID: workspace
+        ) == nil)
+    }
 }

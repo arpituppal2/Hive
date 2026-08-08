@@ -62,4 +62,17 @@ struct HiveReadinessTests {
         #expect(decoded.message.count == 240)
         #expect(decoded.markerLine().hasPrefix("HIVE_READINESS_FAIL "))
     }
+
+@Test("isReady is true only when both invariants hold")
+    func isReadyInvariant() {
+        #expect(HiveReadinessReport(appInitialized: true, browserShellReady: true, message: "ok").isReady)
+        #expect(!HiveReadinessReport(appInitialized: false, browserShellReady: true, message: "").isReady)
+        #expect(!HiveReadinessReport(appInitialized: true, browserShellReady: false, message: "").isReady)
+    }
+
+    @Test("messageIsAlwaysInMarker")
+    func messageInMarker() {
+        let report = HiveReadinessReport(appInitialized: true, browserShellReady: true, message: "custom msg")
+        #expect(report.markerLine().contains("custom msg"))
+    }
 }
