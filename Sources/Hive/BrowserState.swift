@@ -4145,6 +4145,68 @@ final class BrowserState {
         installedExtensions[index].isEnabled.toggle()
     }
 
+    /// Install an extension from its unpacked folder (must contain manifest.json).
+    /// Validates the manifest, extracts metadata, and copies the extension into
+    /// the Hive extensions directory. Returns the new ExtensionItem on success.
+    func installExtension(from folderURL: URL) -> ExtensionItem? {
+        let manifestURL = folderURL.appendingPathComponent("manifest.json")
+        guard FileManager.default.fileExists(atPath: manifestURL.path),
+              let data = try? Data(contentsOf: manifestURL),
+              let manifest = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return nil }
+
+        let name = (manifest["name"] as? String) ?? folderURL.lastPathComponent
+        // manifest["version"] is the extension version; manifest["manifest_version"] is the format version (2 or 3)
+        let version = (manifest["version"] as? String) ?? "1.0"
+        let desc = (manifest["description"] as? String) ?? ""
+        var iconName = "puzzlepiece.extension"
+        if let browserAction = manifest["browser_action"] as? [String: Any] {
+            iconName = "square.grid.2x2"
+        } else if let pageAction = manifest["page_action"] as? [String: Any] {
+            iconName = "rectangle.on.rectangle"
+        } else if let permissions = manifest["permissions"] as? [String],
+                  permissions.contains(where: { $0 == "activeTab" || $0.hasPrefix("http") }) {
+            iconName = "globe"
+        }
+
+        // Copy extension into Hive's app support directory
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let extensionsDir = appSupport.appendingPathComponent("Hive/Extensions", isDirectory: true)
+        try? FileManager.default.createDirectory(at: extensionsDir, withIntermediateDirectories: true)
+
+        let destDir = extensionsDir.appendingPathComponent(name.replacingOccurrences(of: " ", with: "_"))
+        try? FileManager.default.removeItem(at: destDir)
+
+        do {
+            try FileManager.default.copyItem(at: folderURL, to: destDir)
+        } catch {
+            return nil // Copy failed — don't register the extension
+        }
+
+        let item = ExtensionItem(
+            name: name,
+            iconName: iconName,
+            isPinned: true,
+            isEnabled: true,
+            version: version,
+            description: desc,
+            manifestPath: destDir.appendingPathComponent("manifest.json").path
+        )
+        installedExtensions.append(item)
+        return item
+    }
+
+    /// Uninstall an extension by ID, removing it from the extensions directory.
+    func uninstallExtension(id: UUID) {
+        guard let index = installedExtensions.firstIndex(where: { $0.id == id }) else { return }
+        let ext = installedExtensions[index]
+        if let manifestPath = ext.manifestPath {
+            let extDir = URL(fileURLWithPath: manifestPath).deletingLastPathComponent()
+            try? FileManager.default.removeItem(at: extDir)
+        }
+        installedExtensions.remove(at: index)
+    }
+
     // MARK: - Passwords
 
     func savePassword(username: String, password: String, site: String) {
@@ -4765,6 +4827,7 @@ final class BrowserState {
             // pause/resume against a dead process-local object.
             downloads = saved.downloads
             tabZoomLevels = saved.tabZoomLevels
+            installedExtensions = saved.installedExtensions
 
         // Pure restore-decision contract (documented cross-browser mechanics):
         // transient blank tabs never restore, background durable tabs come back
@@ -6001,6 +6064,7 @@ final class BrowserState {
         var downloads: [DownloadItem] = []
         var userDefinedCommands: [UserDefinedCommand] = []
         var tabZoomLevels: [String: Double] = [:]
+        var installedExtensions: [ExtensionItem] = []
         /// Monotonic snapshot identity used to reason about backup freshness.
         var snapshotSequence: UInt64 = 0
         /// False means the previous process did not complete an orderly quit.
@@ -6013,7 +6077,7 @@ final class BrowserState {
                  preferredModelProvider, splitSecondaryTabID, splitRatio, splitOrientation,
                  activeTabID, currentProfileID, currentWorkspaceID,
                  profiles, workspaces, tabGroups, tabInfos, bookmarks, history, downloads,
-                 userDefinedCommands, tabZoomLevels, snapshotSequence, isCleanExit, schemaVersion
+                 userDefinedCommands, tabZoomLevels, installedExtensions, snapshotSequence, isCleanExit, schemaVersion
         }
 
         init(layout: String, isCompactMode: Bool, showBookmarksBar: Bool, isMemorySaverEnabled: Bool = true, openBriefOnNewTab: Bool = true, accentColorHex: String,
@@ -6024,7 +6088,7 @@ final class BrowserState {
              workspaces: [CodableWorkspace], tabGroups: [CodableTabGroup],
              tabInfos: [CodableTabInfo], bookmarks: [Bookmark], history: [HistoryItem],
              downloads: [DownloadItem] = [], userDefinedCommands: [UserDefinedCommand] = [],
-             tabZoomLevels: [String: Double] = [:],
+             tabZoomLevels: [String: Double] = [:], installedExtensions: [ExtensionItem] = [],
              snapshotSequence: UInt64 = 0, isCleanExit: Bool = false, schemaVersion: Int = 1) {
             self.layout = layout
             self.isCompactMode = isCompactMode
@@ -6049,6 +6113,7 @@ final class BrowserState {
             self.downloads = downloads.filter { $0.isComplete || $0.isCanceled || $0.isInterrupted }
             self.userDefinedCommands = BrowserState.normalizedUserDefinedCommands(userDefinedCommands)
             self.tabZoomLevels = tabZoomLevels
+            self.installedExtensions = installedExtensions
             self.snapshotSequence = snapshotSequence
             self.isCleanExit = isCleanExit
             self.schemaVersion = schemaVersion
@@ -6089,6 +6154,7 @@ final class BrowserState {
                 try c.decodeIfPresent([UserDefinedCommand].self, forKey: .userDefinedCommands) ?? [])
             // Forward-compatible: older session files have no zoom levels.
             tabZoomLevels = try c.decodeIfPresent([String: Double].self, forKey: .tabZoomLevels) ?? [:]
+            installedExtensions = try c.decodeIfPresent([ExtensionItem].self, forKey: .installedExtensions) ?? []
             snapshotSequence = try c.decodeIfPresent(UInt64.self, forKey: .snapshotSequence) ?? 0
             isCleanExit = try c.decodeIfPresent(Bool.self, forKey: .isCleanExit) ?? false
             schemaVersion = try c.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
@@ -6126,6 +6192,7 @@ final class BrowserState {
             try c.encode(downloads.filter { $0.isComplete || $0.isCanceled || $0.isInterrupted }, forKey: .downloads)
             try c.encode(userDefinedCommands.filter(\.isValidWebURL), forKey: .userDefinedCommands)
             try c.encode(tabZoomLevels, forKey: .tabZoomLevels)
+            try c.encode(installedExtensions, forKey: .installedExtensions)
             try c.encode(snapshotSequence, forKey: .snapshotSequence)
             try c.encode(isCleanExit, forKey: .isCleanExit)
             try c.encode(schemaVersion, forKey: .schemaVersion)
@@ -6306,6 +6373,7 @@ final class BrowserState {
             downloads: downloads.filter { $0.isComplete || $0.isCanceled || $0.isInterrupted },
             userDefinedCommands: userDefinedCommands,
             tabZoomLevels: persistedZoomLevels,
+            installedExtensions: installedExtensions,
             snapshotSequence: nextSnapshotSequence,
             isCleanExit: cleanExit,
             schemaVersion: 1

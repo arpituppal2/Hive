@@ -47,14 +47,31 @@ struct ContextDiagnostics: Sendable {
 
 // MARK: - Extensions
 
-struct ExtensionItem: Identifiable, Sendable {
-    let id = UUID()
+struct ExtensionItem: Identifiable, Sendable, Codable {
+    var id: UUID
     var name: String
     var iconName: String
     var isPinned: Bool
     var isEnabled: Bool
+    /// Extension version from manifest.json (e.g. "1.2.0").
+    var version: String
+    var description: String
+    /// Path to manifest.json on disk, if installed from a local folder.
+    var manifestPath: String?
 
-    /// Extensions ship empty — users install their own from the Chrome Web Store.
+    init(id: UUID = UUID(), name: String, iconName: String = "puzzlepiece.extension", isPinned: Bool = true, isEnabled: Bool = true, version: String = "1.0", description: String = "", manifestPath: String? = nil) {
+        self.id = id
+        self.name = name
+        self.iconName = iconName
+        self.isPinned = isPinned
+        self.isEnabled = isEnabled
+        self.version = version
+        self.description = description
+        self.manifestPath = manifestPath
+    }
+
+    /// Extensions ship empty — users install their own from the Chrome Web Store
+    /// or by selecting an unpacked extension folder.
     static let defaults: [ExtensionItem] = []
 }
 
