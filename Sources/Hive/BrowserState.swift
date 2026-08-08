@@ -1161,6 +1161,20 @@ final class BrowserState {
     /// sendDevToolsMessage via wireSend. The AI uses this to drive the browser.
     @MainActor private(set) var cdpClient = CDPClient()
 
+    /// Wires the CDP client to a live CEF browser. Call from BrowserWindow
+    /// when the active browser changes. Re-wires on every call (safe to call
+    /// repeatedly — old observer is removed before new one is added).
+    func wireCDP(to browser: CefBrowser) {
+        browser.unregisterDevToolsHandler()
+        cdpClient.wireSend { [weak browser] json in
+            browser?.sendDevToolsMessage(json)
+        }
+        browser.onDevToolsMessage = { [weak self] json in
+            self?.cdpClient.handleResponse(json)
+        }
+        browser.registerDevToolsHandler()
+    }
+
     /// Latest council verdict — observed by GeminiSidePanel for display.
     private(set) var latestCouncilVerdict: CouncilVerdict? = nil
     /// True while a council is convened and deliberating.

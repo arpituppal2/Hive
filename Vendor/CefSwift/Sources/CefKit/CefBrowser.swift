@@ -254,6 +254,15 @@ public final class CefBrowser: Identifiable {
         delegate?.browser(self, didChangeLoading: isLoading, canGoBack: canGoBack, canGoForward: canGoForward)
     }
 
+    // MARK: DevTools Protocol (Agentic Browsing)
+
+    /// Callback for DevTools protocol responses. Set before calling
+    /// registerDevToolsHandler() to receive CDP events and method results.
+    public var onDevToolsMessage: ((String) -> Void)?
+
+    private var devToolsObserverPtr: UnsafeMutablePointer<cef_dev_tools_message_observer_t>?
+    private var devToolsRegistration: UnsafeMutablePointer<cef_registration_t>?
+
     func handleBeforeClose() {
         delegate?.browserDidClose(self)
         if let raw {
@@ -562,6 +571,54 @@ extension CefBrowser {
     /// Cancels the current composition.
     public func imeCancelComposition() {
         withHostInternal { $0.pointee.ime_cancel_composition?($0) }
+    }
+
+    // MARK: DevTools Protocol (Agentic Browsing)
+
+    /// Sends a CDP message to this browser. Responses arrive asynchronously
+    /// via onDevToolsMessage after registerDevToolsHandler() is called.
+    public func sendDevToolsMessage(_ json: String) {
+        withHost { host in
+            guard let data = json.data(using: .utf8) else { return }
+            data.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) in
+                _ = host.pointee.send_dev_tools_message?(
+                    host, buffer.baseAddress, buffer.count)
+            }
+        }
+    }
+
+    /// Creates and registers a DevTools message observer. Safe to call
+    /// repeatedly (no-ops when already registered). Responses arrive via
+    /// onDevToolsMessage. Call unregisterDevToolsHandler() to tear down.
+    public func registerDevToolsHandler() {
+        guard devToolsObserverPtr == nil else { return }
+        let observer = cefAllocate(cef_dev_tools_message_observer_t.self, owner: self)
+        observer.pointee.on_dev_tools_message = { rawObserver, _, rawMessage, messageSize in
+            guard let browser = cefOwner(CefBrowser.self, UnsafeMutableRawPointer(rawObserver)),
+                  let messagePtr = rawMessage else { return 1 }
+            let data = Data(bytes: messagePtr, count: messageSize)
+            if let json = String(data: data, encoding: .utf8) {
+                browser.onDevToolsMessage?(json)
+            }
+            return 1  // handled
+        }
+        devToolsObserverPtr = observer
+        withHost { host in
+            devToolsRegistration = host.pointee.add_dev_tools_message_observer?(host, observer)
+        }
+    }
+
+    /// Unregisters the DevTools observer and releases its resources.
+    /// Safe to call when no observer is registered (no-op).
+    public func unregisterDevToolsHandler() {
+        if let reg = devToolsRegistration {
+            cefRelease(UnsafeMutableRawPointer(reg))
+            devToolsRegistration = nil
+        }
+        if let obs = devToolsObserverPtr {
+            cefRelease(UnsafeMutableRawPointer(obs))
+            devToolsObserverPtr = nil
+        }
     }
 
     // MARK: Accessibility
