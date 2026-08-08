@@ -75,4 +75,12 @@ struct HiveReadinessTests {
         let report = HiveReadinessReport(appInitialized: true, browserShellReady: true, message: "custom msg")
         #expect(report.markerLine().contains("custom msg"))
     }
+
+    @Test("marker line always starts with HIVE_READINESS")
+    func markerHasPrefix() {
+        let pass = HiveReadinessReport(appInitialized: true, browserShellReady: true, message: "ok")
+        let fail = HiveReadinessReport(appInitialized: false, browserShellReady: false, message: "nope")
+        #expect(pass.markerLine().hasPrefix("HIVE_READINESS_PASS"))
+        #expect(fail.markerLine().hasPrefix("HIVE_READINESS_FAIL"))
+    }
 }

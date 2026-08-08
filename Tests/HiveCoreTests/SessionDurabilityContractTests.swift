@@ -97,4 +97,8 @@ private extension JSONDecoder {
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }()
+
+    @Test func schemaVersionIsPositive() throws {
+        #expect(BrowserSession.currentSchemaVersion > 0)
+    }
 }
