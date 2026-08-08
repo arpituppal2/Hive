@@ -405,6 +405,16 @@
     tab.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
     try { e.dataTransfer.setData('text/plain', dragID); } catch (err) {}
+    // Tab peek thumbnail — create a ghost image of the dragged tab
+    var ghost = tab.cloneNode(true);
+    ghost.style.position = 'absolute';
+    ghost.style.top = '-9999px';
+    ghost.style.opacity = '0.85';
+    ghost.style.width = tab.offsetWidth + 'px';
+    ghost.style.transform = 'scale(0.95)';
+    document.body.appendChild(ghost);
+    e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, ghost.offsetHeight / 2);
+    requestAnimationFrame(function () { document.body.removeChild(ghost); });
   });
   $('tabList').addEventListener('dragend', function (e) {
     var tab = e.target.closest('.tab');
