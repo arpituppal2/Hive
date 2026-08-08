@@ -1285,6 +1285,31 @@
 
   /* ================= boot ================= */
 
+
+  /* ══ Zen workspace swipe — ctrl+wheel cycles workspaces ══ */
+  (function () {
+    var swipeTimer = null;
+    var SWIPE_COOLDOWN = 300;
+    document.addEventListener('wheel', function (e) {
+      if (!e.ctrlKey && !e.metaKey) return;
+      if (swipeTimer) return;
+      e.preventDefault();
+      var dir = e.deltaY > 0 ? 1 : -1;
+      var spaces = state.spaces || [];
+      if (spaces.length < 2) return;
+      var cur = state.activeTabID ? (state.tabs.find(function(t){return t.id===state.activeTabID;}) || {}).workspaceID : null;
+      var idx = spaces.findIndex(function(s){return s.id===cur;});
+      if (idx < 0) idx = 0;
+      var nextIdx = (idx + dir + spaces.length) % spaces.length;
+      var next = spaces[nextIdx];
+      if (!next) return;
+      document.body.dataset.workspaceSwitching = 'true';
+      setTimeout(function(){ delete document.body.dataset.workspaceSwitching; }, 250);
+      api('hive.switchWorkspace', { id: next.id });
+      swipeTimer = setTimeout(function(){ swipeTimer = null; }, SWIPE_COOLDOWN);
+    }, { passive: false });
+  })();
+
   function boot() {
     if (IS_CHROME) {
       chromeEl.hidden = false;

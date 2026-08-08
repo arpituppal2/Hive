@@ -64,11 +64,15 @@ final class AdblockEngine: @unchecked Sendable {
     private typealias DestroyFn = @convention(c) () -> Void
     private typealias AddFiltersFn = @convention(c) (UnsafePointer<CChar>) -> Int32
     private typealias CheckURLFn = @convention(c) (UnsafePointer<CChar>, UnsafePointer<CChar>, UnsafePointer<CChar>) -> Int32
+    private typealias CosmeticSelectorsFn = @convention(c) (UnsafePointer<CChar>) -> UnsafeMutablePointer<CChar>?
+    private typealias FreeStringFn = @convention(c) (UnsafeMutablePointer<CChar>?) -> Void
 
     private var engineCreate: CreateFn?
     private var engineDestroy: DestroyFn?
     private var engineAddFilters: AddFiltersFn?
     private var engineCheckURL: CheckURLFn?
+    private var engineCosmeticSelectors: CosmeticSelectorsFn?
+    private var engineFreeString: FreeStringFn?
 
     private var dylibHandle: UnsafeMutableRawPointer?
 
@@ -110,13 +114,19 @@ final class AdblockEngine: @unchecked Sendable {
 
     /// Returns CSS selectors for cosmetic filtering (Brave-aligned).
     /// Called by the renderer to hide ad elements without blocking the page.
+    /// Wired to adblock-rust's url_cosmetic_resources via FFI (returns JSON array).
     func cosmeticSelectors(for url: URL) -> [String] {
-        guard let host = url.host else { return [] }
-        // PLACEHOLDER — wire real adblock-rust cosmetic filtering before production.
-        // Hardcoded selectors risk false positives on legitimate page elements.
-        // The adblock-rust engine supports hidden_class_id_selectors via FFI.
-        _ = host
-        return []
+        guard isReady, let cosmeticFn = engineCosmeticSelectors, let freeFn = engineFreeString else {
+            return []
+        }
+        let urlStr = url.absoluteString
+        guard let cResult = urlStr.withCString({ cosmeticFn($0) }) else { return [] }
+        defer { freeFn(cResult) }
+        guard let json = String(cString: cResult, encoding: .utf8),
+              let data = json.data(using: .utf8),
+              let selectors = try? JSONDecoder().decode([String].self, from: data)
+        else { return [] }
+        return selectors
     }
 
     /// Returns CSP directives to inject for a URL (Brave-aligned).
@@ -146,6 +156,8 @@ final class AdblockEngine: @unchecked Sendable {
         engineDestroy = dlsym_safe(handle, "engine_destroy")
         engineAddFilters = dlsym_safe(handle, "engine_add_filters")
         engineCheckURL = dlsym_safe(handle, "engine_check_url")
+        engineCosmeticSelectors = dlsym_safe(handle, "engine_cosmetic_selectors")
+        engineFreeString = dlsym_safe(handle, "engine_free_string")
 
         return engineCreate != nil && engineCheckURL != nil
     }
