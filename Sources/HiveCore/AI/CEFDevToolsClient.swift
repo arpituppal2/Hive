@@ -32,6 +32,7 @@ public struct AgentTab: Sendable, Identifiable {
 /// All methods are @MainActor since they touch CEF state.
 @MainActor
 public final class CDPClient {
+    public init() {}
     private var nextID = 1
     @preconcurrency private var pending: [Int: CheckedContinuation<[String: Any], Error>] = [:]
     private var sendRaw: (String) -> Void = { json in
@@ -87,8 +88,8 @@ public final class CDPClient {
 
     // MARK: Navigation
 
-    public func navigate(url: String) async throws -> [String: Any] {
-        try await send(method: "Page.navigate", params: ["url": url])
+    public func navigate(url: String) async throws {
+        _ = try await send(method: "Page.navigate", params: ["url": url])
     }
 
     public func reload() async throws {
@@ -261,13 +262,13 @@ public final class CDPClient {
 
     // MARK: Evaluate
 
-    public func evaluate(expression: String) async throws -> Any? {
+    public func evaluate(expression: String) async throws -> String {
         let result = try await send(method: "Runtime.evaluate", params: [
             "expression": expression,
             "returnByValue": true
         ])
-        guard let inner = result["result"] as? [String: Any] else { return nil }
-        return inner["value"]
+        guard let inner = result["result"] as? [String: Any] else { return "" }
+        return String(describing: inner["value"] ?? "")
     }
 
     // MARK: Grep — Search page content
@@ -289,7 +290,12 @@ public final class CDPClient {
         })()
         """
         let result = try await evaluate(expression: script)
-        return (result as? [String]) ?? []
+        // Parse JSON array from evaluate result
+        if let data = result.data(using: .utf8),
+           let arr = try? JSONSerialization.jsonObject(with: data) as? [String] {
+            return arr
+        }
+        return result.components(separatedBy: "\n").filter { !$0.isEmpty }
     }
 
     // MARK: Wait

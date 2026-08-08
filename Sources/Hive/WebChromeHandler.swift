@@ -221,6 +221,73 @@ struct WebChromeMoveTabGroupRequest: Codable, Sendable {
     let groupID: String
 }
 
+// MARK: - Agent Tool Request Types (Astro-aligned CDP bridge)
+
+struct WebChromeAgentNavigate: Codable, Sendable {
+    let token: String
+    let url: String
+}
+
+struct WebChromeAgentClick: Codable, Sendable {
+    let token: String
+    let ref: String?
+    let selector: String?
+}
+
+struct WebChromeAgentFill: Codable, Sendable {
+    let token: String
+    let selector: String
+    let value: String
+}
+
+struct WebChromeAgentType: Codable, Sendable {
+    let token: String
+    let text: String?
+    let key: String?
+}
+
+struct WebChromeAgentScroll: Codable, Sendable {
+    let token: String
+    let direction: String?
+    let amount: Int?
+}
+
+struct WebChromeAgentWait: Codable, Sendable {
+    let token: String
+    let ms: Int?
+}
+
+struct WebChromeAgentQuery: Codable, Sendable {
+    let token: String
+    let query: String
+    let format: String?
+}
+
+struct WebChromeAgentEvaluate: Codable, Sendable {
+    let token: String
+    let expression: String
+}
+
+struct WebChromeAgentSnapshotResult: Codable, Sendable {
+    let nodes: [WebChromeAXNode]
+    let count: Int
+}
+
+struct WebChromeAXNode: Codable, Sendable {
+    let ref: String
+    let role: String
+    let name: String?
+    let value: String?
+}
+
+struct WebChromeAgentGrepResult: Codable, Sendable {
+    let matches: [String]
+}
+
+struct WebChromeAgentScreenshotResult: Codable, Sendable {
+    let base64: String
+}
+
 struct WebChromeTextRequest: Codable, Sendable {
     let token: String
     let text: String
@@ -847,6 +914,83 @@ enum WebChromeBridge {
             try Self.authorize(request.token)
             let groupID = request.groupID.isEmpty ? nil : UUID(uuidString: request.groupID)
             await MainActor.run { state.moveTabToGroup(tabID: request.tabID, groupID: groupID) }
+            return true
+        }
+
+        // MARK: Agent Tools — CDP bridge for AI-driven browsing (Astro-aligned)
+
+        bridge.register("hive.agent.navigate") { (request: WebChromeAgentNavigate) async throws -> Bool in
+            try Self.authorize(request.token)
+            _ = try await state.cdpClient.navigate(url: request.url)
+            return true
+        }
+
+        bridge.register("hive.agent.snapshot") { (request: WebChromeToken) async throws -> WebChromeAgentSnapshotResult in
+            try Self.authorize(request.token)
+            let nodes = try await state.cdpClient.snapshot()
+            return WebChromeAgentSnapshotResult(
+                nodes: nodes.map { WebChromeAXNode(ref: $0.ref, role: $0.role, name: $0.name, value: $0.value) },
+                count: nodes.count
+            )
+        }
+
+        bridge.register("hive.agent.read") { (request: WebChromeAgentQuery) async throws -> String in
+            try Self.authorize(request.token)
+            return try await state.cdpClient.readPage(format: request.format ?? "text")
+        }
+
+        bridge.register("hive.agent.click") { (request: WebChromeAgentClick) async throws -> Bool in
+            try Self.authorize(request.token)
+            try await state.cdpClient.click(ref: request.ref, selector: request.selector)
+            return true
+        }
+
+        bridge.register("hive.agent.fill") { (request: WebChromeAgentFill) async throws -> Bool in
+            try Self.authorize(request.token)
+            try await state.cdpClient.fill(selector: request.selector, value: request.value)
+            return true
+        }
+
+        bridge.register("hive.agent.type") { (request: WebChromeAgentType) async throws -> Bool in
+            try Self.authorize(request.token)
+            if let text = request.text { try await state.cdpClient.type(text: text) }
+            else if let key = request.key { try await state.cdpClient.press(key: key) }
+            return true
+        }
+
+        bridge.register("hive.agent.scroll") { (request: WebChromeAgentScroll) async throws -> Bool in
+            try Self.authorize(request.token)
+            try await state.cdpClient.scroll(direction: request.direction ?? "down", amount: request.amount ?? 300)
+            return true
+        }
+
+        bridge.register("hive.agent.evaluate") { (request: WebChromeAgentEvaluate) async throws -> String in
+            try Self.authorize(request.token)
+            let result = try await state.cdpClient.evaluate(expression: request.expression)
+            return String(describing: result ?? "undefined")
+        }
+
+        bridge.register("hive.agent.grep") { (request: WebChromeAgentQuery) async throws -> WebChromeAgentGrepResult in
+            try Self.authorize(request.token)
+            let matches = try await state.cdpClient.grep(query: request.query)
+            return WebChromeAgentGrepResult(matches: matches)
+        }
+
+        bridge.register("hive.agent.screenshot") { (request: WebChromeToken) async throws -> WebChromeAgentScreenshotResult in
+            try Self.authorize(request.token)
+            let data = try await state.cdpClient.captureScreenshot()
+            return WebChromeAgentScreenshotResult(base64: data?.base64EncodedString() ?? "")
+        }
+
+        bridge.register("hive.agent.wait") { (request: WebChromeAgentWait) async throws -> Bool in
+            try Self.authorize(request.token)
+            try await state.cdpClient.wait(ms: request.ms ?? 1000)
+            return true
+        }
+
+        bridge.register("hive.agent.reload") { (request: WebChromeToken) async throws -> Bool in
+            try Self.authorize(request.token)
+            try await state.cdpClient.reload()
             return true
         }
     }

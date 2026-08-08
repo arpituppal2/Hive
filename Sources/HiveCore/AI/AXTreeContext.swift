@@ -14,15 +14,15 @@ import Foundation
 // MARK: - AXTree Node
 
 /// A simplified accessibility node suitable for LLM consumption.
-public struct AXNode: Sendable, Codable {
+public struct AXNode: Sendable, Codable, @unchecked Sendable {
     /// Reference ID for element targeting (e.g., "ref_42")
-    let ref: String
+    public let ref: String
     /// ARIA role or inferred role (button, link, textbox, heading, etc.)
-    let role: String
+    public let role: String
     /// Accessible name (button label, link text, heading content)
-    let name: String?
+    public let name: String?
     /// Accessible value (text field content, slider value)
-    let value: String?
+    public let value: String?
     /// Accessible description (tooltip, aria-description)
     let desc: String?
     /// Bounding box in viewport coordinates: [x, y, width, height]

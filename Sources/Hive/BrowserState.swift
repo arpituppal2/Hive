@@ -1157,6 +1157,10 @@ final class BrowserState {
     /// Parallel multi-model council for AI queries. Set in init() after setupDefaults().
     private var modelCouncil: ModelCouncil?
 
+    /// CDP client for agentic browsing (Astro-aligned). Wired to CEF's
+    /// sendDevToolsMessage via wireSend. The AI uses this to drive the browser.
+    @MainActor private(set) var cdpClient = CDPClient()
+
     /// Latest council verdict — observed by GeminiSidePanel for display.
     private(set) var latestCouncilVerdict: CouncilVerdict? = nil
     /// True while a council is convened and deliberating.
