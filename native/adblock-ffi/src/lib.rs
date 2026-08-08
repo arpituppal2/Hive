@@ -13,6 +13,7 @@ use std::ffi::CStr;
 use std::os::raw::c_char;
 
 use adblock::Engine;
+use adblock::lists::FilterSet;
 use adblock::request::Request;
 
 thread_local! {
@@ -24,7 +25,8 @@ pub extern "C" fn engine_create() -> i32 {
     ENGINE.with(|cell| {
         let mut guard = cell.borrow_mut();
         if guard.is_some() { return -1; }
-        *guard = Some(Engine::new(true));
+        let filter_set = FilterSet::new(true);
+        *guard = Some(Engine::new_with_filter_set(filter_set));
         0
     })
 }
@@ -86,11 +88,11 @@ pub extern "C" fn engine_check_url(
             _ => "other",
         };
 
-        let request = match Request::new(url_str, source_str, type_str) {
+        let request = match Request::new(url_str, source_str, type_str, "") {
             Ok(r) => r,
             Err(_) => return -1,
         };
 
-        if engine.check_network_request(&request).matched { 1 } else { 0 }
+        if engine.check_network_request(&request).should_block() { 1 } else { 0 }
     })
 }

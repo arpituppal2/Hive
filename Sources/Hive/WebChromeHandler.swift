@@ -72,16 +72,42 @@ struct HiveSchemeHandler: CefSchemeHandler {
         case "/assets/index-BY6JzNer.css":
             return CefSchemeResponse(status: 200, mimeType: "text/css", body: Data(WebChromeAssets.polarCSS.utf8))
         case "/assets/index-QWD3Wno1.js":
-            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.polarAppJS.utf8))
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(base64Encoded: WebChromeAssets.polarAppJSBase64) ?? Data())
         case "/assets/agentSurface-TavgROI7.js":
-            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.polarAgentSurfaceJS.utf8))
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(base64Encoded: WebChromeAssets.polarAgentSurfaceJSBase64) ?? Data())
         case "/assets/CommandPanelPage-CQPc9sFE.js":
-            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.polarCommandPanelJS.utf8))
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(base64Encoded: WebChromeAssets.polarCommandPanelJSBase64) ?? Data())
         case "/assets/ModalAgentAppPage-DT0g5KTd.js":
-            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.polarModalJS.utf8))
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(base64Encoded: WebChromeAssets.polarModalJSBase64) ?? Data())
         case "/assets/WindowAgentAppPage-CzJKotYB.js":
-            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(WebChromeAssets.polarWindowJS.utf8))
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(base64Encoded: WebChromeAssets.polarWindowJSBase64) ?? Data())
+        // Extended Polar assets (docx, mermaid, xlsx renderers, highlighted body, referral cards)
+        case "/assets/docx-preview-ChFBTZoq.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(base64Encoded: WebChromeAssets.polarDocxJSBase64) ?? Data())
+        case "/assets/mermaid-GHXKKRXX-D0lw7t8a.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(base64Encoded: WebChromeAssets.polarMermaidJSBase64) ?? Data())
+        case "/assets/xlsx-CkFp8p6R.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(base64Encoded: WebChromeAssets.polarXlsxJSBase64) ?? Data())
+        case "/assets/highlighted-body-OFNGDK62-BsqO-kRD.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(base64Encoded: WebChromeAssets.polarHighlightedBodyJSBase64) ?? Data())
+        case "/assets/ReferralCardPreviewPage-CDEMiD_U.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(base64Encoded: WebChromeAssets.polarReferralCardJSBase64) ?? Data())
+        case "/assets/ReferralMilestoneCard-DwOWE_LT.js":
+            return CefSchemeResponse(status: 200, mimeType: "application/javascript", body: Data(base64Encoded: WebChromeAssets.polarReferralMilestoneJSBase64) ?? Data())
+        case "/assets/invite-envelope-n37wvGqS.png":
+            if let data = Data(base64Encoded: WebChromeAssets.polarInvitePNGBase64) {
+                return CefSchemeResponse(status: 200, mimeType: "image/png", body: data)
+            }
+            return .notFound("Corrupt invite envelope PNG")
         default:
+            // KaTeX fonts served from fontBase64 (e.g. /assets/KaTeX_Main-Regular-B22Nviop.woff2)
+            if assetPath.hasPrefix("/assets/KaTeX_") {
+                let fontName = "polar" + assetPath.replacingOccurrences(of: "/assets/", with: "/")
+                if let (base64, mime) = WebChromeAssets.fontBase64[fontName],
+                   let data = Data(base64Encoded: base64) {
+                    return CefSchemeResponse(status: 200, mimeType: mime, body: data)
+                }
+            }
             return .notFound("No such Polar asset: \(assetPath)")
         }
     }
@@ -112,9 +138,9 @@ struct HiveSchemeHandler: CefSchemeHandler {
         default:
             if path.hasPrefix("/fonts/") {
                 let fontName = path.replacingOccurrences(of: "/fonts/", with: "")
-                if let base64 = WebChromeAssets.fontBase64[fontName],
+                if let (base64, mime) = WebChromeAssets.fontBase64[fontName],
                    let data = Data(base64Encoded: base64) {
-                    return CefSchemeResponse(status: 200, mimeType: "font/woff2", body: data)
+                    return CefSchemeResponse(status: 200, mimeType: mime, body: data)
                 }
             }
             return .notFound("No such asset: \(path)")
