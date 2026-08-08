@@ -3620,23 +3620,36 @@ final class BrowserState {
         // Cancel any in-flight deep research before starting a new one
         deepResearchTask?.cancel()
 
+        let planner = self.deepResearchPlanner ?? {
+            let p = DeepResearchPlanner(dispatcher: .shared)
+            self.deepResearchPlanner = p
+            return p
+        }()
+        let stream = planner.streamResearch(question: trimmed)
+
         deepResearchTask = Task { [weak self] in
             defer { self?.finishResponse(responseID) }
             guard let self else { return }
 
-            let planner = self.deepResearchPlanner ?? DeepResearchPlanner(
-                dispatcher: .shared,
-                onProgress: { [weak self] step in
-                    Task { @MainActor [weak self] in
-                        self?.deepResearchStep = step
-                    }
+            var brief: ResearchBrief?
+            for await step in stream {
+                if Task.isCancelled { break }
+                self.deepResearchStep = step
+                if case .complete(let b) = step {
+                    brief = b
                 }
-            )
+            }
 
-            do {
-                let brief = try await planner.research(question: trimmed)
-                guard self.responseIsCurrent(responseID), !Task.isCancelled else { return }
+            guard self.responseIsCurrent(responseID) else { return }
 
+            if Task.isCancelled {
+                self.replaceMessage(id: placeholder.id, text: "Deep research cancelled.")
+                self.lastGeminiProvider = "error"
+                self.deepResearchStep = nil
+                return
+            }
+
+            if let brief {
                 let markdown = brief.toMarkdown()
                 self.lastGeminiProvider = "deep-research"
                 self.lastContextDiagnostics = ContextDiagnostics(
@@ -3650,13 +3663,8 @@ final class BrowserState {
                 )
                 self.replaceMessage(id: placeholder.id, text: markdown)
                 self.deepResearchStep = .complete(brief)
-            } catch {
-                guard self.responseIsCurrent(responseID) else { return }
-                if Task.isCancelled {
-                    self.replaceMessage(id: placeholder.id, text: "Deep research cancelled.")
-                } else {
-                    self.replaceMessage(id: placeholder.id, text: "Deep research failed: \(error.localizedDescription)")
-                }
+            } else {
+                self.replaceMessage(id: placeholder.id, text: "Deep research failed.")
                 self.lastGeminiProvider = "error"
                 self.deepResearchStep = nil
             }

@@ -116,10 +116,12 @@ public struct ResearchBrief: Sendable {
 // MARK: - Research Step
 
 /// Represents one step in the research pipeline for progress tracking.
+/// Live data fields (latestQuery, latestSource) allow the UI to show
+/// what's happening right now — not just a phase label.
 public enum ResearchStep: Sendable {
     case planning
-    case searching(completedQueries: Int, totalQueries: Int)
-    case reading(completedSources: Int, totalSources: Int)
+    case searching(completedQueries: Int, totalQueries: Int, latestQuery: String? = nil)
+    case reading(completedSources: Int, totalSources: Int, latestSource: String? = nil)
     case synthesizing
     case refining
     case complete(ResearchBrief)
@@ -127,8 +129,8 @@ public enum ResearchStep: Sendable {
     public var progress: Double {
         switch self {
         case .planning: return 0.05
-        case .searching(let done, let total): return 0.05 + 0.3 * Double(done) / Double(max(total, 1))
-        case .reading(let done, let total): return 0.35 + 0.3 * Double(done) / Double(max(total, 1))
+        case .searching(let done, let total, _): return 0.05 + 0.3 * Double(done) / Double(max(total, 1))
+        case .reading(let done, let total, _): return 0.35 + 0.3 * Double(done) / Double(max(total, 1))
         case .synthesizing: return 0.7
         case .refining: return 0.85
         case .complete: return 1.0
@@ -138,11 +140,24 @@ public enum ResearchStep: Sendable {
     public var label: String {
         switch self {
         case .planning: return "Planning research..."
-        case .searching(let done, let total): return "Searching (\(done)/\(total))..."
-        case .reading(let done, let total): return "Reading sources (\(done)/\(total))..."
+        case .searching(let done, let total, let query):
+            if let q = query, !q.isEmpty { return "Searching: \"\(q)\" (\(done)/\(total))" }
+            return "Searching (\(done)/\(total))..."
+        case .reading(let done, let total, let source):
+            if let s = source, !s.isEmpty { return "Reading: \(s) (\(done)/\(total))" }
+            return "Reading sources (\(done)/\(total))..."
         case .synthesizing: return "Synthesizing findings..."
         case .refining: return "Refining results..."
         case .complete: return "Complete"
+        }
+    }
+    
+    /// A concise live-data string for the UI to show what's happening right now.
+    public var liveDetail: String? {
+        switch self {
+        case .searching(_, _, let query): return query
+        case .reading(_, _, let source): return source
+        default: return nil
         }
     }
 }
@@ -171,10 +186,10 @@ public final class DeepResearchPlanner {
         onProgress?(.planning)
         let plan = try await planResearch(question: question, maxSources: maxSources)
 
-        // Step 2: Search — execute sub-queries in parallel
+        // Step 2: Search — execute sub-queries in parallel, fire progress per result
         let sources = try await executeSearches(plan.subQueries, maxSources: plan.maxSources)
 
-        // Step 3: Read — fetch full text of top sources
+        // Step 3: Read — fetch full text of top sources, fire progress per source
         onProgress?(.reading(completedSources: 0, totalSources: min(sources.count, plan.maxSources)))
         let topSources = Array(sources.prefix(plan.maxSources))
         let readSources = try await readSources(topSources)
@@ -204,6 +219,93 @@ public final class DeepResearchPlanner {
 
         onProgress?(.complete(brief))
         return brief
+    }
+
+    // MARK: Streaming API
+
+    /// Streaming variant: yields ``ResearchStep`` events as the pipeline
+    /// progresses. Supports cancellation via the consuming Task.
+    /// The UI receives richer step data — sub-query strings during search,
+    /// source titles during reading — giving live visibility into each phase.
+    public func streamResearch(question: String, maxSources: Int = 15) -> AsyncStream<ResearchStep> {
+        AsyncStream { continuation in
+            let task = Task {
+                let startTime = Date()
+
+                // Step 1: Plan
+                continuation.yield(.planning)
+                let plan: ResearchPlan
+                do {
+                    plan = try await planResearch(question: question, maxSources: maxSources)
+                } catch {
+                    continuation.finish()
+                    return
+                }
+
+                // Step 2: Search — yield per-query results with live query strings
+                let sources: [ResearchSource]
+                do {
+                    sources = try await executeSearchesStreaming(plan.subQueries, maxSources: plan.maxSources) { step in
+                        continuation.yield(step)
+                    }
+                } catch {
+                    continuation.finish()
+                    return
+                }
+
+                // Step 3: Read — fetch full text of top sources, yield per source
+                let topSources = Array(sources.prefix(plan.maxSources))
+                let readSources: [ResearchSource]
+                do {
+                    readSources = try await readSourcesStreaming(topSources) { step in
+                        continuation.yield(step)
+                    }
+                } catch {
+                    continuation.finish()
+                    return
+                }
+
+                // Step 4: Synthesize
+                continuation.yield(.synthesizing)
+                let findings: [ResearchFinding]
+                do {
+                    findings = try await synthesize(question: question, sources: readSources, plan: plan)
+                } catch {
+                    continuation.finish()
+                    return
+                }
+
+                // Step 5: Refine (optional)
+                var wasRefined = false
+                var finalFindings = findings
+                if plan.refineResults, findings.count >= 2 {
+                    continuation.yield(.refining)
+                    do {
+                        finalFindings = try await refine(findings: findings, question: question, sources: readSources)
+                        wasRefined = true
+                    } catch {
+                        // Refinement failed — keep original findings
+                    }
+                }
+
+                let brief = ResearchBrief(
+                    question: question,
+                    tableOfContents: finalFindings.map { $0.aspect },
+                    findings: finalFindings,
+                    sources: readSources,
+                    unusedSources: Array(sources.dropFirst(plan.maxSources)),
+                    duration: Date().timeIntervalSince(startTime),
+                    wasRefined: wasRefined
+                )
+
+                continuation.yield(.complete(brief))
+                continuation.finish()
+            }
+
+            continuation.onTermination = { @Sendable _ in
+                task.cancel()
+            }
+        }
     }
 
     // MARK: Private
@@ -242,23 +344,39 @@ public final class DeepResearchPlanner {
     }
 
     /// Execute all sub-queries in parallel, deduplicating results.
+    /// Delegates to the streaming variant, routing progress through onProgress.
     private func executeSearches(_ queries: [ResearchQuery], maxSources: Int) async throws -> [ResearchSource] {
-        // Execute searches in parallel
-        let allResults = try await withThrowingTaskGroup(of: [ResearchSource].self) { group in
-            for query in queries {
+        try await executeSearchesStreaming(queries, maxSources: maxSources) { [weak self] step in
+            self?.onProgress?(step)
+        }
+    }
+
+    /// Streaming variant of executeSearches — yields progress per query result
+    /// via the provided callback instead of internal onProgress.
+    private func executeSearchesStreaming(
+        _ queries: [ResearchQuery],
+        maxSources: Int,
+        yield: (ResearchStep) -> Void
+    ) async throws -> [ResearchSource] {
+        let allResults = try await withThrowingTaskGroup(of: (query: String, sources: [ResearchSource]).self) { group in
+            for q in queries {
+                let queryStr = q.query
                 group.addTask {
-                    try await self.searchSingle(query: query.query, sourceQueryID: query.id)
+                    let srcs = try await self.searchSingle(query: queryStr, sourceQueryID: q.id)
+                    return (queryStr, srcs)
                 }
             }
 
+            var completed = 0
             var results: [ResearchSource] = []
-            for try await batch in group {
+            for try await (queryStr, batch) in group {
+                completed += 1
                 results.append(contentsOf: batch)
+                yield(.searching(completedQueries: completed, totalQueries: queries.count, latestQuery: queryStr))
             }
             return results
         }
 
-        // Deduplicate by URL, sort by relevance, cap at maxSources
         var seen = Set<String>()
         let deduped = allResults.filter { source in
             let key = source.url.absoluteString
@@ -266,7 +384,6 @@ public final class DeepResearchPlanner {
             seen.insert(key)
             return true
         }
-
         return deduped.sorted { $0.relevance > $1.relevance }
     }
 
@@ -290,10 +407,21 @@ public final class DeepResearchPlanner {
 
     /// Read full text of sources via URLSession fetch with basic HTML-to-text extraction.
     /// Falls back to snippet when fetch fails or times out.
+    /// Delegates to the streaming variant, routing progress through onProgress.
     private func readSources(_ sources: [ResearchSource]) async throws -> [ResearchSource] {
+        try await readSourcesStreaming(sources) { [weak self] step in
+            self?.onProgress?(step)
+        }
+    }
+
+    /// Streaming variant of readSources — yields progress per source via callback.
+    private func readSourcesStreaming(
+        _ sources: [ResearchSource],
+        yield: (ResearchStep) -> Void
+    ) async throws -> [ResearchSource] {
         var enriched: [ResearchSource] = []
         for (i, var source) in sources.enumerated() {
-            onProgress?(.reading(completedSources: i, totalSources: sources.count))
+            yield(.reading(completedSources: i, totalSources: sources.count, latestSource: source.title))
             do {
                 let text = try await fetchPageText(url: source.url)
                 if let text, !text.isEmpty {

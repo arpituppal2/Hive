@@ -802,13 +802,22 @@ struct GeminiSidePanel: View {
                     }
 
                     HStack(spacing: 6) {
-                        Image(systemName: "magnifyingglass.circle.fill")
+                        Image(systemName: deepResearchIcon(for: step))
                             .font(HiveDesign.Typography.captionSemiBold)
                             .foregroundStyle(Color.hiveAccent)
                             .symbolEffect(.pulse, options: .repeating)
-                        Text(step.label)
-                            .font(HiveDesign.Typography.captionSemiBold)
-                            .foregroundStyle(.primary)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(step.label)
+                                .font(HiveDesign.Typography.captionSemiBold)
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+                            if let detail = step.liveDetail, !detail.isEmpty {
+                                Text(detail)
+                                    .font(HiveDesign.Typography.monoMicro)
+                                    .foregroundStyle(.tertiary)
+                                    .lineLimit(1)
+                            }
+                        }
                         Spacer()
                         Button(action: { state.cancelDeepResearch() }) {
                             Image(systemName: "xmark.circle.fill")
@@ -830,6 +839,18 @@ struct GeminiSidePanel: View {
                     Rectangle().fill(Color.white.opacity(0.04)).frame(height: 1)
                 }
             }
+        }
+    }
+
+    /// Icon matching the current research phase.
+    private func deepResearchIcon(for step: ResearchStep) -> String {
+        switch step {
+        case .planning: return "text.magnifyingglass"
+        case .searching: return "magnifyingglass.circle.fill"
+        case .reading: return "book.pages.fill"
+        case .synthesizing: return "arrow.triangle.merge"
+        case .refining: return "arrow.triangle.capsulepath"
+        case .complete: return "checkmark.seal.fill"
         }
     }
 
