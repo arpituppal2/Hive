@@ -144,6 +144,18 @@ REQUIREMENT="$RESOURCE_BUNDLE/Contents/Resources/ResearchWorker/hive-worker-requ
 [[ -x "$WORKER" ]] || fail "missing or non-executable embedded research worker"
 [[ -f "$REQUIREMENT" ]] || fail "missing embedded worker requirement"
 
+# Adblock native engine (optional — warn if missing, don't fail)
+ADBLOCK_DYLIB="$FRAMEWORKS/libhive_adblock_ffi.dylib"
+if [[ -f "$ADBLOCK_DYLIB" ]]; then
+  printf '  adblock engine: present
+'
+  codesign --verify --strict "$ADBLOCK_DYLIB" >/dev/null 2>&1 || printf '  WARNING: adblock dylib signature invalid
+'
+else
+  printf '  WARNING: adblock engine not staged — falling back to EasyList
+'
+fi
+
 verify_signature() {
   local path="$1"
   codesign --verify --strict "$path" >/dev/null 2>&1 || fail "invalid signature: $path"

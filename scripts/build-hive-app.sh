@@ -171,6 +171,19 @@ REQUIREMENT_PATH="$RESOURCE_DEST/Contents/Resources/ResearchWorker/hive-worker-r
 [[ -x "$WORKER_PATH" ]] || fail "embedded research worker is missing or not executable"
 [[ -f "$REQUIREMENT_PATH" ]] || fail "embedded worker requirement is missing"
 
+printf '%s\n' '==> Staging adblock-ffi native engine'
+ADBLOCK_DYLIB="$ROOT_DIR/native/adblock-ffi/target/release/libhive_adblock_ffi.dylib"
+if [[ -f "$ADBLOCK_DYLIB" ]]; then
+  ADBLOCK_DEST="$APP_PATH/Contents/Frameworks/libhive_adblock_ffi.dylib"
+  ditto "$ADBLOCK_DYLIB" "$ADBLOCK_DEST"
+  printf '  adblock engine staged: %s\n' "$ADBLOCK_DEST"
+else
+  printf '  adblock dylib not found at %s — building now...\n' "$ADBLOCK_DYLIB"
+  (cd "$ROOT_DIR/native/adblock-ffi" && cargo build --release) || fail 'adblock-ffi cargo build failed'
+  ditto "$ADBLOCK_DYLIB" "$APP_PATH/Contents/Frameworks/libhive_adblock_ffi.dylib"
+  printf '  adblock engine built and staged\n'
+fi
+
 printf '%s\n' '==> Signing embedded worker, CEF nested code, SwiftPM resources, and outer app'
 sign_path() {
   local path="$1"
@@ -216,6 +229,11 @@ done
 # The worker and resource bundle do not need CEF's JIT/library-validation
 # exceptions; keep their signatures least-privilege.
 sign_plain_path "$WORKER_PATH" --identifier com.hive.browser.research-worker --sign "$SIGNING_IDENTITY"
+# Adblock engine — same least-privilege signature as the worker
+ADBLOCK_DYLIB_DEST="$APP_PATH/Contents/Frameworks/libhive_adblock_ffi.dylib"
+if [[ -f "$ADBLOCK_DYLIB_DEST" ]]; then
+  sign_plain_path "$ADBLOCK_DYLIB_DEST" --identifier com.hive.browser.adblock --sign "$SIGNING_IDENTITY"
+fi
 sign_plain_path "$RESOURCE_DEST" --sign "$SIGNING_IDENTITY"
 sign_path "$APP_PATH/Contents/MacOS/Hive" --sign "$SIGNING_IDENTITY"
 sign_path "$APP_PATH" --sign "$SIGNING_IDENTITY"

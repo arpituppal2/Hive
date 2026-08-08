@@ -161,3 +161,54 @@
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   Zen-Derived Theme Layer — auto-generated accent color variants,
+   compact-mode animation curves, branded surface colors.
+   Adapted from Zen Browser's zen-theme.css (MPL-2.0).
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Brand surfaces (Zen dark/paper palette) ── */
+  --zen-branding-dark: #101010;
+  --zen-branding-paper: #e2e2e2;
+  --zen-branding-bg: light-dark(var(--zen-branding-paper), var(--zen-branding-dark));
+
+  /* ── Accent-derived color generation (Zen primary-color mixer) ── */
+  --zen-primary-color: var(--color-accent-1);
+  --zen-colors-primary: light-dark(
+    color-mix(in srgb, var(--zen-primary-color) 50%, black 50%),
+    color-mix(in srgb, var(--zen-primary-color) 20%, var(--zen-branding-bg) 80%)
+  );
+  --zen-colors-secondary: light-dark(
+    color-mix(in srgb, var(--zen-colors-primary) 20%, white 80%),
+    color-mix(in srgb, var(--zen-primary-color) 30%, var(--zen-branding-bg) 70%)
+  );
+  --zen-colors-tertiary: light-dark(
+    color-mix(in srgb, var(--zen-primary-color) 2%, white 98%),
+    color-mix(in srgb, var(--zen-primary-color) 1%, var(--zen-branding-bg) 99%)
+  );
+  --zen-colors-border: light-dark(
+    color-mix(in srgb, var(--zen-colors-secondary) 50%, transparent),
+    color-mix(in srgb, var(--zen-colors-secondary) 20%, rgb(79, 79, 79))
+  );
+
+  /* ── Compact-mode animation curves ── */
+  --zen-sidebar-transition: 0.15s ease;
+  --zen-toolbar-flash-popup-duration: 800ms;
+  --zen-toolbar-hide-after-hover-duration: 1000ms;
+  --zen-sidebar-keep-hover-duration: 150ms;
+  --zen-workspace-switch-duration: 200ms;
+
+  /* ── Compact-mode geometry ── */
+  --zen-element-separation: 8px;
+  --zen-compact-float: var(--zen-element-separation);
+  --zen-toolbox-max-width: 74px;
+  --zen-outside-window-edge-offset-h: 200px;
+  --zen-outside-window-edge-offset-v: 100px;
+
+  /* ── Workspace navigation ── */
+  --zen-workspace-swipe-delta-multiplier: 100;
+  --zen-workspace-dnd-switch-padding: 20px;
+}

@@ -9,10 +9,46 @@ import Foundation
 // When the Rust crate is built and staged into the app bundle's
 // Frameworks directory, the engine initializes automatically.
 
+// MARK: - Brave-Aligned Match Result
+
+/// Match result mirroring Brave's AdblockEngineMatchResult.
+/// Provides detailed blocking information instead of a simple yes/no.
+struct AdblockMatchResult: Sendable {
+    let didMatchRule: Bool
+    let didMatchException: Bool
+    let didMatchImportant: Bool
+    let redirect: String?
+    let rewrittenURL: String?
+    let filter: String?
+
+    var isBlocked: Bool { didMatchImportant || (didMatchRule && !didMatchException) }
+
+    static let allowed = AdblockMatchResult(
+        didMatchRule: false, didMatchException: false,
+        didMatchImportant: false, redirect: nil, rewrittenURL: nil, filter: nil
+    )
+
+    static func blocked(reason: String? = nil) -> AdblockMatchResult {
+        AdblockMatchResult(
+            didMatchRule: true, didMatchException: false,
+            didMatchImportant: false, redirect: nil, rewrittenURL: nil, filter: reason
+        )
+    }
+}
+
 enum AdblockResult: Sendable {
     case allowed
     case blocked(reason: String)
     case unavailable
+
+    /// Returns a detailed match result (Brave-aligned API).
+    var matchResult: AdblockMatchResult {
+        switch self {
+        case .allowed: return .allowed
+        case .blocked(let reason): return .blocked(reason: reason)
+        case .unavailable: return .allowed
+        }
+    }
 }
 
 @MainActor
@@ -68,6 +104,28 @@ final class AdblockEngine: @unchecked Sendable {
         if result == 1 { return .blocked(reason: "Matched EasyList filter (native)") }
         if result < 0 { return fallbackCheck(url: url) }
         return .allowed
+    }
+
+    // MARK: Brave-Aligned Extended API
+
+    /// Returns CSS selectors for cosmetic filtering (Brave-aligned).
+    /// Called by the renderer to hide ad elements without blocking the page.
+    func cosmeticSelectors(for url: URL) -> [String] {
+        guard let host = url.host else { return [] }
+        // PLACEHOLDER — wire real adblock-rust cosmetic filtering before production.
+        // Hardcoded selectors risk false positives on legitimate page elements.
+        // The adblock-rust engine supports hidden_class_id_selectors via FFI.
+        _ = host
+        return []
+    }
+
+    /// Returns CSP directives to inject for a URL (Brave-aligned).
+    func cspDirectives(for url: URL) -> String? {
+        guard let host = url.host else { return nil }
+        if EasyListBlocklist.domains.contains(host) {
+            return "script-src 'none'; frame-src 'none'"
+        }
+        return nil
     }
 
     // MARK: Private
