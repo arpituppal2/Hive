@@ -217,3 +217,17 @@ The Hive Browser (Chromium-backed via CefSwift, native SwiftUI chrome) builds, t
 
 ### Mission tracker
 - `.hive/mission/tasks.json` marked **ALL_COMPLETED** (T001–T010) with per-task evidence and commit refs.
+
+### U6 Native chrome views restyle ✅
+- Verified: VerticalChromeView, HorizontalChromeView, AddressBar, and CommandPalette all already use HiveDesign tokens (colors, spacing, typography, radii). No changes needed — the restyle was completed in earlier passes.
+
+### U7 Interaction states sweep ✅
+- Added shimmer skeleton loading (Polar-style `animate-pulse`) to council-convening state when 0 responses have arrived yet
+- Added error state cards for council and agent failures with retry (uses stored `lastQuery`) and dismiss actions
+- All 5 states now covered: loading (shimmer), partial (streaming responses), complete (verdict), degraded (warn tag), error (red card with retry), empty (hero invitation)
+- `lastQuery` state field tracks the most recent agent query for correct retry behavior
+
+### Verification (this pass)
+- `swift build` ✅ · `swift test` **1078/143** ✅ · `build-hive-app.sh` ✅ · smoke **PASS** ✅
+
+**SHIP STATUS: SHIPPED.** All UI_UX_PLAN items (U1–U9) complete. All agent CDP tools (16/16) wired and verified. Security gate hardened. 5-state interaction sweep done. Mission tracker finalized.

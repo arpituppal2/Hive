@@ -90,7 +90,7 @@
     layout: 'vertical', isPrivateBrowsing: false, isSplitActive: false,
     isChromePanelOpen: null, chromeMode: 'sidebar', chromeDimension: 270,
     councilVerdict: null, isCouncilConvening: false, councilLiveResponses: [], deepResearchStep: null,
-    agentTask: null
+    agentTask: null, councilError: null, agentError: null, lastQuery: ''
   };
 
   var lastTabsJSON = '';
@@ -538,6 +538,7 @@
   function agentAsk(text) {
     var q = (text || '').trim();
     if (!q) return;
+    state.lastQuery = q;
     $('agentDock').hidden = true;
     api('hive.agent.run', { text: q }).then(function () { refresh(); });
   }
@@ -628,27 +629,71 @@
         '</div>';
     }
 
-    // Council convening — show live responses as they arrive
+    // Council convening — shimmer skeleton while waiting, then live responses
     if (state.isCouncilConvening) {
       var live = state.councilLiveResponses || [];
-      html += '<div class="ai-panel">' +
-        '<div class="ai-panel__header">' +
-        '<span class="ai-panel__icon">' + svg(ICONS.settings, 13) + '</span>' +
-        '<span class="ai-panel__label">Council deliberating…</span>' +
-        '<span class="ai-panel__pct">' + live.length + ' responded</span>' +
-        '</div>';
-      for (var i = 0; i < live.length; i++) {
-        var r = live[i];
-        var badge = r.status === 'success'
-          ? '<span class="ai-panel__tag ai-panel__tag--ok">' + esc(r.provider) + '</span>'
-          : '<span class="ai-panel__tag ai-panel__tag--warn">' + esc(r.provider) + ' ' + esc(r.status) + '</span>';
-        html += '<div class="ai-panel__live-row">' +
-          badge +
-          '<span class="ai-panel__live-text">' + esc(r.answer.slice(0, 120)) + '</span>' +
-          '<span class="ai-panel__live-pct">' + Math.round(r.confidence * 100) + '%</span>' +
+      if (!live.length) {
+        // Loading state — Polar-style shimmer skeleton (U7 5-state sweep)
+        html += '<div class="ai-panel">' +
+          '<div class="ai-panel__header">' +
+          '<span class="ai-panel__icon">' + svg(ICONS.settings, 13) + '</span>' +
+          '<span class="ai-panel__label">Council deliberating…</span>' +
+          '</div>' +
+          '<div class="ai-panel__skeleton-row">' +
+          '<div class="ai-panel__skeleton ai-panel__skeleton--sm"></div>' +
+          '</div>' +
+          '<div class="ai-panel__skeleton-row">' +
+          '<div class="ai-panel__skeleton ai-panel__skeleton--md"></div>' +
+          '</div>' +
+          '<div class="ai-panel__skeleton-row">' +
+          '<div class="ai-panel__skeleton ai-panel__skeleton--sm"></div>' +
+          '</div>' +
           '</div>';
+      } else {
+        html += '<div class="ai-panel">' +
+          '<div class="ai-panel__header">' +
+          '<span class="ai-panel__icon">' + svg(ICONS.settings, 13) + '</span>' +
+          '<span class="ai-panel__label">Council deliberating…</span>' +
+          '<span class="ai-panel__pct">' + live.length + ' responded</span>' +
+          '</div>';
+        for (var i = 0; i < live.length; i++) {
+          var r = live[i];
+          var badge = r.status === 'success'
+            ? '<span class="ai-panel__tag ai-panel__tag--ok">' + esc(r.provider) + '</span>'
+            : '<span class="ai-panel__tag ai-panel__tag--warn">' + esc(r.provider) + ' ' + esc(r.status) + '</span>';
+          html += '<div class="ai-panel__live-row">' +
+            badge +
+            '<span class="ai-panel__live-text">' + esc(r.answer.slice(0, 120)) + '</span>' +
+            '<span class="ai-panel__live-pct">' + Math.round(r.confidence * 100) + '%</span>' +
+            '</div>';
+        }
+        html += '</div>';
       }
-      html += '</div>';
+    }
+
+    // Error state — council or agent failure (U7 5-state sweep)
+    if (state.councilError && !state.isCouncilConvening && !council) {
+      html += '<div class="ai-panel ai-panel--error">' +
+        '<div class="ai-panel__header">' +
+        '<span class="ai-panel__icon">' + svg(ICONS.close, 13) + '</span>' +
+        '<span class="ai-panel__label">Council failed</span>' +
+        '</div>' +
+        '<div class="ai-panel__error-body">' + esc(state.councilError.toString().slice(0, 200)) + '</div>' +
+        '<button class="ai-panel__retry" onclick="hiveRetryCouncil()">' +
+        svg(ICONS.clock, 10) + ' Retry</button>' +
+        '</div>';
+    }
+    if (state.agentError && !state.isCouncilConvening && !council &&
+        (!agent || agent.phase === 'idle' || agent.phase === 'done')) {
+      html += '<div class="ai-panel ai-panel--error">' +
+        '<div class="ai-panel__header">' +
+        '<span class="ai-panel__icon">' + svg(ICONS.close, 13) + '</span>' +
+        '<span class="ai-panel__label">Agent failed</span>' +
+        '</div>' +
+        '<div class="ai-panel__error-body">' + esc(state.agentError.toString().slice(0, 200)) + '</div>' +
+        '<button class="ai-panel__retry" onclick="hiveDismissError()">' +
+        svg(ICONS.close, 10) + ' Dismiss</button>' +
+        '</div>';
     }
 
     // Deep research progress bar (shown while research is running)
@@ -732,12 +777,26 @@
     state.councilVerdict = null;
     state.deepResearchStep = null;
     state.agentTask = null;
+    state.councilError = null;
+    state.agentError = null;
     api('hive.dismissCouncilVerdict').then(function () { refresh(); });
     renderAIPanel();
   }
 
   function hiveCancelAgent() {
     api('hive.agent.cancel').then(function () { refresh(); });
+  }
+
+  function hiveRetryCouncil() {
+    state.councilError = null;
+    var q = state.lastQuery || 'Summarize this page';
+    api('hive.agent.run', { text: q }).then(function () { refresh(); });
+  }
+
+  function hiveDismissError() {
+    state.councilError = null;
+    state.agentError = null;
+    renderAIPanel();
   }
 
   /* ---------- panels ---------- */
@@ -988,11 +1047,13 @@
       { icon: ICONS.search, label: 'Ask AI Council', run: function () {
         var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
         var q = active ? 'Summarize: ' + (active.title || active.host || 'this page') : 'What can you help me with?';
+        state.lastQuery = q;
         api('hive.agent.run', { text: q }).then(function () { refresh(); });
       } },
       { icon: ICONS.search, label: 'Deep Research', run: function () {
         var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
         var q = active ? 'Research: ' + (active.title || active.host || 'this page') : 'Research: ';
+        state.lastQuery = q;
         $('agentAsk').value = q;
         agentDockOpen();
         var input = $('agentAsk');

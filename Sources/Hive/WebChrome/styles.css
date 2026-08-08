@@ -1294,6 +1294,58 @@ svg { display: block; }
   transition: background var(--dur) var(--spring-soft);
 }
 
+/* Polar-style shimmer skeleton (U7 — 5-state sweep) */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.ai-panel__skeleton {
+  height: 9px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--surface-hover) 25%, var(--surface) 50%, var(--surface-hover) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+.ai-panel__skeleton--sm { width: 60%; }
+.ai-panel__skeleton--md { width: 85%; }
+.ai-panel__skeleton--row {
+  display: flex;
+  gap: var(--s2);
+  padding: 4px 0;
+}
+
+/* Error state — red-tinted card with retry */
+.ai-panel--error {
+  background: rgba(239, 68, 68, 0.08);
+  border-top-color: rgba(239, 68, 68, 0.18);
+}
+.ai-panel--error .ai-panel__label { color: #F87171; }
+.ai-panel__error-body {
+  font-size: 10.5px;
+  color: rgba(248, 113, 113, 0.85);
+  line-height: 1.45;
+  margin-top: 2px;
+}
+.ai-panel__retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 3px 10px;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: #FCA5A5;
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur) var(--spring-soft), border-color var(--dur) var(--spring-soft);
+}
+.ai-panel__retry:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
 /* Empty-state hero (dock open, nothing running) */
 .ai-panel--hero {
   padding: var(--s4) var(--s3) var(--s3);
