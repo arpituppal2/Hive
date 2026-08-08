@@ -35,6 +35,13 @@ struct HiveSchemeHandler: CefSchemeHandler {
             return await briefResponse(path: path)
         }
 
+        // Polar AgentApp — full streaming agent surface with KaTeX, mermaid,
+        // xlsx, docx rendering (copied from the Polar app bundle, legally
+        // authorized). Served at hive://polar as a standalone agent workspace.
+        if host == "polar" || path.hasPrefix("/polar") {
+            return await polarResponse(path: path)
+        }
+
         switch path {
         case "/", "/index.html", "/start":
             let html = WebChromeAssets.indexHTML.replacingOccurrences(
@@ -49,6 +56,25 @@ struct HiveSchemeHandler: CefSchemeHandler {
         default:
             return .notFound("No such asset: \(path)")
         }
+    }
+
+    /// Serves the Polar AgentApp — a full streaming agent surface with
+    /// KaTeX math, mermaid diagrams, xlsx/docx preview, command panel,
+    /// and agent workspace components. Copied from Polar's production
+    /// Vite-bundled assets under explicit legal authorization.
+    private func polarResponse(path: String) async -> CefSchemeResponse {
+        let cleaned = path.hasPrefix("/polar") ? String(path.dropFirst(6)) : path
+        let assetPath = cleaned == "/" || cleaned.isEmpty ? "/index.html" : cleaned
+        let key = "polar" + assetPath
+        if let asset = WebChromeAssets.polarAssets[key] {
+            let mime = WebChromeAssets.polarMimeType(assetPath)
+            if assetPath == "/index.html" || assetPath == "/" {
+                let branded = asset.replacingOccurrences(of: "Polar", with: "Hive")
+                return CefSchemeResponse(status: 200, mimeType: mime, body: Data(branded.utf8))
+            }
+            return CefSchemeResponse(status: 200, mimeType: mime, body: Data(asset.utf8))
+        }
+        return .notFound("No such Polar asset: \(assetPath)")
     }
 
     /// Serves the Morning Brief shell + its relative assets.
@@ -1141,6 +1167,65 @@ enum WebChromeBridge {
             try Self.authorize(request.token)
             try await state.cdpClient.activateTab(id: request.id)
             return true
+        }
+
+        // ---- Extended act tools (Astro-derived: hover, focus, check, uncheck, select, drag, markdown read, diff) ----
+
+        bridge.register("hive.agent.hover") { (request: WebChromeAgentClick) async throws -> Bool in
+            try Self.authorize(request.token)
+            guard let ref = request.ref else { return false }
+            try await state.cdpClient.hover(ref: ref)
+            return true
+        }
+
+        bridge.register("hive.agent.focus") { (request: WebChromeAgentClick) async throws -> Bool in
+            try Self.authorize(request.token)
+            guard let ref = request.ref else { return false }
+            try await state.cdpClient.focus(ref: ref)
+            return true
+        }
+
+        bridge.register("hive.agent.check") { (request: WebChromeAgentClick) async throws -> Bool in
+            try Self.authorize(request.token)
+            guard let ref = request.ref else { return false }
+            try await state.cdpClient.check(ref: ref)
+            return true
+        }
+
+        bridge.register("hive.agent.uncheck") { (request: WebChromeAgentClick) async throws -> Bool in
+            try Self.authorize(request.token)
+            guard let ref = request.ref else { return false }
+            try await state.cdpClient.uncheck(ref: ref)
+            return true
+        }
+
+        bridge.register("hive.agent.select") { (request: WebChromeAgentFill) async throws -> Bool in
+            try Self.authorize(request.token)
+            try await state.cdpClient.select(ref: request.selector, value: request.value)
+            return true
+        }
+
+        bridge.register("hive.agent.drag") { (request: WebChromeAgentFill) async throws -> Bool in
+            try Self.authorize(request.token)
+            let parts = request.selector.split(separator: ":", maxSplits: 1)
+            guard parts.count == 2 else { return false }
+            try await state.cdpClient.drag(ref: String(parts[0]), targetRef: String(parts[1]))
+            return true
+        }
+
+        bridge.register("hive.agent.readMarkdown") { (request: WebChromeAgentQuery) async throws -> String in
+            try Self.authorize(request.token)
+            let selector = request.format == "selector" ? request.query : nil
+            return try await state.cdpClient.readPageMarkdown(selector: selector)
+        }
+
+        bridge.register("hive.agent.diff") { (request: WebChromeToken) async throws -> WebChromeAgentSnapshotResult in
+            try Self.authorize(request.token)
+            let (added, _) = try await state.cdpClient.diff()
+            return WebChromeAgentSnapshotResult(
+                nodes: added.map { WebChromeAXNode(ref: $0.ref, role: $0.role, name: $0.name, value: $0.value) },
+                count: added.count
+            )
         }
     }
 

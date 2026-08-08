@@ -374,7 +374,113 @@ public final class CDPClient {
         return (added, removed)
     }
 
+    // MARK: Astro-derived extended act tools
+
+    /// Hover over an element by AX ref (Input.dispatchMouseEvent mouseMoved).
+    public func hover(ref: String) async throws {
+        let coords = try await centerOf(ref: ref)
+        try await send(method: "Input.dispatchMouseEvent", params: [
+            "type": "mouseMoved",
+            "x": coords.x, "y": coords.y,
+            "modifiers": 0, "button": "none", "clickCount": 0
+        ])
+    }
+
+    /// Focus an element by AX ref (DOM.focus).
+    public func focus(ref: String) async throws {
+        let nodeId = try await resolveNode(ref: ref)
+        _ = try await send(method: "DOM.focus", params: ["nodeId": nodeId])
+    }
+
+    /// Check a checkbox/radio by AX ref.
+    public func check(ref: String) async throws {
+        let nodeId = try await resolveNode(ref: ref)
+        _ = try await send(method: "DOM.setChecked", params: ["nodeId": nodeId, "checked": true])
+    }
+
+    /// Uncheck a checkbox by AX ref.
+    public func uncheck(ref: String) async throws {
+        let nodeId = try await resolveNode(ref: ref)
+        _ = try await send(method: "DOM.setChecked", params: ["nodeId": nodeId, "checked": false])
+    }
+
+    /// Select an option value on a <select> by AX ref.
+    public func select(ref: String, value: String) async throws {
+        let nodeId = try await resolveNode(ref: ref)
+        _ = try await send(method: "DOM.setAttributeValue", params: [
+            "nodeId": nodeId, "name": "value", "value": value
+        ])
+        // Fire a change event so the page reacts.
+        try await send(method: "DOM.dispatchEvent", params: [
+            "nodeId": nodeId, "type": "change"
+        ])
+    }
+
+    /// Drag from one element ref to another.
+    public func drag(ref: String, targetRef: String) async throws {
+        let from = try await centerOf(ref: ref)
+        let to = try await centerOf(ref: targetRef)
+        // mousedown → mousemove → mouseup
+        for (type, x, y) in [("mousePressed", from.x, from.y),
+                              ("mouseMoved", to.x, to.y),
+                              ("mouseReleased", to.x, to.y)] {
+            try await send(method: "Input.dispatchMouseEvent", params: [
+                "type": type, "x": x, "y": y,
+                "modifiers": 0, "button": "left", "clickCount": 1
+            ])
+        }
+    }
+
+    /// Read page content as markdown (via content-markdown expression pattern from Astro).
+    public func readPageMarkdown(selector: String? = nil) async throws -> String {
+        let root = selector.map { "document.querySelector(\($0.debugDescription))" } ?? "document.body"
+        // Heuristic markdown conversion: headings, links, images, lists
+        let code = """
+        (function(){var e=\(root);if(!e)return'';function t(n){var r='';for(var c=n.firstChild;c;c=c.nextSibling){if(c.nodeType===3){var s=c.textContent||'';r+=s}else if(c.nodeType===1){var m=c.tagName;if(/^H[1-6]$/.test(m)){var l=parseInt(m[1]);r+='\\n'+'#'.repeat(l)+' '+t(c)+'\\n'}else if(m==='A'){r+='['+t(c)+']('+(c.href||'')+')'}else if(m==='IMG'){r+='!['+(c.alt||'')+']('+(c.src||'')+')'}else if(m==='P'||m==='DIV'||m==='SECTION'){r+='\\n'+t(c)+'\\n'}else if(m==='LI'){r+='- '+t(c)+'\\n'}else if(m==='STRONG'||m==='B'){r+='**'+t(c)+'**'}else if(m==='EM'||m==='I'){r+='*'+t(c)+'*'}else if(m==='CODE'){r+='`'+t(c)+'`'}else if(m==='PRE'){r+='\\n```\\n'+t(c)+'\\n```\\n'}else if(m==='BR'){r+='\\n'}else{r+=t(c)}}}return r}return t(e)})()
+        """
+        return try await evaluate(expression: code)
+    }
+
     // MARK: Helpers
+
+    /// Resolves an AX ref (e.g. "e12") to a DOM node ID via the AX tree.
+    private func resolveNode(ref: String) async throws -> Int {
+        // Strip "e" prefix if present (Astro convention: eN = backendDOMNodeId N)
+        let numeric = ref.hasPrefix("e") ? String(ref.dropFirst()) : ref
+        guard let backendId = Int(numeric) else {
+            throw CDPError(code: -32602, message: "Invalid ref: \(ref)")
+        }
+        // Resolve AX node → DOM node via Accessibility.getBackendNodeForDOMNode
+        // Actually, we need DOM.describeNode with backendNodeId.
+        // CDP path: Accessibility.getPartialAXTree → find the node → use its backendDOMNodeId
+        // Simpler: use DOM.resolveNode with backendNodeId
+        let result = try await send(method: "DOM.resolveNode", params: ["backendNodeId": backendId])
+        if let object = unwrapResult(result)?["object"] as? [String: Any],
+           let nodeId = object["nodeId"] as? Int {
+            return nodeId
+        }
+        // Fallback: try DOM.describeNode
+        let describe = try await send(method: "DOM.describeNode", params: ["backendNodeId": backendId])
+        if let node = unwrapResult(describe)?["node"] as? [String: Any],
+           let nodeId = node["nodeId"] as? Int {
+            return nodeId
+        }
+        throw CDPError(code: -32602, message: "Cannot resolve node for ref: \(ref)")
+    }
+
+    /// Finds the center coordinates of an element by AX ref.
+    private func centerOf(ref: String) async throws -> (x: Int, y: Int) {
+        let nodeId = try await resolveNode(ref: ref)
+        let result = try await send(method: "DOM.getBoxModel", params: ["nodeId": nodeId])
+        if let model = unwrapResult(result)?["model"] as? [String: Any],
+           let content = model["content"] as? [Double],
+           content.count >= 4 {
+            let x = Int((content[0] + content[2]) / 2)
+            let y = Int((content[1] + content[5]) / 2)
+            return (x, y)
+        }
+        throw CDPError(code: -32602, message: "Cannot get box model for ref: \(ref)")
+    }
 
     private func keyCode(for key: String) -> Int {
         switch key {

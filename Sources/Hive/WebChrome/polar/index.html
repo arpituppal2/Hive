@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Polar Agent</title>
+    <script>
+      // Apply host-provided page attributes before first paint to avoid flashes.
+      // The native shell injects ?theme=light|dark and ?surface=...; defaults are
+      // dark/window.
+      (function () {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var t = params.get('theme');
+          var surface = params.get('surface');
+          document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+          document.documentElement.dataset.surface =
+            surface === 'command-panel' || surface === 'modal' ? surface : 'window';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark';
+          document.documentElement.dataset.surface = 'window';
+        }
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="/assets/index-QWD3Wno1.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BY6JzNer.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

@@ -9926,4 +9926,27 @@ function initFooterReveal() {
             return "application/octet-stream"
         }
     }
+
+    /// Polar AgentApp assets (copied from Polar bundle, legally authorized).
+    /// Populated by Scripts/embed_polar_assets.py at build time.
+    static let polarAssets: [String: String] = [:]
+
+    /// MIME for a Polar AgentApp asset (served at hive://polar/...).
+    static func polarMimeType(_ path: String) -> String {
+        let ext = (path as NSString).pathExtension.lowercased()
+        switch ext {
+        case "html": return "text/html"
+        case "css": return "text/css"
+        case "js": return "application/javascript"
+        case "woff2": return "font/woff2"
+        case "ttf": return "font/ttf"
+        case "woff": return "font/woff"
+        case "png": return "image/png"
+        case "svg": return "image/svg+xml"
+        default: return "application/octet-stream"
+        }
+    }
 }
+
+    /// Polar AgentApp assets (copied from Polar bundle, legally authorized).
+    /// Populated by Scripts/embed_polar_assets.py at build time.
