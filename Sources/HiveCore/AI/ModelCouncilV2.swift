@@ -36,7 +36,7 @@ public struct CouncilQuery: Sendable {
 // MARK: - Council Provider
 
 /// A model provider that can participate in the council.
-public enum CouncilProvider: String, Sendable, CaseIterable {
+public enum CouncilProvider: String, Sendable, CaseIterable, Codable {
     case mlxLocal    // On-device MLX model
     case tavilyCloud // Tavily search API
     case vaneLocal   // Self-hosted Vane
@@ -49,8 +49,8 @@ public enum CouncilProvider: String, Sendable, CaseIterable {
 // MARK: - Council Response
 
 /// Response from a single provider in the council.
-public struct CouncilResponse: Sendable, Identifiable {
-    public let id = UUID()
+public struct CouncilResponse: Sendable, Identifiable, Codable {
+    public var id = UUID()
     public let provider: CouncilProvider
     public let answer: String
     public let confidence: Double
@@ -58,18 +58,39 @@ public struct CouncilResponse: Sendable, Identifiable {
     public let duration: TimeInterval
     public let status: ResponseStatus
 
-    public enum ResponseStatus: Sendable, Equatable {
+    public enum ResponseStatus: Sendable, Equatable, Codable {
         case success
         case timeout
         case error(String)
         case unavailable
+        
+        enum CodingKeys: String, CodingKey { case type, message }
+        public init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            switch try c.decode(String.self, forKey: .type) {
+            case "success": self = .success
+            case "timeout": self = .timeout
+            case "unavailable": self = .unavailable
+            case "error": self = .error(try c.decodeIfPresent(String.self, forKey: .message) ?? "Unknown")
+            default: self = .error("Unknown status")
+            }
+        }
+        public func encode(to encoder: Encoder) throws {
+            var c = encoder.container(keyedBy: CodingKeys.self)
+            switch self {
+            case .success: try c.encode("success", forKey: .type)
+            case .timeout: try c.encode("timeout", forKey: .type)
+            case .unavailable: try c.encode("unavailable", forKey: .type)
+            case .error(let msg): try c.encode("error", forKey: .type); try c.encode(msg, forKey: .message)
+            }
+        }
     }
 }
 
 // MARK: - Council Verdict
 
 /// The synthesized verdict from the model council.
-public struct CouncilVerdict: Sendable {
+public struct CouncilVerdict: Sendable, Codable {
     /// Final answer synthesized by the chair
     public let answer: String
     /// How the council reached this decision

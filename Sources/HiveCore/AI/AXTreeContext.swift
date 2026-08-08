@@ -14,7 +14,7 @@ import Foundation
 // MARK: - AXTree Node
 
 /// A simplified accessibility node suitable for LLM consumption.
-struct AXNode: Sendable, Codable {
+public struct AXNode: Sendable, Codable {
     /// Reference ID for element targeting (e.g., "ref_42")
     let ref: String
     /// ARIA role or inferred role (button, link, textbox, heading, etc.)
@@ -36,7 +36,7 @@ struct AXNode: Sendable, Codable {
 // MARK: - AXTree
 
 /// A flattened accessibility tree ready for LLM consumption.
-struct AXTree: Sendable, Codable {
+public struct AXTree: Sendable, Codable {
     /// Page URL this tree was captured from
     let url: String?
     /// Page title

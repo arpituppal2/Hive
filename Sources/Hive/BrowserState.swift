@@ -2225,6 +2225,7 @@ final class BrowserState {
                 case .verdictReady(let verdict):
                     latestCouncilVerdict = verdict
                     councilLiveResponses = []
+                    saveCouncilVerdict()
                     broadcastWebChromeState()
                 }
             }
@@ -2257,6 +2258,29 @@ final class BrowserState {
         broadcastWebChromeState()
     }
 
+    /// Saves the current council verdict to UserDefaults as JSON.
+    /// Called automatically when a verdict is set; small payload, one at a time.
+    private func saveCouncilVerdict() {
+        guard let verdict = latestCouncilVerdict else { return }
+        do {
+            let data = try JSONEncoder().encode(verdict)
+            UserDefaults.standard.set(data, forKey: "HiveCouncilVerdict")
+        } catch {
+            // Best-effort: verdict lives in memory regardless
+        }
+    }
+
+    /// Restores a previously-saved council verdict from UserDefaults.
+    /// Called once during init(); silently no-ops when no verdict was saved.
+    private func restoreCouncilVerdict() {
+        guard let data = UserDefaults.standard.data(forKey: "HiveCouncilVerdict") else { return }
+        do {
+            latestCouncilVerdict = try JSONDecoder().decode(CouncilVerdict.self, from: data)
+        } catch {
+            UserDefaults.standard.removeObject(forKey: "HiveCouncilVerdict")
+        }
+    }
+
     /// Dismisses the current council verdict from the UI.
     /// Cancels any in-flight deliberation and clears all council state.
     func dismissCouncilVerdict() {
@@ -2268,6 +2292,7 @@ final class BrowserState {
         deepResearchTask?.cancel()
         deepResearchTask = nil
         isCouncilConvening = false
+        UserDefaults.standard.removeObject(forKey: "HiveCouncilVerdict")
         broadcastWebChromeState()
     }
 
@@ -4162,6 +4187,7 @@ final class BrowserState {
         let vaneURL = self.vaneBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
         let vaneProvider: WebSearchProvider? = vaneURL.isEmpty ? nil : VaneSearchProvider(baseURL: URL(string: vaneURL) ?? URL(string: "http://localhost:3000")!)
         modelCouncil = ModelCouncil(dispatcher: .shared, searchProvider: searchProvider, vaneProvider: vaneProvider)
+        restoreCouncilVerdict()
         if let swarmOrchestrator {
             contextRequestCoordinator = ContextRequestCoordinator(
                 hotMemory: hotMemory,
