@@ -6601,4 +6601,40 @@ struct BeeQueueTests {
         #expect(PageCaptureAdmission.allowed.isAllowed)
         #expect(!PageCaptureAdmission.deniedPrivateBrowsing.isAllowed)
     }
+
+@Test func omnibarResolutionPreservesURL() throws {
+        let url = try #require(URL(string: "https://example.com"))
+        let r = OmnibarResolution.search(url)
+        if case .search(let u) = r { #expect(u == url) } else { #expect(Bool(false)) }
+    }
+
+@Test func pageCaptureDeliveryPolicyPreservesFlags() {
+        let d = PageCaptureDeliveryPolicy.decide(disposition: .manual, isPrivate: false, aiContextAllowed: true)
+        #expect(d.persistCapture)
+    }
+
+@Test func downloadFilenamePolicySanitizesSlash() {
+        let name = DownloadFilenamePolicy.sanitizedFilename("evil/path", fallback: "file")
+        #expect(!name.contains("/"))
+    }
+
+@Test func sitePermissionKindAllCasesNonEmpty() {
+        #expect(!SitePermissionKind.allCases.isEmpty)
+    }
+
+@Test func beeJobStatusAllCasesNonEmpty() {
+        #expect(!BeeJobStatus.allCases.isEmpty)
+    }
+
+@Test func beeJobKindAllCasesNonEmpty() {
+        #expect(!BeeJobKind.allCases.isEmpty)
+    }
+
+@Test func honeycombNodeTypeAllCasesNonEmpty() {
+        #expect(!HoneycombStore.NodeType.allCases.isEmpty)
+    }
+
+@Test func honeycombEdgeRelationAllCasesNonEmpty() {
+        #expect(!HoneycombStore.EdgeRelation.allCases.isEmpty)
+    }
 }
