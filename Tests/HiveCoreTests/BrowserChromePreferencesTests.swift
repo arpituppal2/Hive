@@ -72,4 +72,8 @@ struct BrowserChromePreferencesTests {
         let preset = BrowserPreset(tabPosition: .vertical, tabDensity: .standard, defaultSearchEngine: "google", showBookmarkBar: false, contentBlockerEnabled: true)
         #expect(preset.tabPosition == .vertical)
     }
+
+@Test func tabDensitiesAreNonEmpty() {
+        #expect(!TabDensity.allCases.isEmpty)
+    }
 }

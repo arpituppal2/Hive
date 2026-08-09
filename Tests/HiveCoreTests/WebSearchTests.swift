@@ -778,4 +778,8 @@ struct ContextRedactorTests {
         #expect(scoped.summary.contains("public"))
         #expect(scoped.sourceLength > scoped.text.count)
     }
+
+@Test func searchEngineKindsAreNonEmpty() {
+        #expect(!SearchEngineKind.allCases.isEmpty)
+    }
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Hive Browser Releases</title>
+    <link>https://github.com/arpituppal2/Hive/releases</link>
+    <description>Release updates for Hive — the browser that thinks with you.</description>
+    <language>en</language>
+
+    <item>
+      <title>Hive 1.0.0</title>
+      <sparkle:releaseNotesLink>https://github.com/arpituppal2/Hive/releases/tag/v1.0.0</sparkle:releaseNotesLink>
+      <pubDate>Fri, 08 Aug 2026 18:30:00 +0000</pubDate>
+      <enclosure
+        url="https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg"
+        sparkle:version="1200"
+        sparkle:shortVersionString="1.0.0"
+        sparkle:os="macos"
+        length="179607822"
+        sparkle:edSignature=""
+        type="application/octet-stream"/>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+    </item>
+  </channel>
+</rss>

@@ -204,4 +204,9 @@ struct BrowserSessionIntegrityTests {
         let report = BrowserSessionRepairReport()
         #expect(report.removedPrivateTabs == 0)
     }
+
+@Test func browserSessionDefaultsHaveNoWindows() {
+        let s = BrowserSession()
+        #expect(s.windows.isEmpty)
+    }
 }

@@ -589,4 +589,8 @@ struct ToolInvocationFactoryTests {
 @Test func providerPreferencesAreNonEmpty() {
         #expect(!ProviderPreference.allCases.isEmpty)
     }
+
+@Test func voiceRoutesAreNonEmpty() {
+        #expect(!VoiceRoute.allCases.isEmpty)
+    }
 }

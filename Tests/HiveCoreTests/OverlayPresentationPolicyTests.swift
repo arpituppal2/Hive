@@ -52,4 +52,8 @@ struct OverlayPresentationPolicyTests {
         #expect(!s.commandPalettePresented)
         #expect(!s.tabSearchPresented)
     }
+
+@Test func splitOrientationCasesAreNonEmpty() {
+        #expect(!SplitOrientation.allCases.isEmpty)
+    }
 }

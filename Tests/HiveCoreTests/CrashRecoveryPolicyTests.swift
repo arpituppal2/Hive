@@ -123,4 +123,9 @@ struct CrashRecoveryPolicyTests {
 @Test func autoArchiveDefaultIs14Days() {
         #expect(AutoArchivePolicy.defaultThreshold == 14 * 86_400)
     }
+
+@Test func crashRecordDefaults() {
+        let cr = CrashRecord(count: 0, firstCrash: Date(), lastCrash: Date())
+        #expect(cr.count == 0)
+    }
 }
