@@ -253,4 +253,11 @@ struct BrowserContextPolicyTests {
         #expect(block.contains("secret") == false)
         #expect(block.contains("https://example.com/account"))
     }
+
+@Test func confidenceClampedToValidRange() {
+        let high = PreferenceMemory(path: "a", value: "x", confidence: 5.0, evidence: "test")
+        #expect(high.confidence <= 1.0)
+        let low = PreferenceMemory(path: "b", value: "y", confidence: -2.0, evidence: "test")
+        #expect(low.confidence >= 0.0)
+    }
 }

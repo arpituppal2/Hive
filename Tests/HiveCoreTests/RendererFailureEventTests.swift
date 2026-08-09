@@ -115,4 +115,15 @@ struct RendererFailureEventTests {
         let b = Boost(id: "b1", name: "Test", urlPattern: "*.example.com", css: "", js: "", forceDarkMode: false, zappedSelectors: [], isEnabled: true)
         #expect(b.isEnabled)
     }
+
+@Test func failureEventHasTimestamp() {
+        let event = RendererFailureEvent(tabID: "tab", reason: "crash")
+        #expect(event.occurredAt <= Date())
+    }
+
+    @Test func downloadTransitionStatePreserved() {
+        let t = DownloadControlTransition(state: .active, action: .pause)
+        #expect(t.state == .active)
+        #expect(t.action == .pause)
+    }
 }

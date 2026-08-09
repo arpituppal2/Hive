@@ -79,4 +79,9 @@ struct BookmarkImportPolicyTests {
         let bm = Bookmark(title: "Link", url: URL(string: "https://x.com")!)
         #expect(!bm.isFolder)
     }
+
+@Test func decisionSkippedCountIsNonNegative() {
+        let d = BookmarkImportPolicy.Decision(entries: [], skippedCount: -5)
+        #expect(d.skippedCount >= 0)
+    }
 }

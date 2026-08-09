@@ -81,4 +81,10 @@ struct PageCaptureRequestLedgerTests {
         #expect(ledger.canceledCount == 0)
         #expect(result == .stale)
     }
+
+@Test func requestKeyEquality() {
+        let a = PageCaptureRequestKey(tabID: "t1", requestID: 1)
+        let b = PageCaptureRequestKey(tabID: "t1", requestID: 1)
+        #expect(a == b)
+    }
 }

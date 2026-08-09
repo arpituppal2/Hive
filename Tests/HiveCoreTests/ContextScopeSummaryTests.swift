@@ -132,4 +132,9 @@ struct ContextScopeSummaryTests {
         #expect(summary.rows.count >= 2)
         #expect(summary.rows[1].isIncluded)
     }
+
+@Test func rowIDIsLabel() {
+        let row = ContextScopeSummary.Row(label: "Tabs", detail: "3", isIncluded: true)
+        #expect(row.id == "Tabs")
+    }
 }
