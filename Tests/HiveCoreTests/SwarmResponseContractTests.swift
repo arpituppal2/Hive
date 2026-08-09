@@ -59,4 +59,8 @@ struct SwarmResponseContractTests {
 @Test func councilProvidersAreNonEmpty() {
         #expect(!CouncilProvider.allCases.isEmpty)
     }
+
+@Test func responseRoutesAreNonEmpty() {
+        #expect(!SwarmResponseRoute.allCases.isEmpty)
+    }
 }

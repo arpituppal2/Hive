@@ -71,4 +71,9 @@ struct SwarmResponsePolicyTests {
         #expect(diagnostics.pageTitle == "Example")
         #expect(diagnostics.pageHost == "example.com")
     }
+
+@Test func diagnosticsPreservesProviderLabel() {
+        let d = SwarmResponseDiagnostics(contextNodeCount: 3, contextSummary: "", rankerProvider: nil, providerLabel: "MLX-Local", durationMS: 100, pageTitle: nil, pageHost: nil)
+        #expect(d.providerLabel == "MLX-Local")
+    }
 }

@@ -137,4 +137,9 @@ struct ContextScopeSummaryTests {
         let row = ContextScopeSummary.Row(label: "Tabs", detail: "3", isIncluded: true)
         #expect(row.id == "Tabs")
     }
+
+@Test func scopeDefaultIncludesHotMemory() {
+        let scope = ContextScope()
+        #expect(scope.includesHotMemory)
+    }
 }

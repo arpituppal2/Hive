@@ -87,4 +87,8 @@ struct SwarmResearchReducerTests {
         #expect(failed.phase == .failed)
         #expect(failed.providerNotices == ["network unavailable"])
     }
+
+@Test func voiceCommandStatesAreNonEmpty() {
+        #expect(!VoiceCommandState.allCases.isEmpty)
+    }
 }

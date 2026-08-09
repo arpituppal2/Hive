@@ -153,4 +153,9 @@ struct TerminalDownloadRecordTests {
 
         #expect(decoded == record)
     }
+
+@Test func isTerminalWhenComplete() {
+        let r = TerminalDownloadRecord(suggestedName: "f", url: URL(string: "https://x.com/f")!, isComplete: true)
+        #expect(r.isTerminal)
+    }
 }
