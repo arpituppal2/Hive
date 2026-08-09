@@ -1416,3 +1416,54 @@
 
   boot();
 })();
+
+
+/* ============================================================
+   Comet-style Sidecar panel
+   ============================================================ */
+function toggleSidecar() {
+  var el = $('sidecar');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'sidecar';
+    el.className = 'sidecar';
+    el.innerHTML = '<div class="sidecar-tabs"><button class="sidecar-tab active">Agent</button><button class="sidecar-tab">Context</button><button class="sidecar-tab">History</button></div><div class="sidecar-content"></div>';
+    document.body.appendChild(el);
+    // Click outside to close
+    el.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.addEventListener('click', function closeSidecar(e) {
+      if (!el.contains(e.target)) {
+        el.classList.remove('open');
+        document.removeEventListener('click', closeSidecar);
+        setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+      }
+    });
+  }
+  requestAnimationFrame(function () { el.classList.toggle('open'); });
+}
+
+function addChainStep(text, kind) {
+  var el = $('sidecar');
+  if (!el) return;
+  var content = el.querySelector('.sidecar-content');
+  if (!content) return;
+  var step = document.createElement('div');
+  step.className = 'chain-step';
+  step.innerHTML = '<span class="chain-step__status ' + (kind || 'think') + '"></span><span>' + text + '</span>';
+  content.appendChild(step);
+  content.scrollTop = content.scrollHeight;
+}
+
+function addReasoningChain(label, steps, kind) {
+  var el = $('sidecar');
+  if (!el) return;
+  var content = el.querySelector('.sidecar-content');
+  if (!content) return;
+  var chain = document.createElement('details');
+  chain.className = 'ai-reasoning-chain';
+  chain.open = true;
+  var icon = kind === 'done' ? '<svg class="chain-icon" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="#22c55e" stroke-width="2"/><path d="M5 8l2 2 4-4" stroke="#22c55e" stroke-width="1.5" fill="none"/></svg>' : '<div class="chain-spinner chain-icon"></div>';
+  chain.innerHTML = '<summary>' + icon + '<span>' + label + '</span></summary><div class="chain-body">' + steps.map(function (s) { return '<div class="tool-call">' + s + '</div>'; }).join('') + '</div>';
+  content.appendChild(chain);
+  content.scrollTop = content.scrollHeight;
+}

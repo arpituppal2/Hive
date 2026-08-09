@@ -6399,4 +6399,20 @@ struct BeeQueueTests {
         let s = ResearchSource(url: url, title: "Test", snippet: "desc", fullText: nil, relevance: 0.9, sourceQueryID: qid)
         #expect(s.title == "Test")
     }
+
+@Test func modelRoleSummarizerIsSummarizer() {
+        #expect(ModelRole.summarizer == .summarizer)
+    }
+
+@Test func providerPreferenceAutoIsAuto() {
+        #expect(ProviderPreference.auto == .auto)
+    }
+
+@Test func modelTierRuleIsRule() {
+        #expect(ModelTier.rule == .rule)
+    }
+
+@Test func councilProviderMLXLocalIsMLXLocal() {
+        #expect(CouncilProvider.mlxLocal == .mlxLocal)
+    }
 }

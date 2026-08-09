@@ -77,4 +77,8 @@ struct DispatcherStreamingAvailabilityTests {
         #expect(node.role == "button")
         #expect(node.ref == "r1")
     }
+
+@Test func swarmRunStateIdleIsIdle() {
+        #expect(SwarmRunState.idle == .idle)
+    }
 }

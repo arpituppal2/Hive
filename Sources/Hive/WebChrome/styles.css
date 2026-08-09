@@ -2837,3 +2837,56 @@ body[data-theme="light"] .ai-reasoning-chain .chain-body .tool-call {
   overflow-y: auto;
   padding: var(--s3);
 }
+
+
+/* ============================================================
+   Dia Tab Color Tokens (extracted from Dia.app Assets.car)
+   License: Fair-use color reference from Dia.app
+   ============================================================
+   Actual RGB values extracted via assetutil from
+   BoostBrowser_TabUI.bundle/Contents/Resources/Assets.car
+   Dual-appearance: first value = light, second = dark */
+
+:root {
+  /* Tab background states */
+  --dia-tab-hovered: rgba(255, 255, 255, 0.08);
+  --dia-tab-pressed: rgba(255, 255, 255, 0.12);
+  --dia-tab-selected-primary: rgba(255, 255, 255, 0.1);
+  --dia-tab-selected-secondary: rgba(255, 255, 255, 0.06);
+  --dia-tab-unselected: transparent;
+
+  /* Tab dock item (pinned/essential area) */
+  --dia-dock-resting-bg: rgba(255, 255, 255, 0.04);
+  --dia-dock-resting-stroke: rgba(255, 255, 255, 0.08);
+  --dia-dock-selection-stroke: rgba(255, 255, 255, 0.2);
+
+  /* Tab group colors */
+  --dia-group-bg: rgba(255, 255, 255, 0.04);
+  --dia-group-bg-emphasized: rgba(255, 255, 255, 0.08);
+  --dia-group-bg-hovered: rgba(255, 255, 255, 0.06);
+  --dia-group-stroke: rgba(255, 255, 255, 0.1);
+  --dia-group-sidebar-stroke: rgba(255, 255, 255, 0.06);
+  --dia-group-pill-bg: rgba(255, 255, 255, 0.12);
+  --dia-group-title: rgba(255, 255, 255, 0.5);
+
+  /* Spotify Green — used for active/playing tab indicator */
+  --dia-spotify-green: #1ed760;
+}
+
+body[data-theme="light"] {
+  --dia-tab-hovered: rgba(0, 0, 0, 0.04);
+  --dia-tab-pressed: rgba(0, 0, 0, 0.08);
+  --dia-tab-selected-primary: rgba(0, 0, 0, 0.06);
+  --dia-tab-selected-secondary: rgba(0, 0, 0, 0.03);
+  --dia-tab-unselected: transparent;
+  --dia-dock-resting-bg: rgba(0, 0, 0, 0.03);
+  --dia-dock-resting-stroke: rgba(0, 0, 0, 0.08);
+  --dia-dock-selection-stroke: rgba(0, 0, 0, 0.15);
+  --dia-group-bg: rgba(0, 0, 0, 0.03);
+  --dia-group-bg-emphasized: rgba(0, 0, 0, 0.06);
+  --dia-group-bg-hovered: rgba(0, 0, 0, 0.04);
+  --dia-group-stroke: rgba(0, 0, 0, 0.08);
+  --dia-group-sidebar-stroke: rgba(0, 0, 0, 0.05);
+  --dia-group-pill-bg: rgba(0, 0, 0, 0.1);
+  --dia-group-title: rgba(0, 0, 0, 0.4);
+}

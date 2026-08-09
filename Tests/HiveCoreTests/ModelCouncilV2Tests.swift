@@ -269,4 +269,5 @@ private func makeResponses(count: Int) -> [CouncilResponse] {
         ))
     }
     return responses
+
 }
