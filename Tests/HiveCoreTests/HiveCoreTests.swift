@@ -6271,4 +6271,16 @@ struct BeeQueueTests {
         #expect(t.bgActiveSpaceSec == 900)
         #expect(t.inactiveSpaceSec == 300)
     }
+
+@Test func beeJobStatusesAreNonEmpty() {
+        #expect(!BeeJobStatus.allCases.isEmpty)
+    }
+
+@Test func beeJobKindsAreNonEmpty() {
+        #expect(!BeeJobKind.allCases.isEmpty)
+    }
+
+@Test func honeycombCategoriesAreNonEmpty() {
+        #expect(!HoneycombCategory.allCases.isEmpty)
+    }
 }

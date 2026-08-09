@@ -55,4 +55,8 @@ struct PageCaptureAdmissionTests {
 @Test func commandCategoriesAreNonEmpty() {
         #expect(!CommandCategory.allCases.isEmpty)
     }
+
+@Test func shortcutModifiersAreNonEmpty() {
+        #expect(!ShortcutModifier.allCases.isEmpty)
+    }
 }
