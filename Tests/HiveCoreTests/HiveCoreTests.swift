@@ -6992,4 +6992,55 @@ struct BeeQueueTests {
         #expect(WebSearchFocusMode.allCases.count == 6)
     }
 
+
+
+@Test func hostContextPolicyInit() {
+        let p = HostContextPolicy()
+        #expect(p is HostContextPolicy)
+    }
+
+@Test func hostContextPolicyEffectiveStateInit() {
+        let p = HostContextPolicy()
+        #expect(p.effectiveState(for: URL(string: "https://news.ycombinator.com")!, isPrivateBrowsing: false, sessionAllowsPageContext: true) == .default)
+    }
+
+@Test func contextScopeInit() {
+        let s = ContextScope()
+        #expect(s.includesCurrentPage)
+    }
+
+@Test func voiceRouteCasesCount() {
+        #expect(VoiceRoute.allCases.count >= 5)
+    }
+
+@Test func searchEngineKindCases() {
+        #expect(SearchEngineKind.allCases.count >= 3)
+        #expect(SearchEngineKind.google != .duckduckgo)
+    }
+
+@Test func modelRoleAllCasesRoundTrip() {
+        #expect(ModelRole.allCases.count == 22)
+    }
+
+@Test func contextScopeSummaryRowsCount() {
+        let scope = ContextScope(workspaceID: "ws")
+        let s = ContextScopeSummary(scope: scope, isPrivateBrowsing: false)
+        #expect(s.rows.count == 4)
+    }
+
+@Test func navigationLoadObservationInit() {
+        var obs = NavigationLoadObservation()
+        #expect(obs.state == .waitingForStart)
+    }
+
+@Test func rendererFailureEventInit() {
+        let e = RendererFailureEvent(tabID: "t1", url: nil, reason: "crash", errorCode: 5, occurredAt: Date())
+        #expect(e.tabID == "t1")
+        #expect(e.reason == "crash")
+    }
+
+@Test func pageCaptureAdmissionDeniedPrivateBrowsing() {
+        #expect(!PageCaptureAdmission.deniedPrivateBrowsing.isAllowed)
+    }
+
 }

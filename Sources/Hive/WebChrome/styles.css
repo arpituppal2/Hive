@@ -5335,3 +5335,132 @@ body[data-theme="light"] {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+
+/* ============================================================
+   Zen URL Bar Quick Actions Provider (studied from ZenUBActionsProvider + ZenUBGlobalActions)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================ */
+
+.urlbar-quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.urlbar-action-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.1s;
+}
+
+.urlbar-action-item:hover {
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.urlbar-action-item[data-selected] {
+  background: var(--zen-colors-tertiary, #f0f0f5);
+  color: var(--accent);
+}
+
+.urlbar-action-item .action-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.urlbar-action-item .action-label {
+  flex: 1;
+}
+
+.urlbar-action-item .action-shortcut {
+  font-size: 10px;
+  color: var(--ink-secondary);
+}
+
+/* URL bar results learner (adaptive ranking) */
+.urlbar-result-rank {
+  font-size: 9px;
+  color: var(--ink-secondary);
+  margin-left: auto;
+}
+
+/* ============================================================
+   Zen Session Store + Window Sync patterns
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================ */
+
+.session-restore-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  background: color-mix(in srgb, var(--success, #4caf50) 8%, transparent);
+  color: var(--success, #4caf50);
+}
+
+.session-restore-indicator::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success, #4caf50);
+  animation: restore-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes restore-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* ============================================================
+   Global command palette comprehensive list
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.global-command-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+}
+
+.global-command-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.global-command-item:hover {
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.global-command-item[data-highlight] {
+  background: var(--zen-colors-tertiary);
+  color: var(--accent);
+}
+
+.global-command-item .cmd-icon {
+  opacity: 0.6;
+  font-size: 14px;
+}
