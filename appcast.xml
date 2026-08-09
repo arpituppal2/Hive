@@ -16,6 +16,7 @@
         sparkle:shortVersionString="1.0.0"
         sparkle:os="macos"
         length="179607822"
+        sparkle:edSignature=""
         type="application/octet-stream"/>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
     </item>
