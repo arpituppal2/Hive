@@ -274,6 +274,11 @@ struct WebChromeAgentQuery: Codable, Sendable {
     let format: String?
 }
 
+struct WebChromeAgentKeyRequest: Codable, Sendable {
+    let token: String
+    let key: String
+}
+
 struct WebChromeAgentEvaluate: Codable, Sendable {
     let token: String
     let expression: String

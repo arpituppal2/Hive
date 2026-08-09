@@ -216,7 +216,11 @@ enum AXTreeParser {
                     }
                 }
             }
-            for (childRef, parentRef) in parentOf where parentRef == ref {
+            // Supplement in deterministic capture order (nodeOrder), never
+            // parentOf's dictionary iteration order — Swift dicts randomize
+            // iteration per process, which made this flaky across runs.
+            for childRef in nodeOrder {
+                guard let parentRef = parentOf[childRef], parentRef == ref else { continue }
                 if !childRefs.contains(childRef) { childRefs.append(childRef) }
             }
             if !childRefs.isEmpty {

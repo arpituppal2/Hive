@@ -100,6 +100,24 @@ extension WebChromeBridge {
             return true
         }
 
+        bridge.register("hive.agent.press") { (request: WebChromeAgentKeyRequest) async throws -> Bool in
+            try Self.authorize(request.token)
+            try await state.cdpClient.press(key: request.key)
+            return true
+        }
+
+        bridge.register("hive.agent.back") { (request: WebChromeToken) async throws -> Bool in
+            try Self.authorize(request.token)
+            try await state.cdpClient.goBack()
+            return true
+        }
+
+        bridge.register("hive.agent.forward") { (request: WebChromeToken) async throws -> Bool in
+            try Self.authorize(request.token)
+            try await state.cdpClient.goForward()
+            return true
+        }
+
         bridge.register("hive.agent.reload") { (request: WebChromeToken) async throws -> Bool in
             try Self.authorize(request.token)
             try await state.cdpClient.reload()

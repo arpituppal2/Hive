@@ -112,7 +112,7 @@ struct WebChromeBridgeContractTests {
             "agent.fill", "agent.grep", "agent.navigate", "agent.newTab",
             "agent.read", "agent.reload", "agent.screenshot", "agent.scroll",
             "agent.snapshot", "agent.tabs", "agent.type", "agent.wait",
-            "agent.axContext",
+            "agent.axContext", "agent.press", "agent.back", "agent.forward",
         ]
         let absent = tools.subtracting(registered).sorted()
         #expect(absent.isEmpty, "Agent tool methods missing: \(absent).")

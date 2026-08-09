@@ -300,4 +300,26 @@ struct CDPClientTests {
         #expect(ids.count == 3)
         #expect(ids == [1, 2, 3])
     }
+
+    // MARK: - Key press validation
+
+    @Test func pressRejectsEmptyKeyBeforeAnySend() async {
+        let client = CDPClient()
+        var sendCount = 0
+
+        client.wireSend { _ in
+            sendCount += 1
+            // Fail fast if the guard is bypassed
+            client.handleResponse("{\"id\":1,\"result\":{}}")
+        }
+
+        do {
+            try await client.press(key: "   ")
+            Issue.record("press should throw on an empty key")
+        } catch {
+            // Expected: validation error, nothing dispatched
+        }
+
+        #expect(sendCount == 0)
+    }
 }

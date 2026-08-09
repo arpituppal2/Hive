@@ -445,6 +445,37 @@ extension BrowserState {
     }
 
 
+    /// Best-effort live-page accessibility context for the agent pipeline
+    /// (P2.2 grounding). Returns the AXTree prompt for the active tab, or nil
+    /// when the page is private/blank/web-chrome or no CDP-wired browser is
+    /// live. Bounded at 6s so a wedged CDP target can never stall the
+    /// pipeline; the council falls back to its title-excerpt context on nil.
+    func currentPageAXContext() async -> String? {
+        guard !isPrivateBrowsing,
+              let model = activeModel,
+              let url = model.url,
+              url.absoluteString != "about:blank",
+              url.absoluteString != Self.webChromeStartURL.absoluteString,
+              model.browser != nil
+        else { return nil }
+
+        let contextTask = Task { () -> String? in
+            do {
+                let tree = try await cdpClient.snapshotContext()
+                return tree.toPromptContext()
+            } catch {
+                return nil
+            }
+        }
+        let timeoutTask = Task {
+            try? await Task.sleep(for: .seconds(6))
+            contextTask.cancel()
+        }
+        let result = await contextTask.value
+        timeoutTask.cancel()
+        return result
+    }
+
     // MARK: - Unified Agent Pipeline
 
     /// Runs the full AI agent pipeline: council → deep research → browser actions.
@@ -465,7 +496,13 @@ extension BrowserState {
             guard let self else { return }
 
             // ── Phase 1: Council ──
-            self.conveneCouncil(question: trimmed)
+            // Ground the verdict in the live page structure (P2.2): best-effort
+            // AXTree context, bounded so a wedged CDP target can never stall
+            // the pipeline. Nil falls back to buildPageContext() inside the
+            // council (title excerpt only).
+            self.updateAgentTask(phase: "council", label: "Reading page structure…", progress: 0)
+            let pageContext = await self.currentPageAXContext()
+            self.conveneCouncil(question: trimmed, pageContext: pageContext)
             // Wait for council to finish (poll the state since conveneCouncil is async)
             while self.isCouncilConvening && !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(200))

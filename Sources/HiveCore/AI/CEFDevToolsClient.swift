@@ -259,6 +259,10 @@ public final class CDPClient {
 
     /// Press a key (Enter, Escape, Tab, etc.).
     public func press(key: String) async throws {
+        let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            throw CDPError(code: -1, message: "empty key")
+        }
         _ = try await send(method: "Input.dispatchKeyEvent", params: [
             "type": "rawKeyDown",
             "key": key,
