@@ -60,4 +60,9 @@ struct BrowserTabAIContextTests {
         let tab = BrowserTab(url: URL(string: "https://example.com"))
         #expect(!tab.id.isEmpty, "Every tab must have a unique identifier")
     }
+
+    @Test func tabIDisNotEmptyAfterInit() {
+        let tab = BrowserTab(url: URL(string: "https://example.com"))
+        #expect(!tab.id.isEmpty)
+    }
 }

@@ -145,6 +145,8 @@
 </div>
 
 <!-- START PAGE (hive://start) -->
+<
+<canvas id="hiveParticles" class="stage-particles" aria-hidden="true"></canvas>
 <main class="stage" id="stage" hidden role="main" aria-label="Start page">
   <div class="brand">
     <div class="brand__mark" aria-hidden="true">
@@ -192,5 +194,22 @@
 </main>
 
 <script src="/app.js"></script>
+
+<script>
+(function(){
+  if (window.__hiveParticlesInstalled) return;
+  window.__hiveParticlesInstalled = true;
+  var pCount = 30;
+  document.addEventListener('DOMContentLoaded', function(){
+    var c = document.getElementById('hiveParticles');
+    if (!c) return;
+    var ctx = c.getContext('2d'), parts = [];
+    function sz() { c.width = c.offsetWidth; c.height = c.offsetHeight; }
+    sz(); window.addEventListener('resize', sz);
+    for (var i=0;i<pCount;i++) parts.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.6+0.4,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,o:Math.random()*0.25+0.05});
+    (function draw(){ctx.clearRect(0,0,c.width,c.height);parts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(249,115,22,'+p.o+')';ctx.fill();});requestAnimationFrame(draw);})();
+  });
+})();
+</script>
 </body>
 </html>
