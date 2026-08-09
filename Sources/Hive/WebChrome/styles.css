@@ -5511,3 +5511,378 @@ body[data-theme="light"] {
 .import-policy-badge .skipped-count {
   color: var(--warning, #ff9800);
 }
+
+
+/* ============================================================
+   WebGPU Accelerated Indicator (W3C standard, 70% support)
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.webgpu-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+}
+
+.webgpu-indicator::before {
+  content: "GPU";
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   WebMCP Model Context Protocol indicator
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.webmcp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+}
+
+.webmcp-badge::after {
+  content: "MCP";
+  font-weight: 700;
+  font-size: 7px;
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+
+/* ============================================================
+   Ladybird Alpha Engine Indicator
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.engine-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  border: 1px solid var(--hairline);
+}
+
+.engine-indicator .engine-name {
+  font-weight: 600;
+}
+
+.engine-indicator .engine-version {
+  font-family: monospace;
+  font-size: 9px;
+  color: var(--ink-secondary);
+}
+
+/* ============================================================
+   Boost Collection + Reading List patterns
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.boost-collection-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.boost-collection-item:hover {
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.reading-list-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.reading-list-entry .rl-title {
+  flex: 1;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reading-list-entry .rl-domain {
+  font-size: 10px;
+  color: var(--ink-secondary);
+}
+
+/* ============================================================
+   Privacy Report patterns
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.privacy-report-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 12px;
+}
+
+.privacy-report-row + .privacy-report-row {
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 50%, transparent);
+}
+
+.privacy-report-count {
+  font-weight: 600;
+  font-family: monospace;
+  color: var(--accent);
+}
+
+/* ============================================================
+   Round 15 — Research-based patterns
+   (Lightpanda, Browser Use, WebLLM, WASM GC, Swift 6,
+    Agent Workflow, Spatial Workspace, Snapshot DOM,
+    Prompt Composer — Disco-style)
+   ============================================================ */
+
+.lightpanda-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.agent-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  font-size: 10px;
+  font-weight: 500;
+  background: color-mix(in srgb, #22c55e 10%, transparent);
+  color: #22c55e;
+  border: 1px solid color-mix(in srgb, #22c55e 20%, transparent);
+}
+
+.agent-status-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: status-pulse 2s ease-in-out infinite;
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+  50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
+}
+
+.webllm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.webllm-badge::after {
+  content: "LOCAL";
+  font-size: 7px;
+  letter-spacing: 0.8px;
+  opacity: 0.7;
+}
+
+.wasm-gc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #a78bfa 12%, transparent);
+  color: #a78bfa;
+  border: 1px solid color-mix(in srgb, #a78bfa 20%, transparent);
+}
+
+.swift6-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #f97316 12%, transparent);
+  color: #f97316;
+  border: 1px solid color-mix(in srgb, #f97316 20%, transparent);
+}
+
+.swift-cpp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #60a5fa 12%, transparent);
+  color: #60a5fa;
+  border: 1px solid color-mix(in srgb, #60a5fa 20%, transparent);
+}
+
+.agent-workflow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s2);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  font-size: 11px;
+}
+
+.agent-workflow__step {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 4px var(--s2);
+  border-radius: var(--r-sm);
+  transition: background 0.12s ease;
+}
+
+.agent-workflow__step[data-status="done"] { color: var(--text); }
+.agent-workflow__step[data-status="done"]::before { content: "\2713"; color: #22c55e; font-weight: 700; font-size: 10px; }
+.agent-workflow__step[data-status="active"] { background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); font-weight: 500; }
+.agent-workflow__step[data-status="active"]::before { content: "\25CF"; color: var(--accent); font-size: 7px; animation: status-pulse 1.5s ease-in-out infinite; }
+.agent-workflow__step[data-status="pending"] { color: var(--text-faint); }
+.agent-workflow__step[data-status="pending"]::before { content: "\25CB"; color: var(--text-faint); font-size: 8px; }
+.agent-workflow__step[data-status="failed"] { color: #f87171; }
+.agent-workflow__step[data-status="failed"]::before { content: "\2717"; color: #f87171; font-weight: 700; font-size: 10px; }
+
+.spatial-workspace {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
+  padding: var(--s2);
+}
+
+.spatial-workspace__node {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.spatial-workspace__node:hover {
+  background: var(--surface-hover);
+  border-color: var(--hairline-strong);
+}
+
+.spatial-workspace__node[data-active="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.snapshot-dom-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--r-sm);
+  font-size: 10px;
+  font-family: var(--mono);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid var(--hairline);
+  color: var(--text-muted);
+}
+
+.snapshot-dom-indicator::before {
+  content: "#";
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.prompt-composer {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--s3);
+  border-radius: var(--r-md);
+  background: var(--bg-elev);
+  border: 1px solid var(--hairline);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.prompt-composer:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.prompt-composer__glyph {
+  flex: none;
+  color: var(--accent);
+  opacity: 0.7;
+  width: 16px;
+  height: 16px;
+}
+
+.prompt-composer__input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--text);
+  font-family: var(--font);
+}
+
+.prompt-composer__input::placeholder { color: var(--text-faint); }
+
+.prompt-composer__mode {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  font-size: 10px;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}

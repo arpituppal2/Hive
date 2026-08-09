@@ -7110,4 +7110,144 @@ struct BeeQueueTests {
         #expect(d.skippedCount == 0)
     }
 
+
+
+@Test func providerPreferenceCases() {
+        #expect(ProviderPreference.allCases.count == 4)
+        #expect(ProviderPreference.auto == .auto)
+        #expect(ProviderPreference.mlx == .mlx)
+    }
+
+@Test func swarmResponseRouteCases() {
+        #expect(SwarmResponseRoute.allCases.count == 2)
+        #expect(SwarmResponseRoute.genericQuestion == .genericQuestion)
+    }
+
+@Test func trustedTurnScopeCases() {
+        #expect(TrustedTurnScope.allCases.count == 4)
+        #expect(TrustedTurnScope.pageOnly == .pageOnly)
+    }
+
+@Test func hiveReadinessReportCodable() throws {
+        let r = HiveReadinessReport(appInitialized: true, browserShellReady: true, message: "ok")
+        let data = try JSONEncoder().encode(r)
+        let back = try JSONDecoder().decode(HiveReadinessReport.self, from: data)
+        #expect(back.isReady)
+        #expect(back.message == "ok")
+    }
+
+@Test func readerArtifactInit() {
+        let a = ReaderArtifact(url: URL(string: "https://example.com")!, title: "Test", contentHTML: "<p>body</p>")
+        #expect(a.title == "Test")
+        #expect(a.contentHTML == "<p>body</p>")
+    }
+
+@Test func browserSessionRepairReport() {
+        let r = BrowserSessionRepairReport()
+        #expect(!r.didRepair)
+        #expect(r.removedPrivateTabs == 0)
+        #expect(r.repairedActiveReferences == 0)
+    }
+
+@Test func browsingHistoryEntryInit() {
+        let d = Date()
+        let e = BrowsingHistoryEntry(url: URL(string: "https://example.com")!, title: "Test", visitDate: d)
+        #expect(e.title == "Test")
+        #expect(e.visitDate == d)
+    }
+
+@Test func preferenceMemoryInit() {
+        let m = PreferenceMemory(path: "food.dietary", value: "vegetarian", confidence: 0.95, evidence: "user stated")
+        #expect(m.path == "food.dietary")
+        #expect(m.value == "vegetarian")
+    }
+
+@Test func browserPresetChromeDefault() {
+        let p = BrowserPreset.chrome
+        #expect(p.tabPosition == .top)
+        #expect(p.defaultSearchEngine == "Google")
+    }
+
+@Test func rendererRecoveryPlanInit() {
+        let event = RendererFailureEvent(tabID: "t1", reason: "crash")
+        let p = RendererRecoveryPlan(event: event, decision: .retryAutomatically, retryAfter: 0.5)
+        #expect(p.event.tabID == "t1")
+        #expect(p.decision == .retryAutomatically)
+    }
+
+@Test func voiceCommandContextDefaults() {
+        let ctx = VoiceCommandContext()
+        #expect(!ctx.hasActivePage)
+        #expect(!ctx.hasResearchProvider)
+        #expect(ctx.workspaceName == nil)
+    }
+
+@Test func voiceExecutionResultDefaults() {
+        let r = VoiceExecutionResult(text: "Hello")
+        #expect(r.text == "Hello")
+        #expect(r.providerLabel == "local")
+        #expect(r.shouldSpeak)
+    }
+
+@Test func deterministicVoiceRouteClassifierEmpty() {
+        let c = DeterministicVoiceRouteClassifier()
+        let d = c.classify("", context: VoiceCommandContext())
+        #expect(d.route == .clarification)
+        #expect(d.needsClarification)
+    }
+
+@Test func deterministicVoiceRouteClassifierResearch() {
+        let c = DeterministicVoiceRouteClassifier()
+        let ctx = VoiceCommandContext(hasResearchProvider: true)
+        let d = c.classify("research swift concurrency", context: ctx)
+        #expect(d.route == .research)
+    }
+
+@Test func swarmResponseDiagnosticsInit() {
+        let diag = SwarmResponseDiagnostics(
+            contextNodeCount: 3,
+            contextSummary: "summary",
+            rankerProvider: "mock",
+            providerLabel: "mock",
+            durationMS: 100,
+            pageTitle: "Test",
+            pageHost: "example.com"
+        )
+        #expect(diag.contextNodeCount == 3)
+        #expect(diag.providerLabel == "mock")
+    }
+
+@Test func swarmResponseResolutionCases() {
+        #expect(SwarmResponseResolution.apply == .apply)
+        #expect(SwarmResponseResolution.contextChanged == .contextChanged)
+        #expect(SwarmResponseResolution.drop == .drop)
+    }
+
+@Test func swarmResponseRequestText() {
+        let r = SwarmResponseRequest.text(intent: "hello", maxTokens: 256)
+        #expect(r.route == .genericQuestion)
+        #expect(r.role == .summarizer)
+    }
+
+@Test func swarmResponseRequestVoice() {
+        let r = SwarmResponseRequest.voice(route: .pageQuestion, intent: "what is this")
+        #expect(r.route == .pageQuestion)
+        #expect(r.role == .pageQa)
+    }
+
+@Test func readingListEntryInit() throws {
+        let url = try #require(URL(string: "https://example.com"))
+        let e = ReadingListEntry(url: url, title: "Test Article")
+        #expect(e.title == "Test Article")
+        #expect(!e.isRead)
+        #expect(e.host == "example.com")
+    }
+
+@Test func contextScopeSummaryRowInit() {
+        let row = ContextScopeSummary.Row(label: "Page", detail: "Available", isIncluded: true)
+        #expect(row.label == "Page")
+        #expect(row.isIncluded)
+        #expect(row.id == "Page")
+    }
+
 }
