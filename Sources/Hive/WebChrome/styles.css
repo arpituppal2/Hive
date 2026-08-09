@@ -2188,3 +2188,160 @@ body[data-theme="light"] .shields-panel {
 body[data-theme="light"] .shields-stat {
   background: rgba(250, 250, 252, 0.95);
 }
+
+
+/* ============================================================
+   Zen Sidebar Reveal Animation (ported from zen-browser/desktop)
+   License: MPL-2.0
+   ============================================================
+   The famous 100-point linear() easing curve that makes Zen''s
+   compact mode sidebar feel buttery-smooth. Also includes the
+   tab drag transition and pinned-tab unpin animation. */
+
+/* 100-point linear() easing — Zen''s signature buttery reveal */
+:root {
+  --zen-compact-easing: linear(
+    0 0%,
+    0.002748 1%,
+    0.010544 2%,
+    0.022757 3%,
+    0.038804 4%,
+    0.058151 5%,
+    0.080308 6%,
+    0.104828 7%,
+    0.131301 8%,
+    0.159358 9%,
+    0.188662 10%,
+    0.21891 11%,
+    0.249828 12%,
+    0.281172 13%,
+    0.312724 14%,
+    0.344288 15%,
+    0.375693 16%,
+    0.40679 17%,
+    0.437447 18%,
+    0.467549 19%,
+    0.497 20%,
+    0.525718 21%,
+    0.553633 22%,
+    0.580688 23%,
+    0.60684 24%,
+    0.632052 25%,
+    0.656298 26%,
+    0.679562 27%,
+    0.701831 28%,
+    0.723104 29%,
+    0.743381 30%,
+    0.76267 31%,
+    0.780983 32%,
+    0.798335 33%,
+    0.814744 34%,
+    0.830233 35%,
+    0.844826 36%,
+    0.858549 37%,
+    0.87143 38%,
+    0.883498 39%,
+    0.894782 40%,
+    0.905314 41%,
+    0.915125 42%,
+    0.924247 43%,
+    0.93271 44%,
+    0.940547 45%,
+    0.947787 46%,
+    0.954463 47%,
+    0.960603 48%,
+    0.966239 49%,
+    0.971397 50%,
+    0.976106 51%,
+    0.980394 52%,
+    0.984286 53%,
+    0.987808 54%,
+    0.990984 55%,
+    0.993837 56%,
+    0.99639 57%,
+    0.998664 58%,
+    1.000679 59%,
+    1.002456 60%,
+    1.004011 61%,
+    1.005363 62%,
+    1.006528 63%,
+    1.007522 64%,
+    1.008359 65%,
+    1.009054 66%,
+    1.009618 67%,
+    1.010065 68%,
+    1.010405 69%,
+    1.010649 70%,
+    1.010808 71%,
+    1.01089 72%,
+    1.010904 73%,
+    1.010857 74%,
+    1.010757 75%,
+    1.010611 76%,
+    1.010425 77%,
+    1.010205 78%,
+    1.009955 79%,
+    1.009681 80%,
+    1.009387 81%,
+    1.009077 82%,
+    1.008754 83%,
+    1.008422 84%,
+    1.008083 85%,
+    1.00774 86%,
+    1.007396 87%,
+    1.007052 88%,
+    1.00671 89%,
+    1.006372 90%,
+    1.00604 91%,
+    1.005713 92%,
+    1.005394 93%,
+    1.005083 94%,
+    1.004782 95%,
+    1.004489 96%,
+    1.004207 97%,
+    1.003935 98%,
+    1.003674 99%,
+    1.003423 100%
+  );
+}
+
+/* Zen tab drag feedback */
+.tab.dragging {
+  opacity: 0.8;
+  transform: scale(0.97);
+  transition: transform 0.15s ease-in-out, opacity 0.15s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+}
+
+/* Tab pin/unpin transition (from zen-pinned-changed) */
+.tab .tab-reset-pin-button {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+}
+
+.tab:hover .tab-reset-pin-button,
+.tab.pinned-changed .tab-reset-pin-button {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* ============================================================
+   Zen Splitter Drag Handle
+   Invisible grab zone that appears on hover for resizing
+   ============================================================ */
+
+.splitter-handle {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  background: var(--hairline);
+  cursor: col-resize;
+}
+
+.splitter-handle:hover,
+.splitter-handle.dragging {
+  opacity: 1;
+}

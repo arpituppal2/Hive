@@ -193,4 +193,13 @@ struct TabOrganizationNormalizerTests {
         #expect(result.repairReasons.contains(.duplicateProfile(profile)))
         #expect(result.repairReasons.contains(.duplicateGroup(group)))
     }
+
+@Test func repairReasonDuplicateTabCreatesCorrectly() {
+        let r = TabOrganizationNormalizer.RepairReason.duplicateTab("tab-1")
+        if case .duplicateTab(let id) = r {
+            #expect(id == "tab-1")
+        } else {
+            #expect(Bool(false))
+        }
+    }
 }

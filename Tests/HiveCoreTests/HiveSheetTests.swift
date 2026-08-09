@@ -311,4 +311,8 @@ struct HiveSheetTests {
         let row = SheetRow(id: "r1", cells: [])
         #expect(row.id == "r1")
     }
+
+@Test func sheetColumnKindTextIsText() {
+        #expect(SheetColumn.Kind.text == .text)
+    }
 }

@@ -6327,4 +6327,20 @@ struct BeeQueueTests {
 @Test func autoArchivePolicyDefaultThreshold() {
         #expect(AutoArchivePolicy.defaultThreshold == 14 * 86_400)
     }
+
+@Test func hiveColorTokensAreNonEmpty() {
+        #expect(!HiveColorToken.allCases.isEmpty)
+    }
+
+@Test func freshnessCasesAreNonEmpty() {
+        #expect(!Freshness.allCases.isEmpty)
+    }
+
+@Test func contradictionStateCasesAreNonEmpty() {
+        #expect(!ContradictionState.allCases.isEmpty)
+    }
+
+@Test func splitOrientationVerticalIsVertical() {
+        #expect(SplitOrientation.vertical == .vertical)
+    }
 }
