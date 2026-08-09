@@ -1467,3 +1467,198 @@ function addReasoningChain(label, steps, kind) {
   content.appendChild(chain);
   content.scrollTop = content.scrollHeight;
 }
+
+
+
+// ============================================================
+// Zen Compact Mode Mouse Tracker (from ZenCompactMode.mjs)
+// Tracks mouse position relative to window for compact mode
+// ============================================================
+
+var HiveCompactMode = {
+  _preference: false,
+  _outsideWindowOffset: 250,
+  _hoverDelay: 0,
+  _flashTimeouts: {},
+
+  get preference() {
+    return document.documentElement.getAttribute('data-compact-mode') === 'true';
+  },
+
+  set preference(value) {
+    document.documentElement.setAttribute('data-compact-mode', value);
+    this._updateSidebarVisibility();
+  },
+
+  // Flash toolbar (briefly show) when a new tab opens
+  flashToolbar(duration) {
+    duration = duration || 800;
+    var el = document.getElementById('toolbar');
+    if (!el) return;
+    clearTimeout(this._flashTimeouts.toolbar);
+    el.setAttribute('data-compact-mode-active', 'true');
+    this._flashTimeouts.toolbar = setTimeout(function () {
+      el.removeAttribute('data-compact-mode-active');
+    }, duration);
+  },
+
+  // Track mouse outside window — keep sidebar open if cursor is near
+  _onMouseLeave(e) {
+    if (!this.preference) return;
+    var x = e.clientX, y = e.clientY;
+    var w = window.innerWidth, h = window.innerHeight;
+    if (x < 0 && Math.abs(x) < this._outsideWindowOffset) return; // near left edge
+    if (x > w && (x - w) < this._outsideWindowOffset) return; // near right edge
+    if (y < 0 && Math.abs(y) < this._outsideWindowOffset) return; // near top
+    if (y > h && (y - h) < this._outsideWindowOffset) return; // near bottom
+    this._collapseSidebar();
+  },
+
+  _collapseSidebar() {
+    document.getElementById('sidebar')?.removeAttribute('data-user-show');
+  },
+
+  _updateSidebarVisibility() {
+    var sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+    if (this.preference) {
+      sidebar.setAttribute('data-compact', 'true');
+    } else {
+      sidebar.removeAttribute('data-compact');
+    }
+  },
+
+  toggle() {
+    this.preference = !this.preference;
+  },
+
+  init() {
+    document.addEventListener('mouseleave', this._onMouseLeave.bind(this));
+    window.addEventListener('sizemodechange', function () {
+      document.getElementById('sidebar')?.removeAttribute('data-user-show');
+      document.getElementById('toolbar')?.removeAttribute('data-compact-mode-active');
+    });
+  }
+};
+
+// ============================================================
+// Zen Pinned Tab Manager (from ZenPinnedTabManager.mjs)
+// Reset pinned tabs to their stored URL on close/click
+// ============================================================
+
+var HivePinnedTabManager = {
+  _pinnedUrlStore: {},
+  _maxEssentials: 12,
+
+  // Store the pinned URL for a tab
+  setPinnedUrl(tabId, url) {
+    this._pinnedUrlStore[tabId] = url;
+  },
+
+  // Reset a pinned tab to its stored URL
+  resetPinnedTab(tabId) {
+    var storedUrl = this._pinnedUrlStore[tabId];
+    if (!storedUrl) return;
+    var tab = state.tabs.find(function (t) { return t.id === tabId; });
+    if (!tab) return;
+    // Navigate via the registered omnibox bridge
+    api('omnibox.navigate', { url: storedUrl });
+  },
+
+  // On pinned tab click: switch to it; if already active, reset to pinned URL
+  onPinnedTabClick(tabId) {
+    if (state.activeTabID === tabId) {
+      this.resetPinnedTab(tabId);
+    } else {
+      selectTab(tabId);
+    }
+  },
+
+  // Count essentials (pinned tabs shown as favicon-only)
+  get essentialCount() {
+    return state.tabs.filter(function (t) { return t.pinned; }).length;
+  },
+
+  get canAddEssential() {
+    return this.essentialCount < this._maxEssentials;
+  }
+};
+
+// ============================================================
+// Edge Workspace Sync + Vivaldi Tab Tiling integration
+// ============================================================
+
+var HiveWorkspaces = {
+  // Switch workspace and apply its layout
+  switchTo(spaceId) {
+    var idx = state.spaces.findIndex(function (s) { return s.id === spaceId; });
+    if (idx < 0) return;
+    api('switchToSpace', { spaceIndex: idx });
+  },
+
+  // Get workspace accent color
+  getAccent(spaceName) {
+    var accents = {
+      personal: '#6366f1',
+      work: '#3b82f6',
+      research: '#f59e0b',
+      creative: '#ec4899',
+      finance: '#10b981'
+    };
+    return accents[spaceName.toLowerCase()] || accents.personal;
+  }
+};
+
+// ============================================================
+// Vivaldi Tab Tiling — arrange tabs in grid within a single view
+// ============================================================
+
+var HiveTabTiling = {
+  // Tile currently selected tabs in a grid (uses split view)
+  tileSelected(tabIds, layout) {
+    layout = layout || 'horizontal';
+    api('requestSplitView', { orientation: layout });
+  },
+
+  // Exit tiling, restore to individual tabs
+  untiled() {
+    api('mergeSplitView');
+  },
+
+  // Quick tile: tile active tab with the next tab
+  quickTile() {
+    var idx = state.tabs.findIndex(function (t) { return t.id === state.activeTabID; });
+    if (idx < 0 || idx + 1 >= state.tabs.length) return;
+    this.tileSelected([state.tabs[idx].id, state.tabs[idx + 1].id], 'horizontal');
+  }
+};
+
+// ============================================================
+// Vivaldi Quick Commands palette (F2-style)
+// ============================================================
+
+var HiveQuickCommands = {
+  _visible: false,
+
+  toggle() {
+    this._visible = !this._visible;
+    var el = document.getElementById('quick-commands');
+    if (!el) return;
+    el.hidden = !this._visible;
+    if (this._visible) {
+      var input = el.querySelector('input');
+      if (input) { input.value = ''; input.focus(); }
+    }
+  },
+
+  filter(query) {
+    query = (query || '').toLowerCase();
+    var items = document.querySelectorAll('#quick-commands .qc-item');
+    items.forEach(function (item) {
+      item.hidden = query && item.textContent.toLowerCase().indexOf(query) === -1;
+    });
+  }
+};
+
+// Init compact mode on load
+HiveCompactMode.init();

@@ -6637,4 +6637,48 @@ struct BeeQueueTests {
 @Test func honeycombEdgeRelationAllCasesNonEmpty() {
         #expect(!HoneycombStore.EdgeRelation.allCases.isEmpty)
     }
+
+@Test func downloadStatePendingIsPending() {
+        #expect(DownloadState.pending == .pending)
+    }
+
+@Test func downloadStateInProgressIsInProgress() {
+        #expect(DownloadState.inProgress == .inProgress)
+    }
+
+@Test func downloadStateCompletedIsCompleted() {
+        #expect(DownloadState.completed == .completed)
+    }
+
+@Test func searchEngineKindGoogleIsGoogle() {
+        #expect(SearchEngineKind.google == .google)
+    }
+
+@Test func tabPositionVerticalIsVertical() {
+        #expect(TabPosition.vertical == .vertical)
+    }
+
+@Test func splitOrientationHorizontalIsHorizontal() {
+        #expect(SplitOrientation.horizontal == .horizontal)
+    }
+
+@Test func sheetColumnKindNumberIsNumber() {
+        #expect(SheetColumn.Kind.number == .number)
+    }
+
+@Test func sheetColumnKindDateIsDate() {
+        #expect(SheetColumn.Kind.date == .date)
+    }
+
+@Test func sheetColumnKindBoolIsBool() {
+        #expect(SheetColumn.Kind.bool == .bool)
+    }
+
+@Test func navigationHealthObservationCompletesAfterCycle() {
+        var obs = NavigationHealthObservation()
+        #expect(obs.state == .waitingForStart)
+        _ = obs.observe(isLoading: true)
+        _ = obs.observe(isLoading: false)
+        #expect(obs.state == .completed)
+    }
 }
