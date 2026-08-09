@@ -43,4 +43,12 @@ struct PageCaptureAdmissionTests {
             #expect(!d.userMessage.isEmpty)
         }
     }
+
+@Test func browserCommandsIncludeNewTab() {
+        #expect(BrowserCommand.allCases.contains(.newTab))
+    }
+
+    @Test func browserCommandCountIsReasonable() {
+        #expect(BrowserCommand.allCases.count >= 20)
+    }
 }

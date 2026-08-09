@@ -67,4 +67,9 @@ struct BrowserChromePreferencesTests {
         #expect(SplitOrientation.horizontal.toggled == .vertical)
         #expect(SplitOrientation.vertical.toggled == .horizontal)
     }
+
+@Test func browserPresetIncludesTabPosition() {
+        let preset = BrowserPreset(tabPosition: .vertical, tabDensity: .standard, defaultSearchEngine: "google", showBookmarkBar: false, contentBlockerEnabled: true)
+        #expect(preset.tabPosition == .vertical)
+    }
 }

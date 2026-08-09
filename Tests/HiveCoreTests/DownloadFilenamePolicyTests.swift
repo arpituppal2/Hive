@@ -53,4 +53,14 @@ struct DownloadFilenamePolicyTests {
         let result = DownloadFilenamePolicy.sanitizedFilename("photo\u{1F4F7}.png")
         #expect(!result.isEmpty)
     }
+
+@Test func emptyNameReturnsFallback() {
+        let result = DownloadFilenamePolicy.sanitizedFilename("", fallback: "untitled")
+        #expect(result == "untitled")
+    }
+
+    @Test func uniqueFilenameWithoutCollision() {
+        let result = DownloadFilenamePolicy.uniqueFilename("photo.jpg", existingNames: ["video.mp4"])
+        #expect(result == "photo.jpg")
+    }
 }
