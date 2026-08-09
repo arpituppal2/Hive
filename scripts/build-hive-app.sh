@@ -200,6 +200,39 @@ else
   printf '  Sparkle.framework not found at %s — skipping (ad-hoc build without Sparkle)\n' "$SPARKLE_SOURCE"
 fi
 
+printf '%s\n' '==> Stamping app version + Sparkle feed keys'
+# Release version stamping. CefSwift's default Info.plist carries 1.0 (1);
+# release builds should stamp real values so Sparkle's appcast comparison
+# (sparkle:version == CFBundleVersion) actually works.
+if [[ -n "${HIVE_VERSION:-}" ]]; then
+  /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $HIVE_VERSION" "$APP_PATH/Contents/Info.plist" 2>/dev/null || \
+    /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $HIVE_VERSION" "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
+  printf '  CFBundleShortVersionString -> %s\n' "$HIVE_VERSION"
+fi
+if [[ -n "${HIVE_BUILD:-}" ]]; then
+  /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $HIVE_BUILD" "$APP_PATH/Contents/Info.plist" 2>/dev/null || \
+    /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $HIVE_BUILD" "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
+  printf '  CFBundleVersion -> %s\n' "$HIVE_BUILD"
+fi
+
+# Sparkle activation: SUFeedURL is required or UpdateManager silently disables
+# itself (every build so far logged "No SUFeedURL — disabled"). Ad-hoc builds
+# skip by default; release builds default to the GitHub Pages appcast and can
+# be overridden with HIVE_APPCAST_URL.
+FEED_URL="${HIVE_APPCAST_URL:-}"
+if [[ "$ALLOW_ADHOC" -eq 1 && -z "$FEED_URL" ]]; then
+  printf '%s\n' '  Sparkle feed: skipped (ad-hoc build, set HIVE_APPCAST_URL to test updates)'
+elif [[ -z "$FEED_URL" ]]; then
+  FEED_URL="https://arpituppal2.github.io/Hive/appcast.xml"
+fi
+if [[ -n "$FEED_URL" ]]; then
+  /usr/libexec/PlistBuddy -c "Add :SUFeedURL string $FEED_URL" "$APP_PATH/Contents/Info.plist" 2>/dev/null || \
+    /usr/libexec/PlistBuddy -c "Set :SUFeedURL $FEED_URL" "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
+  /usr/libexec/PlistBuddy -c 'Add :SUEnableAutomaticChecks bool true' "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
+  /usr/libexec/PlistBuddy -c 'Add :SUScheduledCheckInterval integer 86400' "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
+  printf '  Sparkle feed injected: %s (SUEnableAutomaticChecks=true, 24h interval)\n' "$FEED_URL"
+fi
+
 printf '%s\n' '==> Signing embedded worker, CEF nested code, SwiftPM resources, and outer app'
 sign_path() {
   local path="$1"

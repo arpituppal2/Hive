@@ -14,7 +14,7 @@ swift build --product Hive
 
 # Full test suite
 swift test
-# Result: 1446 tests / 144 suites passed (60.039 seconds)
+# Result: 1558 tests / 144 suites passed (~60 seconds)
 
 # Release app bundle (ad-hoc for local validation)
 scripts/build-hive-app.sh --allow-adhoc
@@ -161,7 +161,7 @@ Full license texts in `THIRD_PARTY_NOTICES.md`.
 
 - [x] Clean checkout builds successfully through documented production build command
 - [x] Application launches successfully without fatal logs, startup crashes, or hidden manual intervention
-- [x] Full automated test suite passes (1446 tests / 144 suites)
+- [x] Full automated test suite passes (1558 tests / 144 suites)
 - [x] Browser smoke flow passes end-to-end:
   - launch → readiness marker emitted within timeout
   - session recovery verified across two launches (SIGKILL + relaunch)
@@ -565,3 +565,49 @@ Brave adblock (Rust), CloudKit sync, Sparkle auto-update, Dark/light theme
 - [x] Tests: 1082 → 1528 (+446, +41.2%), 110+ distinct HiveCore types covered
 
 **SHIP STATUS: SHIPPED — v1.0.0 (build 120) — 1528 tests, 120 commits, ~89K CSS, 16 browsers/engines studied**
+
+---
+
+## Post-Ship Addendum 10 — Release-Pipeline Honesty Pass (2026-08-09, build 124)
+
+### What was actually broken (and fixed)
+
+1. **Sparkle was dead code.** `UpdateManager.swift` + `Sparkle.framework` staging were
+   shipped, but the build script never injected `SUFeedURL` into Info.plist — so every
+   build silently logged `No SUFeedURL — disabled`. Fixed in `build-hive-app.sh`:
+   - `SUFeedURL` injected (default `https://arpituppal2.github.io/Hive/appcast.xml`, overridable with `HIVE_APPCAST_URL`)
+   - `SUEnableAutomaticChecks=true` + `SUScheduledCheckInterval=86400`
+   - Ad-hoc builds skip the feed unless `HIVE_APPCAST_URL` is set (no false advertising in dev)
+   - Version stamping: `HIVE_VERSION` / `HIVE_BUILD` now set CFBundleShortVersionString/CFBundleVersion so `sparkle:version` comparisons are meaningful
+2. **Appcast was internally inconsistent.** `sparkle:version="1200"` matched nothing
+   (real build: CFBundleVersion=1) and `sparkle:edSignature` was empty — Sparkle 2
+   refuses an unsigned feed outright. `web/appcast.xml` now documents the two
+   publishing rules (version == CFBundleVersion; edSignature from `generate_appcast`)
+   and carries a matching version stamp.
+3. **AdblockEngine is unwired at the network layer.** `AdblockEngine.swift` and the
+   staged `libhive_adblock_ffi.dylib` ship, but there is no call site and no
+   CefRequestHandler/onBeforeResourceLoad in vendored CefSwift (only scheme handlers
+   for `hive://`). Honest status: **fallback list only today**; cosmetic injection via
+   the in-process CDP client and/or a CefSwift request-handler extension are the two
+   concrete paths (tracked in docs/RELEASE_PIPELINE.md).
+4. **Notarization remains blocked on Apple credentials** — script + pipeline exist
+   (`scripts/notarize-hive-app.sh`, wired into non-adhoc builds); needs APPLE_ID,
+   APPLE_APP_PASSWORD, and a real Developer ID + Team ID.
+
+### Verification (this pass)
+- `swift test`: **1558 tests / 144 suites** PASS (build 124, commit `32a4c479`)
+- `bash -n scripts/build-hive-app.sh`: syntax clean
+- CI/CD: build + preflight + smoke + session-recovery all green at 32a4c479
+
+### The honest release pipeline (see docs/RELEASE_PIPELINE.md for full commands)
+```
+1. Apple Developer Program creds (APPLE_ID, APPLE_APP_PASSWORD, TEAM_ID, DEVELOPER_ID_APPLICATION)
+2. HIVE_VERSION=1.0.1 HIVE_BUILD=125 bash scripts/build-hive-app.sh   # release (not --allow-adhoc)
+   -> signs + notarizes + staples the .dmg
+3. generate_appcast on the signed .dmg -> paste sparkle:edSignature into web/appcast.xml
+4. Upload .dmg to the GitHub release + appcast.xml to GitHub Pages
+5. Ship the Sparkle EdDSA private key (keychain: "Sparkle 2 Private Key") with the release
+   owner so future builds can sign appcasts.
+```
+
+**SHIP STATUS: v1.0.0 (build 124) — 1558 tests, 124 commits. Release pipeline de-deaded; remaining release work is credential-gated.**

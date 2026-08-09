@@ -19,7 +19,7 @@ bash scripts/build-research-worker.sh
 # Build the browser
 swift build --product Hive
 
-# Run tests (1082 tests, 143 suites)
+# Run tests (1558 tests, 144 suites)
 swift test
 
 # Create a local ad-hoc bundle
@@ -61,7 +61,8 @@ open dist/Hive.app
 - **Voice commands**: Local speech recognition + TTS output
 - **Command palette**: ⌘K with full browser command surface
 - **Tab search**: ⌘⇧A fuzzy search across all tabs
-- **Adblock**: Brave adblock-rust engine with cosmetic filtering
+- **Adblock**: Brave adblock-rust engine with cosmetic filtering (network-level blocking gated on a CefSwift request-handler extension — see docs/RELEASE_PIPELINE.md)
+- **Auto-update**: Sparkle 2 with feed-gated activation (SUFeedURL injected on release builds)
 - **Safe Browsing**: 4-byte hash prefixes to Google
 - **Web Chrome**: Full browser UI rendered in `hive://` scheme
 - **CDP Agent**: 16-tool agentic browsing bridge (navigate, snapshot, click, fill)
@@ -76,9 +77,9 @@ open dist/Hive.app
 Sources/
 ├── Hive/                    # The browser app (CEF-backed, @main)
 │   ├── HiveApp.swift         # App entry point
-│   ├── BrowserState.swift    # Single source of truth (7045 lines)
+│   ├── BrowserState.swift    # Single source of truth (monolithic)
 │   ├── BrowserWindow.swift   # Main window with chrome shell
-│   ├── WebChromeHandler.swift # hive:// scheme + JS bridge (1292 lines)
+│   ├── WebChromeHandler.swift # hive:// scheme + JS bridge
 │   ├── WebChrome/            # Web chrome HTML/CSS/JS assets
 │   ├── AdblockEngine.swift   # Brave adblock-rust FFI wrapper
 │   ├── CrashReporter.swift   # Signal handlers + crash submission
@@ -92,7 +93,7 @@ Sources/
 │   ├── Honeycomb/           # SQLite + FTS5 memory store
 │   └── ...
 Tests/
-├── HiveCoreTests/           # 86 test files, 1082 tests, 143 suites
+├── HiveCoreTests/           # 1558 tests, 144 suites
 native/
 ├── hive-fetch-boundary/     # Rust research fetch worker
 └── adblock-ffi/             # Brave adblock-rust C FFI
@@ -137,6 +138,7 @@ Architecture decisions are documented in:
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — Decision record (D-001 through D-007)
 - [`docs/RECOVERY_PLAN.md`](docs/RECOVERY_PLAN.md) — Recovery mission plan
 - [`.hive/mission/FINAL_VALIDATION.md`](.hive/mission/FINAL_VALIDATION.md) — Validation report
+- [`docs/RELEASE_PIPELINE.md`](docs/RELEASE_PIPELINE.md) — What's left to ship for real (notarization, Sparkle signing, adblock)
 
 ## License
 
