@@ -6828,4 +6828,61 @@ struct BeeQueueTests {
         #expect(TabAttachmentSummary.Classification.privateContent != .missing)
     }
 
+
+
+@Test func swarmRunStateCases() {
+        #expect(SwarmRunState.allCases.count == 6)
+        #expect(SwarmRunState.allCases.contains(.idle))
+        #expect(SwarmRunState.allCases.contains(.running))
+    }
+
+@Test func swarmRunStateIsActiveTrueForRunning() {
+        #expect(SwarmRunState.running.isActive)
+        #expect(!SwarmRunState.idle.isActive)
+    }
+
+@Test func navigationBlockNoticeScheme() {
+        let n = NavigationBlockNotice(scheme: "  FILE  ")
+        #expect(n.scheme == "file")
+    }
+
+@Test func navigationAttemptRegistryIssueReturnsUUID() {
+        let r = NavigationAttemptRegistry()
+        let id = r.issue(for: "tab-1")
+        #expect(r.isCurrent(tabID: "tab-1", attemptID: id))
+    }
+
+@Test func navigationHealthObservationStateInit() {
+        let o = NavigationHealthObservation()
+        #expect(o.state == .waitingForStart)
+    }
+
+@Test func sourceFetcherConfigDefaults() {
+        let c = SourceFetcher.Config()
+        #expect(c.maxRedirects >= 0)
+        #expect(c.timeout > .zero)
+    }
+
+@Test func tabInsertionPlannerItemInit() {
+        let item = TabInsertionPlanner.Item(id: "t1", workspaceID: UUID(), groupID: nil, isPinned: false, isEssential: false)
+        #expect(item.id == "t1")
+    }
+
+@Test func voiceRouteDecisionInit() {
+        let v = VoiceRouteDecision(route: .genericQuestion, confidence: 0.9, reason: "test", missingFields: [], clarificationPrompt: nil, requiresConfirmation: false)
+        #expect(v.confidence == 0.9)
+    }
+
+@Test func voiceTurnDisclosureKindCases() {
+        #expect(VoiceTurnDisclosure.Kind.allCases.count >= 8)
+        #expect(VoiceTurnDisclosure.Kind.listening != .speaking)
+    }
+
+@Test func navigationHealthObservationTimedOut() {
+        var o = NavigationHealthObservation()
+        _ = o.observe(isLoading: true)
+        _ = o.observe(isLoading: false)
+        #expect(o.state == .completed)
+    }
+
 }

@@ -4713,3 +4713,226 @@ body[data-theme="light"] {
   top: 25%;
   bottom: 25%;
 }
+
+
+/* ============================================================
+   Dia Memory Context Badge (studied from Dia browser)
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.ai-memory-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  transition: background 0.15s;
+}
+
+.ai-memory-badge:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.ai-memory-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: memory-pulse 2s ease-in-out infinite;
+}
+
+@keyframes memory-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* ============================================================
+   Vivaldi Command Chain Progress (studied from Vivaldi)
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.command-chain-progress {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 3px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--hairline);
+}
+
+.command-chain-step {
+  height: 100%;
+  flex: 1;
+  background: var(--accent);
+  transition: flex 0.3s ease, opacity 0.3s ease;
+}
+
+.command-chain-step[data-status="pending"] {
+  opacity: 0.3;
+  background: var(--ink-secondary);
+}
+
+.command-chain-step[data-status="active"] {
+  opacity: 1;
+  animation: chain-step-glow 1s ease-in-out infinite;
+}
+
+.command-chain-step[data-status="done"] {
+  opacity: 0.7;
+}
+
+.command-chain-step[data-status="failed"] {
+  opacity: 1;
+  background: var(--danger, #e53935);
+}
+
+@keyframes chain-step-glow {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent); }
+  50% { box-shadow: 0 0 6px 2px color-mix(in srgb, var(--accent) 60%, transparent); }
+}
+
+/* ============================================================
+   CSS View Transitions + Scroll-Driven Animations (W3C standards)
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(tab-content) {
+  animation: 0.2s ease-out both fade-out;
+}
+
+::view-transition-new(tab-content) {
+  animation: 0.2s ease-in both fade-in;
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+/* Scroll-driven tab indicator */
+.tab-scroll-indicator {
+  animation: tab-scroll-reveal linear;
+  animation-timeline: scroll(self);
+  animation-range: 0% 10%;
+}
+
+@keyframes tab-scroll-reveal {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   CSS Anchor Positioning for popovers (W3C standard)
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.popover-anchored {
+  position: absolute;
+  position-anchor: --popover-target;
+  position-area: bottom span-right;
+  inset-area: bottom span-right;
+  margin: 4px;
+  z-index: 500;
+}
+
+/* ============================================================
+   Brave Local LLM Indicator (studied from Brave Leo)
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.local-llm-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  background: color-mix(in srgb, var(--success, #4caf50) 10%, transparent);
+  color: var(--success, #4caf50);
+}
+
+.local-llm-indicator::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success, #4caf50);
+  box-shadow: 0 0 4px var(--success, #4caf50);
+}
+
+/* ============================================================
+   Zen Folder Icon (SVG-based, studied from ZenFolder.mjs)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================ */
+
+.zen-folder-icon {
+  display: inline-flex;
+  position: relative;
+  width: 28px;
+  height: 28px;
+}
+
+.zen-folder-icon .folder-back {
+  fill: var(--surface);
+  stroke: var(--hairline);
+  stroke-width: 1.5px;
+}
+
+.zen-folder-icon .folder-front {
+  fill: var(--zen-colors-tertiary, #f0f0f5);
+  stroke: var(--hairline);
+  stroke-width: 1.5px;
+}
+
+.zen-folder-icon .folder-dots {
+  fill: var(--ink-secondary);
+}
+
+/* Zen welcome animation patterns */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.welcome-overlay[data-dismissed] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.welcome-branding {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  animation: welcome-title-in 0.6s ease-out;
+}
+
+@keyframes welcome-title-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
