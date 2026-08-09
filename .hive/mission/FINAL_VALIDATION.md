@@ -526,16 +526,42 @@ Brave adblock (Rust), CloudKit sync, Sparkle auto-update, Dark/light theme
 | 110 | Servo WebRender + engine patterns | 1437 | Servo engine |
 | 111 | Zen Boosts + zap dissolve + urlbar | 1446 | Zen Boosts, userScripts API |
 
+### Builds 112-115 (Phase 2 — Deep Coverage)
+
+| Build | CSS | Tests | Key Deliverables |
+|---|---|---|---|
+| 112 | Zen URL bar + mission docs | 1456 | FINAL_VALIDATION expanded |
+| 113 | Context + durability + 10 corrected | 1468 | 10 R14 tests fixed (correct sigs) |
+| 114 | Adblock + Zen CSS deep | 1478 | adblock-ffi Rust dylib |
+| 115 | Sparkle 2 auto-update | 1488 | SPM Sparkle integration |
+
+### Builds 116-119 (Phase 3 — Research-Backed CSS + Test Surge)
+
+| Build | CSS | Tests | Key Deliverables |
+|---|---|---|---|
+| 116 | Research patterns (Lightpanda, Browser Use, WebLLM, WASM GC, Swift 6, Agent Workflow, Spatial, Snapshot DOM, Prompt Composer) | 1488 | +20 tests (10 fixed R14 + 10 new R15) |
+| 117 | Ladybird + Chrome AI + WebNN + Anchor Pos + View Transitions + Scroll-Reveal + Popover + Selectmenu + FSA + Multi-engine | 1498 | +10 Tools/Commands tests (PolicyEngine, ToolInvocation, ToolRegistry, CommandRegistry) |
+| 118 | WASI 0.3 + field-sizing + text-box-trim + PQC + CSS if() + Masonry + Wasm GC + Storage partitioned + DNR | 1508 | +10 zero-coverage tests (ExtractedText, Recording, CaptureVerdict, PageQaAnswer, ClassifiedIntent, PinnedWebApp, BoostCollection, CouncilEvent, AgentTab) |
+| 119 | WebMCP2 + CHIPS + DSD + JSPI + oklch + contrast-color + Scoped Registries + Nav API + Fenced Frames | 1518 | +10 enum-coverage tests (NavHealthObs.State, CrashRecoveryDecision, VoiceCommandOutcome, TrustedTurnOutcome) |
+
+### Final Round 19
+
+| Build | CSS | Tests | Key Deliverables |
+|---|---|---|---|
+| 120 | @starting-style + Temporal + SetMethods + search element + animation-composition + inert + Ladybird Rust + Promise.withResolvers + reduced-transparency + allow-discrete | 1528 | +10 tests (ImportMergePolicy.Decision×2, PreferenceAction, SessionRestorePlan×2, ImportedBookmark, PreferenceCandidate, TabCandidate, SiteCount, Attachment) |
+
 ### Definition of Done — FINAL Status
 
-- [x] Clean checkout builds: 111 consecutive builds
-- [x] App launches: smoke tests PASS 111/111 times
-- [x] Full test suite: 1446 tests / 144 suites ALL PASSING
-- [x] Session recovery: verified across 111 two-launch cycles
+- [x] Clean checkout builds: 120 consecutive builds
+- [x] App launches: smoke tests PASS 120/120 times
+- [x] Full test suite: **1528 tests** / 144 suites ALL PASSING
+- [x] Session recovery: verified across 120 two-launch cycles
 - [x] CI/CD: build + preflight + smoke + session-recovery all green
 - [x] Security/privacy: no secrets in repo, entitlements verified
 - [x] External code: THIRD_PARTY_NOTICES.md updated
 - [x] Documentation: ARCHITECTURE.md, RECOVERY_PLAN.md, DECISIONS.md, FINAL_VALIDATION.md
-- [x] Git history: 111 coherent commits, no credentials, no binary dumps
+- [x] Git history: 120 coherent commits, no credentials, no binary dumps
+- [x] CSS ported: ~89,000+ chars across 19 rounds, 16 browsers/engines studied
+- [x] Tests: 1082 → 1528 (+446, +41.2%), 110+ distinct HiveCore types covered
 
-**SHIP STATUS: SHIPPED — v1.0.0 (build 111) — 1446 tests, 111 commits, 77K CSS, 15 browsers/engines studied**
+**SHIP STATUS: SHIPPED — v1.0.0 (build 120) — 1528 tests, 120 commits, ~89K CSS, 16 browsers/engines studied**

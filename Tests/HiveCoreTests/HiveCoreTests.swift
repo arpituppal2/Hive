@@ -7482,4 +7482,72 @@ struct BeeQueueTests {
         #expect(states.count == 4)
     }
 
+@Test func browserImportMergePolicyDecisionInit() {
+        let d = BrowserImportMergePolicy.Decision(retainedImported: [], skippedCount: 5)
+        #expect(d.retainedImported.isEmpty)
+        #expect(d.skippedCount == 5)
+    }
+
+@Test func browserImportMergePolicyDecisionClampsNegative() {
+        let d = BrowserImportMergePolicy.Decision(retainedImported: [], skippedCount: -3)
+        #expect(d.skippedCount == 0)
+    }
+
+@Test func preferenceActionCases() {
+        #expect(PreferenceAction.set == .set)
+        #expect(PreferenceAction.withdraw == .withdraw)
+    }
+
+@Test func sessionRestorePolicyRestorePlanInit() {
+        let p = SessionRestorePolicy.RestorePlan(
+            eagerIDs: ["tab1"], lazyIDs: ["tab2", "tab3"],
+            excludedIDs: ["private1"], showRecoveryPrompt: true
+        )
+        #expect(p.eagerIDs == ["tab1"])
+        #expect(p.lazyIDs.count == 2)
+        #expect(p.excludedIDs == ["private1"])
+        #expect(p.showRecoveryPrompt)
+    }
+
+@Test func sessionRestorePolicyRestorePlanNoPrompt() {
+        let p = SessionRestorePolicy.RestorePlan(
+            eagerIDs: [], lazyIDs: [], excludedIDs: [], showRecoveryPrompt: false
+        )
+        #expect(!p.showRecoveryPrompt)
+    }
+
+@Test func importedBookmarkInit() throws {
+        let url = try #require(URL(string: "https://example.com"))
+        let b = ImportedBookmark(title: "Test", url: url)
+        #expect(b.title == "Test")
+        #expect(b.url == url)
+    }
+
+@Test func preferenceCandidateInit() {
+        let c = PreferenceCandidate(path: "food.vegetarian", value: "yes", action: .set, confidence: 0.95, evidence: "user stated")
+        #expect(c.path == "food.vegetarian")
+        #expect(c.action == .set)
+        #expect(c.confidence == 0.95)
+    }
+
+@Test func hibernationAdapterTabCandidateInit() {
+        let id = UUID()
+        let c = HibernationAdapter.TabCandidate(id: "tab1", workspaceID: id, isPinned: false, isEssential: false, hasPage: true, isHibernated: false, lastAccessed: Date())
+        #expect(c.id == "tab1")
+        #expect(!c.isPinned)
+    }
+
+@Test func privacyReportSummarySiteCount() {
+        let sc = PrivacyReportSummary.SiteCount(host: "example.com", count: 42)
+        #expect(sc.host == "example.com")
+        #expect(sc.count == 42)
+        #expect(sc.id == "example.com")
+    }
+
+@Test func tabAttachmentSummaryAttachmentFields() {
+        let a = TabAttachmentSummary.Attachment(id: "att1", classification: .admitted)
+        #expect(a.id == "att1")
+        #expect(a.classification == .admitted)
+    }
+
 }
