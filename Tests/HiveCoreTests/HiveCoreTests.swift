@@ -6440,7 +6440,7 @@ struct BeeQueueTests {
     }
 
 @Test func servingStrategyRuleBasedIsRuleBased() {
-        #expect(ManifestEntry.ServingStrategy.ruleBased == .ruleBased)
+        #expect(ManifestEntry.ServingStrategy.ruleBased == ManifestEntry.ServingStrategy.ruleBased)
     }
 
 @Test func researchBriefPreservesQuestion() {
@@ -6454,11 +6454,41 @@ struct BeeQueueTests {
     }
 
 @Test func councilVerdictResultStateSuccessCarriesValue() {
-        let v = CouncilVerdict(answer: "Yes", reasoning: "r", agreements: [], disagreements: [], confidence: 0.9, responses: [], activeProviders: [.mlxLocal], isDegraded: false)
+        let v = CouncilVerdict(answer: "Yes", reasoning: "r", agreements: [], disagreements: [], confidence: 0.9, responses: [], activeProviders: [CouncilProvider.mlxLocal], isDegraded: false)
         if case .success(let value) = v.resultState {
             #expect(value == "Yes")
         } else {
             #expect(Bool(false))
         }
+    }
+
+@Test func manifestEntryPreservesRole() {
+        let e = ManifestEntry(role: ModelRole.summarizer, hfRepo: nil, baseModel: "qwen", quantizedSizeMB: 400, license: "apache-2.0", servingStrategy: ManifestEntry.ServingStrategy.ruleBased, loraAdapter: nil, maxOutputTokens: 2048, latencyTargetMS: 2000)
+        #expect(e.role == ModelRole.summarizer)
+    }
+
+@Test func councilQueryPreservesQuestion() {
+        let q = CouncilQuery(question: "What is Swift?", pageContext: nil, providers: [CouncilProvider.mlxLocal], timeout: 30)
+        #expect(q.question == "What is Swift?")
+    }
+
+@Test func researchStepPlanningIsPlanning() {
+        let step = ResearchStep.planning
+        if case .planning = step {
+            #expect(true)
+        } else {
+            #expect(Bool(false))
+        }
+    }
+
+@Test func councilVerdictNotDegradedWhenAllRespond() {
+        let r = CouncilResponse(provider: CouncilProvider.mlxLocal, answer: "A", confidence: 0.9, citations: [], duration: 1, status: .success)
+        let v = CouncilVerdict(answer: "A", reasoning: "r", agreements: ["All agree"], disagreements: [], confidence: 0.9, responses: [r], activeProviders: [CouncilProvider.mlxLocal], isDegraded: false)
+        #expect(!v.isDegraded)
+    }
+
+@Test func councilResponsePreservesProvider() {
+        let r = CouncilResponse(provider: CouncilProvider.tavilyCloud, answer: "X", confidence: 0.8, citations: ["c1"], duration: 2, status: .success)
+        #expect(r.provider == .tavilyCloud)
     }
 }

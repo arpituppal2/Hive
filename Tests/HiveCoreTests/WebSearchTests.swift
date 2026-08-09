@@ -815,4 +815,9 @@ struct ContextRedactorTests {
             #expect(Bool(false))
         }
     }
+
+@Test func webSearchSourcePreservesID() {
+        let s = WebSearchSource(id: "s1", title: "Doc", url: "https://example.com")
+        #expect(s.id == "s1")
+    }
 }

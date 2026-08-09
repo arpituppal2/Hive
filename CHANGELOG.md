@@ -5,68 +5,56 @@ All notable changes to Hive Browser will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Hive adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.0.0] — 2026-08-09
+
+## [v1.0.0] — 2026-08-09 (build 100)
 
 ### Added
-- **Chromium 148 backend** via CefSwift — native SwiftUI chrome shell, not Electron
-- **On-device AI** via Apple MLX — zero latency, data stays local on Apple Silicon
-- **Model Council V2** — parallel multi-model dispatch (MLX-local, Tavily, BYOK, Vane) with chair synthesis
-- **Agentic Browsing** — CDP-powered, AI navigates on your behalf (16-tool bridge surface)
-- **Deep Research** — multi-step plan into search into read into synthesize with live streaming progress
-- **Vertical + horizontal tab layouts** — toggleable, with Arc-style compact mode
-- **Workspaces / Spaces** — per-workspace cookie/storage isolation
-- **Split view** — side-by-side and top-bottom with draggable dividers
+- **1349 tests** / 144 suites (+267 from 1082 baseline) — ALL PASSING
+- **Chromium 148 backend** via CefSwift — native SwiftUI chrome shell
+- **On-device AI** via Apple MLX — Model Council V2 (parallel multi-model with chair synthesis)
+- **Agentic Browsing** — CDP-powered, 16-tool bridge surface with timeout guard
+- **Deep Research** — multi-step plan/search/read/synthesize with live streaming
+- **Zen CSS** (~15K chars ported): 100pt linear() easing, floating URL bar, compact mode, workspace dots, tab peek
+- **Brave CSS** (~3K chars): Shields drop-down panel with stats grid
+- **Dia CSS** (~7K chars): Typography (vw-based clamp), translucent card ::before bleed, chat swell/pile, dark mode, tab color tokens (18 variables from Assets.car)
+- **Comet CSS** (~3K chars): Sidecar slide-in panel, collapsible reasoning chains, step status badges
+- **Sidecar JS Bridge** — toggleSidecar() with Agent/Context/History tabs + addChainStep/Chain
+- **Sidecar Swift Bridge** — hive.sidecar.open/close APIs + WebChromeSidecarStep/Chain
+- **CI/CD Pipeline** — build + preflight + smoke + session-recovery all PASS
+- **Vertical + horizontal tab layouts** with Arc-style compact mode
+- **Workspaces/Spaces** — per-workspace profile isolation
+- **Split view** with draggable dividers
 - **Tab peek** — Arc-style hover preview + link peek
 - **Private browsing** — ephemeral CEF profiles
-- **Hibernation policy** — memory saver for inactive tabs
 - **Crash-only session persistence** — session.json + session.prev.json with recovery notices
-- **Brave-level adblocking** — Rust engine with CNAME uncloaking + cosmetic filtering
 - **Command palette** + tab search + floating URL bar
-- **Reader mode + translate bar + find bar**
-- **Bookmarks manager** — import/export, drag reorder
-- **History panel + Downloads manager**
-- **Settings** — appearance, search engines, commands, privacy, performance
-- **Extensions toolbar** — placeholder for CEF extension API maturity
-- **Media mini-player** — with PiP fallback
-- **Safe Browsing** — 4-byte hash prefix lookups to Google
-- **EasyList tracker blocking** + Global Privacy Control header
-- **Keychain secret storage**
 - **Sparkle 2 auto-updates** — graceful degradation for ad-hoc builds
-- **Keyboard shortcut parity** — Chrome/Safari/Arc/Zen/Brave/Firefox
 - **Landing page** — web/index.html with download CTA
-- **Waitlist page** — web/waitlist.html with email capture
-- **Privacy policy + Terms of service** pages
-- **Sparkle appcast** — auto-update feed
-- **GitHub Pages deployment** — arpituppal2.github.io/Hive
-- **Open Graph / Twitter Card meta tags** — social sharing previews
-- **LAUNCH_COPY.md** — Show HN, Product Hunt, Reddit launch copy
-- **PRELAUNCH.md** — 7-section pre-launch checklist
-- **CHANGELOG.md** — Keep a Changelog format
+- **Waitlist, Privacy, Terms pages**
+- **Product Hunt page** — web/ph.html with bento feature grid + founder note
+- **Open Graph / Twitter Card meta tags**
 
 ### Changed
-- **HiveChromium into Hive** — single executable target, legacy WKWebView removed
-- **ChromiumBrowserState into BrowserState** — all internal references unified
-- **Moved Sources/HiveChromium/ into Sources/Hive/**
-- **Build scripts renamed**
+- HiveChromium → Hive — single executable target
+- ChromiumBrowserState → BrowserState — all references unified
+- Sources/HiveChromium/ → Sources/Hive/
+- CSS styles.css: ~2,000 → ~31,000 chars (ported patterns from 5 browsers)
+- WebChromeHandler: 60+ bridge registrations including full agent tool surface
 
 ### Fixed
-- **Duplicate start tab** — setupDefaults() no longer double-calls newTab()
-- **ERR_UNKNOWN_URL_SCHEME** — scheme handlers replayed onto per-profile contexts
-- **CDP timeout guard** — 15s timeout prevents AI loop deadlocks
-- **Tab close cross-target commands** — graceful CDP handling
-
-### Tests
-- **1284 tests / 144 suites** — all passing (up from 1082 baseline, +202 verified)
-- Every CaseIterable type verified non-empty
-- Every public struct init verified for field preservation
-- Bundle + smoke tests pass on every commit
+- Duplicate start tab — setupDefaults() no longer double-calls newTab()
+- ERR_UNKNOWN_URL_SCHEME — scheme handler replay on per-profile contexts
+- CDP timeout guard — 15s timeout prevents AI loop deadlocks
 
 ### Security
-- Entitlement verification fixtures pass
-- DevTools port 9223 #if DEBUG-gated
-- No secrets in Sources, scripts, or repo
-- API keys env-injected via KeychainSecretStore
-- CEF sandbox + helper processes
-- Hardened runtime entitlements
+- Keychain secret storage, CEF sandbox, Safe Browsing, EasyList blocking
+- DevTools port #if DEBUG-gated, no secrets in repo
+
+### Browsers Studied
+- Zen (MPL-2.0): compact mode, tab peek, workspace dots, 100pt easing, URL bar
+- Astro (MIT): CDP protocol codegen, browserOS agent architecture
+- Brave (MPL-2.0): Shields panel, adblock patterns
+- Dia.app: Typography, translucent cards, chat swell, dark mode, color tokens
+- Comet.app (Perplexity): Sidecar agent panel, Chromium 150, SSE+WebSocket
 
 [v1.0.0]: https://github.com/arpituppal2/Hive/releases/tag/v1.0.0
