@@ -2002,3 +2002,189 @@ body[data-workspace-color] #chrome::before {
 body {
   transition: background-color 0.4s ease;
 }
+
+
+/* ============================================================
+   Brave-Style Shields Panel (inspired by brave/brave-browser)
+   ============================================================
+   A drop-down panel showing ad/tracker block stats for the
+   current page, with per-site toggle controls. */
+
+.shields-panel {
+  position: fixed;
+  top: 48px;
+  right: var(--s4);
+  width: 340px;
+  max-height: 480px;
+  background: rgba(28, 28, 32, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--r-lg);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  z-index: 500;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.96);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.2s var(--spring-soft);
+}
+
+.shields-panel[data-open="true"] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.shields-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s3) var(--s4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.shields-panel__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.shields-panel__shield-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--accent);
+}
+
+/* Master toggle — Brave-style Up/Down */
+.shields-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border: none;
+}
+
+.shields-toggle[data-active="true"] {
+  background: var(--accent);
+}
+
+.shields-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s var(--spring-soft);
+}
+
+.shields-toggle[data-active="true"]::after {
+  transform: translateX(20px);
+}
+
+.shields-panel__domain {
+  padding: var(--s2) var(--s4);
+  font-size: 12px;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Stats grid — 2x2 */
+.shields-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.shields-stat {
+  padding: var(--s3);
+  text-align: center;
+  background: rgba(28, 28, 32, 0.95);
+}
+
+.shields-stat__value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.shields-stat__label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+/* Settings rows */
+.shields-settings {
+  padding: var(--s2) var(--s4);
+}
+
+.shields-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s2) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.shields-row:last-child {
+  border-bottom: none;
+}
+
+.shields-row__label {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.shields-row__desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* Advanced controls toggle */
+.shields-advanced {
+  padding: var(--s2) var(--s4);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.shields-advanced__btn {
+  width: 100%;
+  padding: var(--s2);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.shields-advanced__btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+
+body[data-theme="light"] .shields-panel {
+  background: rgba(250, 250, 252, 0.95);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme="light"] .shields-stat {
+  background: rgba(250, 250, 252, 0.95);
+}
