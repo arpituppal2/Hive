@@ -6229,3 +6229,158 @@ body[data-theme="light"] {
   color: #f43f5e;
   border: 1px solid color-mix(in srgb, #f43f5e 14%, transparent);
 }
+
+/* ============================================================
+   Round 18 — WebMCP + contrast-color + Scoped Registries
+   + DSD + precommitHandler + CHIPS + Fenced Frames + JSPI
+   ============================================================ */
+
+/* WebMCP Model Context Protocol badge (agentic web tools) */
+.webmcp2-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #a78bfa 10%, transparent);
+  color: #a78bfa;
+  border: 1px solid color-mix(in srgb, #a78bfa 20%, transparent);
+}
+
+/* contrast-color() adaptive text indicator */
+.contrast-color-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* Advanced attr() function badge */
+.advanced-attr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #f97316 8%, transparent);
+  color: #f97316;
+  border: 1px solid color-mix(in srgb, #f97316 14%, transparent);
+}
+
+/* Scoped Custom Element Registries badge */
+.scoped-registry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #c084fc 10%, transparent);
+  color: #c084fc;
+  border: 1px solid color-mix(in srgb, #c084fc 20%, transparent);
+}
+
+/* Declarative Shadow DOM badge */
+.dsd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #06b6d4 8%, transparent);
+  color: #06b6d4;
+  border: 1px solid color-mix(in srgb, #06b6d4 14%, transparent);
+}
+
+/* Navigation API precommitHandler badge */
+.nav-api-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #34d399 8%, transparent);
+  color: #34d399;
+  border: 1px solid color-mix(in srgb, #34d399 14%, transparent);
+}
+
+/* CHIPS partitioned cookies badge */
+.chips-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #f59e0b 8%, transparent);
+  color: #f59e0b;
+  border: 1px solid color-mix(in srgb, #f59e0b 14%, transparent);
+}
+
+/* Fenced Frames sandbox badge */
+.fenced-frame-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #22d3ee 8%, transparent);
+  color: #22d3ee;
+  border: 1px solid color-mix(in srgb, #22d3ee 14%, transparent);
+}
+
+/* JSPI WebAssembly-JS interop badge */
+.jspi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #818cf8 10%, transparent);
+  color: #818cf8;
+  border: 1px solid color-mix(in srgb, #818cf8 20%, transparent);
+}
+
+/* oklch() color space indicator */
+.oklch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: linear-gradient(135deg, color-mix(in srgb, #f97316 10%, transparent), color-mix(in srgb, #a78bfa 10%, transparent));
+  color: var(--accent);
+  border: 1px solid var(--hairline-strong);
+}

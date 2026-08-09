@@ -7393,4 +7393,93 @@ struct BeeQueueTests {
         #expect(tab.active)
     }
 
+@Test func navigationHealthObservationStates() {
+        #expect(NavigationHealthObservation.State.waitingForStart == .waitingForStart)
+        #expect(NavigationHealthObservation.State.loading == .loading)
+        #expect(NavigationHealthObservation.State.completed == .completed)
+        #expect(NavigationHealthObservation.State.timedOut == .timedOut)
+    }
+
+@Test func crashRecoveryDecisionRetry() {
+        #expect(CrashRecoveryDecision.retryAutomatically == .retryAutomatically)
+        let show = CrashRecoveryDecision.showRecovery(retryAllowed: true)
+        switch show {
+        case .showRecovery(let allowed): #expect(allowed)
+        default: Issue.record("Expected showRecovery")
+        }
+    }
+
+@Test func crashRecoveryDecisionShowRecoveryNotAllowed() {
+        let show = CrashRecoveryDecision.showRecovery(retryAllowed: false)
+        switch show {
+        case .showRecovery(let allowed): #expect(!allowed)
+        default: Issue.record("Expected showRecovery")
+        }
+    }
+
+@Test func voiceCommandOutcomeCancelled() {
+        switch VoiceCommandOutcome.cancelled {
+        case .cancelled: break
+        default: Issue.record("Expected cancelled")
+        }
+    }
+
+@Test func voiceCommandOutcomeFailed() {
+        switch VoiceCommandOutcome.failed(message: "error", decision: nil) {
+        case .failed(let msg, let dec):
+            #expect(msg == "error")
+            #expect(dec == nil)
+        default: Issue.record("Expected failed")
+        }
+    }
+
+@Test func voiceCommandOutcomeExecuted() {
+        let result = VoiceExecutionResult(text: "done")
+        let decision = VoiceRouteDecision(route: .genericQuestion, confidence: 0.9, reason: "test")
+        switch VoiceCommandOutcome.executed(result: result, decision: decision) {
+        case .executed(let r, let d):
+            #expect(r.text == "done")
+            #expect(d.route == .genericQuestion)
+        default: Issue.record("Expected executed")
+        }
+    }
+
+@Test func trustedTurnOutcomeCancelled() {
+        let scope = TrustedTurnScopeDescriptor(scope: .pageOnly)
+        switch TrustedTurnOutcome.cancelled(scope: scope) {
+        case .cancelled(let s): #expect(s.scope == .pageOnly)
+        default: Issue.record("Expected cancelled")
+        }
+    }
+
+@Test func trustedTurnOutcomeClarification() {
+        let scope = TrustedTurnScopeDescriptor(scope: .workspace)
+        let decision = VoiceRouteDecision(route: .clarification, confidence: 0.99, reason: "ambiguous", clarificationPrompt: "What do you mean?")
+        switch TrustedTurnOutcome.clarification(prompt: "hmm?", decision: decision, scope: scope) {
+        case .clarification(let p, let d, let s):
+            #expect(p == "hmm?")
+            #expect(d.route == .clarification)
+            #expect(s.scope == .workspace)
+        default: Issue.record("Expected clarification")
+        }
+    }
+
+@Test func trustedTurnOutcomeExecuted() {
+        let scope = TrustedTurnScopeDescriptor(scope: .pageOnly)
+        let execution = TrustedTurnExecution(text: "answer", providerLabel: "mlx")
+        let decision = VoiceRouteDecision(route: .genericQuestion, confidence: 0.95, reason: "answered")
+        switch TrustedTurnOutcome.executed(result: execution, decision: decision, scope: scope) {
+        case .executed(let r, let d, let s):
+            #expect(r.text == "answer")
+            #expect(d.confidence == 0.95)
+            #expect(s.scope == .pageOnly)
+        default: Issue.record("Expected executed")
+        }
+    }
+
+@Test func navigationHealthObservationStateIs4Cases() {
+        let states: [NavigationHealthObservation.State] = [.waitingForStart, .loading, .completed, .timedOut]
+        #expect(states.count == 4)
+    }
+
 }
