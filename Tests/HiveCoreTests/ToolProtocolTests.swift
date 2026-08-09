@@ -585,4 +585,8 @@ struct ToolInvocationFactoryTests {
             #expect(verdict.decision != .denied, "\(invocation.toolID) should not be denied: \(verdict.reason)")
         }
     }
+
+@Test func providerPreferencesAreNonEmpty() {
+        #expect(!ProviderPreference.allCases.isEmpty)
+    }
 }

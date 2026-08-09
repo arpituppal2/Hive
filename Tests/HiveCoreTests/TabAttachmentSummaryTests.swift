@@ -197,4 +197,8 @@ struct TabAttachmentSummaryTests {
         #expect(summary.detail == "No selected tabs")
         #expect(summary.warning == nil)
     }
+
+@Test func contextLayersAreNonEmpty() {
+        #expect(!BrowserContextLayer.allCases.isEmpty)
+    }
 }

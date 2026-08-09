@@ -55,4 +55,8 @@ struct SwarmResponseContractTests {
     func routesRemainNarrow() {
         #expect(SwarmResponseRoute.allCases == [.genericQuestion, .pageQuestion])
     }
+
+@Test func councilProvidersAreNonEmpty() {
+        #expect(!CouncilProvider.allCases.isEmpty)
+    }
 }

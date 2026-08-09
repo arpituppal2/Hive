@@ -33,4 +33,9 @@ struct TabDropCoordinateTests {
         #expect(TabDropCoordinate.insertionEdge(x: 20, targetWidth: 0) == nil)
         #expect(TabDropCoordinate.insertionEdge(x: 20, targetWidth: -1) == nil)
     }
+
+@Test func insertionEdgeNilForZeroWidth() {
+        let result = TabDropCoordinate.insertionEdge(x: 50, targetWidth: 0)
+        #expect(result == nil)
+    }
 }

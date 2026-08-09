@@ -80,4 +80,9 @@ struct PrivacyReportSummaryTests {
         #expect(summary.measuredSiteCount == 1)
         #expect(summary.topSites == [PrivacyReportSummary.SiteCount(host: "single.example", count: 7)])
     }
+
+@Test func siteCountIDIsHost() {
+        let sc = PrivacyReportSummary.SiteCount(host: "example.com", count: 42)
+        #expect(sc.id == "example.com")
+    }
 }
