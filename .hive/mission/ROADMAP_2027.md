@@ -107,7 +107,7 @@ Tab management (complete), Workspaces with per-profile CEF isolation (complete),
 
 **Model Council (Week 7-8):**
 - P2.3 Model Council v2 — parallel 3+ model dispatch + chair synthesis (1.5 weeks)
-- P2.4 AI URL Bar — dual-mode search/AI input (Dia parity) (1.5 weeks)
+- P2.4 AI URL Bar — dual-mode search/AI input (Dia parity) (1.5 weeks) — ✅ DONE: ⇧⏎ routes bar text to AI on both chrome surfaces (native bar → panel chat via submitGeminiQuery; web bar → agent dock via agentAsk) with a focused-mode hint pill
 
 **Deep Research (Week 9-10):**
 - P2.5 Deep Research Mode — multi-step: plan → search → read → synthesize → cite (1.5 weeks)

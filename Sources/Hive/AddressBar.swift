@@ -38,6 +38,16 @@ struct AddressBar: View {
                         }
                         return .handled
                     }
+                    // P2.4 dual-mode URL bar: ⇧⏎ routes the text to the AI
+                    // panel instead of navigating/searching (Dia parity).
+                    // Plain ⏎ is left .ignored so onSubmit still fires.
+                    .onKeyPress(keys: [.return], phases: .down) { press in
+                        if press.modifiers.contains(.shift) {
+                            submitToAgent()
+                            return .handled
+                        }
+                        return .ignored
+                    }
                     .onSubmit { submit() }
                     .onChange(of: state.addressFocusTrigger) { _, _ in
                         isFocused = true
@@ -52,6 +62,7 @@ struct AddressBar: View {
                     .buttonStyle(.plain)
                 }
 
+                if isFocused && !text.isEmpty { aiModeHint }
                 if !state.isNewTab { bookmarkStar }
                 actionButton
                 HostContextPolicyMenu()
@@ -106,6 +117,39 @@ struct AddressBar: View {
                 atShortcutSuggestions
             }
         }
+    }
+
+    // MARK: - AI mode hint (P2.4)
+
+    /// Discoverability affordance for the dual-mode bar: shows the ⇧⏎
+    /// gesture that sends the typed text to the AI panel instead of
+    /// searching. Mirrors the web chrome's `addressbar__aihint` pill.
+    @ViewBuilder private var aiModeHint: some View {
+        HStack(spacing: HiveDesign.Space.xxs) {
+            Image(systemName: "sparkles")
+                .font(.system(size: HiveDesign.Typography.sizeXS, weight: .semibold))
+            Text("⇧⏎ Ask Hive")
+                .font(HiveDesign.Typography.smallLabel)
+        }
+        .foregroundStyle(HiveDesign.Accent.primary)
+        .padding(.horizontal, HiveDesign.Space.xs)
+        .padding(.vertical, HiveDesign.Space.xxs)
+        .background(
+            RoundedRectangle(cornerRadius: HiveDesign.Radius.xs, style: .continuous)
+                .fill(HiveDesign.Accent.primary.opacity(0.12))
+        )
+        .transition(.opacity)
+    }
+
+    // MARK: - AI submit (P2.4)
+
+    /// Sends the bar's text to the AI panel as a chat message, opening the
+    /// panel if needed. No-op on empty text.
+    private func submitToAgent() {
+        let q = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty else { return }
+        isFocused = false
+        state.submitGeminiQuery(q)
     }
 
     // MARK: - Favicon

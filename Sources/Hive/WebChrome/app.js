@@ -560,11 +560,17 @@
     else api('hive.setChromeDimension', { dimension: 420 });
   });
   addrInput.addEventListener('blur', function () {
+    // P2.4 parity with the native bar: the ⇧⏎ affordance only shows while focused.
+    $('aiHint').hidden = true;
     setTimeout(function () {
       if (!state.isChromePanelOpen) api('hive.setChromeDimension', { dimension: 270 });
     }, 120);
   });
-  addrInput.addEventListener('input', onAddrInput);
+  addrInput.addEventListener('input', function () {
+    // P2.4: show the ⇧⏎ Ask Hive affordance only while typing.
+    $('aiHint').hidden = !addrInput.value.trim();
+    onAddrInput();
+  });
   addrInput.addEventListener('keydown', function (e) {
     var items = suggestBox.querySelectorAll('.sugg');
     if (e.key === 'ArrowDown' && items.length) {
@@ -580,6 +586,14 @@
       addrInput.blur();
     } else if (e.key === 'Enter') {
       e.preventDefault();
+      // P2.4 dual-mode URL bar: ⇧⏎ sends the text to the agent dock
+      // instead of navigating/searching (Dia parity).
+      if (e.shiftKey) {
+        agentAsk(addrInput.value);
+        addrInput.value = '';
+        hideSuggest();
+        return;
+      }
       var chosen = suggIndex >= 0 && items[suggIndex];
       if (chosen) {
         var s = chosen.__sugg;

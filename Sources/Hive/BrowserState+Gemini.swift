@@ -31,4 +31,19 @@ extension BrowserState {
             isGeminiPanelOpen.toggle()
         }
     }
+
+    /// P2.4 dual-mode URL bar: routes a bar query into the AI panel chat,
+    /// opening the panel if it is closed (Dia parity). Mirrors exactly what
+    /// the panel's own send button does — append the user message, then
+    /// generate the orchestrated response.
+    func submitGeminiQuery(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        if !isGeminiPanelOpen {
+            withAnimation(isReduceMotionEnabled ? nil : HiveDesign.Animation.spring) {
+                isGeminiPanelOpen = true
+            }
+        }
+        sendGeminiMessage(trimmed)
+    }
 }
