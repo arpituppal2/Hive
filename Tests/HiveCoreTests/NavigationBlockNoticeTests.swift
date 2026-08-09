@@ -50,4 +50,9 @@ struct NavigationBlockNoticeTests {
         let notice = NavigationBlockNotice(scheme: "  MaIlTo  ")
         #expect(notice.scheme == "mailto")
     }
+
+@Test func initLowercasesScheme() {
+        let notice = NavigationBlockNotice(scheme: "  TelNet  ")
+        #expect(notice.scheme == "telnet")
+    }
 }

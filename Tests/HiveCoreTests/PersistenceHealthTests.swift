@@ -51,4 +51,10 @@ struct PersistenceHealthTests {
         let p = PersistenceHealthPolicy(knowledgeDegraded: false, auditDegraded: false, sessionDegraded: false)
         #expect(!p.isDegraded)
     }
+
+@Test func persistenceHealthDefaultNotDegraded() {
+        let h = PersistenceHealthPolicy(knowledgeDegraded: false, auditDegraded: false, sessionDegraded: false)
+        #expect(!h.isDegraded)
+        #expect(!h.title.isEmpty)
+    }
 }

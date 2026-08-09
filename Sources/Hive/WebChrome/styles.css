@@ -1625,3 +1625,218 @@ body[data-workspace-switching="true"] .tab {
   transform: scale(1.05);
   transition: transform 0.1s ease, background 0.1s ease;
 }
+
+
+/* ============================================================
+   Zen Browser-Inspired Compact Mode (ported from zen-browser/desktop)
+   License: MPL-2.0 — adapted for Hive Web Chrome
+   ============================================================
+   Compact mode hides the chrome sidebar off-screen and reveals it
+   on hover with a buttery-smooth linear() easing curve. The sidebar
+   slides in from the left as a floating panel with acrylic blur,
+   matching Arc/Zen's premium feel.
+   Trigger: body[data-compact="true"] */
+
+body[data-compact="true"] {
+  --compact-sidebar-width: 260px;
+  --compact-collapsed-width: 0px;
+  --compact-float: var(--s2);
+  --compact-duration: 0.25s;
+  /* Zen's custom linear() easing — ultra-smooth deceleration */
+  --compact-easing: linear(
+    0 0%, 0.0027 1%, 0.0105 2%, 0.0228 3%, 0.0388 4%,
+    0.0582 5%, 0.0803 6%, 0.1048 7%, 0.1313 8%, 0.1594 9%,
+    0.1887 10%, 0.2189 11%, 0.2498 12%, 0.2812 13%, 0.3127 14%,
+    0.3443 15%, 0.3757 16%, 0.4068 17%, 0.4374 18%, 0.4675 19%,
+    0.497 20%, 0.5257 21%, 0.5536 22%, 0.5807 23%, 0.6068 24%,
+    0.6321 25%, 0.6563 26%, 0.6796 27%, 0.7018 28%, 0.7231 29%,
+    0.7434 30%, 0.7627 31%, 0.781 32%, 0.7983 33%, 0.8147 34%,
+    0.8302 35%, 0.8448 36%, 0.8585 37%, 0.8714 38%, 0.8835 39%,
+    0.8948 40%, 0.9053 41%, 0.9151 42%, 0.9242 43%, 0.9327 44%,
+    0.9405 45%, 0.9478 46%, 0.9545 47%, 0.9606 48%, 0.9662 49%,
+    0.9714 50%, 0.9761 51%, 0.9804 52%, 0.9843 53%, 0.9878 54%,
+    0.991 55%, 0.9938 56%, 0.9964 57%, 0.9987 58%, 1.0007 59%,
+    1.0025 60%, 1.004 61%, 1.0054 62%, 1.0065 63%, 1.0075 64%,
+    1.0084 65%, 1.0091 66%, 1.0096 67%, 1.0101 68%, 1.0104 69%,
+    1.0106 70%, 1.0108 71%, 1.0109 72%, 1.0109 73%, 1.0109 74%,
+    1.0108 75%, 1.0106 76%, 1.0104 77%, 1.0102 78%, 1.01 79%,
+    1.0097 80%, 1.0094 81%, 1.0091 82%, 1.0088 83%, 1.0084 84%,
+    1.0081 85%, 1.0077 86%, 1.0074 87%, 1.0071 88%, 1.0067 89%,
+    1.0064 90%, 1.006 91%, 1.0057 92%, 1.0054 93%, 1.0051 94%,
+    1.0048 95%, 1.0045 96%, 1.0042 97%, 1.0039 98%, 1.0037 99%, 1.0034 100%
+  );
+}
+
+body[data-compact="true"] #chrome {
+  position: fixed;
+  z-index: 100;
+  left: calc(-1 * var(--compact-sidebar-width) + var(--s1));
+  top: var(--compact-float);
+  bottom: var(--compact-float);
+  width: var(--compact-sidebar-width);
+  transition: left var(--compact-duration) var(--compact-easing);
+  border-radius: var(--r-lg);
+  /* Zen acrylic: backdrop-blur + subtle border */
+  backdrop-filter: blur(42px) saturate(110%);
+  -webkit-backdrop-filter: blur(42px) saturate(110%);
+  background: rgba(22, 22, 28, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+}
+
+/* Slide in on hover — with 100ms delay to prevent accidental triggers */
+body[data-compact="true"] #chrome:hover,
+body[data-compact="true"] #chrome:focus-within {
+  left: var(--compact-float);
+  transition-delay: 0.08s;
+}
+
+body[data-compact="true"] .stage {
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0 auto;
+}
+
+/* Hide sidebar in compact mode when not hovered */
+body[data-compact="true"] #chrome:not(:hover):not(:focus-within) .tab__title,
+body[data-compact="true"] #chrome:not(:hover):not(:focus-within) .groupheader__title {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+/* Light mode compact acrylic */
+body[data-compact="true"][data-theme="light"] #chrome {
+  background: rgba(250, 250, 252, 0.78);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ============================================================
+   Zen Glance / Arc Little Arc — Tab Peek Preview
+   Inspired by: zen-browser/desktop Glance (Alt+Click)
+   and Arc Browser's Little Arc floating window
+   ============================================================
+   A lightweight preview card that floats above the page when
+   hovering a link or tab. Borderless, frosted glass, spring-animated.
+   */
+
+.tab-peek {
+  position: fixed;
+  z-index: 200;
+  width: 320px;
+  max-height: 240px;
+  border-radius: var(--r-md);
+  background: rgba(28, 28, 32, 0.92);
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(4px) scale(0.96);
+  pointer-events: none;
+  transition:
+    opacity 0.15s var(--spring-soft),
+    transform 0.2s var(--spring-soft);
+}
+
+.tab-peek[data-visible="true"] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.tab-peek__header {
+  padding: var(--s2) var(--s3);
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tab-peek__favicon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.tab-peek__title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tab-peek__body {
+  padding: var(--s3);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  max-height: 160px;
+  overflow: hidden;
+}
+
+.tab-peek__actions {
+  padding: var(--s2) var(--s3);
+  display: flex;
+  gap: var(--s1);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tab-peek__action {
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.tab-peek__action:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text);
+}
+
+.tab-peek__action--primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.tab-peek__action--primary:hover {
+  background: var(--accent-hover);
+}
+
+/* Arc-style tab hover card — appears above the tab on hover */
+.tab-hovercard {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(2px);
+  background: rgba(40, 40, 46, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--r-md);
+  padding: var(--s3);
+  min-width: 200px;
+  max-width: 300px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.2s var(--spring-soft);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 300;
+}
+
+.tab:hover .tab-hovercard {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

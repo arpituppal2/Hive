@@ -95,4 +95,11 @@ struct BookmarkImportPolicyTests {
         #expect(bm.title == "Hive")
         #expect(bm.url.absoluteString == "https://hive.com")
     }
+
+@Test func importedHistoryEntryPreservesURL() {
+        let url = URL(string: "https://example.com")!
+        let entry = ImportedHistoryEntry(url: url, title: "Page", visitDate: Date())
+        #expect(entry.url == url)
+        #expect(entry.title == "Page")
+    }
 }

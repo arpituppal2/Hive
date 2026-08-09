@@ -330,4 +330,10 @@ struct TrustedTurnGatewayTests {
             #expect(!scope.diagnosticLabel.isEmpty)
         }
     }
+
+@Test func scopeDescriptorPreservesScope() {
+        let d = TrustedTurnScopeDescriptor(scope: .web)
+        #expect(d.scope == .web)
+        #expect(!d.label.isEmpty)
+    }
 }

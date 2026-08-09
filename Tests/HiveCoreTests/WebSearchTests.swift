@@ -782,4 +782,10 @@ struct ContextRedactorTests {
 @Test func searchEngineKindsAreNonEmpty() {
         #expect(!SearchEngineKind.allCases.isEmpty)
     }
+
+@Test func allSearchEnginesHaveDisplayNames() {
+        for kind in SearchEngineKind.allCases {
+            #expect(!kind.displayName.isEmpty)
+        }
+    }
 }

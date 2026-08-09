@@ -71,4 +71,10 @@ struct DispatcherStreamingAvailabilityTests {
 @Test func modelTiersAreNonEmpty() {
         #expect(!ModelTier.allCases.isEmpty)
     }
+
+@Test func axNodePreservesRole() {
+        let node = AXNode(ref: "r1", role: "button", name: "Click", value: nil, desc: nil, bounds: nil, focusable: true, children: [])
+        #expect(node.role == "button")
+        #expect(node.ref == "r1")
+    }
 }
