@@ -801,4 +801,8 @@ struct ContextRedactorTests {
             #expect(false, "Expected .navigate, got \(result)")
         }
     }
+
+@Test func webSearchFocusModeWebSearchIsWebSearch() {
+        #expect(WebSearchFocusMode.webSearch == .webSearch)
+    }
 }

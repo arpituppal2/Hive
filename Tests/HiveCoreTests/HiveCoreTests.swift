@@ -6415,4 +6415,22 @@ struct BeeQueueTests {
 @Test func councilProviderMLXLocalIsMLXLocal() {
         #expect(CouncilProvider.mlxLocal == .mlxLocal)
     }
+
+@Test func modelRoleOrchestratorIsOrchestrator() {
+        #expect(ModelRole.orchestrator == .orchestrator)
+    }
+
+@Test func councilProviderAllCasesNonEmpty() {
+        #expect(!CouncilProvider.allCases.isEmpty)
+    }
+
+@Test func researchPlanPreservesQuestion() {
+        let p = ResearchPlan(question: "What is Swift?", subQueries: [], sourcesPerQuery: 5, maxSources: 15, refineResults: true)
+        #expect(p.question == "What is Swift?")
+    }
+
+@Test func researchFindingPreservesClaim() {
+        let f = ResearchFinding(claim: "Swift is safe", citations: [], confidence: 0.9, aspect: "safety")
+        #expect(f.claim == "Swift is safe")
+    }
 }
