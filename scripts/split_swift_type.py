@@ -389,8 +389,28 @@ def main():
         with open("%s/%s+%s.swift" % (out_dir, base, name), "w") as f:
             f.write(out)
 
-    print("SPLIT DONE — %s.swift is now %d lines; backup in /tmp/%s.pre-split.bak"
-          % (base, len("\n".join(main_parts).split("\n")), base))
+    # Post-carve guard: a top-level `private`/`fileprivate` type left in the
+    # main file but referenced by a carved member will NOT compile across
+    # files (cross-file extensions cannot see it). This bit three times
+    # (GeminiProviderOption, SheetListItem, SettingsSidebarRow) — warn loudly
+    # instead of waiting for the Swift build to fail.
+    main_text = "\n".join(main_parts)
+    carved_text = "\n".join(m["text"] for ms in files.values() for m in ms)
+    for m in re.finditer(
+        r"^(?:private|fileprivate)\s+(?:final\s+)?(?:struct|enum|class|actor)\s+([A-Za-z_]\w*)",
+        main_text,
+        re.MULTILINE,
+    ):
+        tname = m.group(1)
+        if re.search(r"\b" + re.escape(tname) + r"\b", carved_text):
+            print(
+                "WARNING: top-level private type '%s' is referenced by carved "
+                "members — promote it to internal in %s or the build will fail."
+                % (tname, path)
+            )
+
+    print("SPLIT DONE — %s is now %d lines (type %s); backup in /tmp/%s.pre-split.bak"
+          % (path, len("\n".join(main_parts).split("\n")), base, base))
 
 
 if __name__ == "__main__":
