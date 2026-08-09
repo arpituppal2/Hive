@@ -6524,4 +6524,47 @@ struct BeeQueueTests {
 @Test func tabDensityAllCasesNonEmpty() {
         #expect(!TabDensity.allCases.isEmpty)
     }
+
+@Test func hiveThemeAllCasesNonEmpty() {
+        #expect(!HiveTheme.allCases.isEmpty)
+    }
+
+@Test func hibernationPolicyThresholdsDefaultsAreCorrect() {
+        let t = HibernationPolicy.Thresholds()
+        #expect(t.bgActiveSpaceSec == 900)
+        #expect(t.inactiveSpaceSec == 300)
+    }
+
+@Test func freshnessAllCasesNonEmpty() {
+        #expect(!Freshness.allCases.isEmpty)
+    }
+
+@Test func contradictionStateAllCasesNonEmpty() {
+        #expect(!ContradictionState.allCases.isEmpty)
+    }
+
+@Test func bookmarkDeletionPolicyRemovesTarget() throws {
+        let url1 = try #require(URL(string: "https://one.com"))
+        let url2 = try #require(URL(string: "https://two.com"))
+        let b1 = Bookmark(id: "b1", title: "one", url: url1)
+        let b2 = Bookmark(id: "b2", title: "two", url: url2, parentID: "b1")
+        let result = BookmarkDeletionPolicy.deleting(bookmarkID: "b1", from: [b1, b2])
+        #expect(result.isEmpty)
+    }
+
+@Test func historyClearPolicyDecisionTracksRemovedCount() {
+        let d = HistoryClearPolicy.Decision(removedCount: 5)
+        #expect(d.removedCount == 5)
+        #expect(d.shouldPersist)
+    }
+
+@Test func historyImportPolicyDecisionTracksSkipped() {
+        let d = HistoryImportPolicy.Decision(entries: [], skippedCount: 3)
+        #expect(d.skippedCount == 3)
+    }
+
+@Test func tabOrganizationNormalizerProfilePreservesID() {
+        let p = TabOrganizationNormalizer.Profile(id: "profile-1")
+        #expect(p.id == "profile-1")
+    }
 }

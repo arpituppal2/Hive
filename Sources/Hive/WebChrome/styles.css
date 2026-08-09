@@ -3099,3 +3099,214 @@ body[data-theme="light"] {
   opacity: 1;
   pointer-events: auto;
 }
+
+
+
+/* ============================================================
+   Zen Glance Tabs + Sublabel + Essentials Grid
+   (studied from zen-browser/desktop vertical-tabs.css)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================
+   Glance tabs are mini-preview tabs that float inside a parent
+   tab showing a thumbnail or audio indicator. The sublabel
+   system shows secondary text beneath tab labels with a smooth
+   slide-up animation. Essentials grid uses CSS grid auto-fit
+   for responsive icon-only tab layouts. */
+
+/* --- Glance tab (nested mini-preview within a tab) --- */
+
+.glance-tab {
+  position: absolute;
+  pointer-events: none;
+  margin: 0 0 0 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 2px solid var(--hairline);
+  overflow: hidden;
+  transition: opacity 0.15s ease;
+}
+
+.glance-tab .glance-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  opacity: 0.7;
+}
+
+/* Glance tab sound indicator */
+.glance-tab[data-sound="true"]::after {
+  content: "";
+  position: absolute;
+  width: 110%;
+  height: 110%;
+  top: -70%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: glance-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes glance-pulse {
+  0%, 100% { opacity: 0.1; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.25; transform: translateX(-50%) scale(1.1); }
+}
+
+/* Essential-mode glance (floating top-right) */
+.tab[data-has-glance="true"] .glance-tab {
+  top: 0;
+  right: 0;
+  z-index: 1;
+}
+
+/* --- Tab sublabel (secondary text beneath label) --- */
+
+.tab-sublabel {
+  pointer-events: none;
+  transition:
+    opacity 0.1s ease-in-out,
+    margin 0.1s ease-in-out,
+    max-height 0.1s ease-in-out;
+  max-height: 0;
+  opacity: 0;
+  font-size: 10px;
+  margin: 0;
+  color: var(--mist);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tab[data-show-sublabel="true"] .tab-sublabel {
+  max-height: 12px;
+  opacity: 0.6;
+  margin-top: 1px;
+}
+
+/* --- Essentials grid (responsive icon-only tab layout) --- */
+
+.essentials-grid {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(auto-fit, minmax(max(23%, 44px), 1fr));
+  padding: 4px;
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease-out,
+    grid-template-columns 0.3s ease-out;
+}
+
+.essentials-grid[data-layout="compact"] {
+  grid-template-columns: repeat(auto-fit, minmax(max(30%, 44px), auto));
+}
+
+.essentials-grid[data-layout="wide"] {
+  grid-template-columns: repeat(auto-fit, minmax(max(23%, 48px), 1fr) minmax(max(23%, 48px), 1fr));
+}
+
+.essentials-grid .essential-tab {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--border-radius-medium, 10px);
+  min-height: 44px;
+  background: var(--surface);
+  transition: background-color 0.1s;
+}
+
+.essentials-grid .essential-tab:hover {
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.essentials-grid .essential-tab.active {
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+.essentials-grid .essential-tab .tab-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+/* --- Tab reset-pin button (icon swap with gradient separator) --- */
+
+.tab-reset-pin {
+  display: flex;
+  position: relative;
+  align-items: center;
+  padding: 0 8px 0 12px;
+  border-radius: 0;
+  border-top-left-radius: var(--border-radius-medium, 10px);
+  border-bottom-left-radius: var(--border-radius-medium, 10px);
+  cursor: pointer;
+}
+
+.tab-reset-pin::after {
+  content: "";
+  display: block;
+  width: 2px;
+  height: 14px;
+  background: color-mix(in srgb, currentColor 30%, transparent);
+  position: absolute;
+  right: 0;
+  top: 50%;
+  border-radius: 2px;
+  transform: rotate(15deg) translateY(-50%);
+  transition: opacity 0.15s;
+}
+
+.tab-reset-pin:hover::after {
+  opacity: 0;
+}
+
+.tab-reset-pin .pin-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+/* --- Sidebar splitter (border-based resize handle) --- */
+
+.sidebar-splitter {
+  opacity: 0;
+  width: 6px;
+  min-width: 6px;
+  height: 100%;
+  transition: opacity 0.2s ease-in-out;
+  background: var(--hairline);
+  cursor: col-resize;
+  position: relative;
+}
+
+.sidebar-splitter:hover,
+.sidebar-splitter:active {
+  opacity: 1;
+}
+
+/* --- Collapsed sidebar icon-only mode --- */
+
+.sidebar-collapsed .tab-label,
+.sidebar-collapsed .tab-sublabel,
+.sidebar-collapsed .tab-close-btn {
+  display: none;
+}
+
+.sidebar-collapsed .tab-icon {
+  margin-inline-end: 0;
+}
+
+.sidebar-collapsed .tab {
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar-collapsed .workspace-name,
+.sidebar-collapsed .workspace-indicator-text {
+  display: none;
+}
