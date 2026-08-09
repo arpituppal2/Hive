@@ -81,4 +81,8 @@ struct HostContextPolicyTests {
         let reset = blocked?.setting(.default, for: page)
         #expect(reset?.decisions.isEmpty == true)
     }
+
+@Test func hostContextDecisionsIncludeDefault() {
+        #expect(HostContextPolicy.Decision.allCases.contains(.default))
+    }
 }

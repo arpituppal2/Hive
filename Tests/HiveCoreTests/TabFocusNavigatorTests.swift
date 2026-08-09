@@ -60,4 +60,14 @@ struct TabFocusNavigatorTests {
         #expect(TabFocusNavigator.destination(in: ids, focusedID: "only", direction: .next) == "only")
         #expect(TabFocusNavigator.destination(in: ids, focusedID: nil, direction: .previous) == "only")
     }
+
+@Test func normalizedIDsRemovesDuplicates() {
+        let result = TabFocusNavigator.normalizedIDs(["a", "b", "a", "c"])
+        #expect(result == ["a", "b", "c"])
+    }
+
+@Test func directionNextAdvances() {
+        let result = TabFocusNavigator.destination(in: ["a", "b", "c"], focusedID: "a", direction: .next, wraps: false)
+        #expect(result == "b")
+    }
 }
