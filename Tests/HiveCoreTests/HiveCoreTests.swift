@@ -6283,4 +6283,28 @@ struct BeeQueueTests {
 @Test func honeycombCategoriesAreNonEmpty() {
         #expect(!HoneycombCategory.allCases.isEmpty)
     }
+
+@Test func eventLedgerActionKindsAreNonEmpty() {
+        #expect(!EventLedgerStore.ActionKind.allCases.isEmpty)
+    }
+
+@Test func eventLedgerTrustLevelsAreNonEmpty() {
+        #expect(!EventLedgerStore.TrustLevel.allCases.isEmpty)
+    }
+
+@Test func eventLedgerPolicyDecisionsAreNonEmpty() {
+        #expect(!EventLedgerStore.PolicyDecision.allCases.isEmpty)
+    }
+
+@Test func eventLedgerConsentStatesAreNonEmpty() {
+        #expect(!EventLedgerStore.ConsentState.allCases.isEmpty)
+    }
+
+@Test func eventLedgerEventResultsAreNonEmpty() {
+        #expect(!EventLedgerStore.EventResult.allCases.isEmpty)
+    }
+
+@Test func contradictionStatesAreNonEmpty() {
+        #expect(!ContradictionState.allCases.isEmpty)
+    }
 }

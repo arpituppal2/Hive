@@ -47,7 +47,7 @@
 - [ ] Hacker News profile ready with launch context in bio
 
 ### 6. Last-Minute QA
-- [x] Full test suite: 1266 tests / 144 suites PASS
+- [x] Full test suite: 1272 tests / 144 suites PASS
 - [x] Bundle + smoke test PASS
 - [ ] Clean-machine test: fresh macOS user account, install .dmg, launch
 - [ ] Test all keyboard shortcuts (Cmd+T, Cmd+W, Cmd+L, Cmd+K, Cmd+Q)

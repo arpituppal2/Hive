@@ -490,3 +490,10 @@ Brave adblock (Rust), CloudKit sync, Sparkle auto-update, Dark/light theme
 - **.dmg rebuilt**: 171 MB, SHA-256 40a30ecc16a8236b6e386ebe089e44fad1a807863b7e481797cf2ba8a3dc2c0b
 - **GitHub Release**: v1.0.0 .dmg refreshed with latest binary (1243 tests)
 - **Tests**: 1243 / 144 PASS
+
+
+### Post-Ship Addendum 9 — GitHub Pages + PRELAUNCH.md (2026-08-09)
+- **GitHub Pages**: deployed via git subtree to arpituppal2.github.io/Hive
+- **PRELAUNCH.md**: 7-section pre-launch checklist (build, web, App Store, press, community, QA, final checks)
+- **.dmg refreshed**: latest SHA-256 updated in appcast + GitHub Release
+- **Tests**: 1272/144 PASS
