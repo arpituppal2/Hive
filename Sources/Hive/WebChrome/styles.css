@@ -4445,3 +4445,271 @@ body[data-theme="light"] {
   height: calc(100% - 37px);
   overflow: auto;
 }
+
+
+/* ============================================================
+   Zen Gradient Generator + Space Theme Picker
+   (studied from ZenGradientGenerator.mjs + ZenSpaceManager.mjs)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================ */
+
+/* Workspace gradient background with sine-wave SVG pattern */
+.workspace-gradient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  opacity: var(--workspace-gradient-opacity, 0.5);
+  transition: opacity 0.5s ease, background 0.5s ease;
+}
+
+.workspace-gradient-bg[data-gradient="sine"] {
+  background: var(--workspace-gradient-sine, linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 40%, var(--surface))));
+}
+
+.workspace-gradient-bg[data-gradient="linear"] {
+  background: linear-gradient(var(--workspace-gradient-angle, 135deg), var(--ws-color-1, var(--accent)), var(--ws-color-2, var(--surface)));
+}
+
+.workspace-gradient-bg[data-gradient="radial"] {
+  background: radial-gradient(circle at 30% 50%, var(--ws-color-1, var(--accent)), var(--ws-color-2, transparent));
+}
+
+/* Gradient picker dots (max 3 per Zen) */
+.gradient-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.gradient-picker .gradient-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--hairline);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+}
+
+.gradient-picker .gradient-dot:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.gradient-picker .gradient-dot[data-active] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.gradient-picker .gradient-dot::after {
+  content: attr(data-label);
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  white-space: nowrap;
+  color: var(--ink-secondary);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.gradient-picker .gradient-dot:hover::after {
+  opacity: 1;
+}
+
+/* Opacity slider */
+.gradient-opacity-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, transparent, var(--accent));
+  outline: none;
+}
+
+.gradient-opacity-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+/* Workspace container tabs */
+.workspace-container-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.workspace-container-tab:hover {
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.workspace-container-tab[data-active] {
+  background: var(--zen-colors-tertiary, #f0f0f5);
+  color: var(--accent);
+}
+
+.workspace-container-tab .ws-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Zen KBS Shortcut Groups (studied from ZenKeyboardShortcuts.mjs 1656 lines)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================ */
+
+.shortcut-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shortcut-group {
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.shortcut-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: color-mix(in srgb, var(--ink) 2%, transparent);
+  cursor: pointer;
+  user-select: none;
+}
+
+.shortcut-group-body {
+  padding: 4px 12px;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 12px;
+}
+
+.shortcut-row + .shortcut-row {
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 50%, transparent);
+}
+
+.shortcut-row .shortcut-label {
+  color: var(--ink);
+}
+
+.shortcut-row .shortcut-keys {
+  display: flex;
+  gap: 4px;
+}
+
+.shortcut-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 5px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: inherit;
+  box-shadow: 0 1px 0 var(--hairline);
+}
+
+.shortcut-key[data-mod] {
+  background: color-mix(in srgb, var(--ink) 5%, var(--surface));
+  font-weight: 600;
+}
+
+/* Recording indicator */
+.shortcut-recording {
+  animation: shortcut-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes shortcut-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent); }
+  50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+
+/* ============================================================
+   Zen Split-View Drop Zone (studied from ZenViewSplitter.mjs 2576 lines)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================ */
+
+.split-dropzone {
+  position: fixed;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 999;
+  transition: opacity 0.1s;
+}
+
+.split-dropzone[data-active] {
+  opacity: 1;
+}
+
+.split-dropzone::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px dashed var(--accent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.split-dropzone[data-position="left"] {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 25%;
+}
+
+.split-dropzone[data-position="right"] {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 25%;
+}
+
+.split-dropzone[data-position="top"] {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 25%;
+}
+
+.split-dropzone[data-position="bottom"] {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 25%;
+}
+
+.split-dropzone[data-position="center"] {
+  left: 25%;
+  right: 25%;
+  top: 25%;
+  bottom: 25%;
+}

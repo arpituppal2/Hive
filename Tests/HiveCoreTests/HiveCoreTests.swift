@@ -6771,4 +6771,61 @@ struct BeeQueueTests {
         #expect(PageCaptureAdmission.allowed.isAllowed)
     }
 
+
+
+@Test func sheetCellValueTextRoundTrips() throws {
+        let v = SheetCell.Value.text("hello")
+        let data = try JSONEncoder().encode(v)
+        let back = try JSONDecoder().decode(SheetCell.Value.self, from: data)
+        #expect(back == v)
+    }
+
+@Test func sessionLoadResultNoneIsNone() {
+        if case .none = SessionLoadResult.none { } else { Issue.record("Expected .none") }
+    }
+
+@Test func downloadControlStateCases() {
+        let states: [DownloadControlState] = [.active, .paused, .pauseRequested, .resumeRequested]
+        #expect(states.count == 4)
+    }
+
+@Test func downloadControlStateMachineInitIsActive() {
+        let m = DownloadControlStateMachine()
+        #expect(m.state == .active)
+    }
+
+@Test func tabDropCoordinateInsertionEdgeLeft() {
+        let edge = TabDropCoordinate.insertionEdge(x: 0, targetWidth: 100)
+        #expect(edge != nil)
+    }
+
+@Test func contextTransitionTokenAnnounce() {
+        let t = ContextTransitionToken()
+        t.announce(5)
+        #expect(t.current() == 5)
+        #expect(t.isCurrent(5))
+    }
+
+@Test func hiveSessionEvidenceCodableRoundTrip() throws {
+        let e = HiveSessionEvidence(restoredFromDisk: true, priorCleanExit: false, snapshotSequence: 3, durableTabCount: 5, writeSucceeded: true)
+        let data = try JSONEncoder().encode(e)
+        let back = try JSONDecoder().decode(HiveSessionEvidence.self, from: data)
+        #expect(back == e)
+    }
+
+@Test func browserImportEngineInit() {
+        let e = BrowserImportEngine()
+        #expect(e is BrowserImportEngine)
+    }
+
+@Test func tabAttachmentSummaryAttachmentInit() {
+        let a = TabAttachmentSummary.Attachment(id: "a1", classification: .admitted)
+        #expect(a.classification == .admitted)
+    }
+
+@Test func tabAttachmentSummaryClassificationCases() {
+        #expect(TabAttachmentSummary.Classification.admitted != .excluded)
+        #expect(TabAttachmentSummary.Classification.privateContent != .missing)
+    }
+
 }
