@@ -105,6 +105,53 @@ extension BrowserState {
             self?.cdpClient.handleResponse(json)
         }
         browser.registerDevToolsHandler()
+        applyAdBlockPolicy(to: browser)
+    }
+
+    /// Applies the current ad-block setting to a browser's CDP session via
+    /// Network.enable + Network.setBlockedURLs (pure commands, no interception
+    /// round-trip). Patterns come from the EasyList fallback domain list; the
+    /// Rust engine's per-URL matching remains the cosmetic path. Best-effort:
+    /// a failure is silent — browsing never depends on the blocker.
+    func applyAdBlockPolicy(to target: CefBrowser? = nil) {
+        let enabled = isAdBlockEnabled
+        let patterns = enabled
+            ? AdBlockPolicy.cdpURLPatterns(for: EasyListBlocklist.domains)
+            : []
+        guard let browser = target ?? activeModel?.browser else { return }
+        // Routing note: the send below goes through `cdpClient`, which is wired
+        // to the most recently activated browser. Callers re-apply on every
+        // activation (wireCDP) and on pref change, so a stale task can only
+        // re-block the *current* browser — a redundant but harmless send, and
+        // the next activation re-applies the intended policy. Self-healing by
+        // construction; never blocks a browser that shouldn't be.
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                _ = try await self.cdpClient.send(method: "Network.enable")
+                _ = try await self.cdpClient.send(
+                    method: "Network.setBlockedURLs",
+                    params: ["urls": patterns]
+                )
+            } catch {
+                // Non-fatal: ad blocking is best-effort and degrades silently.
+            }
+        }
+    }
+
+    /// Best-effort cosmetic ad hiding after a page finishes loading: asks the
+    /// Rust engine for hide-selectors for this URL and injects them through
+    /// the model's proven JS bridge (same path as the media/link probes).
+    /// Requires the staged libhive_adblock_ffi.dylib (release bundles); debug
+    /// builds no-op gracefully via the engine's readiness guard.
+    func applyCosmeticAdBlock(on model: CefWebViewModel, url: URL) {
+        guard isAdBlockEnabled else { return }
+        Task { @MainActor in
+            await AdblockEngine.shared.initialize()
+            let selectors = AdblockEngine.shared.cosmeticSelectors(for: url)
+            guard let script = AdBlockPolicy.cosmeticHideScript(selectors: selectors) else { return }
+            model.executeJavaScript(script)
+        }
     }
 
     var browserTransitionID: UInt64 { contextTransitionToken.current() }

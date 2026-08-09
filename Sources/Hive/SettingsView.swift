@@ -323,6 +323,11 @@ struct SettingsView: View {
             }
 
             settingsGroup("Tracker Blocking") {
+                Toggle("Block ads & trackers", isOn: $state.isAdBlockEnabled)
+                Text("Blocks requests to known ad/tracker domains (EasyList-based) and hides ad elements after load. Turn off for sites that misbehave.")
+                    .font(HiveDesign.Typography.smallLabel)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 6) {

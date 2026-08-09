@@ -253,6 +253,7 @@ extension BrowserState {
                        (completedURL.scheme?.lowercased() == "http" || completedURL.scheme?.lowercased() == "https") {
                         model.executeJavaScript(Self.linkPeekProbeScript)
                         model.executeJavaScript(Self.mediaStateProbeScript)
+                        self.applyCosmeticAdBlock(on: model, url: completedURL)
                     }
                     // Zoom is sticky per tab across navigations (Chrome-like).
                     self.applyStoredZoom(for: currentTab)

@@ -454,6 +454,20 @@ final class BrowserState {
             if !isRestoringSession { scheduleAutosave() }
         }
     }
+
+    /// Network-level ad/tracker blocking (EasyList-based Rust engine plus the
+    /// domain fallback list) and cosmetic hiding after page load. On by
+    /// default. UserDefaults-backed like `contextMode` so it survives relaunch
+    /// without touching the session envelope; toggling re-applies the policy
+    /// to the live browser's CDP session immediately.
+    var isAdBlockEnabled: Bool = {
+        UserDefaults.standard.object(forKey: "HiveAdBlockEnabled") as? Bool ?? true
+    }() {
+        didSet {
+            UserDefaults.standard.set(isAdBlockEnabled, forKey: "HiveAdBlockEnabled")
+            applyAdBlockPolicy()
+        }
+    }
     var bookmarks: [Bookmark] = [] {
         didSet {
             // Auto-hide bookmarks bar when empty; show it when bookmarks appear
