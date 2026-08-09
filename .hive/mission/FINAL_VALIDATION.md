@@ -442,3 +442,44 @@ f937221 feat: +19 tests + WebChrome ARIA accessibility — 1147 tests total
 ---
 
 **SHIP STATUS: SHIPPED — 1197 tests, 61 commits, 33 features, zero TODOs. Mission complete.**
+
+
+## Post-Ship Addendum 7 — v1.0.0 Final Release (2026-08-08)
+
+### Release
+- **Tag**: v1.0.0
+- **GitHub Release**: https://github.com/arpituppal2/Hive/releases/tag/v1.0.0
+- **Download**: [Hive.dmg](https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg) (171 MB / 179,607,822 bytes)
+- **SHA-256**: b700a09fcc006c1a9ac0c64e80b860331589457c139999d490e3798a0f2a05d8
+- **Sparkle appcast**: web/appcast.xml - functional auto-update feed
+
+### Final Dashboard
+| Metric | Final |
+|---|---|
+| **Tests** | **1200** / 144 suites - ALL PASS |
+| **Test growth** | 1082 -> 1200 (+118 this mission) |
+| **Features shipped** | 39 |
+| **Commits** | 69 on main |
+| **Build** | Clean (0.78s) |
+| **Bundle + Smoke** | PASS |
+| **GitHub Release** | Published with .dmg |
+| **Landing page** | Hero + bento + compare + pricing + particles + scroll animations + download URLs |
+| **Theme system** | Dark-first + light mode toggle (sun/moon) |
+| **Start page** | Search + briefcard + top sites + honeycomb particles |
+| **Notarization** | Wired in build-hive-app.sh |
+| **Auto-update** | Sparkle 2.6 + functional appcast |
+| **Cross-device sync** | CloudKit engine + BrowserState wiring |
+| **Privacy** | Zero telemetry, on-device AI, E2E encrypted sync |
+| **TODOs/FIXMEs** | Zero in non-vendored Swift |
+
+### Complete Feature List (39)
+CEF/Chromium engine, SwiftUI chrome shell, Tab management, Workspaces, Split view,
+Compact mode, Navigation, Private browsing, Session persistence, Hibernation,
+Bookmarks, History, Downloads, Reader mode, Web Chrome (hive://), JS bridge,
+Vertical/horizontal layout, Tab peek, Link peek, Media mini-player, PiP,
+Command palette, Tab search, Floating URL bar, Find in page, Page zoom,
+Fullscreen, Print, On-device AI (MLX), Model Council, Agentic browsing (CDP),
+Deep Research, Studio panel, Honeycomb knowledge graph, EventLedger audit trail,
+Brave adblock (Rust), CloudKit sync, Sparkle auto-update, Dark/light theme
+
+**SHIP STATUS: SHIPPED -- v1.0.0 released. 1200 tests, 69 commits, 39 features, zero TODOs. Mission complete.**

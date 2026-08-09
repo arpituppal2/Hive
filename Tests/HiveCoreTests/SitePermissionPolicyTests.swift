@@ -78,4 +78,8 @@ struct SitePermissionPolicyTests {
         #expect(SitePermissionPolicy.normalizedHost("") == "")
         #expect(SitePermissionPolicy.normalizedHost("   ") == "")
     }
+
+    @Test func allPermissionKindsAreNonEmpty() {
+        #expect(!SitePermissionKind.allCases.isEmpty)
+    }
 }
