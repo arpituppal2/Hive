@@ -6387,4 +6387,16 @@ struct BeeQueueTests {
 @Test func honeycombCategoryBioIsBio() {
         #expect(HoneycombCategory.bio == .bio)
     }
+
+@Test func readerArtifactPreservesTitle() {
+        let a = ReaderArtifact(url: URL(string: "https://example.com"), title: "Article", contentHTML: "<p>hi</p>")
+        #expect(a.title == "Article")
+    }
+
+@Test func researchSourcePreservesTitle() {
+        let url = URL(string: "https://example.com")!
+        let qid = UUID()
+        let s = ResearchSource(url: url, title: "Test", snippet: "desc", fullText: nil, relevance: 0.9, sourceQueryID: qid)
+        #expect(s.title == "Test")
+    }
 }

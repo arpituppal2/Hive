@@ -2668,3 +2668,172 @@ body[data-theme="dark"] .dia-dismiss:hover {
   background: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.7);
 }
+
+
+/* ============================================================
+   Comet/Perplexity Sidecar Agent Panel (reimplemented)
+   Based on research of Perplexity Comet''s Sidecar UI
+   ============================================================
+   The Sidecar is a collapsible right-hand panel showing
+   agent workflow steps (Think / Search / Navigate / Act),
+   tool invocations, and decision points inline.
+   Uses native <details>/<summary> for collapsible chains. */
+
+/* --- Sidecar panel container --- */
+
+.sidecar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 380px;
+  max-width: 45vw;
+  height: 100vh;
+  background: var(--chrome-bg);
+  border-left: 1px solid var(--hairline);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.25s var(--zen-compact-easing);
+}
+
+.sidecar.open {
+  transform: translateX(0);
+}
+
+/* --- Collapsible reasoning chain (<details>/<summary>) --- */
+
+.ai-reasoning-chain {
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  margin-bottom: var(--s2);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.ai-reasoning-chain summary {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease, background 0.15s ease;
+  list-style: none;
+}
+
+.ai-reasoning-chain summary::-webkit-details-marker {
+  display: none;
+}
+
+.ai-reasoning-chain summary:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Spinning indicator or checkmark icon */
+.ai-reasoning-chain summary .chain-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.ai-reasoning-chain[open] summary .chain-icon {
+  transform: rotate(90deg);
+}
+
+/* Thinking spinner */
+.ai-reasoning-chain .chain-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--hairline);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Reasoning chain body (the expanded content) --- */
+
+.ai-reasoning-chain .chain-body {
+  padding: 0 var(--s3) var(--s2) calc(var(--s3) + 24px);
+  border-left: 2px solid rgba(99, 102, 241, 0.3);
+  margin-left: var(--s3);
+  font-size: 12px;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.ai-reasoning-chain .chain-body .tool-call {
+  color: #818cf8;
+}
+
+body[data-theme="light"] .ai-reasoning-chain .chain-body .tool-call {
+  color: #6366f1;
+}
+
+/* --- Inline step status badges --- */
+
+.chain-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s1);
+  padding: 2px 0;
+}
+
+.chain-step__status {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.chain-step__status.think  { background: #f59e0b; }
+.chain-step__status.search { background: #3b82f6; }
+.chain-step__status.nav    { background: #10b981; }
+.chain-step__status.act    { background: #ef4444; }
+.chain-step__status.done   { background: #22c55e; }
+
+/* --- Sidecar tab bar --- */
+
+.sidecar-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--hairline);
+  padding: 0 var(--s3);
+}
+
+.sidecar-tab {
+  padding: var(--s2) var(--s3);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.sidecar-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.sidecar-tab:hover {
+  color: var(--text);
+}
+
+/* --- Sidecar content area --- */
+
+.sidecar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--s3);
+}

@@ -95,4 +95,10 @@ struct DownloadControlStateTests {
             #expect(try decoder.decode(DownloadControlState.self, from: data) == value)
         }
     }
+
+@Test func downloadControlTransitionPreservesState() {
+        let t = DownloadControlTransition(state: .active, action: .pause)
+        #expect(t.state == .active)
+        #expect(t.action == .pause)
+    }
 }

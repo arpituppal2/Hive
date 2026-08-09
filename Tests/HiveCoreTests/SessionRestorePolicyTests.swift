@@ -147,4 +147,14 @@ struct SessionRestorePolicyTests {
         #expect(plan.eagerIDs.isEmpty)
         #expect(plan.lazyIDs == ["real"])
     }
+
+@Test func tabStatePreservesTitle() {
+        let t = TabState(title: "Page")
+        #expect(t.title == "Page")
+    }
+
+@Test func windowSessionStateDefaultsToEmptyTabs() {
+        let w = WindowSessionState()
+        #expect(w.tabs.isEmpty)
+    }
 }

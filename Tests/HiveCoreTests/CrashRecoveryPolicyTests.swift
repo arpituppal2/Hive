@@ -128,4 +128,10 @@ struct CrashRecoveryPolicyTests {
         let cr = CrashRecord(count: 0, firstCrash: Date(), lastCrash: Date())
         #expect(cr.count == 0)
     }
+
+@Test func crashRecordPreservesCount() {
+        let now = Date()
+        let c = CrashRecord(count: 3, firstCrash: now, lastCrash: now)
+        #expect(c.count == 3)
+    }
 }
