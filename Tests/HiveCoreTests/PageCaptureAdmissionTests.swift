@@ -51,4 +51,8 @@ struct PageCaptureAdmissionTests {
     @Test func browserCommandCountIsReasonable() {
         #expect(BrowserCommand.allCases.count >= 20)
     }
+
+@Test func commandCategoriesAreNonEmpty() {
+        #expect(!CommandCategory.allCases.isEmpty)
+    }
 }

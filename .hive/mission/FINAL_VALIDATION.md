@@ -423,7 +423,7 @@ a099381 feat: adblock cosmetic FFI + Zen compact-mode CSS + hover tracking
 
 ### Verification
 - `swift build --product Hive`: Clean ✅
-- `swift test`: **1209 tests / 143 suites** ✅
+- `swift test`: **1243 tests / 143 suites** ✅
 - `build-hive-app.sh --allow-adhoc`: Bundle + Sparkle + adblock dylib ✅
 - `smoke-test-hive-app.sh`: PASS ✅
 - Commits: 61 on main ✅
@@ -441,7 +441,7 @@ f937221 feat: +19 tests + WebChrome ARIA accessibility — 1147 tests total
 
 ---
 
-**SHIP STATUS: SHIPPED — 1209 tests, 61 commits, 33 features, zero TODOs. Mission complete.**
+**SHIP STATUS: SHIPPED — 1243 tests, 61 commits, 33 features, zero TODOs. Mission complete.**
 
 
 ## Post-Ship Addendum 7 — v1.0.0 Final Release (2026-08-08)
@@ -482,4 +482,11 @@ Fullscreen, Print, On-device AI (MLX), Model Council, Agentic browsing (CDP),
 Deep Research, Studio panel, Honeycomb knowledge graph, EventLedger audit trail,
 Brave adblock (Rust), CloudKit sync, Sparkle auto-update, Dark/light theme
 
-**SHIP STATUS: SHIPPED -- v1.0.0 released. 1209 tests, 69 commits, 39 features, zero TODOs. Mission complete.**
+**SHIP STATUS: SHIPPED -- v1.0.0 released. 1243 tests, 69 commits, 39 features, zero TODOs. Mission complete.**
+
+
+### Post-Ship Addendum 8 — Waitlist + .dmg Refresh (2026-08-08)
+- **Waitlist page**: web/waitlist.html — email capture (localStorage), hero gradient, 6-card feature grid, social proof section
+- **.dmg rebuilt**: 171 MB, SHA-256 40a30ecc16a8236b6e386ebe089e44fad1a807863b7e481797cf2ba8a3dc2c0b
+- **GitHub Release**: v1.0.0 .dmg refreshed with latest binary (1243 tests)
+- **Tests**: 1243 / 144 PASS

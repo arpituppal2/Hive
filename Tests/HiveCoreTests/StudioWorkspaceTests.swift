@@ -237,4 +237,8 @@ struct StudioWorkspaceTests {
             _ = try await workspace.gitRestore(file: "main.swift")
         }
     }
+
+@Test func projectLifecyclesAreNonEmpty() {
+        #expect(!Project.Lifecycle.allCases.isEmpty)
+    }
 }

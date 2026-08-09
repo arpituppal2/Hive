@@ -298,4 +298,8 @@ struct HiveSheetTests {
         #expect(round.columns.count == sheet.columns.count)
         #expect(round.rows.count == sheet.rows.count)
     }
+
+@Test func taskPrioritiesAreNonEmpty() {
+        #expect(!HiveTask.Priority.allCases.isEmpty)
+    }
 }

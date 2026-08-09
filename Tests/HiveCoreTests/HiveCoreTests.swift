@@ -6261,4 +6261,8 @@ struct BeeQueueTests {
         #expect((final?.attempt ?? 0) >= 1,
                 "Job should have at least one attempt recorded")
     }
+
+@Test func taskStatesAreNonEmpty() {
+        #expect(!HiveTask.State.allCases.isEmpty)
+    }
 }

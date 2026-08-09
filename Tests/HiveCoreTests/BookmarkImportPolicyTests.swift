@@ -84,4 +84,9 @@ struct BookmarkImportPolicyTests {
         let d = BookmarkImportPolicy.Decision(entries: [], skippedCount: -5)
         #expect(d.skippedCount >= 0)
     }
+
+@Test func readingListEntryDefaultsUnread() {
+        let entry = ReadingListEntry(url: URL(string: "https://example.com")!, title: "Article")
+        #expect(!entry.isRead)
+    }
 }
