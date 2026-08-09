@@ -315,6 +315,19 @@ struct WebChromePanelRequest: Codable, Sendable {
     let panel: String
 }
 
+struct WebChromeSidecarStep: Codable, Sendable {
+    let token: String
+    let text: String
+    let kind: String?
+}
+
+struct WebChromeSidecarChain: Codable, Sendable {
+    let token: String
+    let label: String
+    let steps: [String]
+    let kind: String?
+}
+
 struct WebChromeDimensionRequest: Codable, Sendable {
     let token: String
     let dimension: Double
@@ -719,6 +732,20 @@ enum WebChromeBridge {
             await MainActor.run {
                 state.setChromePanel(request.panel.isEmpty ? nil : request.panel)
             }
+            return true
+        }
+
+        // ---- hive.sidecar.open: open the Comet-style sidecar agent panel ----
+        bridge.register("hive.sidecar.open") { (request: WebChromeToken) async throws -> Bool in
+            try Self.authorize(request.token)
+            await MainActor.run { state.setChromePanel("sidecar") }
+            return true
+        }
+
+        // ---- hive.sidecar.close: close the sidecar panel ----
+        bridge.register("hive.sidecar.close") { (request: WebChromeToken) async throws -> Bool in
+            try Self.authorize(request.token)
+            await MainActor.run { state.setChromePanel(nil) }
             return true
         }
 

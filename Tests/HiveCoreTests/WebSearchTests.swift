@@ -805,4 +805,14 @@ struct ContextRedactorTests {
 @Test func webSearchFocusModeWebSearchIsWebSearch() {
         #expect(WebSearchFocusMode.webSearch == .webSearch)
     }
+
+@Test func webSearchStreamEventSourcesCarriesSources() {
+        let src = WebSearchSource(id: "s1", title: "Doc", url: "https://example.com")
+        let event = WebSearchStreamEvent.sources([src])
+        if case .sources(let sources) = event {
+            #expect(sources.count == 1)
+        } else {
+            #expect(Bool(false))
+        }
+    }
 }

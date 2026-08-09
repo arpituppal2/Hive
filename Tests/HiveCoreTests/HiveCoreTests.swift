@@ -6433,4 +6433,32 @@ struct BeeQueueTests {
         let f = ResearchFinding(claim: "Swift is safe", citations: [], confidence: 0.9, aspect: "safety")
         #expect(f.claim == "Swift is safe")
     }
+
+@Test func researchQueryPreservesQuery() {
+        let q = ResearchQuery(query: "What is Swift?", aspect: "definition", priority: 1)
+        #expect(q.query == "What is Swift?")
+    }
+
+@Test func servingStrategyRuleBasedIsRuleBased() {
+        #expect(ManifestEntry.ServingStrategy.ruleBased == .ruleBased)
+    }
+
+@Test func researchBriefPreservesQuestion() {
+        let b = ResearchBrief(question: "Q", tableOfContents: [], findings: [], sources: [], unusedSources: [], duration: 0, wasRefined: false)
+        #expect(b.question == "Q")
+    }
+
+@Test func councilResponseStatusSuccessEqualsSelf() {
+        let s = CouncilResponse.ResponseStatus.success
+        #expect(s == CouncilResponse.ResponseStatus.success)
+    }
+
+@Test func councilVerdictResultStateSuccessCarriesValue() {
+        let v = CouncilVerdict(answer: "Yes", reasoning: "r", agreements: [], disagreements: [], confidence: 0.9, responses: [], activeProviders: [.mlxLocal], isDegraded: false)
+        if case .success(let value) = v.resultState {
+            #expect(value == "Yes")
+        } else {
+            #expect(Bool(false))
+        }
+    }
 }
