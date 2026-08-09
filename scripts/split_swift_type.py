@@ -397,7 +397,8 @@ def main():
     main_text = "\n".join(main_parts)
     carved_text = "\n".join(m["text"] for ms in files.values() for m in ms)
     for m in re.finditer(
-        r"^(?:private|fileprivate)\s+(?:final\s+)?(?:struct|enum|class|actor)\s+([A-Za-z_]\w*)",
+        r"^(?:(?:@[A-Za-z_]\w*(?:\s*\([^)]*\))?\s*)*)(?:private|fileprivate)\s+"
+        r"(?:final\s+)?(?:struct|enum|class|actor)\s+([A-Za-z_]\w*)",
         main_text,
         re.MULTILINE,
     ):

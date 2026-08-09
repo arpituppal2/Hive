@@ -14,7 +14,7 @@ swift build --product Hive
 
 # Full test suite
 swift test
-# Result: 1564 tests / 145 suites passed (~60 seconds)
+# Result: 1567 tests / 145 suites passed (~60 seconds)
 
 # Release app bundle (ad-hoc for local validation)
 scripts/build-hive-app.sh --allow-adhoc
@@ -115,7 +115,7 @@ HIVE_SMOKE_SESSION_EVIDENCE=1 HIVE_SMOKE_TIMEOUT_SECONDS=60 scripts/smoke-test-h
 
 | Test Type | Count | Status |
 | --- | --- | --- |
-| Unit / Integration (HiveCoreTests) | 1564 / 145 suites | ✅ PASS |
+| Unit / Integration (HiveCoreTests) | 1567 / 145 suites | ✅ PASS |
 | Build (debug) | — | ✅ PASS |
 | Build (release) | — | ✅ PASS |
 | App bundle assembly | — | ✅ PASS |
@@ -161,7 +161,7 @@ Full license texts in `THIRD_PARTY_NOTICES.md`.
 
 - [x] Clean checkout builds successfully through documented production build command
 - [x] Application launches successfully without fatal logs, startup crashes, or hidden manual intervention
-- [x] Full automated test suite passes (1564 tests / 145 suites)
+- [x] Full automated test suite passes (1567 tests / 145 suites)
 - [x] Browser smoke flow passes end-to-end:
   - launch → readiness marker emitted within timeout
   - session recovery verified across two launches (SIGKILL + relaunch)
