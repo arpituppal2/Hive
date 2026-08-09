@@ -74,4 +74,9 @@ struct BookmarkImportPolicyTests {
         #expect(decision.entries.count == 1)
         #expect(decision.entries[0].title == "NoURL")
     }
+
+@Test func bookmarkDefaultsToNotFolder() {
+        let bm = Bookmark(title: "Link", url: URL(string: "https://x.com")!)
+        #expect(!bm.isFolder)
+    }
 }

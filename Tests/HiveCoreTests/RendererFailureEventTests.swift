@@ -110,4 +110,9 @@ struct RendererFailureEventTests {
         #expect(decoded == event)
         #expect(String(decoding: data, as: UTF8.self).contains("killed for memory pressure"))
     }
+
+@Test func boostDefaultEnabled() {
+        let b = Boost(id: "b1", name: "Test", urlPattern: "*.example.com", css: "", js: "", forceDarkMode: false, zappedSelectors: [], isEnabled: true)
+        #expect(b.isEnabled)
+    }
 }

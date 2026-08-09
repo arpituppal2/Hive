@@ -1146,6 +1146,16 @@
   }
 
   var palIndex = -1;
+
+  // ? key -> keyboard shortcuts overlay
+  document.addEventListener('keydown', function(e){
+    if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey && document.activeElement && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      var overlay = document.getElementById('shortcutsOverlay');
+      if (overlay) overlay.hidden = !overlay.hidden;
+    }
+  });
+
   var palInput = $('paletteInput');
   palInput.addEventListener('input', function () { palIndex = -1; renderPalette(palInput.value); });
   palInput.addEventListener('keydown', function (e) {

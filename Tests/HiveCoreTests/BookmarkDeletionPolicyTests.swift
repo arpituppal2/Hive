@@ -78,4 +78,9 @@ struct BookmarkDeletionPolicyTests {
         let result = BookmarkDeletionPolicy.deleting(bookmarkID: "gc", from: [root, child, grandchild, sibling])
         #expect(result.map(\.id).sorted() == ["child", "root", "sib"])
     }
+
+@Test func bookmarkHostStripsWWW() {
+        let bm = Bookmark(title: "Test", url: URL(string: "https://www.example.com")!)
+        #expect(bm.host == "example.com")
+    }
 }
