@@ -7043,4 +7043,71 @@ struct BeeQueueTests {
         #expect(!PageCaptureAdmission.deniedPrivateBrowsing.isAllowed)
     }
 
+
+
+@Test func contextTransitionErrorIsStale() {
+        let e = ContextTransitionError.staleTransition(expectedAtLeast: 5, received: 3)
+        if case .staleTransition(let exp, let rec) = e {
+            #expect(exp == 5)
+            #expect(rec == 3)
+        } else { Issue.record("Expected staleTransition") }
+    }
+
+@Test func bookmarkImportPolicyDecisionInit() {
+        let d = BookmarkImportPolicy.Decision(entries: [], skippedCount: 0)
+        #expect(d.skippedCount == 0)
+    }
+
+@Test func bookmarkImportPolicyDecisionSkipped() {
+        let d = BookmarkImportPolicy.Decision(entries: [], skippedCount: 5)
+        #expect(d.skippedCount == 5)
+    }
+
+@Test func crashRecoveryPolicyDefaultLimit() {
+        let p = CrashRecoveryPolicy()
+        #expect(p.automaticRetryLimit == 1)
+    }
+
+@Test func bookmarkDeletionPolicyDeletingPreservesUnrelated() {
+        let b1 = Bookmark(id: "b1", title: "Keep", url: URL(string: "https://keep.com"), parentID: nil)
+        let b2 = Bookmark(id: "b2", title: "Drop", url: URL(string: "https://drop.com"), parentID: nil)
+        let result = BookmarkDeletionPolicy.deleting(bookmarkID: "b2", from: [b1, b2])
+        #expect(result.count == 1)
+        #expect(result[0].id == "b1")
+    }
+
+@Test func downloadHistoryPolicyIsTerminal() {
+        #expect(DownloadHistoryPolicy.isTerminal(isComplete: true, isCanceled: false, isInterrupted: false))
+        #expect(DownloadHistoryPolicy.isTerminal(isComplete: false, isCanceled: true, isInterrupted: false))
+    }
+
+@Test func browserImportMergePolicyMergeEmpty() {
+        let d = BrowserImportMergePolicy.mergeHistory(existing: [], candidates: [])
+        #expect(d.retainedImported.isEmpty)
+    }
+
+@Test func contextScopeAllowsUntaggedGlobal() {
+        let scope = ContextScope(workspaceID: "ws")
+        #expect(scope.admits(profileID: nil, workspaceID: nil, isPrivate: false, isGlobal: true))
+    }
+
+@Test func voiceCommandStateIdleIsIdle() {
+        #expect(VoiceCommandState.idle == .idle)
+        #expect(VoiceCommandState.idle != .listening)
+    }
+
+@Test func voiceTurnDisclosureListening() {
+        let k = VoiceTurnDisclosure.Kind.listening
+        #expect(k == .listening)
+    }
+
+@Test func downloadHistoryPolicyIsTerminalAll() {
+        #expect(!DownloadHistoryPolicy.isTerminal(isComplete: false, isCanceled: false, isInterrupted: false))
+    }
+
+@Test func browserImportMergePolicyRetainedEmpty() {
+        let d = BrowserImportMergePolicy.mergeHistory(existing: [], candidates: [])
+        #expect(d.skippedCount == 0)
+    }
+
 }
