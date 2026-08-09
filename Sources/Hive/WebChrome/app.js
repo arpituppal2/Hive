@@ -227,6 +227,37 @@
     return [['Essential', ess], ['Pinned', pinned], ['', normal]].filter(function (g) { return g[1].length; });
   }
 
+
+  function showTabPeek(el, t) {
+    var existing = document.querySelector('.tab-peek');
+    if (!existing) {
+      var div = document.createElement('div');
+      div.className = 'tab-peek';
+      div.innerHTML =
+        '<div class="tab-peek__header">' +
+        '<span class="tab-peek__favicon" style="background:hsl(' + (Math.abs(hash(t.host || t.id)) % 360) + ',32%,48%)">' +
+        esc((t.host || '?').charAt(0).toUpperCase()) + '</span>' +
+        '<span class="tab-peek__title">' + esc(t.title || t.host || 'New Tab') + '</span>' +
+        '</div>' +
+        '<div class="tab-peek__body">' + esc(t.host || '') + '</div>' +
+        '<div class="tab-peek__actions">' +
+        '<button class="tab-peek__action tab-peek__action--primary">Switch</button>' +
+        '<button class="tab-peek__action">Close</button>' +
+        '</div>';
+      document.body.appendChild(div);
+      existing = div;
+    }
+    var rect = el.getBoundingClientRect();
+    existing.style.left = (rect.right + 12) + 'px';
+    existing.style.top = Math.min(rect.top, window.innerHeight - 260) + 'px';
+    existing.dataset.visible = 'true';
+  }
+
+  function hideTabPeek() {
+    var el = document.querySelector('.tab-peek');
+    if (el) { delete el.dataset.visible; setTimeout(function () { if (el && !el.dataset.visible) el.remove(); }, 200); }
+  }
+
   function renderTabs() {
     refreshGroupMap();
     var list = $('tabList');
@@ -254,6 +285,23 @@
     var changed = json !== lastTabsJSON;
     lastTabsJSON = json;
     list.innerHTML = html;
+    // Zen/Arc tab peek: show floating preview on hover
+    var peekTimer = null;
+    list.querySelectorAll('.tab').forEach(function (el) {
+      el.addEventListener('mouseenter', function () {
+        var t = state.tabs.find(function (x) { return x.id === el.dataset.id; });
+        if (!t) return;
+        clearTimeout(peekTimer);
+        peekTimer = setTimeout(function () {
+          showTabPeek(el, t);
+        }, 400);
+      });
+      el.addEventListener('mouseleave', function () {
+        clearTimeout(peekTimer);
+        hideTabPeek();
+      });
+    });
+
     upgradeTabFavicons();
     if (changed) {
       var active = list.querySelector('.tab[data-active="true"]');

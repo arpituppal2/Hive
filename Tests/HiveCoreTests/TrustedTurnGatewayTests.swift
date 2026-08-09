@@ -336,4 +336,11 @@ struct TrustedTurnGatewayTests {
         #expect(d.scope == .web)
         #expect(!d.label.isEmpty)
     }
+
+@Test func trustedTurnExecutionDefaults() {
+        let e = TrustedTurnExecution(text: "hello")
+        #expect(e.text == "hello")
+        #expect(e.providerLabel == "local")
+        #expect(e.shouldSpeak)
+    }
 }

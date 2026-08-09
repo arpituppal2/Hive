@@ -788,4 +788,17 @@ struct ContextRedactorTests {
             #expect(!kind.displayName.isEmpty)
         }
     }
+
+@Test func omnibarResolutionEmptyEqualsSelf() {
+        #expect(OmnibarResolution.empty == .empty)
+    }
+
+@Test func omnibarInputResolvesURL() {
+        let result = OmnibarInput.resolve("https://hive.com")
+        if case .navigate(let url) = result {
+            #expect(url.absoluteString == "https://hive.com")
+        } else {
+            #expect(false, "Expected .navigate, got \(result)")
+        }
+    }
 }

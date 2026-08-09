@@ -209,4 +209,9 @@ struct BrowserSessionIntegrityTests {
         let s = BrowserSession()
         #expect(s.windows.isEmpty)
     }
+
+@Test func browserProfilePreservesName() {
+        let p = BrowserProfile(name: "Work")
+        #expect(p.name == "Work")
+    }
 }

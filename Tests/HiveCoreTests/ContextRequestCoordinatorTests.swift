@@ -119,4 +119,10 @@ struct ContextRequestCoordinatorTests {
         let b = ContextTransitionError.staleTransition(expectedAtLeast: 1, received: 0)
         #expect(a == b)
     }
+
+@Test func contextTransitionErrorEquality() {
+        let a = ContextTransitionError.staleTransition(expectedAtLeast: 5, received: 3)
+        let b = ContextTransitionError.staleTransition(expectedAtLeast: 5, received: 3)
+        #expect(a == b)
+    }
 }

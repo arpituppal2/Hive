@@ -80,4 +80,10 @@ struct BrowserChromePreferencesTests {
 @Test func hiveThemesAreNonEmpty() {
         #expect(!HiveTheme.allCases.isEmpty)
     }
+
+@Test func allThemesHaveDisplayNames() {
+        for theme in HiveTheme.allCases {
+            #expect(!theme.displayName.isEmpty)
+        }
+    }
 }
