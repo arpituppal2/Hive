@@ -76,4 +76,8 @@ struct BrowserChromePreferencesTests {
 @Test func tabDensitiesAreNonEmpty() {
         #expect(!TabDensity.allCases.isEmpty)
     }
+
+@Test func hiveThemesAreNonEmpty() {
+        #expect(!HiveTheme.allCases.isEmpty)
+    }
 }

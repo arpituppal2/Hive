@@ -89,4 +89,10 @@ struct BookmarkImportPolicyTests {
         let entry = ReadingListEntry(url: URL(string: "https://example.com")!, title: "Article")
         #expect(!entry.isRead)
     }
+
+@Test func importedBookmarkPreservesTitle() {
+        let bm = ImportedBookmark(title: "Hive", url: URL(string: "https://hive.com")!)
+        #expect(bm.title == "Hive")
+        #expect(bm.url.absoluteString == "https://hive.com")
+    }
 }

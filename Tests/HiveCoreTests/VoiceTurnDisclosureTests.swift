@@ -105,4 +105,8 @@ struct VoiceTurnDisclosureTests {
         let disclosure = VoiceTurnDisclosure.make(state: .clarifying, pendingDecision: decision)
         #expect(disclosure?.detail.contains("target") == true)
     }
+
+@Test func voiceTurnDisclosureKindsAreNonEmpty() {
+        #expect(!VoiceTurnDisclosure.Kind.allCases.isEmpty)
+    }
 }

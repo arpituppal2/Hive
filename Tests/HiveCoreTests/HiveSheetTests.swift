@@ -302,4 +302,8 @@ struct HiveSheetTests {
 @Test func taskPrioritiesAreNonEmpty() {
         #expect(!HiveTask.Priority.allCases.isEmpty)
     }
+
+@Test func sheetColumnKindsAreNonEmpty() {
+        #expect(!SheetColumn.Kind.allCases.isEmpty)
+    }
 }

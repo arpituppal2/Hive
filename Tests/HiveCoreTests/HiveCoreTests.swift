@@ -6265,4 +6265,10 @@ struct BeeQueueTests {
 @Test func taskStatesAreNonEmpty() {
         #expect(!HiveTask.State.allCases.isEmpty)
     }
+
+@Test func hibernationThresholdsDefaults() {
+        let t = HibernationPolicy.Thresholds.defaults
+        #expect(t.bgActiveSpaceSec == 900)
+        #expect(t.inactiveSpaceSec == 300)
+    }
 }

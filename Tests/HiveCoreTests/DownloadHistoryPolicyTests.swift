@@ -86,4 +86,11 @@ struct DownloadHistoryPolicyTests {
 @Test func isTerminalTrueForComplete() {
         #expect(DownloadHistoryPolicy.isTerminal(isComplete: true, isCanceled: false, isInterrupted: false))
     }
+
+@Test func browserDownloadInitPreservesURL() {
+        let url = URL(string: "https://example.com/file.zip")!
+        let dl = BrowserDownload(url: url)
+        #expect(dl.url == url)
+        #expect(dl.state == .pending)
+    }
 }
