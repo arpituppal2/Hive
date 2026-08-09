@@ -2345,3 +2345,210 @@ body[data-theme="light"] .shields-stat {
 .splitter-handle.dragging {
   opacity: 1;
 }
+
+
+/* ============================================================
+   Zen Floating URL Bar (ported from zen-browser/desktop)
+   License: MPL-2.0
+   ============================================================
+   The URL bar expands with a smooth breakout animation on focus.
+   On single-toolbar mode, the urlbar-container uses a compact
+   36px/38px height pair. The breakout state triggers elevation
+   with backdrop-blur and shadow. */
+
+/* Floating URL bar breakout animation */
+#chrome__top[data-breakout="true"] .addressbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 640px;
+  max-width: calc(100vw - 48px);
+  z-index: 1000;
+  border-radius: var(--r-md);
+  background: rgba(28, 28, 32, 0.96);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 16px 48px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  transition:
+    transform 0.18s var(--zen-compact-easing),
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+/* Backdrop overlay when URL bar is in breakout mode */
+.urlbar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+.urlbar-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Single toolbar URL bar compact */
+body[data-layout="toolbar"] .addressbar {
+  height: 36px;
+  transition: height 0.15s ease, box-shadow 0.15s ease;
+}
+
+body[data-layout="toolbar"] .addressbar:focus-within {
+  height: 38px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================================
+   Zen Tab in-URL bar styling
+   When a tab is dragged into the URL bar area, it gets a
+   selected-tab background to show the drop target
+   ============================================================ */
+
+.tab.in-urlbar {
+  background: var(--tab-active-bg) !important;
+  box-shadow: var(--tab-active-shadow);
+}
+
+/* Zen tab button active press scale */
+.tab:active,
+.tab[open] {
+  transform: scale(0.985);
+  transition: transform 0.08s ease;
+}
+
+/* ============================================================
+   Pinned Tabs Separator (from Zen)
+   A subtle hairline between pinned and unpinned tabs
+   ============================================================ */
+
+.pinned-tabs-separator {
+  height: 1px;
+  margin: var(--s2) var(--s3);
+  background: var(--hairline);
+  opacity: 0.5;
+}
+
+
+/* ============================================================
+   Dia Browser Patterns (studied from Dia.app, The Browser Co.)
+   License: Fair-use study, reimplemented for Hive
+   ============================================================
+
+   1. Page-Bleed Tab Color — the active tab absorbs the
+      webpage''s theme-color, creating a seamless visual bridge
+      between chrome and content.
+   2. Auto-Hide URL Bar Controls — bookmark/settings buttons
+      appear only on hover, keeping the bar clean.
+   3. Dia-style rounded corners — ~20px radius on floating
+      surfaces for a modern tactile feel.
+   ============================================================ */
+
+/* --- 1. Page-Bleed Active Tab --- */
+
+/* When a tab has a theme-color override, bleed it into the active tab bg */
+.tab[data-theme-color] {
+  --tab-theme: var(--data-theme-color, var(--tab-bg));
+}
+
+.tab.active[data-theme-color] {
+  background: color-mix(in srgb, var(--tab-theme) 30%, var(--chrome-bg) 70%);
+  border-left: 3px solid var(--tab-theme);
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* --- 2. Auto-Hide URL Bar Controls --- */
+
+/* Bookmark star, share, and settings icons hidden until the URL bar is hovered */
+.addressbar .urlbar-actions {
+  opacity: 0;
+  transform: translateX(4px);
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.addressbar:hover .urlbar-actions,
+.addressbar:focus-within .urlbar-actions {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* --- 3. Dia-Style Rounded Floating Surfaces (~20px) --- */
+
+:root {
+  --dia-radius: 20px;
+}
+
+.dia-surface {
+  border-radius: var(--dia-radius);
+  background: rgba(28, 28, 32, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* --- 4. Dia Animated Chat Entry Swell --- */
+
+@keyframes dia-chat-swell {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  60% {
+    transform: scale(1.01) translateY(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.dia-chat-entry {
+  animation: dia-chat-swell 0.3s var(--spring-soft) both;
+}
+
+/* --- 5. Dia Pile UI (tab stack in chat context) --- */
+
+.dia-pile {
+  display: inline-flex;
+  gap: 0;
+  position: relative;
+}
+
+.dia-pile__tab {
+  width: 48px;
+  height: 32px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  transition: transform 0.2s var(--spring-soft), margin 0.2s var(--spring-soft);
+  margin-left: -8px;
+}
+
+.dia-pile__tab:first-child {
+  margin-left: 0;
+}
+
+.dia-pile:hover .dia-pile__tab {
+  margin-left: 4px;
+  transform: rotate(0deg);
+}
+
+.dia-pile__tab:nth-child(1) { transform: rotate(-3deg); z-index: 3; }
+.dia-pile__tab:nth-child(2) { transform: rotate(2deg); z-index: 2; }
+.dia-pile__tab:nth-child(3) { transform: rotate(-1deg); z-index: 1; }

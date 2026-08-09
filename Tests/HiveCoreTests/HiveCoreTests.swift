@@ -6343,4 +6343,28 @@ struct BeeQueueTests {
 @Test func splitOrientationVerticalIsVertical() {
         #expect(SplitOrientation.vertical == .vertical)
     }
+
+@Test func beeJobStatusPendingIsPending() {
+        #expect(BeeJobStatus.pending == .pending)
+    }
+
+@Test func beeJobKindRunCheckIsRunCheck() {
+        #expect(BeeJobKind.runCheck == .runCheck)
+    }
+
+@Test func actionKindCaptureIsCapture() {
+        #expect(EventLedgerStore.ActionKind.capture == .capture)
+    }
+
+@Test func verificationResultVerifiedIsVerified() {
+        #expect(EventLedgerStore.VerificationResult.verified == .verified)
+    }
+
+@Test func honeycombNodeTypeSourceIsSource() {
+        #expect(HoneycombStore.NodeType.source == .source)
+    }
+
+@Test func honeycombEdgeRelationSupportsIsSupports() {
+        #expect(HoneycombStore.EdgeRelation.supports == .supports)
+    }
 }
