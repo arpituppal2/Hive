@@ -6910,3 +6910,72 @@ body[data-theme="light"] {
   color: var(--text-primary);
   border: 1px solid var(--border);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   R22 — UI/UX Pro Max Micro-Interaction Layer
+   · pressable feedback on every click target (scale + surface lift)
+   · hover color transitions within the 150-300ms window
+   · AI-lane gradient surfaces for council/research/agent affordances
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Generic press feedback — every button/clickable gets tactile
+   response without per-component rules (design system: tactile
+   micro-interactions for productivity tools). */
+button, [role="button"], .clickable {
+  transition: transform var(--dur-fast) var(--ease-out-quick),
+              background-color var(--dur) var(--ease-out-quick),
+              border-color var(--dur) var(--ease-out-quick),
+              color var(--dur) var(--ease-out-quick),
+              box-shadow var(--dur) var(--ease-out-quick);
+}
+button:active:not(:disabled), [role="button"]:active, .clickable:active {
+  transform: scale(0.97);
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Tab press: subtle squeeze + surface lift (exit faster than enter). */
+.tab:active { transform: scale(0.98); }
+
+/* AI-lane surfaces — council, deep research, agent dock, brief.
+   Tinted by the design-system AI palette, never the brand honey. */
+.ai-lane-surface {
+  background:
+    radial-gradient(120% 100% at 0% 0%,
+      var(--color-ai-lane-a-soft), transparent 55%),
+    radial-gradient(120% 100% at 100% 100%,
+      var(--color-ai-lane-b-soft), transparent 55%),
+    var(--color-card);
+}
+.ai-lane-accent {
+  background: var(--ai-lane-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Focus ring: honey by default, violet inside AI-lane surfaces so the
+   keyboard user always sees where they are (HIGH severity rule). */
+.ai-lane-surface :focus-visible,
+.ai-lane-surface:focus-visible {
+  outline: 2px solid rgb(var(--color-ai-lane-a));
+  outline-offset: 2px;
+}
+
+/* Hover lift for cards/rows — 150-300ms window, no width/height
+   animation (layout-stable). */
+.card-lift {
+  transition: transform var(--dur) var(--ease-out-quick),
+              box-shadow var(--dur-slow) var(--ease-out-quick),
+              border-color var(--dur) var(--ease-out-quick);
+}
+.card-lift:hover {
+  transform: translateY(-1px);
+  border-color: rgb(var(--color-accent) / 0.35);
+  box-shadow: var(--shadow-elevated);
+}
+.card-lift:active {
+  transform: translateY(0) scale(0.99);
+}

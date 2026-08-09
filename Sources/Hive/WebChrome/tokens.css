@@ -253,3 +253,71 @@
   --color-hairline-strong: rgba(0, 0, 0, 0.11);
   --color-surface-hover: rgba(0, 0, 0, 0.06);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   UI/UX Pro Max Design Intelligence Layer (R22)
+   ═══════════════════════════════════════════════════════════════════
+   Applied from ui-ux-pro-max design-system queries:
+   · Micro-interaction timing (hover 50-100ms, exit-faster-than-enter)
+   · AI-lane supplementary palette (purple/pink) — honey stays brand
+   · Line-height discipline (body 1.5, UI 1.35)
+   · Global prefers-reduced-motion compliance (HIGH severity rule)
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Micro-interaction timing ──
+     Hover feedback = 50-100ms (design system: quick, tactile).
+     State/panel motion = 150-300ms. Exits faster than enters. */
+  --dur-fast: 100ms;
+  --dur: 180ms;
+  --dur-slow: 260ms;
+  --dur-enter: 240ms;      /* panels, docks: settle into place */
+  --dur-exit: 140ms;       /* dismissals feel snappier than arrivals */
+
+  /* ── Easing curves ── */
+  --ease-out-quick: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-exit: cubic-bezier(0.4, 0, 0.7, 0.15);
+
+  /* ── Leading (line-height) discipline ── */
+  --leading-tight: 1.3;
+  --leading-ui: 1.35;
+  --leading-body: 1.5;
+  --leading-relaxed: 1.6;
+
+  /* ── Touch/click target floor (44px) ── */
+  --target-min: 44px;
+
+  /* ── AI-lane supplementary palette ──
+     Design system matched AI purple (#7C3AED) + generation pink
+     (#EC4899) for Hive's AI affordances. Honey (#F97316) remains the
+     brand accent; these two never displace it — they tint AI-specific
+     surfaces (council, research, agent dock) so the AI lane reads
+     distinct from the browser chrome. */
+  --color-ai-lane-a: 124 58 237;    /* #7C3AED — deep violet */
+  --color-ai-lane-b: 236 72 153;    /* #EC4899 — generation pink */
+  --color-ai-lane-a-soft: rgb(124 58 237 / 0.14);
+  --color-ai-lane-b-soft: rgb(236 72 153 / 0.12);
+  --ai-lane-gradient: linear-gradient(135deg,
+      rgb(124 58 237 / 0.85), rgb(236 72 153 / 0.85));
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Global reduced-motion compliance (ui-ux-pro-max: HIGH severity).
+   Collapses every animation/transition so motion preferences win over
+   decoration — the browser shell stays fully usable with zero motion.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Pulsing live indicators become static dots — no urgency via motion. */
+  [class*="pulse"]::after,
+  [class*="indicator"]::after {
+    animation: none !important;
+  }
+}
