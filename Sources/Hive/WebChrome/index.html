@@ -88,6 +88,7 @@
       <button class="navbtn" id="btnSettings" title="Settings (⌘,)" tabindex="-1" aria-label="Settings">
         <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
+      <button class="navbtn" id="btnTheme" title="Toggle theme" tabindex="-1" aria-label="Toggle light/dark theme"><svg id="themeSun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg id="themeMoon" hidden viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button class="navbtn" id="btnCouncil" title="Ask AI Council" tabindex="-1" aria-label="AI Council">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 4a4 4 0 0 1 4 4v2h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h2V8a4 4 0 0 1 4-4Zm0 2a2 2 0 0 0-2 2v2h4V8a2 2 0 0 0-2-2Zm-4 12h8v-2H8v2Zm0-4h3v-2H8v2Zm5 0h3v-2h-3v2Z" fill="currentColor"/></svg>
       </button>
@@ -208,6 +209,22 @@
     sz(); window.addEventListener('resize', sz);
     for (var i=0;i<pCount;i++) parts.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.6+0.4,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,o:Math.random()*0.25+0.05});
     (function draw(){ctx.clearRect(0,0,c.width,c.height);parts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(249,115,22,'+p.o+')';ctx.fill();});requestAnimationFrame(draw);})();
+  });
+})();
+</script>
+
+<script>
+(function(){
+  var btn = document.getElementById('btnTheme');
+  var sun = document.getElementById('themeSun');
+  var moon = document.getElementById('themeMoon');
+  var root = document.documentElement;
+  var saved = localStorage.getItem('hive-theme');
+  if (saved === 'light') { root.dataset.theme = 'light'; sun.hidden = true; moon.hidden = false; }
+  btn && btn.addEventListener('click', function(){
+    var isLight = root.dataset.theme === 'light';
+    if (isLight) { delete root.dataset.theme; sun.hidden = false; moon.hidden = true; localStorage.setItem('hive-theme', 'dark'); }
+    else { root.dataset.theme = 'light'; sun.hidden = true; moon.hidden = false; localStorage.setItem('hive-theme', 'light'); }
   });
 })();
 </script>

@@ -212,3 +212,44 @@
   --zen-workspace-swipe-delta-multiplier: 100;
   --zen-workspace-dnd-switch-padding: 20px;
 }
+
+/* ── Light theme (data-theme="light") ── */
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Neutral scale — light variant (flip the ramp) */
+  --cn-50:   25 24 23;
+  --cn-75:  35 34 33;
+  --cn-100: 50 49 48;
+  --cn-150: 88 87 86;
+  --cn-200: 118 117 116;
+  --cn-300: 150 149 148;
+  --cn-400: 180 179 178;
+  --cn-500: 200 199 198;
+  --cn-600: 220 219 218;
+  --cn-700: 235 234 233;
+  --cn-800: 245 244 243;
+  --cn-900: 250 249 248;
+  --cn-1000: 255 254 253;
+
+  --color-app: var(--cn-900);
+  --color-canvas: var(--cn-800);
+  --color-canvas-raised: var(--cn-700);
+  --color-card: var(--cn-600);
+  --color-field: var(--cn-600);
+  --color-input: var(--cn-600);
+  --color-input-border: var(--cn-300);
+
+  --color-text-primary: var(--cn-50);
+  --color-text-secondary: var(--cn-100);
+  --color-text-tertiary: var(--cn-150);
+  --color-text-muted: var(--cn-200);
+  --color-text-disabled: var(--cn-300);
+  --color-placeholder: var(--cn-300);
+
+  --color-border-subtle: rgb(var(--cn-400));
+  --color-border-strong: rgb(var(--cn-300));
+  --color-hairline: rgba(0, 0, 0, 0.06);
+  --color-hairline-strong: rgba(0, 0, 0, 0.11);
+  --color-surface-hover: rgba(0, 0, 0, 0.06);
+}

@@ -164,7 +164,7 @@
         <h2 class="section-title">Ready to think differently?</h2>
         <p class="section-subtitle" id="download-subtitle">Available for macOS. Windows and iOS coming soon.</p>
         <div class="download-actions">
-            <a href="#" class="btn btn-primary btn-xl" id="main-download-btn" onclick="return false">
+            <a href="https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg" class="btn btn-primary btn-xl" id="main-download-btn">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span id="download-btn-text">Download Hive for macOS</span>
             </a>
@@ -285,15 +285,15 @@
             if (isAppleSilicon) {
                 dlText.textContent = 'Download Hive for Apple Silicon';
                 archBadge.textContent = 'Apple Silicon';
-                dlBtn.href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-arm64.dmg';
-                document.getElementById('dl-arm64').href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-arm64.dmg';
-                document.getElementById('dl-x64').href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-x64.dmg';
+                dlBtn.href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
+                document.getElementById('dl-arm64').href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
+                document.getElementById('dl-x64').href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
             } else {
                 dlText.textContent = 'Download Hive for Intel Mac';
                 archBadge.textContent = 'Intel';
-                dlBtn.href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-x64.dmg';
-                document.getElementById('dl-arm64').href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-arm64.dmg';
-                document.getElementById('dl-x64').href = 'https://github.com/arpituppal2/Hive/releases/latest/download/Hive-x64.dmg';
+                dlBtn.href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
+                document.getElementById('dl-arm64').href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
+                document.getElementById('dl-x64').href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
             }
             
             // Show download options
