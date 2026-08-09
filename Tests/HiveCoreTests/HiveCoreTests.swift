@@ -6567,4 +6567,38 @@ struct BeeQueueTests {
         let p = TabOrganizationNormalizer.Profile(id: "profile-1")
         #expect(p.id == "profile-1")
     }
+
+@Test func projectLifecycleActiveIsActive() {
+        #expect(Project.Lifecycle.active == .active)
+    }
+
+@Test func trustedTurnScopeAllCasesNonEmpty() {
+        #expect(!TrustedTurnScope.allCases.isEmpty)
+    }
+
+@Test func voiceTurnDisclosureKindAllCasesNonEmpty() {
+        #expect(!VoiceTurnDisclosure.Kind.allCases.isEmpty)
+    }
+
+@Test func hostContextPolicyDecisionAllCasesNonEmpty() {
+        #expect(!HostContextPolicy.Decision.allCases.isEmpty)
+    }
+
+@Test func hiveTaskStateAllCasesNonEmpty() {
+        #expect(!HiveTask.State.allCases.isEmpty)
+    }
+
+@Test func hiveTaskPriorityAllCasesNonEmpty() {
+        #expect(!HiveTask.Priority.allCases.isEmpty)
+    }
+
+@Test func retrievalRankerFilterParsesValidArray() {
+        let result = RetrievalRankerFilter.parseAllowList("[\"id1\", \"id2\"]", from: ["id1", "id2", "id3"])
+        #expect(result == ["id1", "id2"])
+    }
+
+@Test func pageCaptureAdmissionAllowedIsAllowed() {
+        #expect(PageCaptureAdmission.allowed.isAllowed)
+        #expect(!PageCaptureAdmission.deniedPrivateBrowsing.isAllowed)
+    }
 }

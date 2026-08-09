@@ -3310,3 +3310,199 @@ body[data-theme="light"] {
 .sidebar-collapsed .workspace-indicator-text {
   display: none;
 }
+
+
+
+/* ============================================================
+   Zen Drag Indicator + Essential Favicon Blur + Topbar Hide
+   (studied from zen-browser/desktop vertical-tabs.css lines 1200-1371)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================ */
+
+/* --- Drag indicator (fixed-position drop zone with circle endpoints) --- */
+
+.drag-indicator {
+  --drag-indicator-h: 2px;
+  --drag-indicator-bg: color-mix(in srgb, var(--accent) 50%, var(--ink) 50%);
+  position: fixed;
+  z-index: 1000;
+  background: var(--drag-indicator-bg);
+  pointer-events: none;
+  border-radius: 5px;
+  transition: top 0.05s ease-out, left 0.05s ease-out, width 0.05s ease-out, height 0.05s ease-out;
+}
+
+.drag-indicator::before {
+  content: "";
+  position: absolute;
+  width: calc(2 * var(--drag-indicator-h));
+  height: calc(2 * var(--drag-indicator-h));
+  border: var(--drag-indicator-h) solid var(--drag-indicator-bg);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.drag-indicator[data-orientation="horizontal"] {
+  height: var(--drag-indicator-h);
+  width: var(--indicator-width, 100px);
+}
+
+.drag-indicator[data-orientation="horizontal"]::before {
+  left: calc(-2 * var(--drag-indicator-h));
+  top: 50%;
+  transform: translate(calc(-1 * var(--drag-indicator-h)), -50%);
+}
+
+.drag-indicator[data-orientation="vertical"] {
+  width: var(--drag-indicator-h);
+  height: var(--indicator-height, 100px);
+}
+
+.drag-indicator[data-orientation="vertical"]::before {
+  top: calc(-2 * var(--drag-indicator-h));
+  left: 50%;
+  transform: translate(-50%, calc(-1 * var(--drag-indicator-h)));
+}
+
+/* --- Essential tab with favicon background blur --- */
+
+.essential-tab .tab-bg {
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+}
+
+.essential-tab .tab-bg::after {
+  content: "";
+  inset: -50%;
+  filter: blur(20px);
+  position: absolute;
+  background-size: contain;
+  background-image: var(--tab-favicon);
+  z-index: -1;
+  background-position: center;
+  opacity: 0.4;
+}
+
+.essential-tab .tab-bg::before {
+  content: "";
+  background: var(--surface);
+  margin: 2px;
+  border-radius: calc(var(--border-radius-medium, 10px) - 2px);
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transition: background 0.1s ease-in-out;
+}
+
+.essential-tab.active .tab-bg::before {
+  background: color-mix(in srgb, var(--accent) 15%, var(--surface) 85%);
+}
+
+.essential-tab:hover .tab-bg::before {
+  background: color-mix(in srgb, var(--ink) 5%, var(--surface) 95%);
+}
+
+/* --- Topbar auto-hide (collapses to thin strip, reveals on hover) --- */
+
+.topbar-auto-hide {
+  height: var(--toolbar-height, 40px);
+  transition: height 0.2s ease, opacity 0.2s ease;
+  transition-delay: 0.2s;
+  overflow: clip;
+  z-index: 1;
+}
+
+.topbar-auto-hide:not(:hover):not([data-popup-open]):not([data-active]) {
+  height: 6px;
+  opacity: 0;
+}
+
+.topbar-auto-hide:not(:hover):not([data-popup-open]):not([data-active]) .topbar-content {
+  pointer-events: none;
+}
+
+/* --- Arc-style collapsible sidebar (hover to peek) --- */
+
+.arc-sidebar {
+  --sidebar-width: 240px;
+  --sidebar-collapsed: 48px;
+  width: var(--sidebar-width);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--chrome-bg);
+  border-right: 1px solid var(--hairline);
+  transition: width 0.2s ease-out;
+  overflow: hidden;
+}
+
+.arc-sidebar.collapsed {
+  width: var(--sidebar-collapsed);
+}
+
+.arc-sidebar.collapsed .sidebar-label,
+.arc-sidebar.collapsed .sidebar-secondary {
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.arc-sidebar.collapsed:hover {
+  width: var(--sidebar-width);
+  box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+}
+
+.arc-sidebar.collapsed:hover .sidebar-label,
+.arc-sidebar.collapsed:hover .sidebar-secondary {
+  opacity: 1;
+  transition: opacity 0.15s ease-in 0.1s;
+}
+
+/* Arc-style gradient space indicator */
+
+.space-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin: 0 8px;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.space-indicator:hover {
+  transform: scale(1.3);
+}
+
+.space-indicator[data-space="personal"] {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+}
+
+.space-indicator[data-space="work"] {
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+}
+
+.space-indicator[data-space="research"] {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+}
+
+/* --- Tab rename input (transparent inline editing) --- */
+
+.tab-rename-input {
+  white-space: nowrap;
+  overflow-x: scroll;
+  margin: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  outline: none;
+  border-radius: 0;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+}
+
+.tab-rename-input:focus {
+  outline: none;
+  box-shadow: none;
+}
