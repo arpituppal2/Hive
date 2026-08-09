@@ -34,3 +34,4 @@ dist-debug/
 
 # ML training pipeline: weights, caches, scratch (hive-train/)
 hive-train/
+__pycache__/

@@ -48,13 +48,22 @@ struct WebChromeBridgeContractTests {
     /// Line comments are stripped first so a commented-out registration can
     /// never mask a real removal.
     private func registeredMethods() throws -> Set<String> {
-        let source = try read("Sources/Hive/WebChromeHandler.swift")
-        let swift = source.split(separator: "\n")
-            .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
-            .joined(separator: "\n")
-        // Note the [a-zA-Z.] character class — bridge names are camelCase
-        // (hive.newTab, hive.closeTab, hive.dismissCouncilVerdict, ...).
-        return names(pattern: #"register\("hive\.([a-zA-Z.]+)"#, in: swift)
+        var registered = Set<String>()
+        let fm = FileManager.default
+        let dir = repoRoot.appendingPathComponent("Sources/Hive")
+        let files = (try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil))?
+            .filter {
+                $0.lastPathComponent.hasPrefix("WebChromeHandler")
+                    && $0.pathExtension == "swift"
+            } ?? []
+        for file in files {
+            let source = try String(contentsOf: file, encoding: .utf8)
+            let swift = source.split(separator: "\n")
+                .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
+                .joined(separator: "\n")
+            registered.formUnion(names(pattern: #"register\("hive\.([a-zA-Z.]+)"#, in: swift))
+        }
+        return registered
     }
 
     /// `hive.<name>` literals the JS sends through the `api(...)` helper.
