@@ -50,7 +50,7 @@
 - **CI/CD**: hive-ci.yml + hive-release.yml
 
 ### Quality
-- ****1200 tests** / 143 suites** — all passing
+- ****1204 tests** / 143 suites** — all passing
 - **Zero TODOs/FIXMEs** in non-vendored Swift
 - Bundle + smoke: PASS
 - macOS 14.0+, Apple Silicon / Intel (Rosetta 2)
@@ -69,6 +69,18 @@
 git clone https://github.com/arpituppal2/Hive.git
 cd Hive
 swift build --product Hive
-swift test  # **1200 tests**
+swift test  # **1204 tests**
 scripts/build-hive-app.sh --allow-adhoc
 ```
+
+### v1.0.0 Post-Release Additions (2026-08-08)
+- **Privacy Policy & Terms of Service** pages on landing site
+- **Favicon** for landing page (honey-orange icon)
+- **Sparkle appcast.xml** with real release metadata (file size, SHA-256, URL)
+- **Theme toggle** in browser chrome (sun/moon, localStorage-persisted, light CSS tokens)
+- **Honeycomb particle canvas** on start page and landing page
+- **Scroll-triggered animations** on landing page (IntersectionObserver, staggered reveals)
+- **Download URL wiring** to GitHub Release v1.0.0 assets
+- **GitHub Release** v1.0.0 published with Hive.dmg (171 MB)
+- **BrowserTab tests** (+3: isLoading, canGoBack, displayTitle)
+- **SitePermissionPolicy test** (+1: allCases non-empty)

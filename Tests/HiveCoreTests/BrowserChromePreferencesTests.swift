@@ -62,4 +62,9 @@ struct BrowserChromePreferencesTests {
         let normalized = prefs.normalized
         #expect(normalized.normalized == normalized)
     }
+
+    @Test func splitOrientationToggleFlips() {
+        #expect(SplitOrientation.horizontal.toggled == .vertical)
+        #expect(SplitOrientation.vertical.toggled == .horizontal)
+    }
 }

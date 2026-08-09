@@ -49,6 +49,19 @@
 </script>
 <link rel="stylesheet" href="/tokens.css">
 <link rel="stylesheet" href="/styles.css">
+
+<style>
+.shortcuts-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center}
+.shortcuts-overlay[hidden]{display:none}
+.shortcuts-card{background:var(--color-card);border:1px solid var(--color-border-subtle);border-radius:14px;padding:32px;max-width:560px;width:90%;max-height:80vh;overflow-y:auto}
+.shortcuts-card h2{font-size:20px;margin-bottom:20px;color:var(--accent)}
+.shortcuts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.shortcuts-grid div{display:flex;align-items:center;gap:10px;padding:6px 0}
+.shortcuts-grid kbd{background:var(--color-field);border:1px solid var(--color-border-subtle);border-radius:4px;padding:2px 8px;font-size:12px;font-family:var(--font-mono);min-width:60px;text-align:center}
+.shortcuts-grid span{font-size:13px;color:var(--color-text-secondary)}
+.shortcuts-close{margin-top:20px;padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+@media(max-width:480px){.shortcuts-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <div class="ambient" aria-hidden="true"></div>
@@ -228,5 +241,34 @@
   });
 })();
 </script>
+
+<div id="shortcutsOverlay" class="shortcuts-overlay" hidden>
+  <div class="shortcuts-card">
+    <h2>Keyboard Shortcuts</h2>
+    <div class="shortcuts-grid">
+      <div><kbd>⌘T</kbd><span>New Tab</span></div>
+      <div><kbd>⌘W</kbd><span>Close Tab</span></div>
+      <div><kbd>⌘⇧T</kbd><span>Reopen Closed Tab</span></div>
+      <div><kbd>⌘L</kbd><span>Focus Address Bar</span></div>
+      <div><kbd>⌘K</kbd><span>Command Palette</span></div>
+      <div><kbd>⌘⇧A</kbd><span>Tab Search</span></div>
+      <div><kbd>⌘J</kbd><span>Ask Hive AI</span></div>
+      <div><kbd>⌘D</kbd><span>Bookmark Page</span></div>
+      <div><kbd>⌘R</kbd><span>Reload</span></div>
+      <div><kbd>⌘[</kbd><span>Back</span></div>
+      <div><kbd>⌘]</kbd><span>Forward</span></div>
+      <div><kbd>⌘⇧J</kbd><span>Downloads</span></div>
+      <div><kbd>⌘,</kbd><span>Settings</span></div>
+      <div><kbd>⌘⇧B</kbd><span>Bookmarks Bar</span></div>
+      <div><kbd>⌘+/-</kbd><span>Zoom In/Out</span></div>
+      <div><kbd>⌘0</kbd><span>Reset Zoom</span></div>
+      <div><kbd>⌘F</kbd><span>Find in Page</span></div>
+      <div><kbd>⌘⇧N</kbd><span>Private Tab</span></div>
+      <div><kbd>⌘⌥1-9</kbd><span>Switch Space</span></div>
+      <div><kbd>Esc</kbd><span>Close Panel / Dismiss</span></div>
+    </div>
+    <button class="shortcuts-close" onclick="document.getElementById('shortcutsOverlay').hidden=true">Close</button>
+  </div>
+</div>
 </body>
 </html>
