@@ -78,4 +78,8 @@ struct DownloadHistoryPolicyTests {
             isComplete: false, isCanceled: true, isInterrupted: false
         ))
     }
+
+@Test func downloadStatesIncludePending() {
+        #expect(DownloadState.allCases.contains(.pending))
+    }
 }

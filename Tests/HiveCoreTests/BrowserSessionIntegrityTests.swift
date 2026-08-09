@@ -199,4 +199,9 @@ struct BrowserSessionIntegrityTests {
         #expect(window.activeSpaceID == "space")
         #expect(window.activeTabID == "first")
     }
+
+@Test func repairReportDefaultsToZero() {
+        let report = BrowserSessionRepairReport()
+        #expect(report.removedPrivateTabs == 0)
+    }
 }
