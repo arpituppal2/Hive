@@ -7250,4 +7250,67 @@ struct BeeQueueTests {
         #expect(row.id == "Page")
     }
 
+@Test func policyEngineDefaultsToDeveloperToolsOff() {
+        let engine = PolicyEngine()
+        #expect(!engine.allowsDeveloperTools)
+    }
+
+@Test func policyEngineVerdictAllowed() {
+        let v = PolicyEngine.Verdict.allowed
+        #expect(v.decision == .allowed)
+    }
+
+@Test func policyEngineVerdictDenied() {
+        let v = PolicyEngine.Verdict.denied("not registered")
+        #expect(v.decision == .denied)
+        #expect(v.reason == "not registered")
+    }
+
+@Test func toolInvocationRollbackPlan() {
+        let rp = ToolInvocation.RollbackPlan(kind: "git.restore", detail: "backup path")
+        #expect(rp.kind == "git.restore")
+        #expect(rp.detail == "backup path")
+    }
+
+@Test func toolInvocationAllValuesMergesArgumentsAndTarget() {
+        let inv = ToolInvocation(
+            toolID: "test",
+            arguments: ["a": .string("arg")],
+            target: ["b": .string("tgt")],
+            trustLevel: .t0
+        )
+        #expect(inv.allValues["a"] == .string("arg"))
+        #expect(inv.allValues["b"] == .string("tgt"))
+    }
+
+@Test func toolRegistryRiskClassGates() {
+        #expect(ToolRegistry.RiskClass.read.minimumTrustLevel == .t0)
+        #expect(ToolRegistry.RiskClass.act.minimumTrustLevel == .t3)
+        #expect(ToolRegistry.RiskClass.developer.minimumTrustLevel == .t5)
+    }
+
+@Test func toolValueDisplayText() {
+        #expect(ToolRegistry.ToolValue.string("hello").displayText == "hello")
+        #expect(ToolRegistry.ToolValue.integer(42).displayText == "42")
+        #expect(ToolRegistry.ToolValue.bool(true).displayText == "true")
+    }
+
+@Test func inputFieldSafeCommandRejectsDestructive() {
+        #expect(!ToolRegistry.InputField.isSafeCommand("rm -rf /"))
+        #expect(ToolRegistry.InputField.isSafeCommand("swift test"))
+        #expect(!ToolRegistry.InputField.isSafeCommand("sudo make install"))
+    }
+
+@Test func keyboardShortcutDescriptorCommandK() {
+        let ks = KeyboardShortcutDescriptor.commandK
+        #expect(ks.key == "k")
+        #expect(ks.modifiers.contains(.command))
+    }
+
+@Test func commandRegistrySearchMatchesTitle() {
+        let reg = CommandRegistry()
+        let results = reg.search(query: "new tab")
+        #expect(results.contains(where: { $0.id == .newTab }))
+    }
+
 }
