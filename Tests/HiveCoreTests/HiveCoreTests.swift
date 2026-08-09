@@ -6681,4 +6681,50 @@ struct BeeQueueTests {
         _ = obs.observe(isLoading: false)
         #expect(obs.state == .completed)
     }
+
+@Test func hostContextPolicyDecisionCases() {
+        #expect(HostContextPolicy.Decision.allCases.count == 3)
+        #expect(HostContextPolicy.Decision.allCases.contains(.allow))
+        #expect(HostContextPolicy.Decision.allCases.contains(.block))
+    }
+
+@Test func swarmResponsePolicyResolutionApplyWhenAllCurrent() {
+        #expect(SwarmResponsePolicy.resolution(responseIsCurrent: true, taskIsCancelled: false, transitionIsCurrent: true) == .apply)
+    }
+
+@Test func swarmResponsePolicyResolutionDropWhenCancelled() {
+        #expect(SwarmResponsePolicy.resolution(responseIsCurrent: true, taskIsCancelled: true, transitionIsCurrent: true) == .drop)
+    }
+
+@Test func pageCaptureRequestLedgerInitHasZeroPending() {
+        let l = PageCaptureRequestLedger()
+        #expect(l.pendingCount == 0)
+    }
+
+@Test func tabFocusNavigatorDestinationNextWraps() {
+        let ids = ["a", "b", "c"]
+        let dest = TabFocusNavigator.destination(in: ids, focusedID: "c", direction: .next)
+        #expect(dest == "a")
+    }
+
+@Test func contextScopeSummaryPrivateBrowsingTitle() {
+        let scope = ContextScope(workspaceID: "ws")
+        let s = ContextScopeSummary(scope: scope, isPrivateBrowsing: true)
+        #expect(s.title == "Private browsing")
+    }
+
+@Test func responseLifecycleTokenBeginReturnsNonZero() {
+        let t = ResponseLifecycleToken()
+        let g = t.begin()
+        #expect(g > 0)
+        #expect(t.isCurrent(g))
+    }
+
+@Test func responseLifecycleTokenCancelBumpsGeneration() {
+        let t = ResponseLifecycleToken()
+        let g1 = t.begin()
+        let g2 = t.cancel()
+        #expect(g2 > g1)
+        #expect(!t.isCurrent(g1))
+    }
 }
