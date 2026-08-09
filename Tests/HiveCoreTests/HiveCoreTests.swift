@@ -6727,4 +6727,48 @@ struct BeeQueueTests {
         #expect(g2 > g1)
         #expect(!t.isCurrent(g1))
     }
+
+
+@Test func browserContextLayerCases() {
+        #expect(BrowserContextLayer.allCases.count >= 3)
+        #expect(BrowserContextLayer.allCases.contains(.hotMemory))
+    }
+
+@Test func sitePermissionKindCases() {
+        #expect(SitePermissionKind.allCases.count >= 5)
+        #expect(SitePermissionKind.allCases.contains(.camera))
+    }
+
+@Test func omnibarResolutionNavigatesURL() {
+        let url = URL(string: "https://example.com")!
+        let a = OmnibarResolution.navigate(url)
+        if case .navigate(let u) = a { #expect(u == url) }
+        else { Issue.record("Expected .navigate") }
+    }
+
+@Test func omnibarInputResolveEmptyReturnsEmpty() {
+        #expect(OmnibarInput.resolve("") == .empty)
+    }
+
+@Test func tabFocusDirectionCases() {
+        #expect(TabFocusDirection.previous != TabFocusDirection.next)
+    }
+
+@Test func hostContextPolicyEffectiveStateCases() {
+        let cases = HostContextPolicy.EffectiveState.allCases
+        #expect(cases.count == 5)
+        #expect(cases.contains(.allowed))
+        #expect(cases.contains(.blocked))
+    }
+
+@Test func hostContextPolicyDecisionHasThreeCases() {
+        let cases = HostContextPolicy.Decision.allCases
+        #expect(cases.count == 3)
+        #expect(cases.contains(.allow))
+    }
+
+@Test func pageCaptureAdmissionAllowed() {
+        #expect(PageCaptureAdmission.allowed.isAllowed)
+    }
+
 }

@@ -4153,3 +4153,295 @@ body[data-theme="light"] {
 .process-border[data-isolated="false"] {
   border-color: color-mix(in srgb, #ef4444 40%, transparent);
 }
+
+
+/* ============================================================
+   Zen Theme Token System (studied from zen-theme.css 346 lines)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================
+   Auto-generates tertiary+ colors from a single --zen-primary-color
+   using color-mix(). Light/dark variants via light-dark(). */
+
+:root {
+  --zen-border-radius: 7px;
+  --zen-background-opacity: 1;
+  --zen-branding-dark: #101010;
+  --zen-branding-paper: #e2e2e2;
+  --zen-colors-primary: light-dark(
+    color-mix(in srgb, var(--accent, AccentColor) 50%, black 50%),
+    color-mix(in srgb, var(--accent, AccentColor) 20%, var(--surface) 80%)
+  );
+  --zen-colors-secondary: light-dark(
+    color-mix(in srgb, var(--zen-colors-primary) 20%, white 80%),
+    color-mix(in srgb, var(--accent, AccentColor) 30%, var(--surface) 70%)
+  );
+  --zen-colors-tertiary: light-dark(
+    color-mix(in srgb, var(--accent, AccentColor) 2%, white 98%),
+    color-mix(in srgb, var(--accent, AccentColor) 1%, var(--surface) 99%)
+  );
+  --zen-colors-border: light-dark(
+    color-mix(in srgb, var(--zen-colors-secondary) 50%, transparent),
+    color-mix(in srgb, var(--zen-colors-secondary) 20%, rgb(79,79,79))
+  );
+  --zen-dialog-background: light-dark(#fafbff, #1c1c1c);
+  --zen-urlbar-bg: light-dark(
+    color-mix(in srgb, var(--accent, AccentColor) 3%, #f4f4f4 97%),
+    color-mix(in srgb, var(--accent, AccentColor) 4%, rgb(24,24,24) 96%)
+  );
+}
+
+/* ============================================================
+   Waterfox Virtual Scroll Tab Tree (studied from Waterfox/TST)
+   License: Fair-use reimplementation for Hive
+   ============================================================
+   Only renders DOM nodes for visible tabs. Uses CSS contain
+   and content-visibility for the browser to skip off-screen
+   tab rendering entirely. */
+
+.tab-tree-virtual {
+  contain: strict;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.tab-tree-virtual .tab-row {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 36px;
+}
+
+.tab-tree-virtual .tab-row[data-collapsed] {
+  contain-intrinsic-size: 0 0;
+}
+
+.tab-tree-virtual .tab-row[data-depth="1"] { padding-left: 12px; }
+.tab-tree-virtual .tab-row[data-depth="2"] { padding-left: 24px; }
+.tab-tree-virtual .tab-row[data-depth="3"] { padding-left: 36px; }
+.tab-tree-virtual .tab-row[data-depth="4"] { padding-left: 48px; }
+
+/* Auto tab group: new tabs open in current group */
+.tab-group-auto .tab-row[data-auto-group] {
+  border-left: 2px solid var(--zen-colors-primary);
+  margin-left: 4px;
+}
+
+/* Waterfox status bar pattern */
+.status-bar-native {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  font-size: 11px;
+  background: var(--surface);
+  border-top: 1px solid var(--hairline);
+  color: var(--ink-secondary, #666);
+  gap: 12px;
+}
+
+.status-bar-native .status-link {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-bar-native .status-widget {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ============================================================
+   Mullvad Letterboxing + Privacy Panel
+   (studied from Mullvad Browser / Tor Browser)
+   License: Fair-use reimplementation for Hive
+   ============================================================
+   Letterboxing: adds uniform margins to resist window-size
+   fingerprinting. Privacy panel: grouped toggles for
+   anti-fingerprinting, letterboxing, resistFingerprinting. */
+
+.letterbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--surface);
+}
+
+.letterbox-container .letterbox-content {
+  /* Rounded to nearest 200x100 for Tor Browser parity */
+  width: calc(round(up, 100%, 200px));
+  height: calc(round(up, 100%, 100px));
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--hairline);
+  border-radius: var(--zen-border-radius);
+}
+
+.privacy-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.privacy-panel .privacy-group {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.privacy-panel .privacy-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.privacy-panel .privacy-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.privacy-panel .privacy-toggle:hover {
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+}
+
+.privacy-panel .privacy-toggle[data-active="true"] {
+  color: var(--accent);
+}
+
+.privacy-panel .privacy-toggle + .privacy-toggle {
+  border-top: 1px solid var(--hairline);
+}
+
+.privacy-panel .fingerprint-resistance-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  font-size: 10px;
+  color: var(--ink-secondary);
+}
+
+.privacy-panel .fingerprint-resistance-indicator::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success, #4caf50);
+}
+
+.privacy-panel .fingerprint-resistance-indicator[data-level="standard"]::before {
+  background: var(--warning, #ff9800);
+}
+
+/* ============================================================
+   Zen Download Arc Animation (studied from ZenDownloadAnimation.mjs 545 lines)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================
+   When a download starts, an element arcs from the click position
+   to the downloads toolbar button. Uses CSS @keyframes for the
+   trajectory with a cubic-bezier curve. */
+
+@keyframes download-arc {
+  0% {
+    transform: translate(var(--arc-start-x), var(--arc-start-y)) scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: translate(
+      calc(var(--arc-start-x) + (var(--arc-end-x) - var(--arc-start-x)) * 0.5),
+      calc(var(--arc-end-y) - var(--arc-height))
+    ) scale(0.7);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--arc-end-x), var(--arc-end-y)) scale(0.45);
+    opacity: 0;
+  }
+}
+
+.download-arc-element {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
+  animation: download-arc 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Download button pulse on arrival */
+@keyframes download-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+}
+
+.download-button-arrival {
+  animation: download-pulse 0.3s ease;
+}
+
+/* Zen glance overlay: alt+click link preview */
+.glance-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.glance-overlay[data-open] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.glance-overlay .glance-frame {
+  width: 80vw;
+  max-width: 900px;
+  height: 70vh;
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+  overflow: hidden;
+  transform: scale(0.97);
+  transition: transform 0.2s ease;
+}
+
+.glance-overlay[data-open] .glance-frame {
+  transform: scale(1);
+}
+
+.glance-overlay .glance-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 12px;
+}
+
+.glance-overlay .glance-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.glance-overlay .glance-content {
+  height: calc(100% - 37px);
+  overflow: auto;
+}
