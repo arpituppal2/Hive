@@ -65,4 +65,19 @@ struct BrowserTabAIContextTests {
         let tab = BrowserTab(url: URL(string: "https://example.com"))
         #expect(!tab.id.isEmpty)
     }
+
+    @Test func defaultTabIsNotLoading() {
+        let tab = BrowserTab(url: URL(string: "https://example.com"))
+        #expect(!tab.isLoading)
+    }
+
+    @Test func defaultTabCannotGoBack() {
+        let tab = BrowserTab(url: URL(string: "https://example.com"))
+        #expect(!tab.canGoBack)
+    }
+
+    @Test func defaultTabDisplayTitleUsesHost() {
+        let tab = BrowserTab(url: URL(string: "https://example.com"))
+        #expect(tab.displayTitle == "example.com")
+    }
 }
