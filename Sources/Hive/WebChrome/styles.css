@@ -4936,3 +4936,147 @@ body[data-theme="light"] {
     transform: translateY(0);
   }
 }
+
+
+/* ============================================================
+   Servo WebRender Hardware-Accelerated Rendering Patterns
+   (studied from Servo engine + Slint/WGPU integration)
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+/* GPU-accelerated rendering indicator */
+.gpu-accelerated-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--accent);
+}
+
+.gpu-accelerated-indicator::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* WebRender-style compositor layers */
+.webrender-layer {
+  position: absolute;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Asynchronous texture cache hint */
+.async-texture {
+  contain: paint style layout;
+  content-visibility: auto;
+}
+
+/* Zero-copy shared texture indicator */
+.zero-copy-texture {
+  image-rendering: crisp-edges;
+  transform: translateZ(0);
+}
+
+/* Servo fragment-tree optimized layout */
+.fragment-layout {
+  contain: layout style;
+}
+
+/* Immutable fragment pattern */
+.immutable-fragment {
+  pointer-events: none;
+  contain: strict;
+}
+
+/* ============================================================
+   Servo NoGC Compile-Time Safety Pattern Indicator
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.nogc-safe-region {
+  border: 1px dashed var(--hairline);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  color: var(--ink-secondary);
+}
+
+.nogc-safe-region::before {
+  content: "NoGC";
+  font-weight: 600;
+  font-size: 9px;
+  margin-right: 4px;
+  color: var(--accent);
+}
+
+/* ============================================================
+   Servo Embeddable C API Wrapper Pattern
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.embedded-engine-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  font-size: 11px;
+}
+
+.engine-version-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.engine-version-row .engine-label {
+  color: var(--ink-secondary);
+}
+
+.engine-version-row .engine-value {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--ink);
+}
+
+/* ============================================================
+   Servo LTS Support Schedule Badge
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.lts-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--success, #4caf50) 12%, transparent);
+  color: var(--success, #4caf50);
+  border: 1px solid color-mix(in srgb, var(--success, #4caf50) 20%, transparent);
+}
+
+/* ============================================================
+   Slint Reactive UI Integration Pattern
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.reactive-binding {
+  --binding-value: initial;
+  transition: all 0.15s ease;
+}
+
+.reactive-binding[data-dirty] {
+  outline: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  outline-offset: 2px;
+}

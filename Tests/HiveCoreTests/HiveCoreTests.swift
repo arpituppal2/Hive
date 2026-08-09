@@ -6885,4 +6885,62 @@ struct BeeQueueTests {
         #expect(o.state == .completed)
     }
 
+
+
+@MainActor @Test func swarmResearchSessionInitState() {
+        let s = SwarmResearchSession()
+        #expect(s.state.phase == .running)
+    }
+
+@MainActor @Test func trustedTurnGatewayInit() {
+        let g = TrustedTurnGateway()
+        #expect(g is TrustedTurnGateway)
+    }
+
+@Test func persistenceHealthPolicyInit() {
+        let p = PersistenceHealthPolicy(knowledgeDegraded: false, auditDegraded: true, sessionDegraded: false)
+        #expect(p.isDegraded)
+        #expect(!p.knowledgeDegraded)
+        #expect(p.auditDegraded)
+        #expect(!p.sessionDegraded)
+    }
+
+@Test func persistenceHealthPolicyAllGood() {
+        let p = PersistenceHealthPolicy(knowledgeDegraded: false, auditDegraded: false, sessionDegraded: false)
+        #expect(!p.isDegraded)
+    }
+
+@Test func downloadControlTransitionInit() {
+        let t = DownloadControlTransition(state: .active, action: .pause)
+        #expect(t.state == .active)
+    }
+
+@Test func downloadControlActionPauseIsPause() {
+        let a = DownloadControlAction.pause
+        #expect(a == .pause)
+    }
+
+@Test func hiveTaskStateCases() {
+        #expect(HiveTask.State.allCases.count == 4)
+        #expect(HiveTask.State.allCases.contains(.open))
+        #expect(HiveTask.State.allCases.contains(.done))
+    }
+
+@Test func hiveTaskPriorityCases() {
+        #expect(HiveTask.Priority.allCases.count == 3)
+        #expect(HiveTask.Priority.allCases.contains(.high))
+    }
+
+@Test func navigationBlockNoticeBlocksFileScheme() {
+        let n = NavigationBlockNotice(scheme: "file")
+        #expect(n.scheme == "file")
+        #expect(n.title == "Navigation blocked")
+    }
+
+@Test func voiceRouteCases() {
+        let routes = VoiceRoute.allCases
+        #expect(routes.count >= 5)
+        #expect(routes.contains(.genericQuestion))
+    }
+
 }
