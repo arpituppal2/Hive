@@ -6979,3 +6979,62 @@ button:disabled {
 .card-lift:active {
   transform: translateY(0) scale(0.99);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   R23 — shadcn/Radix-inspired Toasts (Sonner-style)
+   · stack region bottom-right, auto-dismiss 3.2s
+   · success/error/info variants with accent borders
+   · enter slower than exit (design tokens), aria role per variant
+   ═══════════════════════════════════════════════════════════════════ */
+.toast-region {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 12000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.hive-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+  max-width: 380px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  background: var(--color-canvas-raised);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-overlay);
+  font-size: var(--text-sm);
+  line-height: var(--leading-ui);
+  color: var(--color-text-primary);
+  animation: hive-toast-in var(--dur-enter) var(--ease-out-quick) both;
+}
+.hive-toast--leaving {
+  animation: hive-toast-out var(--dur-exit) var(--ease-in-exit) both;
+}
+.hive-toast--success { border-color: rgb(var(--color-success) / 0.4); }
+.hive-toast--success .hive-toast__icon { color: rgb(var(--color-success)); }
+.hive-toast--error { border-color: rgb(var(--color-error) / 0.45); }
+.hive-toast--error .hive-toast__icon { color: rgb(var(--color-error)); }
+.hive-toast--info { border-color: rgb(var(--color-info) / 0.4); }
+.hive-toast__icon {
+  font-size: 14px;
+  line-height: 1;
+  flex: none;
+  font-weight: 700;
+}
+.hive-toast__msg {
+  word-break: break-word;
+}
+@keyframes hive-toast-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes hive-toast-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(6px) scale(0.98); }
+}

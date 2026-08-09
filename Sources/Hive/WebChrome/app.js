@@ -1113,20 +1113,21 @@
   /* ---------- command palette ---------- */
 
   function openPalette() {
+    rememberFocus();
     $('paletteBackdrop').hidden = false;
     var input = $('paletteInput');
     input.value = '';
     input.focus();
     renderPalette('');
   }
-  function closePalette() { $('paletteBackdrop').hidden = true; }
+  function closePalette() { $('paletteBackdrop').hidden = true; restoreFocus(); }
 
   function paletteActions(q) {
     var actions = [
       { icon: ICONS.globe, label: 'Morning Brief', run: function () { navigate('hive://brief/'); } },
       { icon: ICONS.globe, label: 'New Tab', run: function () { api('hive.newTab'); } },
       { icon: ICONS.panel, label: state.layout === 'vertical' ? 'Switch to Horizontal tabs' : 'Switch to Vertical tabs',
-        run: function () { api('hive.setLayout', { mode: state.layout === 'vertical' ? 'horizontal' : 'vertical' }); } },
+        run: function () { api('hive.setLayout', { mode: state.layout === 'vertical' ? 'horizontal' : 'vertical' }); showToast('Layout switched to ' + (state.layout === 'vertical' ? 'horizontal' : 'vertical') + ' tabs', 'success'); } },
       { icon: ICONS.settings, label: 'Settings', run: function () { openPanel('settings'); } },
       { icon: ICONS.history, label: 'History', run: function () { openPanel('history'); } },
       { icon: ICONS.bookmark, label: 'Bookmarks', run: function () { openPanel('bookmarks'); } },
@@ -1195,12 +1196,14 @@
 
   var palIndex = -1;
 
-  // ? key -> keyboard shortcuts overlay
+  // ? key -> keyboard shortcuts overlay (shadcn/Radix dialog semantics)
   document.addEventListener('keydown', function(e){
     if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey && document.activeElement && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
       e.preventDefault();
       var overlay = document.getElementById('shortcutsOverlay');
-      if (overlay) overlay.hidden = !overlay.hidden;
+      if (overlay) {
+        if (overlay.hidden) { rememberFocus(); overlay.hidden = false; } else { overlay.hidden = true; restoreFocus(); }
+      }
     }
   });
 
@@ -1228,6 +1231,8 @@
   $('paletteBackdrop').addEventListener('click', function (e) {
     if (e.target === this) closePalette();
   });
+  // Radix-style focus containment: Tab cycles inside the palette dialog.
+  $('paletteBackdrop').addEventListener('keydown', function (e) { trapTab($('palette'), e); });
 
   /* ---------- keyboard shortcuts ---------- */
 
@@ -1236,6 +1241,7 @@
     if (e.key === 'Escape') {
       if (state.isChromePanelOpen) closePanel();
       else if (!$('paletteBackdrop').hidden) closePalette();
+      else if (!document.getElementById('shortcutsOverlay').hidden) { document.getElementById('shortcutsOverlay').hidden = true; restoreFocus(); }
       else if (document.body.dataset.compact) setCompactMode(false);
       else if (!suggestBox.hidden) hideSuggest();
       else if (document.activeElement === addrInput) addrInput.blur();
@@ -1659,6 +1665,58 @@ var HiveQuickCommands = {
     });
   }
 };
+
+/* ---------- Toasts (shadcn/Sonner-inspired) ---------- */
+function toastRegion() {
+  var el = document.getElementById('toastRegion');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toastRegion';
+    el.className = 'toast-region';
+    el.setAttribute('aria-label', 'Notifications');
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function showToast(message, type) {
+  var kind = type || 'info';
+  var icons = { success: '✓', error: '✕', info: 'i' };
+  var region = toastRegion();
+  var toast = document.createElement('div');
+  toast.className = 'hive-toast hive-toast--' + kind;
+  toast.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+  toast.innerHTML = '<span class="hive-toast__icon" aria-hidden="true">' + (icons[kind] || 'i') + '</span><span class="hive-toast__msg"></span>';
+  toast.querySelector('.hive-toast__msg').textContent = message;
+  region.appendChild(toast);
+  announce(message);
+  setTimeout(function () {
+    toast.classList.add('hive-toast--leaving');
+    toast.addEventListener('animationend', function () { toast.remove(); }, { once: true });
+    setTimeout(function () { if (toast.parentNode) toast.remove(); }, 300);
+  }, 3200);
+  return toast;
+}
+function announce(text) {
+  // Single polite live region — re-fires on empty-set to re-trigger.
+  var sr = document.getElementById('srAnnounce');
+  if (!sr) return;
+  sr.textContent = '';
+  setTimeout(function () { sr.textContent = text; }, 20);
+}
+
+/* ---------- Dialog focus management (Radix dialog semantics) ---------- */
+var _lastFocus = null;
+function rememberFocus() { if (document.activeElement && document.activeElement !== document.body) _lastFocus = document.activeElement; }
+function restoreFocus() { if (_lastFocus && _lastFocus.focus) { try { _lastFocus.focus(); } catch (e) {} } _lastFocus = null; }
+function trapTab(container, e) {
+  if (e.key !== 'Tab') return;
+  var focusables = container.querySelectorAll('a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (!focusables.length) return;
+  var first = focusables[0];
+  var last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
 
 // Init compact mode on load
 HiveCompactMode.init();

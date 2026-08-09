@@ -149,7 +149,7 @@
   </aside>
 
   <div class="palette-backdrop" id="paletteBackdrop" hidden>
-    <div class="palette" id="palette" role="dialog" aria-label="Command palette">
+    <div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
       <input id="paletteInput" class="palette__input" placeholder="Type a command or search tabs…" autocomplete="off" spellcheck="false">
       <div class="palette__list" id="paletteList"></div>
     </div>
@@ -242,7 +242,7 @@
 })();
 </script>
 
-<div id="shortcutsOverlay" class="shortcuts-overlay" hidden>
+<div id="shortcutsOverlay" class="shortcuts-overlay" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts" hidden>
   <div class="shortcuts-card">
     <h2>Keyboard Shortcuts</h2>
     <div class="shortcuts-grid">
