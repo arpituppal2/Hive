@@ -88,8 +88,14 @@ final class AdblockEngine: @unchecked Sendable {
                 .map { "||\($0)^" }
                 .joined(separator: "\n")
             let added = filters.withCString { ptr in engineAddFilters?(ptr) ?? -1 }
-            if added >= 0 { isReady = true }
-            else { engineDestroy?() }
+            if added >= 0 {
+                isReady = true
+                // Snapshot the check pointer for the network-layer predicate,
+                // which runs on CEF's IO thread (no main-actor hop allowed).
+                Self.snapshotNativeCheck(engineCheckURL)
+            } else {
+                engineDestroy?()
+            }
         }
         initTask = task
         await task.value
@@ -108,6 +114,43 @@ final class AdblockEngine: @unchecked Sendable {
         if result == 1 { return .blocked(reason: "Matched EasyList filter (native)") }
         if result < 0 { return fallbackCheck(url: url) }
         return .allowed
+    }
+
+    // MARK: Thread-safe native check (network-layer predicate)
+    //
+    // CefResourceFilter consults the adblock decision on the browser-process
+    // IO thread and must never hop to the main actor. adblock-rust checks are
+    // stateless per call and thread-safe, so after initialize() installs the
+    // FFI pointers on the main actor we snapshot the check function into an
+    // immutable box readable from any thread. Returns nil when the engine is
+    // unavailable or errors — callers then fall back to the static EasyList
+    // domain set.
+
+    nonisolated(unsafe) private static let nativeLock = NSLock()
+    nonisolated(unsafe) private static var nativeCheck: CheckURLFn?
+
+    /// Stores the FFI check pointer (main actor, during initialize()).
+    @MainActor
+    private static func snapshotNativeCheck(_ check: CheckURLFn?) {
+        nativeLock.lock(); defer { nativeLock.unlock() }
+        nativeCheck = check
+    }
+
+    /// Runs the native engine check from any thread. `nil` = not available.
+    nonisolated static func nativeShouldBlock(url: URL, sourceHostname: String) -> Bool? {
+        let check: CheckURLFn?
+        nativeLock.lock(); defer { nativeLock.unlock() }
+        check = nativeCheck
+        guard let check else { return nil }
+        let urlStr = url.absoluteString
+        let result = urlStr.withCString { u in
+            sourceHostname.withCString { s in
+                check(u, s, "other")
+            }
+        }
+        if result == 1 { return true }
+        if result < 0 { return nil }  // engine error — fall back
+        return false
     }
 
     // MARK: Brave-Aligned Extended API

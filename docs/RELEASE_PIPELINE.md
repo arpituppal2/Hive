@@ -89,6 +89,31 @@ behavior change, 1,567 tests green.
 
 ---
 
+## 5. 🟠 P1.8 — Chrome-style extensions: DECISION (deferred, needs CEF re-vendor)
+
+Feasibility verdict (2026-08-09): **CEF 148 can load unpacked Manifest-V3
+extensions** via `cef_request_context_t::load_extension` (requires a persistent
+`cache_path`), but the **vendored CefSwift distribution ships NO extension C
+API headers** (`cef_extension_t`/`cef_extension_handler_t`/`load_extension` are
+absent from `Vendor/CefSwift/Sources/CCef/include/include/capi/`). Two
+consequences:
+
+- **Blocked now:** building a loader requires re-vendoring a CEF distribution
+  that includes the extension headers + wrapping the callbacks in CefSwift — a
+  heavy, release-blocking operation on the pinned CEF 148. Deferred.
+- **Scope reality:** even after a re-vendor, CEF is **sideload-only** for
+  unpacked extensions. There is **no Chrome Web Store integration** (no remote
+  install, no CWS auto-update, no store purchase flow), and several `chrome.*`
+  APIs that rely on Google backends (`chrome.identity`, `chrome.storage.sync`)
+  will not function. The roadmap's "Chrome Web Store bridge (5 days)" is not
+  achievable in CEF; the honest ship scope is **local unpacked loading + a
+  management UI**, and even that is gated on the re-vendor.
+
+The toolbar already handles the honest case (pinned icons open the extensions
+manager; nothing pretends to be a live extension).
+
+---
+
 ## Standard release runbook
 
 ```bash

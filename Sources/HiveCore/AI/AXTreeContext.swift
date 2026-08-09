@@ -10,6 +10,12 @@ import Foundation
 // Architecture: Inspired by Comet's AXTree → YAML approach and Astro's
 // CDP agent tools. The output is a flat list of interactable elements
 // with ref IDs that models can reference in tool calls.
+//
+// Wire format note: Accessibility.getFullAXTree returns a FLAT `nodes`
+// array where every node carries `nodeId`, `parentId`, and `childIds`
+// (integer IDs), plus AXValue objects for role/name/value/description and
+// a `properties` array (focusable lives there, not as a top-level field).
+// The parser below consumes exactly that shape.
 
 // MARK: - AXTree Node
 
@@ -30,7 +36,7 @@ public struct AXNode: Sendable, Codable, @unchecked Sendable {
     /// Whether this element is focusable
     let focusable: Bool
     /// Child refs — only for container roles
-    let children: [String]?
+    var children: [String]?
 }
 
 // MARK: - AXTree
@@ -45,6 +51,9 @@ public struct AXTree: Sendable, Codable {
     let nodes: [String: AXNode]
     /// Top-level node refs (roots)
     let rootRefs: [String]
+    /// All node refs in capture order (stable ordering for consumers;
+    /// `snapshot()` must not rely on dictionary ordering).
+    let nodeOrder: [String]
     /// Total interactable element count
     let interactableCount: Int
     /// Timestamp of capture
@@ -54,7 +63,7 @@ public struct AXTree: Sendable, Codable {
 
     /// Render the tree as a simple text format for LLM prompts.
     /// Each line: `ref role "name" = "value" [bounds]`
-    func toPromptContext(maxNodes: Int = 100) -> String {
+    public func toPromptContext(maxNodes: Int = 100) -> String {
         var lines: [String] = ["[Page: \(title ?? url ?? "unknown")]"]
         lines.append("[Interactable elements: \(interactableCount)]")
         lines.append("")
@@ -98,73 +107,182 @@ public struct AXTree: Sendable, Codable {
 
 // MARK: - AXTreeParser
 
-/// Parses a CDP Accessibility.getFullAXTree response into an AXTree.
+/// Parses the flat CDP `Accessibility.getFullAXTree` response shape into an
+/// `AXTree` with stable ref IDs and wired parent/child structure.
 enum AXTreeParser {
 
-    /// Parse a CDP AXTree response into our simplified format.
-    /// - Parameter axTreeJSON: The raw CDP response dictionary
-    /// - Parameter pageURL: The page URL for context
-    /// - Parameter pageTitle: The page title for context
-    /// - Returns: A parsed AXTree ready for LLM consumption
+    /// Roles the agent can meaningfully target.
+    private static let interactableRoles: Set<String> = [
+        "button", "link", "textbox", "searchbox", "combobox", "checkbox",
+        "radio", "switch", "slider", "menuitem", "option", "tab", "treeitem",
+        "listbox", "spinbutton", "meter", "scrollbar", "colorwell", "date",
+        "datetime", "gridcell",
+    ]
+
+    /// Parse a CDP `Accessibility.getFullAXTree` payload.
+    /// - Parameter axTreeJSON: the `result` object — `{ "nodes": [...] }`.
+    /// - Parameter pageURL: page URL for the prompt header (best effort).
+    /// - Parameter pageTitle: page title for the prompt header (best effort).
+    /// - Returns: an AXTree keyed by `ref_<index>` in capture order, with
+    ///   children/roots derived from CDP's `childIds`/`parentId`.
+    ///
+    /// Two wire formats are supported: the real flat CDP shape (every node
+    /// carries `nodeId`; structure comes from `childIds`/`parentId`) and the
+    /// legacy recursive shape (nested `children` arrays, no `nodeId`).
     static func parse(
-        _ axTreeJSON: [String: Sendable],
+        _ axTreeJSON: [String: Any],
         pageURL: String? = nil,
         pageTitle: String? = nil
     ) -> AXTree {
+        let rawNodes = axTreeJSON["nodes"] as? [[String: Any]] ?? []
+        if rawNodes.contains(where: { asInt($0["nodeId"]) != nil }) {
+            return parseFlat(rawNodes, pageURL: pageURL, pageTitle: pageTitle)
+        }
+        return parseRecursive(axTreeJSON, pageURL: pageURL, pageTitle: pageTitle)
+    }
+
+    /// Parses the flat CDP shape (nodeId/parentId/childIds).
+    private static func parseFlat(
+        _ rawNodes: [[String: Any]],
+        pageURL: String?,
+        pageTitle: String?
+    ) -> AXTree {
+        _ = pageURL
+        _ = pageTitle
         var nodes: [String: AXNode] = [:]
+        var nodeOrder: [String] = []
+        var nodeIDToRef: [Int: String] = [:]
+        var parentOf: [String: String] = [:]  // childRef -> parentRef
+        var interactable = 0
+
+        // Pass 1 — assign stable refs by array index (ref_0, ref_1, …),
+        // skipping CDP `ignored` nodes.
+        for (index, raw) in rawNodes.enumerated() {
+            if (raw["ignored"] as? Bool) == true { continue }
+            let ref = "ref_\(index)"
+            nodeOrder.append(ref)
+            if let nodeID = asInt(raw["nodeId"]) {
+                nodeIDToRef[nodeID] = ref
+            }
+            let role = axValueString(raw["role"]) ?? "unknown"
+            let focusable = isFocusable(raw)
+            if interactableRoles.contains(role) || focusable {
+                interactable += 1
+            }
+            nodes[ref] = AXNode(
+                ref: ref,
+                role: role,
+                name: axValueString(raw["name"]),
+                value: axValueString(raw["value"]),
+                desc: axValueString(raw["description"]),
+                bounds: parseBounds(raw["boundingBox"]),
+                focusable: focusable,
+                children: nil  // wired in pass 2
+            )
+        }
+
+        // Pass 2a — resolve parent links in BOTH directions first, so the
+        // children build (2b) can see every parent link regardless of array
+        // order.
+        for (index, raw) in rawNodes.enumerated() {
+            if (raw["ignored"] as? Bool) == true { continue }
+            let ref = "ref_\(index)"
+            guard nodes[ref] != nil else { continue }
+            if let parentID = asInt(raw["parentId"]),
+               let parentRef = nodeIDToRef[parentID] {
+                parentOf[ref] = parentRef
+            }
+            if let childIDs = raw["childIds"] as? [Any] {
+                for childID in childIDs {
+                    if let childRef = nodeIDToRef[asInt(childID) ?? -1] {
+                        parentOf[childRef] = ref
+                    }
+                }
+            }
+        }
+
+        // Pass 2b — build children lists: childIds first, then supplement any
+        // child whose parentId resolved to this ref but was missing from
+        // childIds (real-world CDP inconsistency tolerance).
+        for (index, raw) in rawNodes.enumerated() {
+            if (raw["ignored"] as? Bool) == true { continue }
+            let ref = "ref_\(index)"
+            guard nodes[ref] != nil else { continue }
+            var childRefs: [String] = []
+            if let childIDs = raw["childIds"] as? [Any] {
+                for childID in childIDs {
+                    if let childRef = nodeIDToRef[asInt(childID) ?? -1] {
+                        childRefs.append(childRef)
+                    }
+                }
+            }
+            for (childRef, parentRef) in parentOf where parentRef == ref {
+                if !childRefs.contains(childRef) { childRefs.append(childRef) }
+            }
+            if !childRefs.isEmpty {
+                if var node = nodes[ref] {
+                    node.children = childRefs
+                    nodes[ref] = node
+                }
+            }
+        }
+
+        // Roots — nodes whose CDP parent is absent or unresolved.
+        let rootRefs = nodeOrder.filter { parentOf[$0] == nil }
+
+        return AXTree(
+            url: pageURL,
+            title: pageTitle,
+            nodes: nodes,
+            rootRefs: rootRefs,
+            nodeOrder: nodeOrder,
+            interactableCount: interactable,
+            capturedAt: Date()
+        )
+    }
+
+    /// Parses the legacy recursive shape (nested `children` arrays). refs are
+    /// assigned in depth-first capture order. Preserves the pre-existing
+    /// AXTreeParserTests contract.
+    private static func parseRecursive(
+        _ axTreeJSON: [String: Any],
+        pageURL: String?,
+        pageTitle: String?
+    ) -> AXTree {
+        var nodes: [String: AXNode] = [:]
+        var nodeOrder: [String] = []
         var rootRefs: [String] = []
         var counter = 0
         var interactable = 0
 
         func nextRef() -> String { counter += 1; return "ref_\(counter)" }
 
-        // Recursively flatten the CDP AXTree
-        func flatten(_ node: [String: Sendable], parentRef: String?, parentChildren: inout [String]) {
+        func flatten(_ node: [String: Any], parentChildren: inout [String]) {
             let ref = nextRef()
-
-            let role = (node["role"] as? [String: Sendable])?["value"] as? String ?? "unknown"
-            let name = (node["name"] as? [String: Sendable])?["value"] as? String
-            let value = (node["value"] as? [String: Sendable])?["value"] as? String
-            let desc = (node["description"] as? [String: Sendable])?["value"] as? String
-
-            var bounds: [Double]? = nil
-            if let bbox = node["boundingBox"] as? [String: Sendable] {
-                let x = bbox["x"] as? Double ?? 0
-                let y = bbox["y"] as? Double ?? 0
-                let w = bbox["width"] as? Double ?? 0
-                let h = bbox["height"] as? Double ?? 0
-                bounds = [x, y, w, h]
-            }
-
-            let isFocusable = (node["focusable"] as? [String: Sendable])?["value"] as? Bool ?? false
-            let childNodes = node["children"] as? [[String: Sendable]] ?? []
-
+            let role = axValueString(node["role"]) ?? "unknown"
+            let focusable = isFocusable(node)
+            if interactableRoles.contains(role) || focusable { interactable += 1 }
             var children: [String] = []
-            for child in childNodes {
-                flatten(child, parentRef: ref, parentChildren: &children)
+            if let childNodes = node["children"] as? [[String: Any]] {
+                for child in childNodes { flatten(child, parentChildren: &children) }
             }
-
-            let isInteractable = ["button", "link", "textbox", "searchbox", "combobox",
-                                  "checkbox", "radio", "switch", "slider", "menuitem",
-                                  "option", "tab", "treeitem", "listbox"].contains(role)
-
-            if isInteractable || isFocusable { interactable += 1 }
-
             nodes[ref] = AXNode(
-                ref: ref, role: role, name: name, value: value, desc: desc,
-                bounds: bounds, focusable: isFocusable,
+                ref: ref,
+                role: role,
+                name: axValueString(node["name"]),
+                value: axValueString(node["value"]),
+                desc: axValueString(node["description"]),
+                bounds: parseBounds(node["boundingBox"]),
+                focusable: focusable,
                 children: children.isEmpty ? nil : children
             )
-
+            nodeOrder.append(ref)
             parentChildren.append(ref)
         }
 
-        // Parse top-level nodes from CDP response
-        let axNodes = axTreeJSON["nodes"] as? [[String: Sendable]] ?? []
-
-        for axNode in axNodes {
+        for node in axTreeJSON["nodes"] as? [[String: Any]] ?? [] {
             var children: [String] = []
-            flatten(axNode, parentRef: nil, parentChildren: &children)
+            flatten(node, parentChildren: &children)
             rootRefs.append(contentsOf: children)
         }
 
@@ -173,9 +291,58 @@ enum AXTreeParser {
             title: pageTitle,
             nodes: nodes,
             rootRefs: rootRefs,
+            nodeOrder: nodeOrder,
             interactableCount: interactable,
             capturedAt: Date()
         )
+    }
+
+    // MARK: CDP value extraction helpers
+
+    private static func asInt(_ value: Any?) -> Int? {
+        if let v = value as? Int { return v }
+        if let v = value as? NSNumber { return v.intValue }
+        return nil
+    }
+
+    private static func axValueString(_ value: Any?) -> String? {
+        (value as? [String: Any])?["value"] as? String
+    }
+
+    private static func parseBounds(_ value: Any?) -> [Double]? {
+        guard let box = value as? [String: Any],
+              let x = numberValue(box["x"]), let y = numberValue(box["y"]),
+              let w = numberValue(box["width"]), let h = numberValue(box["height"])
+        else { return nil }
+        return [x, y, w, h]
+    }
+
+    /// Coerces a CDP JSON number (Int, Double, or NSNumber — JSON integers
+    /// arrive as NSNumber through JSONSerialization, Swift literals as Int).
+    private static func numberValue(_ value: Any?) -> Double? {
+        if let v = value as? Double { return v }
+        if let v = value as? Int { return Double(v) }
+        if let v = value as? NSNumber { return v.doubleValue }
+        return nil
+    }
+
+    /// CDP puts `focusable` inside the node's `properties` array as an
+    /// `{name, value: AXValue}` entry; legacy fixtures used a top-level
+    /// `focusable: {value: true}` AXValue. Accept both.
+    private static func isFocusable(_ raw: [String: Any]) -> Bool {
+        if let props = raw["properties"] as? [[String: Any]] {
+            for prop in props where (prop["name"] as? String) == "focusable" {
+                if let val = prop["value"] as? [String: Any],
+                   (val["value"] as? Bool) == true {
+                    return true
+                }
+            }
+        }
+        if let val = raw["focusable"] as? [String: Any],
+           (val["value"] as? Bool) == true {
+            return true
+        }
+        return false
     }
 }
 

@@ -3,6 +3,10 @@ import Foundation
 @testable import HiveCore
 
 // MARK: - AXTreeParserTests
+//
+// Locks the LEGACY recursive wire format (nested `children` arrays, top-level
+// `focusable` AXValue, no nodeId) — the format the flat CDP parser must still
+// accept. The real flat CDP shape is covered by AXTreeContextTests.
 
 struct AXTreeParserTests {
 
@@ -13,17 +17,14 @@ struct AXTreeParserTests {
     }
 
     @Test func parsesSimpleButton() {
-        let children: [[String: Sendable]] = []
-        let input: [String: Sendable] = [
+        let input: [String: Any] = [
             "nodes": [[
-                "role": ["value": "button" as Sendable],
-                "name": ["value": "Submit" as Sendable],
-                "focusable": ["value": true as Sendable],
-                "boundingBox": [
-                    "x": 10.0 as Sendable, "y": 20.0 as Sendable, "width": 100.0 as Sendable, "height": 40.0 as Sendable
-                ] as [String: Sendable],
-                "children": children
-            ] as [String: Sendable]]
+                "role": ["value": "button"],
+                "name": ["value": "Submit"],
+                "focusable": ["value": true],
+                "boundingBox": ["x": 10.0, "y": 20.0, "width": 100.0, "height": 40.0],
+                "children": []
+            ]]
         ]
 
         let tree = AXTreeParser.parse(input, pageURL: "https://example.com", pageTitle: "Test")
@@ -41,14 +42,13 @@ struct AXTreeParserTests {
     }
 
     @Test func rendersPromptContext() {
-        let children1: [[String: Sendable]] = []
-        let input: [String: Sendable] = [
+        let input: [String: Any] = [
             "nodes": [[
-                "role": ["value": "link" as Sendable],
-                "name": ["value": "Homepage" as Sendable],
-                "focusable": ["value": true as Sendable],
-                "children": children1
-            ] as [String: Sendable]]
+                "role": ["value": "link"],
+                "name": ["value": "Homepage"],
+                "focusable": ["value": true],
+                "children": []
+            ]]
         ]
 
         let tree = AXTreeParser.parse(input, pageURL: nil, pageTitle: "My Page")
@@ -60,17 +60,16 @@ struct AXTreeParserTests {
     }
 
     @Test func truncatesLargeTree() {
-        var nodes: [[String: Sendable]] = []
+        var nodes: [[String: Any]] = []
         for i in 0..<200 {
-            let ec: [[String: Sendable]] = []
             nodes.append([
-                "role": ["value": "statictext" as Sendable],
-                "name": ["value": "text \(i)" as Sendable],
-                "focusable": ["value": false as Sendable],
-                "children": ec
+                "role": ["value": "statictext"],
+                "name": ["value": "text \(i)"],
+                "focusable": ["value": false],
+                "children": []
             ])
         }
-        let input: [String: Sendable] = ["nodes": nodes]
+        let input: [String: Any] = ["nodes": nodes]
         let tree = AXTreeParser.parse(input)
 
         let context = tree.toPromptContext(maxNodes: 50)
@@ -78,11 +77,11 @@ struct AXTreeParserTests {
     }
 
     @Test func handlesNodesWithMissingFields() {
-        let input: [String: Sendable] = [
+        let input: [String: Any] = [
             "nodes": [[
-                "role": ["value": "button" as Sendable]
+                "role": ["value": "button"]
                 // missing name, focusable, children
-            ] as [String: Sendable]]
+            ]]
         ]
         let tree = AXTreeParser.parse(input)
         #expect(tree.nodes.count == 1)
@@ -90,37 +89,47 @@ struct AXTreeParserTests {
     }
 
     @Test func parsesNestedChildren() {
-        let grandchild: [[String: Sendable]] = [[
-            "role": ["value": "statictext" as Sendable],
-            "name": ["value": "deep" as Sendable],
-            "focusable": ["value": false as Sendable],
-            "children": [] as [[String: Sendable]]
-        ] as [String: Sendable]]
-        let child: [[String: Sendable]] = [[
-            "role": ["value": "group" as Sendable],
-            "name": ["value": "inner" as Sendable],
-            "focusable": ["value": false as Sendable],
-            "children": grandchild
-        ] as [String: Sendable]]
-        let input: [String: Sendable] = ["nodes": [[
-            "role": ["value": "region" as Sendable],
-            "name": ["value": "outer" as Sendable],
-            "focusable": ["value": false as Sendable],
-            "children": child
-        ] as [String: Sendable]]]
+        let input: [String: Any] = [
+            "nodes": [[
+                "role": ["value": "region"],
+                "name": ["value": "outer"],
+                "focusable": ["value": false],
+                "children": [[
+                    "role": ["value": "group"],
+                    "name": ["value": "inner"],
+                    "focusable": ["value": false],
+                    "children": [[
+                        "role": ["value": "statictext"],
+                        "name": ["value": "deep"],
+                        "focusable": ["value": false],
+                        "children": []
+                    ]]
+                ]]
+            ]]
+        ]
         let tree = AXTreeParser.parse(input)
-        #expect(tree.nodes.count >= 1)
+        // region -> group -> statictext, all wired depth-first.
+        #expect(tree.nodes.count == 3)
+        #expect(tree.rootRefs.count == 1)
+        let rootRef = tree.rootRefs[0]
+        #expect(tree.nodes[rootRef]?.role == "region")
+        #expect(tree.nodes[rootRef]?.children?.count == 1)
+        let groupRef = tree.nodes[rootRef]?.children?[0]
+        #expect(tree.nodes[groupRef ?? ""]?.role == "group")
+        #expect(tree.nodes[groupRef ?? ""]?.children?.count == 1)
+        let deepRef = tree.nodes[groupRef ?? ""]?.children?[0]
+        #expect(tree.nodes[deepRef ?? ""]?.name == "deep")
+        #expect(tree.nodeOrder.count == 3)
     }
 
-    @Test func toYAMLContextIncludesPageURL() {
-        let children: [[String: Sendable]] = []
-        let input: [String: Sendable] = [
+    @Test func toPromptContextIncludesPageURL() {
+        let input: [String: Any] = [
             "nodes": [[
-                "role": ["value": "link" as Sendable],
-                "name": ["value": "Docs" as Sendable],
-                "focusable": ["value": true as Sendable],
-                "children": children
-            ] as [String: Sendable]]
+                "role": ["value": "link"],
+                "name": ["value": "Docs"],
+                "focusable": ["value": true],
+                "children": []
+            ]]
         ]
         let tree = AXTreeParser.parse(input, pageURL: "https://docs.example.com", pageTitle: "Documentation")
         let context = tree.toPromptContext()
@@ -129,21 +138,20 @@ struct AXTreeParserTests {
 
     @Test func identifiesInteractableRoles() {
         let roles = ["button", "link", "textbox", "checkbox", "menuitem", "paragraph", "heading", "statictext"]
-        var axNodes: [[String: Sendable]] = []
+        var axNodes: [[String: Any]] = []
         for role in roles {
-            let emptyChildren: [[String: Sendable]] = []
             axNodes.append([
-                "role": ["value": role as Sendable],
-                "name": ["value": role as Sendable],
-                "focusable": ["value": false as Sendable],
-                "children": emptyChildren
+                "role": ["value": role],
+                "name": ["value": role],
+                "focusable": ["value": false],
+                "children": []
             ])
         }
 
-        let input: [String: Sendable] = ["nodes": axNodes]
+        let input: [String: Any] = ["nodes": axNodes]
         let tree = AXTreeParser.parse(input)
 
-        // 6 interactable (button, link, textbox, checkbox, menuitem) + 3 non-interactable
+        // 5 interactable (button, link, textbox, checkbox, menuitem) + 3 non-interactable
         #expect(tree.interactableCount == 5)
     }
 }

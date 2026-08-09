@@ -34,10 +34,14 @@ struct ExtensionsToolbar: View {
     }
 
     private func handleExtensionTap(_ ext: ExtensionItem) {
-        // Extension install support is gated on CEF extension API maturity.
-        // When ready, extensions open their own popover/panel via
-        // CefExtensionManager. Until then, a pinned icon opens the extensions
-        // manager — never a fake assistant response pretending to be the extension.
+        // P1.8 decision (see docs/RELEASE_PIPELINE.md §5): the vendored CEF
+        // distribution ships NO extension C API headers (no cef_extension_t /
+        // cef_request_context_t::load_extension), so live extension loading is
+        // deferred until a CEF re-vendor. Even then, CEF is sideload-only for
+        // unpacked MV3 extensions — Chrome Web Store integration is not
+        // possible. Until a loader lands, a pinned icon opens the extensions
+        // manager — never a fake assistant response pretending to be the
+        // extension.
         state.isExtensionsManagerOpen = true
     }
 

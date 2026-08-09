@@ -37,6 +37,15 @@ extension WebChromeBridge {
             )
         }
 
+        bridge.register("hive.agent.axContext") { (request: WebChromeToken) async throws -> String in
+            try Self.authorize(request.token)
+            // AXTree → LLM-readable context (Phase 2, P2.2): a structured
+            // page overview with stable refs the agent can target. Rendered
+            // by AXTree.toPromptContext (flat prompt lines, BFS from roots).
+            let tree = try await state.cdpClient.snapshotContext()
+            return tree.toPromptContext()
+        }
+
         bridge.register("hive.agent.read") { (request: WebChromeAgentQuery) async throws -> String in
             try Self.authorize(request.token)
             return try await state.cdpClient.readPage(format: request.format ?? "text")

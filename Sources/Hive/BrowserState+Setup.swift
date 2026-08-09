@@ -412,6 +412,16 @@ extension BrowserState {
         CefResourceFilter.shared.install(.init { url in
             let enabled = UserDefaults.standard.object(forKey: "HiveAdBlockEnabled") as? Bool ?? true
             guard enabled else { return false }
+            // Prefer the native Rust engine when ready (thread-safe check on
+            // the IO thread, full EasyList rule matching); fall back to the
+            // static subdomain-aware domain set. Invariance note: the native
+            // engine is seeded from the same EasyListBlocklist.domains
+            // (compiled as `||domain^` network filters), which is a superset
+            // matcher — so a native miss meaning "not blocked" is exactly
+            // equivalent to the static set's verdict, never weaker.
+            if let native = AdblockEngine.nativeShouldBlock(url: url, sourceHostname: url.host ?? "") {
+                return native
+            }
             return AdBlockPolicy.shouldBlockNetworkHost(url.host, domains: EasyListBlocklist.domains)
         })
     }

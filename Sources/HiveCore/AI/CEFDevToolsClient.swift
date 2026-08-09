@@ -40,6 +40,8 @@ public final class CDPClient {
         print("[CDP] sendRaw not wired — override required. Message: \(json.prefix(100))...")
     }
     private var lastSnapshotNodes: [AXNode]? = nil
+    /// Best-effort page URL for AX context headers (updated on navigate).
+    private var lastNavigatedURL: String? = nil
 
     /// Wire up the actual CEF send function. Call once after creating the client.
     public func wireSend(_ block: @escaping (String) -> Void) {
@@ -114,6 +116,7 @@ public final class CDPClient {
     // MARK: Navigation
 
     public func navigate(url: String) async throws {
+        lastNavigatedURL = url
         _ = try await send(method: "Page.navigate", params: ["url": url])
     }
 
@@ -171,46 +174,27 @@ public final class CDPClient {
 
     /// Takes an accessibility-tree snapshot with stable element reference IDs.
     /// This is the primary observation tool — "observe before you act".
+    /// Nodes are returned in capture order (never dictionary order).
     public func snapshot() async throws -> [AXNode] {
+        let tree = try await snapshotContext()
+        let ordered = tree.nodeOrder.compactMap { tree.nodes[$0] }
+        lastSnapshotNodes = ordered
+        return ordered
+    }
+
+    /// Captures the full accessibility tree, parsed into an ``AXTree`` with
+    /// stable refs, wired children/roots, and an LLM-ready prompt renderer.
+    public func snapshotContext() async throws -> AXTree {
         // getFullAXTree returns the whole page's tree with no params.
         // (getPartialAXTree with backendNodeId: 0 fails with
         // "No node found for given backend id" — 0 is not a valid ID.)
         let result = try await send(method: "Accessibility.getFullAXTree", params: [:])
-
-        var nodes: [AXNode] = []
-        if let axNodes = unwrapResult(result)?["nodes"] as? [[String: Any]] {
-            for (i, n) in axNodes.enumerated() {
-                // CDP Accessibility.AXNode: role/name/value/description are
-                // top-level AXValue objects; properties is an array of
-                // {name, value} pairs.
-                let name = (n["name"] as? [String: Any])?["value"] as? String
-                let value = (n["value"] as? [String: Any])?["value"] as? String
-                let desc = (n["description"] as? [String: Any])?["value"] as? String
-                var focusable = false
-                if let props = n["properties"] as? [[String: Any]] {
-                    for prop in props {
-                        if prop["name"] as? String == "focusable",
-                           let val = prop["value"] as? [String: Any],
-                           val["value"] as? Bool == true {
-                            focusable = true
-                        }
-                    }
-                }
-                nodes.append(AXNode(
-                    ref: "ref_\(i)",
-                    role: (n["role"] as? [String: Any])?["value"] as? String ?? "unknown",
-                    name: name,
-                    value: value,
-                    desc: desc,
-                    bounds: nil,
-                    focusable: focusable,
-                    children: nil
-                ))
-            }
+        guard let payload = unwrapResult(result) else {
+            throw CDPError(code: -32602, message: "Accessibility.getFullAXTree returned no result")
         }
-
-        lastSnapshotNodes = nodes
-        return nodes
+        let tree = AXTreeParser.parse(payload, pageURL: lastNavigatedURL, pageTitle: nil)
+        lastSnapshotNodes = tree.nodeOrder.compactMap { tree.nodes[$0] }
+        return tree
     }
 
     // MARK: Page Read
