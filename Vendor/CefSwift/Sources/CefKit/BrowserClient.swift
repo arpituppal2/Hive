@@ -2,6 +2,15 @@ import AppKit
 import CCef
 import Foundation
 
+/// Named value for `cef_return_value_t` RV_CANCEL — the anonymous C enum in
+/// `cef_types.h` imports as a RawRepresentable struct, so `rawValue: 0` is the
+/// only construction. Kept in one place so the "0 means cancel" mapping is
+/// documented exactly once.
+private enum CefReturnValue {
+    /// `RV_CANCEL` — cancel the resource load immediately.
+    static let cancel = cef_return_value_t(rawValue: 0)
+}
+
 /// Swift owner behind the `cef_client_t` + handler structs for one browser.
 ///
 /// CEF invokes the struct callbacks on its UI thread, which is the main
@@ -737,9 +746,35 @@ extension BrowserClient {
                 cefBrowser.delegate?.browser(cefBrowser, renderProcessDidTerminate: reason, errorCode: code)
             }
         }
-        // get_resource_request_handler left unset (returns NULL by default) —
-        // the custom-scheme path already covers app-served content; per-response
-        // interception is intentionally out of scope.
+        // Network-layer resource blocking (adblock). CEF 148 calls
+        // get_resource_request_handler on the browser-process IO thread before
+        // each resource load. Allowed requests return NULL (default handling);
+        // blocked URLs return a resource handler whose on_before_resource_load
+        // cancels the load with RV_CANCEL. The filter runs off the main actor,
+        // so it must be thread-safe and must not touch the UI (see
+        // CefResourceFilter). Fresh allocations carry refcount 1 owned by the
+        // caller; returning the pointer transfers that reference to CEF, which
+        // releases it when the request completes (see cefAllocate).
+        handler.pointee.get_resource_request_handler = {
+            handlerSelf, browser, frame, request, _, _, _, _ in
+            cefRelease(browser.map(UnsafeMutableRawPointer.init))
+            cefRelease(frame.map(UnsafeMutableRawPointer.init))
+            var urlString = ""
+            if let request {
+                urlString = CefStringUtil.takingUserFree(request.pointee.get_url?(request)) ?? ""
+                cefRelease(UnsafeMutableRawPointer(request))
+            }
+            guard let url = URL(string: urlString),
+                  CefResourceFilter.shared.shouldBlock(url: url)
+            else { return nil }
+            let resource = cefAllocate(cef_resource_request_handler_t.self, owner: CefResourceFilter.shared)
+            resource.pointee.on_before_resource_load = { _, _, _, _, _ in
+                // RV_CANCEL (cef_types.h: first anonymous-enum case) — drop the
+                // load before it hits the network.
+                CefReturnValue.cancel
+            }
+            return resource
+        }
         requestPointer = handler
     }
 

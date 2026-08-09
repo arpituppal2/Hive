@@ -47,34 +47,45 @@ The Sparkle EdDSA private key lives in the keychain item **"Sparkle 2 Private Ke
 on whatever machine runs `generate_appcast`. Back it up with the release owner —
 future releases can't sign appcasts without it.
 
-### 3. 🟠 Adblock at the network layer — real engineering, no creds needed
-`AdblockEngine.swift` + the staged `libhive_adblock_ffi.dylib` ship, but there
-is **no call site**: vendored CefSwift exposes scheme handlers only, no
-`CefRequestHandler`/`onBeforeResourceLoad` for arbitrary HTTP. Two paths:
+### 3. ✅ Adblock at the network layer — IMPLEMENTED (request + cosmetic + CDP)
 
-- **A (recommended, medium): CefSwift request-handler extension.** Add a thin
-  `CefRequestHandler` wrapper to `Vendor/CefSwift` (the C-API has it —
-  `cef_request_handler_t` + `on_before_resource_load`), register it on the
-  browser, call `AdblockEngine.shared.check(url:sourceHostname:requestType:)`,
-  and cancel blocked loads with `ERR_ABORTED`. This makes blocking *real*
-  (pre-request) instead of post-hoc.
-- **B (quick, partial): CDP cosmetic injection.** The in-process CDP client
-  works (`CDPClient` + `CefBrowser.sendDevToolsMessage`). On navigation finish,
-  call `AdblockEngine.shared.cosmeticSelectors(for:)` and
-  `Runtime.evaluate` a `<style>` that hides the returned selectors. Kills ads
-  visually without touching the network. No load-event hook exists yet — add
-  one where the CDP agent tools subscribe to `Page.loadEventFired`.
+**Both paths shipped, verified end-to-end:**
 
-Until one lands, Hive blocks only the `EasyListBlocklist` fallback hosts. The
-README/landing page honestly downgrade the claim.
+- **Path A — pre-request blocking (CefKit, IO thread):** `Vendor/CefSwift` now
+  wires `cef_request_handler_t::get_resource_request_handler` (the CEF-148
+  replacement for `on_before_resource_load`) in `BrowserClient.makeRequestHandler()`.
+  A thread-safe global filter (`CefKit/CefResourceFilter.swift`, NSLock-guarded,
+  never hops to the main thread) is consulted for every resource load; blocked
+  URLs get a `cef_resource_request_handler_t` whose `on_before_resource_load`
+  returns `RV_CANCEL`, dropping the request before it hits the network.
+  The predicate is installed once at startup by `BrowserState.installNetworkAdBlockFilter()`
+  and ships the static, subdomain-aware `AdBlockPolicy.shouldBlockNetworkHost`
+  matcher over `EasyListBlocklist.domains` (honoring the `HiveAdBlockEnabled`
+  UserDefaults toggle). The Rust engine (`AdblockEngine.shared.check`) remains
+  the cosmetic-selector path.
+- **Path B — CDP `Network.setBlockedURLs`:** applied per-browser in
+  `applyAdBlockPolicy(to:)` on every `wireCDP` (pre-request at the Chromium
+  layer, subdomain patterns from `AdBlockPolicy.cdpURLPatterns`).
+- **Cosmetic hiding:** `applyCosmeticAdBlock` injects the Rust engine's CSS
+  selectors after each navigation via the existing `executeJavaScript` probe
+  path.
+
+Settings → Privacy → "Block ads & trackers" toggles all three.
+
+**Remaining (optional, later):** consult the Rust engine (`AdblockEngine.shared.check`)
+per request instead of the static set — the `CefResourceFilter` predicate is the
+single seam where that drops in.
 
 ---
 
-## 4. 🟠 (later) BrowserState.swift decomposition
-~7,000-line monolith. The eng review recommends extensions
-(`+Tabs`, `+Workspaces`, `+AI`, `+Persistence`, `+Chrome`) before Phase-2
-feature work so parallel agents stop colliding. Pure refactor — zero behavior
-change, gated on the 1558-test suite.
+## 4. ✅ BrowserState.swift decomposition — DONE
+`BrowserState.swift` was split from 7,128 → 1,415 lines into 23 domain
+`BrowserState+<Domain>.swift` extensions (`scripts/split_browser_state.py`,
+commit `eb3506fd`). `GeminiSidePanel` (1,921 → 281), `WebChromeHandler`
+(1,319 → 802, DTOs + agent tools carved), `SheetsPanelView` (938 → ~100 +
+10 extensions), and `SettingsView` (770 → 83 + 7 extensions) followed with
+`scripts/split_swift_type.py` (commit `371fddcd`). Pure refactors, zero
+behavior change, 1,567 tests green.
 
 ---
 
@@ -82,7 +93,7 @@ change, gated on the 1558-test suite.
 
 ```bash
 # 1. Full validation
-swift test                                        # 1558 / 144
+swift test                                        # 1567 / 145
 
 # 2. Local ad-hoc bundle (dev only — never distribute)
 bash scripts/build-hive-app.sh --allow-adhoc

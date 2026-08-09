@@ -62,4 +62,24 @@ public enum AdBlockPolicy {
             .replacingOccurrences(of: "\"", with: "\\\"")
             .replacingOccurrences(of: "\n", with: " ")
     }
+
+    /// Subdomain-aware network-layer blocking decision. Returns true when
+    /// `host` is a blocked domain or any subdomain of one
+    /// (`ad.doubleclick.net` blocks for `doubleclick.net`). Lowercases both
+    /// sides; trims and drops empty entries; a leading-dot suffix guard keeps
+    /// `notdoubleclick.net` from colliding with `doubleclick.net`. Pure and
+    /// lock-free — safe to call from the browser's IO thread.
+    public static func shouldBlockNetworkHost<S: Sequence>(_ host: String?, domains: S) -> Bool
+        where S.Element == String {
+        guard let host else { return false }
+        let lowered = host.lowercased()
+        for entry in domains {
+            let domain = entry
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .lowercased()
+            guard !domain.isEmpty else { continue }
+            if lowered == domain || lowered.hasSuffix("." + domain) { return true }
+        }
+        return false
+    }
 }

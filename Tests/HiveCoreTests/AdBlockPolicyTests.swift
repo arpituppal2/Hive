@@ -58,4 +58,34 @@ struct AdBlockPolicyTests {
         // The raw (unescaped) selector form must not appear.
         #expect(!script!.contains(".a[b=\"x\"]"))
     }
+
+    // MARK: Network-layer host matcher (CefResourceFilter predicate)
+
+    @Test("network host matcher blocks exact host and subdomains")
+    func hostMatcherExactAndSubdomain() {
+        let domains = ["doubleclick.net", "google-analytics.com"]
+        #expect(AdBlockPolicy.shouldBlockNetworkHost("doubleclick.net", domains: domains))
+        #expect(AdBlockPolicy.shouldBlockNetworkHost("securepubads.g.doubleclick.net", domains: domains))
+        #expect(AdBlockPolicy.shouldBlockNetworkHost("www.google-analytics.com", domains: domains))
+        #expect(!AdBlockPolicy.shouldBlockNetworkHost("example.com", domains: domains))
+        // Leading-dot guard: a same-suffix non-subdomain host must not match.
+        #expect(!AdBlockPolicy.shouldBlockNetworkHost("notdoubleclick.net", domains: domains))
+    }
+
+    @Test("network host matcher handles nil, empty, and case variants")
+    func hostMatcherEdgeCases() {
+        let domains = ["DoubleClick.Net", "  ", "ads.example"]
+        #expect(AdBlockPolicy.shouldBlockNetworkHost("doubleclick.net", domains: domains))
+        #expect(AdBlockPolicy.shouldBlockNetworkHost("cdn.ads.example", domains: domains))
+        #expect(!AdBlockPolicy.shouldBlockNetworkHost(nil, domains: domains))
+        #expect(!AdBlockPolicy.shouldBlockNetworkHost("", domains: domains))
+    }
+
+    @Test("network host matcher accepts a Set input")
+    func hostMatcherSetInput() {
+        let set: Set<String> = ["tracker.example"]
+        #expect(AdBlockPolicy.shouldBlockNetworkHost("tracker.example", domains: set))
+        #expect(AdBlockPolicy.shouldBlockNetworkHost("a.b.tracker.example", domains: set))
+        #expect(!AdBlockPolicy.shouldBlockNetworkHost("tracker.example.evil.com", domains: set))
+    }
 }

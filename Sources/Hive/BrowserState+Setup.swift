@@ -402,9 +402,26 @@ extension BrowserState {
     }
 
 
+    /// Installs the network-layer adblock predicate into CefKit's resource
+    /// filter. Runs once during setup, before any browser exists. The
+    /// predicate executes on CEF's browser-process IO thread, so it reads only
+    /// static data and UserDefaults (both thread-safe) and never touches
+    /// MainActor state. Subdomains of a blocked domain are blocked too
+    /// (`securepubads.g.doubleclick.net` for `doubleclick.net`).
+    func installNetworkAdBlockFilter() {
+        CefResourceFilter.shared.install(.init { url in
+            let enabled = UserDefaults.standard.object(forKey: "HiveAdBlockEnabled") as? Bool ?? true
+            guard enabled else { return false }
+            return AdBlockPolicy.shouldBlockNetworkHost(url.host, domains: EasyListBlocklist.domains)
+        })
+    }
+
     func setupDefaults() {
         isRestoringSession = true
         defer { isRestoringSession = false }
+        // Install the network-layer adblock filter once, before any browser
+        // can start loading (predicate runs on CEF's IO thread).
+        installNetworkAdBlockFilter()
         // Restore saved session or create defaults. Any corrupt-file recovery is
         // surfaced honestly through the recovery banner (never a silent reset).
         let (loaded, recoveryNotice) = Self.loadSession()
