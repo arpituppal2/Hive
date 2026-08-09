@@ -6076,3 +6076,156 @@ body[data-theme="light"] {
   color: var(--text-muted);
   border: 1px solid var(--hairline-strong);
 }
+
+/* ============================================================
+   Round 17 — Platform standards
+   (field-sizing, text-box-trim, WASI 0.3, speculative rules,
+    hybrid TLS, CSS if(), masonry, WebAssembly GC)
+   ============================================================ */
+
+/* field-sizing: content — auto-resize inputs */
+.field-sizing-content {
+  field-sizing: content;
+  min-width: 120px;
+  max-width: 100%;
+}
+
+/* text-box-trim: trim-both — precise vertical alignment */
+.text-box-trimmed {
+  text-box: trim-both cap alphabetic;
+}
+
+/* WASI 0.3 component model badge */
+.wasi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #22d3ee 10%, transparent);
+  color: #22d3ee;
+  border: 1px solid color-mix(in srgb, #22d3ee 20%, transparent);
+}
+
+.wasi-badge::after {
+  content: "WASI";
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  opacity: 0.7;
+}
+
+/* Speculative Rules pre-fetch indicator */
+.spec-rules-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #a855f7 10%, transparent);
+  color: #a855f7;
+  border: 1px solid color-mix(in srgb, #a855f7 20%, transparent);
+}
+
+/* Hybrid TLS post-quantum badge */
+.pqc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #14b8a6 10%, transparent);
+  color: #14b8a6;
+  border: 1px solid color-mix(in srgb, #14b8a6 20%, transparent);
+}
+
+.pqc-badge::after {
+  content: "PQC";
+  font-size: 7px;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+/* CSS if() conditional styling indicator */
+.css-if-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.css-if-badge::before {
+  content: "if()";
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* Masonry layout grid */
+.masonry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-rows: masonry;
+  gap: var(--s2);
+  align-tracks: start;
+}
+
+/* WebAssembly GC managed language badge */
+.wasm-component-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #818cf8 10%, transparent);
+  color: #818cf8;
+  border: 1px solid color-mix(in srgb, #818cf8 20%, transparent);
+}
+
+/* Storage partitioning indicator */
+.storage-partitioned-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 600;
+  background: color-mix(in srgb, #34d399 8%, transparent);
+  color: #34d399;
+  border: 1px solid color-mix(in srgb, #34d399 16%, transparent);
+}
+
+/* Declarative Net Request badge */
+.dnr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: color-mix(in srgb, #f43f5e 8%, transparent);
+  color: #f43f5e;
+  border: 1px solid color-mix(in srgb, #f43f5e 14%, transparent);
+}

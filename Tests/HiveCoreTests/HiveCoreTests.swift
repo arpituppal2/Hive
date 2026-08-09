@@ -7313,4 +7313,84 @@ struct BeeQueueTests {
         #expect(results.contains(where: { $0.id == .newTab }))
     }
 
+@Test func sourceFetcherExtractedTextInit() {
+        let et = SourceFetcher.ExtractedText(title: "Title", description: "Desc", text: "Body")
+        #expect(et.title == "Title")
+        #expect(et.text == "Body")
+    }
+
+@Test func researchRecorderRecordingEmpty() {
+        let r = ResearchRecorder.Recording(
+            sourceIDs: [], briefID: nil, duplicatedCount: 0,
+            enrichedCount: 0, claimIDs: [],
+            unmatchedCitationCount: 0, persistenceError: nil
+        )
+        #expect(r.sourceIDs.isEmpty)
+        #expect(r.briefID == nil)
+    }
+
+@Test func scribeCoordinatorCaptureVerdictEnums() {
+        #expect(ScribeCoordinator.CaptureVerdict.Outcome.keep == .keep)
+        #expect(ScribeCoordinator.CaptureVerdict.SkipReason.parseError == .parseError)
+        #expect(ScribeCoordinator.CaptureVerdict.SkipReason.lowSignal == .lowSignal)
+    }
+
+@Test func scribeCoordinatorPageQaAnswerInit() {
+        let a = ScribeCoordinator.PageQaAnswer(
+            answer: "Yes", answerType: .found, basis: [],
+            pageClaimUnverified: false, confidence: 0.9, providerLabel: "mock"
+        )
+        #expect(a.answer == "Yes")
+        #expect(a.answerType == .found)
+    }
+
+@Test func scribeCoordinatorPageQaAnswerTypes() {
+        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.found == .found)
+        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.pageDoesNotSay == .pageDoesNotSay)
+        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.privateBrowsing == .privateBrowsing)
+    }
+
+@Test func classifiedIntentInit() throws {
+        let url = try #require(URL(string: "https://example.com"))
+        let params = IntentParams(targetURL: url, searchQuery: nil, filePath: nil, nodeID: nil, spaceName: nil, commandVerb: nil, commandArg: nil)
+        let intent = ClassifiedIntent(category: .webResearch, confidence: 0.9, rawInput: "search the web", params: params, suggestedCell: .summarizer)
+        #expect(intent.category == .webResearch)
+        #expect(intent.confidence == 0.9)
+    }
+
+@Test func pinnedWebAppInit() throws {
+        let url = try #require(URL(string: "https://example.com"))
+        let app = PinnedWebApp(name: "Test App", url: url, fallbackIcon: "globe", accentColor: "#FF0000")
+        #expect(app.name == "Test App")
+        #expect(!app.isLoaded)
+    }
+
+@Test func boostCollectionInit() {
+        let c = BoostCollection()
+        #expect(c.boosts.isEmpty)
+    }
+
+@Test func councilEventEnums() {
+        let resp = CouncilResponse(provider: .mlxLocal, answer: "hi", confidence: 0.8, citations: [], duration: 0.05, status: .success)
+        let ev1 = CouncilEvent.responseReceived(resp)
+        let ev2 = CouncilEvent.degraded(.tavilyCloud, "timeout")
+        switch ev1 {
+        case .responseReceived(let r): #expect(r.answer == "hi")
+        default: Issue.record("Expected responseReceived")
+        }
+        switch ev2 {
+        case .degraded(let p, let r):
+            #expect(p == .tavilyCloud)
+            #expect(r == "timeout")
+        default: Issue.record("Expected degraded")
+        }
+    }
+
+@Test func agentTabInit() {
+        let tab = AgentTab(id: "tab1", title: "Example", url: "https://example.com", active: true)
+        #expect(tab.id == "tab1")
+        #expect(tab.title == "Example")
+        #expect(tab.active)
+    }
+
 }
