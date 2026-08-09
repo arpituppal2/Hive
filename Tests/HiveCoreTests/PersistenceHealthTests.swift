@@ -46,4 +46,9 @@ struct PersistenceHealthTests {
             _ = try EventLedgerStore(path: invalidBase)
         }
     }
+
+@Test func allFalseNotDegraded() {
+        let p = PersistenceHealthPolicy(knowledgeDegraded: false, auditDegraded: false, sessionDegraded: false)
+        #expect(!p.isDegraded)
+    }
 }

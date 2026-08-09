@@ -113,4 +113,10 @@ struct ContextRequestCoordinatorTests {
         #expect(await hotMemory.currentScope() == scope)
         #expect(await coordinator.latestTransitionID() == 7)
     }
+
+@Test func transitionErrorEquality() {
+        let a = ContextTransitionError.staleTransition(expectedAtLeast: 1, received: 0)
+        let b = ContextTransitionError.staleTransition(expectedAtLeast: 1, received: 0)
+        #expect(a == b)
+    }
 }

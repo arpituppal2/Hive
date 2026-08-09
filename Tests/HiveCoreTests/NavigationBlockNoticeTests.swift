@@ -45,4 +45,9 @@ struct NavigationBlockNoticeTests {
         #expect(notice.scheme.isEmpty)
         #expect(notice.title == "Navigation blocked")
     }
+
+@Test func schemeIsTrimmedAndLowercased() {
+        let notice = NavigationBlockNotice(scheme: "  MaIlTo  ")
+        #expect(notice.scheme == "mailto")
+    }
 }

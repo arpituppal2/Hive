@@ -119,4 +119,8 @@ struct CrashRecoveryPolicyTests {
         #expect(reset.firstCrash == now.addingTimeInterval(300))
         #expect(reset.lastCrash == reset.firstCrash)
     }
+
+@Test func autoArchiveDefaultIs14Days() {
+        #expect(AutoArchivePolicy.defaultThreshold == 14 * 86_400)
+    }
 }

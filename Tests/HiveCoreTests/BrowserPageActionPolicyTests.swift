@@ -52,4 +52,8 @@ struct BrowserPageActionPolicyTests {
         #expect(!BrowserPageActionPolicy.canUseWebPageActions(for: URL(string: "chrome://settings")))
         #expect(!BrowserPageActionPolicy.canUseWebPageActions(for: URL(string: "hive://brief")))
     }
+
+@Test func nilURLReturnsFalse() {
+        #expect(!BrowserPageActionPolicy.canUseWebPageActions(for: nil))
+    }
 }
