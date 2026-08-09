@@ -2890,3 +2890,212 @@ body[data-theme="light"] {
   --dia-group-pill-bg: rgba(0, 0, 0, 0.1);
   --dia-group-title: rgba(0, 0, 0, 0.4);
 }
+
+
+
+/* ============================================================
+   Zen Split-View Grid System (studied from zen-browser/desktop)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================
+   Supports 2-4 tab tiling in a binary-tree dynamic layout.
+   Uses CSS grid with draggable splitters via resize property.
+   Split groups show a subtle separator between tabs and a
+   hover-reveal header bar for unsplit/rearrange controls. */
+
+/* --- Split view container --- */
+
+.split-view {
+  display: grid;
+  gap: var(--zen-element-separation, 6px);
+  height: 100%;
+  width: 100%;
+}
+
+.split-view[data-layout="horizontal"] {
+  grid-template-columns: 1fr 1fr;
+}
+
+.split-view[data-layout="vertical"] {
+  grid-template-rows: 1fr 1fr;
+}
+
+.split-view[data-layout="grid"] {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.split-view[data-layout="triple-h"] {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.split-view[data-layout="quad"] {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+/* --- Split pane with active outline --- */
+
+.split-pane {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--zen-native-inner-radius, 8px);
+  transition: outline-color 0.09s ease-out;
+}
+
+.split-pane.active {
+  outline: 2px solid var(--zen-active-split-outline, var(--accent));
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+/* --- Splitter handle (draggable) --- */
+
+.split-view-splitter {
+  position: relative;
+  z-index: 10;
+  background: transparent;
+  transition: background-color 0.1s;
+}
+
+.split-view-splitter:hover,
+.split-view-splitter:active {
+  background: color-mix(in srgb, var(--accent) 30%, transparent 70%);
+}
+
+.split-view-splitter[data-orient="horizontal"] {
+  cursor: col-resize;
+  min-width: 4px;
+}
+
+.split-view-splitter[data-orient="vertical"] {
+  cursor: row-resize;
+  min-height: 4px;
+}
+
+/* --- Splitter header (hover-reveal controls) --- */
+
+.splitter-header-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.1s;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.split-pane:hover .splitter-header-container,
+.splitter-header-container:hover {
+  opacity: 1;
+  pointer-events: all;
+  transition-delay: 0.1s;
+}
+
+.splitter-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 2px 8px;
+  border-radius: 6px;
+  background: var(--zen-active-split-outline, var(--accent));
+  color: #fff;
+  font-size: 11px;
+  box-shadow: 0 0 5px 1px rgba(0,0,0,0.1);
+}
+
+.splitter-header .btn-unsplit,
+.splitter-header .btn-rearrange {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  opacity: 0.8;
+  border: none;
+  background: none;
+  color: currentColor;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splitter-header .btn-unsplit:hover,
+.splitter-header .btn-rearrange:hover {
+  opacity: 1;
+}
+
+/* --- Split view drag preview (ghost tab) --- */
+
+.split-drag-preview {
+  position: absolute;
+  width: 200px;
+  height: 250px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+  z-index: 999;
+}
+
+.split-drag-preview .drag-icon {
+  width: 24px;
+  height: 24px;
+  opacity: 0.6;
+}
+
+.split-drag-preview .drag-label {
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--ink);
+}
+
+/* --- Split view drop zone --- */
+
+.split-dropzone {
+  position: absolute;
+  border-radius: var(--zen-native-inner-radius, 8px);
+  background: color-mix(in srgb, var(--accent) 25%, transparent 75%);
+  border: 2px dashed var(--accent);
+  transition: opacity 0.08s ease-out;
+  display: none;
+  z-index: 50;
+}
+
+.split-dropzone.active {
+  display: block;
+}
+
+/* --- Compact mode hover retention (Zen toolbar flash) --- */
+
+.compact-toolbar {
+  transition: height var(--transition-normal, 0.2s), opacity var(--transition-normal, 0.2s);
+  overflow: clip;
+  height: 6px;
+}
+
+.compact-toolbar:hover,
+.compact-toolbar[data-popup-open],
+.compact-toolbar[data-active] {
+  height: var(--toolbar-height, 48px);
+  overflow: visible;
+}
+
+.compact-toolbar .toolbar-content {
+  opacity: 0;
+  transition: opacity var(--transition-normal, 0.2s);
+  pointer-events: none;
+}
+
+.compact-toolbar:hover .toolbar-content,
+.compact-toolbar[data-popup-open] .toolbar-content,
+.compact-toolbar[data-active] .toolbar-content {
+  opacity: 1;
+  pointer-events: auto;
+}

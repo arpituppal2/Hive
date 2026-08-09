@@ -6491,4 +6491,37 @@ struct BeeQueueTests {
         let r = CouncilResponse(provider: CouncilProvider.tavilyCloud, answer: "X", confidence: 0.8, citations: ["c1"], duration: 2, status: .success)
         #expect(r.provider == .tavilyCloud)
     }
+
+@Test func sheetColumnKindTextIsText() {
+        let col = SheetColumn(id: "c1", name: "notes", kind: .text)
+        #expect(col.kind == SheetColumn.Kind.text)
+    }
+
+@Test func hiveColorTokenAllCasesNonEmpty() {
+        #expect(!HiveColorToken.allCases.isEmpty)
+    }
+
+@Test func downloadStateAllCasesNonEmpty() {
+        #expect(DownloadState.allCases.count >= 6)
+    }
+
+@Test func browserCommandAllCasesNonEmpty() {
+        #expect(!BrowserCommand.allCases.isEmpty)
+    }
+
+@Test func commandCategoryAllCasesNonEmpty() {
+        #expect(!CommandCategory.allCases.isEmpty)
+    }
+
+@Test func shortcutModifierAllCasesNonEmpty() {
+        #expect(ShortcutModifier.allCases.count == 4)
+    }
+
+@Test func browserContextLayerAllCasesNonEmpty() {
+        #expect(!BrowserContextLayer.allCases.isEmpty)
+    }
+
+@Test func tabDensityAllCasesNonEmpty() {
+        #expect(!TabDensity.allCases.isEmpty)
+    }
 }
