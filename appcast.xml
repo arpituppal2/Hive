@@ -2,32 +2,20 @@
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
     <title>Hive Browser Releases</title>
-    <link>https://hivebrowser.com/appcast.xml</link>
+    <link>https://github.com/arpituppal2/Hive/releases</link>
     <description>Release updates for Hive — the browser that thinks with you.</description>
     <language>en</language>
 
-    <!--
-      RELEASE INSTRUCTIONS:
-      1. Build and sign the .dmg:  bash scripts/build-hive-app.sh --release
-      2. Generate DSA signature:   ./scripts/sign_update.sh dist/Hive-1.0.0.dmg
-      3. Upload .dmg to GitHub Releases or hivebrowser.com/download/
-      4. Add a new <item> below with the version, URL, length, and signature
-      5. Upload appcast.xml to hivebrowser.com/appcast.xml
-
-      The SUFeedURL in Hive's Info.plist must point to this file:
-        https://hivebrowser.com/appcast.xml
-    -->
-
     <item>
       <title>Hive 1.0.0</title>
-      <sparkle:releaseNotesLink>https://hivebrowser.com/releases/1.0.0.html</sparkle:releaseNotesLink>
-      <pubDate>Wed, 06 Aug 2026 00:00:00 +0000</pubDate>
+      <sparkle:releaseNotesLink>https://github.com/arpituppal2/Hive/releases/tag/v1.0.0</sparkle:releaseNotesLink>
+      <pubDate>Fri, 08 Aug 2026 18:30:00 +0000</pubDate>
       <enclosure
-        url="https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive-1.0.0.dmg"
-        sparkle:version="1.0.0"
-        sparkle:shortVersionString="1.0"
-        sparkle:edSignature=""
-        length="0"
+        url="https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg"
+        sparkle:version="1200"
+        sparkle:shortVersionString="1.0.0"
+        sparkle:os="macos"
+        length="179607822"
         type="application/octet-stream"/>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
     </item>
