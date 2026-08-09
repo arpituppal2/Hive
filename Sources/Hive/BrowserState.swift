@@ -172,6 +172,12 @@ final class BrowserState {
     }
 
     private(set) var tabs: [Tab] = []
+
+    // MARK: Sync helpers (internal mutation for CloudKit extension)
+    func syncAppendTab(_ tab: Tab) { tabs.append(tab) }
+    func syncAppendBookmark(_ bookmark: Bookmark) { bookmarks.append(bookmark) }
+    func syncAppendHistoryItem(_ item: HistoryItem) { historyItems.append(item) }
+
     /// Ephemeral tab-scoped navigation generations. Load observers must
     /// validate both this token and their model identity before mutating
     /// history, probes, zoom, or hot memory.
