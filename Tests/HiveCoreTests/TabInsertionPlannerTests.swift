@@ -128,4 +128,9 @@ struct TabInsertionPlannerTests {
             activeWorkspaceID: workspace
         ) == nil)
     }
+
+@Test func itemInitPreservesID() {
+        let item = TabInsertionPlanner.Item(id: "tab-1", workspaceID: UUID())
+        #expect(item.id == "tab-1")
+    }
 }

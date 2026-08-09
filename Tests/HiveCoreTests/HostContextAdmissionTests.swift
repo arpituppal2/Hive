@@ -106,4 +106,8 @@ struct HostContextAdmissionTests {
         #expect(scope.pageVisibility == .allowed)
         #expect(scope.admits(page: page))
     }
+
+@Test func effectiveStatesAreNonEmpty() {
+        #expect(!HostContextPolicy.EffectiveState.allCases.isEmpty)
+    }
 }

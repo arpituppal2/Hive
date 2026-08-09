@@ -83,4 +83,10 @@ struct BookmarkDeletionPolicyTests {
         let bm = Bookmark(title: "Test", url: URL(string: "https://www.example.com")!)
         #expect(bm.host == "example.com")
     }
+
+@Test func deletingNonExistentIDReturnsSameList() {
+        let bm = Bookmark(title: "A", url: URL(string: "https://a.com")!)
+        let result = BookmarkDeletionPolicy.deleting(bookmarkID: "nonexistent", from: [bm])
+        #expect(result.count == 1)
+    }
 }

@@ -38,4 +38,9 @@ struct HistoryClearPolicyTests {
         let b = HistoryClearPolicy.decision(itemCount: 5)
         #expect(a == b)
     }
+
+@Test func decisionRemovedCountIsNonNegative() {
+        let d = HistoryClearPolicy.Decision(removedCount: -3)
+        #expect(d.removedCount >= 0)
+    }
 }

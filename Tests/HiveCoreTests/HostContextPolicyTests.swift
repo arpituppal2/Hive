@@ -85,4 +85,8 @@ struct HostContextPolicyTests {
 @Test func hostContextDecisionsIncludeDefault() {
         #expect(HostContextPolicy.Decision.allCases.contains(.default))
     }
+
+@Test func hostContextDecisionsAreNonEmpty() {
+        #expect(!HostContextPolicy.Decision.allCases.isEmpty)
+    }
 }
