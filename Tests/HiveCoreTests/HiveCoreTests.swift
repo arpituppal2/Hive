@@ -6943,4 +6943,53 @@ struct BeeQueueTests {
         #expect(routes.contains(.genericQuestion))
     }
 
+
+
+@Test func swarmResearchPhaseCases() {
+        #expect(SwarmResearchPhase.running != .completed)
+        #expect(SwarmResearchPhase.failed != .cancelled)
+    }
+
+@Test func swarmResearchStateInit() {
+        let s = SwarmResearchState()
+        #expect(s.phase == .running)
+        #expect(s.answer == "")
+    }
+
+@Test func swarmIntentRouterInit() {
+        let r = SwarmIntentRouter()
+        #expect(r is SwarmIntentRouter)
+    }
+
+@Test func sheetColumnKindRawCases() {
+        #expect(SheetColumn.Kind.allCases.count >= 2)
+    }
+
+@Test func browserSessionCodableRoundTrip() throws {
+        let s = BrowserSession()
+        #expect(s.windows.isEmpty)
+        let data = try JSONEncoder().encode(s)
+        let back = try JSONDecoder().decode(BrowserSession.self, from: data)
+        #expect(back.windows.isEmpty)
+    }
+
+@Test func intentCategoryCases() {
+        #expect(IntentCategory.allCases.count >= 5)
+        #expect(IntentCategory.genericQuestion != .webResearch)
+    }
+
+@Test func modelTierCases() {
+        #expect(ModelTier.allCases.count >= 4)
+        #expect(ModelTier.t0 != .t3)
+    }
+
+@Test func webSearchFocusModeCases() {
+        #expect(WebSearchFocusMode.allCases.count >= 4)
+        #expect(WebSearchFocusMode.webSearch != .academicSearch)
+    }
+
+@Test func webSearchFocusModeCount() {
+        #expect(WebSearchFocusMode.allCases.count == 6)
+    }
+
 }

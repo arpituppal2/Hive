@@ -5080,3 +5080,258 @@ body[data-theme="light"] {
   outline: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
   outline-offset: 2px;
 }
+
+
+/* ============================================================
+   Zen Boosts CSS Injection System (studied from ZenBoostStyles.sys.mjs)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================ */
+
+/* Boost editor panel */
+.boost-editor-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--surface);
+}
+
+.boost-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.boost-editor-toolbar .boost-domain {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Boost color controls */
+.boost-color-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+
+.boost-color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.boost-color-row label {
+  width: 70px;
+  font-size: 11px;
+  color: var(--ink-secondary);
+}
+
+.boost-color-row input[type="range"] {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--surface), var(--accent));
+}
+
+/* Font controls */
+.boost-font-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--hairline);
+}
+
+.boost-font-family {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.boost-font-family select {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  font-size: 11px;
+  background: var(--surface);
+}
+
+.boost-text-case {
+  display: flex;
+  gap: 4px;
+}
+
+.boost-text-case button {
+  padding: 3px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--surface);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.boost-text-case button[data-active] {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+/* ============================================================
+   Zen Zap Element Selector (studied from ZenBoostsEditor.mjs)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================ */
+
+.zap-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.zap-selector {
+  position: absolute;
+  border: 2px solid var(--accent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  transition: all 0.05s ease;
+  pointer-events: none;
+}
+
+.zap-selector::after {
+  content: attr(data-tag);
+  position: absolute;
+  top: -18px;
+  left: 0;
+  padding: 1px 4px;
+  font-size: 9px;
+  font-weight: 600;
+  background: var(--accent);
+  color: white;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.zap-hidden-element {
+  display: none !important;
+}
+
+.zap-unhide-button {
+  display: inline-block;
+  padding: 2px 6px;
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  font-size: 10px;
+  cursor: pointer;
+  background: var(--surface);
+}
+
+/* ============================================================
+   Zen Boost Code Editor (studied from ZenBoostsEditor.mjs)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================ */
+
+.boost-code-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.boost-code-editor textarea {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 0;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  background: var(--surface);
+  color: var(--ink);
+  resize: none;
+  tab-size: 2;
+}
+
+.boost-code-editor textarea:focus {
+  outline: none;
+  background: color-mix(in srgb, var(--ink) 1%, var(--surface));
+}
+
+/* ============================================================
+   Zen Zap Dissolve WebGL Pattern (studied from ZenZapDissolve.sys.mjs)
+   License: MPL-2.0, reimplemented for Hive
+   ============================================================ */
+
+.zap-dissolve-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.zap-dissolve-canvas[data-active] {
+  opacity: 1;
+}
+
+/* Particle dissolve CSS fallback */
+@keyframes zap-dissolve-out {
+  0% { opacity: 1; transform: scale(1); filter: blur(0); }
+  50% { opacity: 0.5; transform: scale(0.98); filter: blur(1px); }
+  100% { opacity: 0; transform: scale(0.95); filter: blur(3px); }
+}
+
+.zap-dissolving {
+  animation: zap-dissolve-out 0.4s ease-out forwards;
+}
+
+/* ============================================================
+   Per-Site CSS Injection Indicator (Arc/Zen pattern)
+   License: Fair-use reimplementation for Hive
+   ============================================================ */
+
+.boost-active-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+}
+
+.boost-active-indicator::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.boost-count {
+  font-weight: 700;
+}
+
+/* Boost filesystem path display */
+.boost-path-display {
+  font-family: monospace;
+  font-size: 10px;
+  padding: 4px 8px;
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+  border-radius: 4px;
+  color: var(--ink-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
