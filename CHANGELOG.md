@@ -1,6 +1,6 @@
 # Hive Browser Changelog
 
-## v1.0.0-rc1 (2026-08-08)
+## v1.0.0 (2026-08-08)
 
 ### Core Browser
 - **Engine**: Chromium 148 via CefSwiftUI, native SwiftUI chrome shell
@@ -46,10 +46,11 @@
 - **Extension manager**: Install/uninstall/persist
 - **Landing page**: Arch detection, download links, waitlist
 - **Onboarding**: Browser import wizard + theme picker
+- **Cross-device sync**: CloudKit engine (tabs, bookmarks, history) with push notifications
 - **CI/CD**: hive-ci.yml + hive-release.yml
 
 ### Quality
-- **1197 tests / 143 suites** — all passing
+- ****1200 tests** / 143 suites** — all passing
 - **Zero TODOs/FIXMEs** in non-vendored Swift
 - Bundle + smoke: PASS
 - macOS 14.0+, Apple Silicon / Intel (Rosetta 2)
@@ -68,6 +69,6 @@
 git clone https://github.com/arpituppal2/Hive.git
 cd Hive
 swift build --product Hive
-swift test  # 1197 tests
+swift test  # **1200 tests**
 scripts/build-hive-app.sh --allow-adhoc
 ```
