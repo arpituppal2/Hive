@@ -593,4 +593,8 @@ struct ToolInvocationFactoryTests {
 @Test func voiceRoutesAreNonEmpty() {
         #expect(!VoiceRoute.allCases.isEmpty)
     }
+
+@Test func riskClassReadIsRead() {
+        #expect(ToolRegistry.RiskClass.read == .read)
+    }
 }

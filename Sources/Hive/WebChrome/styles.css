@@ -2552,3 +2552,119 @@ body[data-layout="toolbar"] .addressbar:focus-within {
 .dia-pile__tab:nth-child(1) { transform: rotate(-3deg); z-index: 3; }
 .dia-pile__tab:nth-child(2) { transform: rotate(2deg); z-index: 2; }
 .dia-pile__tab:nth-child(3) { transform: rotate(-1deg); z-index: 1; }
+
+
+/* ============================================================
+   Dia Typography & Surface System (studied from Dia.app)
+   License: Fair-use study, reimplemented for Hive
+   ============================================================
+
+   Dia uses pure viewport-width-based scaling:
+     font-size: clamp(12.03px, 1.5833vw, 19px)
+   This creates perfectly proportional scaling across all
+   screen sizes without any fixed-pixel component.
+
+   Dia''s card surfaces use a translucent white ::before bleed
+   pattern — a soft card that extends beyond its content grid
+   with subtle box-shadow and 15px rounded corners.
+   ============================================================ */
+
+/* --- Dia vw-based typography scale --- */
+
+:root {
+  /* Pure vw scaling: 18px at 1200px, 10.5px at 700px */
+  --font-scale-base: clamp(10.5px, 1.5vw, 18px);
+  --font-scale-h1: clamp(28px, 4.5vw, 56px);
+  --font-scale-h2: clamp(22px, 3vw, 36px);
+  --font-scale-body: clamp(14px, 1.2vw, 17px);
+}
+
+/* --- Dia Translucent Card Surface --- */
+
+.dia-card {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  align-items: start;
+  padding: clamp(24px, 3vw, 36px);
+  border-radius: 15px;
+}
+
+/* The signature Dia ::before bleed — a translucent white surface
+   that extends past the content columns */
+.dia-card::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  margin: calc(-1 * clamp(20px, 3vw, 40px));
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0.5px 0.5px 0.5px rgba(0, 0, 0, 0.08),
+    0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+body[data-theme="dark"] .dia-card::before {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    0.5px 0.5px 0.5px rgba(0, 0, 0, 0.2),
+    0 0 3px rgba(0, 0, 0, 0.12);
+}
+
+/* --- Dia-style paragraph text --- */
+
+.dia-prose {
+  font-size: var(--font-scale-body);
+  line-height: 1.65;
+  text-wrap: pretty;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* --- Dia "Between the Lines" dark mode scheme --- */
+
+body[data-theme="dark"] {
+  --dia-ink: #ededeb;
+  --dia-soft: rgba(235, 235, 240, 0.66);
+  --dia-faint: rgba(235, 235, 240, 0.4);
+  --dia-paper: #121211;
+  --dia-line: rgba(255, 255, 255, 0.14);
+  --dia-accent: #ededeb;
+  --dia-surface: rgba(255, 255, 255, 0.06);
+  --dia-link-line: rgba(255, 255, 255, 0.32);
+}
+
+/* --- Dia dismiss button (circle with X icon) --- */
+
+.dia-dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dia-dismiss:hover,
+.dia-dismiss:focus-visible {
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+body[data-theme="dark"] .dia-dismiss {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+body[data-theme="dark"] .dia-dismiss:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+}

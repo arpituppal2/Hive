@@ -6367,4 +6367,24 @@ struct BeeQueueTests {
 @Test func honeycombEdgeRelationSupportsIsSupports() {
         #expect(HoneycombStore.EdgeRelation.supports == .supports)
     }
+
+@Test func trustLevelT0IsT0() {
+        #expect(EventLedgerStore.TrustLevel.t0 == .t0)
+    }
+
+@Test func policyDecisionAllowedIsAllowed() {
+        #expect(EventLedgerStore.PolicyDecision.allowed == .allowed)
+    }
+
+@Test func consentStateAutoIsAuto() {
+        #expect(EventLedgerStore.ConsentState.auto == .auto)
+    }
+
+@Test func eventResultSuccessIsSuccess() {
+        #expect(EventLedgerStore.EventResult.success == .success)
+    }
+
+@Test func honeycombCategoryBioIsBio() {
+        #expect(HoneycombCategory.bio == .bio)
+    }
 }
