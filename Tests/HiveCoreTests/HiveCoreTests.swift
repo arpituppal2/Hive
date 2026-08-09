@@ -7686,4 +7686,91 @@ struct BeeQueueTests {
         #expect(true, "PreferenceMemoryBridge exists as a HiveCore type")
     }
 
+    @Test func sourceFetcherFetchResponseInit() {
+        let data = Data("hello".utf8)
+        guard let url = URL(string: "https://example.com") else { return }
+        let fr = SourceFetcher.FetchResponse(data: data, statusCode: 200, headers: ["Content-Type": "text/html"], finalURL: url)
+        #expect(fr.statusCode == 200)
+        #expect(fr.data == data)
+        #expect(fr.finalURL == url)
+    }
+
+    @Test func retentionCapabilityBindingInit() {
+        let b = RetentionCapabilityRegistry.Binding(journalID: "j1", eventID: "e1")
+        #expect(b.journalID == "j1")
+        #expect(b.eventID == "e1")
+    }
+
+    @Test func reconciliationResultInit() {
+        let rr = ResearchHandoffAdapter.ReconciliationResult(
+            journalID: "j1", sourceID: "s1", ledgerEventID: "ev1",
+            outcome: .repaired
+        )
+        #expect(rr.journalID == "j1")
+        #expect(rr.sourceID == "s1")
+        #expect(rr.ledgerEventID == "ev1")
+        #expect(rr.outcome == .repaired)
+    }
+
+    @Test func reconciliationOutcomeAllCases() {
+        let o1 = ResearchHandoffAdapter.ReconciliationResult.Outcome.repaired
+        let o2 = ResearchHandoffAdapter.ReconciliationResult.Outcome.alreadyComplete
+        let o3 = ResearchHandoffAdapter.ReconciliationResult.Outcome.deferred("reason")
+        #expect(o1 == .repaired)
+        #expect(o2 == .alreadyComplete)
+        if case .deferred(let reason) = o3 { #expect(reason == "reason") }
+    }
+
+    @Test func assembledContextInit() {
+        guard let url = URL(string: "https://example.com") else { return }
+        let page = PageContext(tabID: "t1", url: url, title: "Example", text: "content")
+        let ctx = HotMemoryStore.AssembledContext(hotNodes: ["n1"], currentPage: page, projectNodes: [], preferences: [], estimatedTokens: 100)
+        #expect(ctx.hotNodes == ["n1"])
+        #expect(ctx.currentPage?.title == "Example")
+        #expect(ctx.estimatedTokens == 100)
+    }
+
+    @Test func tabOrganizationNormalizerResultInit() {
+        let tab = TabOrganizationNormalizer.Tab(id: "t1", workspaceID: "ws1", profileID: "p1", groupID: nil, isPinned: false, isEssential: false, isPrivate: false, urlString: nil, savedURLString: nil, isHibernated: false)
+        let snapshot = TabOrganizationNormalizer.Snapshot(tabs: [tab])
+        let result = TabOrganizationNormalizer.Result(snapshot: snapshot, repairReasons: [])
+        #expect(result.snapshot.tabs.count == 1)
+        #expect(result.repairReasons.isEmpty)
+    }
+
+    @Test func sessionLoadResultHasAllCases() {
+        let bs = BrowserSession(windows: [])
+        let restored = SessionLoadResult.restored(bs)
+        let none = SessionLoadResult.none
+        let corrupt = SessionLoadResult.corrupt(quarantineURL: nil, recovered: nil)
+        if case .restored(let s, _) = restored { #expect(s.windows.isEmpty) }
+        if case .none = none {}
+        if case .corrupt(_, _, _) = corrupt {}
+    }
+
+    @Test func browserSessionNormalizationInit() {
+        let bs = BrowserSession(windows: [])
+        let report = BrowserSessionRepairReport()
+        let n = BrowserSessionNormalization(session: bs, report: report)
+        #expect(n.session.windows.isEmpty)
+        #expect(n.report == BrowserSessionRepairReport())
+    }
+
+    @Test func captureVerdictOutcomeSkipReasons() {
+        #expect(ScribeCoordinator.CaptureVerdict.Outcome.keep.rawValue == "keep")
+        #expect(ScribeCoordinator.CaptureVerdict.Outcome.skip.rawValue == "skip")
+        #expect(ScribeCoordinator.CaptureVerdict.SkipReason.duplicate.rawValue == "duplicate")
+        #expect(ScribeCoordinator.CaptureVerdict.SkipReason.transient.rawValue == "transient")
+        #expect(ScribeCoordinator.CaptureVerdict.SkipReason.lowSignal.rawValue == "lowSignal")
+    }
+
+    @Test func pageQaAnswerTypeAllCases() {
+        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.found.rawValue == "found")
+        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.pageDoesNotSay.rawValue == "pageDoesNotSay")
+        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.pageClaimUnverified.rawValue == "pageClaimUnverified")
+        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.privateBrowsing.rawValue == "privateBrowsing")
+        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.aiContextDisabled.rawValue == "aiContextDisabled")
+        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.parseError.rawValue == "parseError")
+    }
+
 }
