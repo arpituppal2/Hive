@@ -306,4 +306,9 @@ struct HiveSheetTests {
 @Test func sheetColumnKindsAreNonEmpty() {
         #expect(!SheetColumn.Kind.allCases.isEmpty)
     }
+
+@Test func sheetRowInitPreservesID() {
+        let row = SheetRow(id: "r1", cells: [])
+        #expect(row.id == "r1")
+    }
 }

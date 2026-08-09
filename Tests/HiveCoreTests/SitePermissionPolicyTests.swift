@@ -82,4 +82,9 @@ struct SitePermissionPolicyTests {
     @Test func allPermissionKindsAreNonEmpty() {
         #expect(!SitePermissionKind.allCases.isEmpty)
     }
+
+@Test func sitePermissionIDIsHostAndKind() {
+        let p = SitePermission(host: "example.com", kind: .camera)
+        #expect(p.id == "example.com:camera")
+    }
 }

@@ -109,4 +109,9 @@ struct VoiceTurnDisclosureTests {
 @Test func voiceTurnDisclosureKindsAreNonEmpty() {
         #expect(!VoiceTurnDisclosure.Kind.allCases.isEmpty)
     }
+
+@Test func voiceTurnDisclosurePreservesKind() {
+        let d = VoiceTurnDisclosure(kind: .listening, title: "T", detail: "D", iconName: "mic")
+        #expect(d.kind == .listening)
+    }
 }

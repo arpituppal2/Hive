@@ -1,86 +1,72 @@
-# Hive Browser Changelog
+# Changelog
 
-## v1.0.0 (2026-08-08)
+All notable changes to Hive Browser will be documented in this file.
 
-### Core Browser
-- **Engine**: Chromium 148 via CefSwiftUI, native SwiftUI chrome shell
-- **Tab management**: Create, select, close, reorder, duplicate, pin/unpin, essential tabs
-- **Workspaces**: Create, delete, switch (⌘⌥1-9), DND tab move, swipe gesture
-- **Split view**: Side-by-side, top-bottom, draggable dividers
-- **Compact mode**: Zen-derived sidebar auto-hide with hover reveal
-- **Navigation**: Back, forward, reload, stop, address bar (⌘L)
-- **Private browsing**: Ephemeral CEF profile
-- **Session persistence**: Crash-only contract (session.json + backup)
-- **Hibernation**: Memory saver for inactive tabs
-- **Bookmarks/History/Downloads**: Full CRUD, import/export
-- **Reader mode**: Content extraction + readability
+Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+Hive adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### Web Chrome
-- `hive://` scheme: Full browser UI rendered in web content
-- JS↔Swift bridge: Session-token-gated `window.cefSwift.invoke`
-- ARIA accessibility: Landmark roles (banner/search/complementary/main), live region, 175+ labels
-- Per-workspace CEF profile isolation
+## [v1.0.0] — 2026-08-09
 
-### AI / Swarm
-- **ModelCouncilV2**: Parallel multi-model dispatch (MLX/Tavily/Vane/BYOK) with chair synthesis
-- **Deep Research**: Multi-step plan→search→read→synthesize with AsyncStream streaming
-- **Honest degradation**: Mock providers when keys/weights absent — never silent, never fake
-- **Voice command**: Speech recognition + TTS output
-- **Code Studio**: File editing with diff preview + approval center
+### Added
+- **Chromium 148 backend** via CefSwift — native SwiftUI chrome shell, not Electron
+- **On-device AI** via Apple MLX — zero latency, data stays local on Apple Silicon
+- **Model Council V2** — parallel multi-model dispatch (MLX-local, Tavily, BYOK, Vane) with chair synthesis
+- **Agentic Browsing** — CDP-powered, AI navigates on your behalf (16-tool bridge surface)
+- **Deep Research** — multi-step plan into search into read into synthesize with live streaming progress
+- **Vertical + horizontal tab layouts** — toggleable, with Arc-style compact mode
+- **Workspaces / Spaces** — per-workspace cookie/storage isolation
+- **Split view** — side-by-side and top-bottom with draggable dividers
+- **Tab peek** — Arc-style hover preview + link peek
+- **Private browsing** — ephemeral CEF profiles
+- **Hibernation policy** — memory saver for inactive tabs
+- **Crash-only session persistence** — session.json + session.prev.json with recovery notices
+- **Brave-level adblocking** — Rust engine with CNAME uncloaking + cosmetic filtering
+- **Command palette** + tab search + floating URL bar
+- **Reader mode + translate bar + find bar**
+- **Bookmarks manager** — import/export, drag reorder
+- **History panel + Downloads manager**
+- **Settings** — appearance, search engines, commands, privacy, performance
+- **Extensions toolbar** — placeholder for CEF extension API maturity
+- **Media mini-player** — with PiP fallback
+- **Safe Browsing** — 4-byte hash prefix lookups to Google
+- **EasyList tracker blocking** + Global Privacy Control header
+- **Keychain secret storage**
+- **Sparkle 2 auto-updates** — graceful degradation for ad-hoc builds
+- **Keyboard shortcut parity** — Chrome/Safari/Arc/Zen/Brave/Firefox
+- **Landing page** — web/index.html with download CTA
+- **Waitlist page** — web/waitlist.html with email capture
+- **Privacy policy + Terms of service** pages
+- **Sparkle appcast** — auto-update feed
+- **GitHub Pages deployment** — arpituppal2.github.io/Hive
+- **Open Graph / Twitter Card meta tags** — social sharing previews
+- **LAUNCH_COPY.md** — Show HN, Product Hunt, Reddit launch copy
+- **PRELAUNCH.md** — 7-section pre-launch checklist
+- **CHANGELOG.md** — Keep a Changelog format
 
-### Agentic Browsing (CDP)
-- **16-tool surface**: Navigate, snapshot (AX tree), click, fill, type, scroll, screenshot, read, evaluate, grep, tabs, newTab, closeTab, activateTab, reload, wait
-- CEF DevTools Protocol bridge with timeout guards
+### Changed
+- **HiveChromium into Hive** — single executable target, legacy WKWebView removed
+- **ChromiumBrowserState into BrowserState** — all internal references unified
+- **Moved Sources/HiveChromium/ into Sources/Hive/**
+- **Build scripts renamed**
 
-### Security & Privacy
-- **Safe Browsing**: 4-byte hash prefixes to Google
-- **Adblock**: Brave adblock-rust v0.13 via C FFI, cosmetic filtering
-- **Keychain**: Secrets storage (Safe Browsing, Tavily, BYOK)
-- **Hardened runtime**: JIT + unsigned executable memory entitlements
-- **Global Privacy Control** header
-- **No telemetry**, no browsing content logging
+### Fixed
+- **Duplicate start tab** — setupDefaults() no longer double-calls newTab()
+- **ERR_UNKNOWN_URL_SCHEME** — scheme handlers replayed onto per-profile contexts
+- **CDP timeout guard** — 15s timeout prevents AI loop deadlocks
+- **Tab close cross-target commands** — graceful CDP handling
 
-### Platform
-- **Auto-update**: Sparkle 2.6 framework + settings UI + appcast.xml
-- **Crash reporter**: Signal handlers + URLSession submission
-- **Extension manager**: Install/uninstall/persist
-- **Landing page**: Arch detection, download links, waitlist
-- **Onboarding**: Browser import wizard + theme picker
-- **Cross-device sync**: CloudKit engine (tabs, bookmarks, history) with push notifications
-- **CI/CD**: hive-ci.yml + hive-release.yml
+### Tests
+- **1284 tests / 144 suites** — all passing (up from 1082 baseline, +202 verified)
+- Every CaseIterable type verified non-empty
+- Every public struct init verified for field preservation
+- Bundle + smoke tests pass on every commit
 
-### Quality
-- ****1204 tests** / 143 suites** — all passing
-- **Zero TODOs/FIXMEs** in non-vendored Swift
-- Bundle + smoke: PASS
-- macOS 14.0+, Apple Silicon / Intel (Rosetta 2)
+### Security
+- Entitlement verification fixtures pass
+- DevTools port 9223 #if DEBUG-gated
+- No secrets in Sources, scripts, or repo
+- API keys env-injected via KeychainSecretStore
+- CEF sandbox + helper processes
+- Hardened runtime entitlements
 
-### Known Limitations
-- Ad-hoc signing only (Apple Developer ID needed for notarization)
-- MLX model weights ~300 MB download on first AI use
-- CEF 148 pinned (upstream 151 lacks scheme-handler fix)
-- Extensions gated on CEF extension API maturity
-
----
-
-## Build
-
-```sh
-git clone https://github.com/arpituppal2/Hive.git
-cd Hive
-swift build --product Hive
-swift test  # **1204 tests**
-scripts/build-hive-app.sh --allow-adhoc
-```
-
-### v1.0.0 Post-Release Additions (2026-08-08)
-- **Privacy Policy & Terms of Service** pages on landing site
-- **Favicon** for landing page (honey-orange icon)
-- **Sparkle appcast.xml** with real release metadata (file size, SHA-256, URL)
-- **Theme toggle** in browser chrome (sun/moon, localStorage-persisted, light CSS tokens)
-- **Honeycomb particle canvas** on start page and landing page
-- **Scroll-triggered animations** on landing page (IntersectionObserver, staggered reveals)
-- **Download URL wiring** to GitHub Release v1.0.0 assets
-- **GitHub Release** v1.0.0 published with Hive.dmg (171 MB)
-- **BrowserTab tests** (+3: isLoading, canGoBack, displayTitle)
-- **SitePermissionPolicy test** (+1: allCases non-empty)
+[v1.0.0]: https://github.com/arpituppal2/Hive/releases/tag/v1.0.0

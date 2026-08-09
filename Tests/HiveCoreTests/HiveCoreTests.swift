@@ -6307,4 +6307,9 @@ struct BeeQueueTests {
 @Test func contradictionStatesAreNonEmpty() {
         #expect(!ContradictionState.allCases.isEmpty)
     }
+
+@Test func browserSessionWindowDefaultsVertical() {
+        let w = BrowserSessionWindow()
+        #expect(w.layout == .vertical)
+    }
 }

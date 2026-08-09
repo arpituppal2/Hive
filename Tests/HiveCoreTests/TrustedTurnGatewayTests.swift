@@ -319,4 +319,15 @@ struct TrustedTurnGatewayTests {
         #expect(events[0].intent.contains("SECRET_PAGE_BODY") == false)
         #expect(events[0].actionPreview?.contains("SECRET_PAGE_BODY") == false)
     }
+
+@Test func trustedTurnRequestPreservesScope() {
+        let req = TrustedTurnRequest(text: "test", scope: .workspace)
+        #expect(req.scope == .workspace)
+    }
+
+@Test func allScopesHaveDiagnosticLabels() {
+        for scope in TrustedTurnScope.allCases {
+            #expect(!scope.diagnosticLabel.isEmpty)
+        }
+    }
 }
