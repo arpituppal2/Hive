@@ -59,4 +59,16 @@ struct PageCaptureAdmissionTests {
 @Test func shortcutModifiersAreNonEmpty() {
         #expect(!ShortcutModifier.allCases.isEmpty)
     }
+
+@Test func keyboardShortcutDescriptorPreservesKey() {
+        let k = KeyboardShortcutDescriptor(key: "t", modifiers: [.command])
+        #expect(k.key == "t")
+        #expect(k.modifiers.count == 1)
+    }
+
+@Test func commandDefinitionPreservesID() {
+        let d = CommandDefinition(id: .newTab, title: "New Tab", category: .tab, shortcut: nil)
+        #expect(d.id == .newTab)
+        #expect(d.title == "New Tab")
+    }
 }

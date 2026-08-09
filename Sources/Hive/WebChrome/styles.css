@@ -1923,3 +1923,82 @@ body[data-theme="light"] .workspace-dot[data-active="true"] {
   scale: 0.97;
   transition: scale 0.08s ease;
 }
+
+
+/* ============================================================
+   Zen Single Toolbar Mode (ported from zen-browser/desktop)
+   License: MPL-2.0
+   ============================================================
+   Combines the URL bar and sidebar top buttons into a single
+   compact toolbar row. Saves vertical space. */
+
+body[data-layout="toolbar"] #chrome__top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  border-bottom: 1px solid var(--hairline);
+}
+
+body[data-layout="toolbar"] .addressbar {
+  flex: 1;
+  margin: 0;
+}
+
+/* ============================================================
+   Zen Tab Icon Hover Animation
+   Subtle translateY on icon hover for tactile feedback
+   ============================================================ */
+
+.tab__fav {
+  transition: transform 0.15s ease;
+}
+
+.tab:hover .tab__fav {
+  transform: translateY(-1px);
+}
+
+/* Pinned tab icon pulse on hover */
+.tab[data-pinned="true"]:hover .tab__pin svg {
+  animation: pinPulse 0.3s ease;
+}
+
+@keyframes pinPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* ============================================================
+   Workspace Color Gradient Background (Arc-inspired)
+   Subtle radial gradient wash behind the sidebar that shifts
+   with the active workspace color
+   ============================================================ */
+
+#chrome {
+  position: relative;
+}
+
+#chrome::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    ellipse 60% 40% at 50% 20%,
+    var(--workspace-gradient, rgba(249, 115, 22, 0.08)),
+    transparent 70%
+  );
+}
+
+body[data-workspace-color] #chrome::before {
+  opacity: 1;
+}
+
+/* Workspace transition — smooth background-color shift on body */
+body {
+  transition: background-color 0.4s ease;
+}

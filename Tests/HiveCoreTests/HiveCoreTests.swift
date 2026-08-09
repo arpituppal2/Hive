@@ -6312,4 +6312,19 @@ struct BeeQueueTests {
         let w = BrowserSessionWindow()
         #expect(w.layout == .vertical)
     }
+
+@Test func browsingHistoryEntryPreservesTitle() {
+        let url = URL(string: "https://example.com")!
+        let e = BrowsingHistoryEntry(url: url, title: "Example", visitDate: Date())
+        #expect(e.title == "Example")
+    }
+
+@Test func boostPreservesName() {
+        let b = Boost(name: "Dark Mode", urlPattern: "*.example.com", isEnabled: true)
+        #expect(b.name == "Dark Mode")
+    }
+
+@Test func autoArchivePolicyDefaultThreshold() {
+        #expect(AutoArchivePolicy.defaultThreshold == 14 * 86_400)
+    }
 }

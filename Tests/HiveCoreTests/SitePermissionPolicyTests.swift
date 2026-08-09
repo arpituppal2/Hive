@@ -87,4 +87,8 @@ struct SitePermissionPolicyTests {
         let p = SitePermission(host: "example.com", kind: .camera)
         #expect(p.id == "example.com:camera")
     }
+
+@Test func sitePermissionStateAskEqualsSelf() {
+        #expect(SitePermissionState.ask == .ask)
+    }
 }
