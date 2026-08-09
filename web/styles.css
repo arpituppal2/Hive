@@ -225,3 +225,88 @@ body {
 .download-divider { color: var(--border); }
 .sparkle-badge { color: var(--accent); font-size: 13px; }
 #arch-badge { color: var(--accent); font-weight: 500; }
+
+/* ── Scroll reveal animations ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger children */
+.bento-card:nth-child(1) { transition-delay: 0.05s; }
+.bento-card:nth-child(2) { transition-delay: 0.1s; }
+.bento-card:nth-child(3) { transition-delay: 0.15s; }
+.bento-card:nth-child(4) { transition-delay: 0.2s; }
+.bento-card:nth-child(5) { transition-delay: 0.25s; }
+.bento-card:nth-child(6) { transition-delay: 0.3s; }
+
+.pricing-card:nth-child(1) { transition-delay: 0.05s; }
+.pricing-card:nth-child(2) { transition-delay: 0.15s; }
+.pricing-card:nth-child(3) { transition-delay: 0.25s; }
+
+/* ── Enhanced download section ── */
+.download {
+  position: relative;
+  overflow: hidden;
+}
+.download::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 50%);
+  opacity: 0.4;
+  animation: downloadGlow 8s ease-in-out infinite;
+}
+@keyframes downloadGlow {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(5%, 3%); }
+}
+
+/* ── Pricing card pop ── */
+.pricing-pro {
+  transform: scale(1.05);
+  z-index: 1;
+}
+.pricing-pro:hover {
+  transform: scale(1.05) translateY(-4px);
+}
+
+/* ── Hero title shimmer ── */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.gradient-text {
+  background-size: 200% auto;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ── Mobile nav hamburger ── */
+.nav-hamburger { display: none; }
+@media (max-width: 640px) {
+  .nav-hamburger {
+    display: block;
+    background: none; border: none;
+    color: var(--text-primary);
+    font-size: 24px; cursor: pointer;
+  }
+  .nav-links.active { display: flex; }
+}
+
+/* ── Download button pulse ── */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
+  50% { box-shadow: 0 0 40px var(--accent-glow), 0 0 60px rgba(249, 115, 22, 0.1); }
+}
+#main-download-btn {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+#main-download-btn:hover {
+  animation: none;
+}
