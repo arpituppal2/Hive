@@ -72,8 +72,11 @@ public protocol CefBrowserDelegate: AnyObject {
     /// saves to `~/Downloads/<suggestedName>`.
     func browser(_ b: CefBrowser, decidePolicyForDownload download: CefDownload, suggestedName: String) -> CefDownloadDecision
     /// A download's progress/state changed (fires repeatedly, including the
-    /// final update where `isComplete` or `isCanceled` is set).
-    func browser(_ b: CefBrowser, downloadDidProgress download: CefDownload)
+    /// final update where `isComplete` or `isCanceled` is set). `control` is
+    /// the live pause/resume/cancel controller while the transfer is active
+    /// and `nil` from the terminal update on — store it per download id and
+    /// never call through it after the terminal update.
+    func browser(_ b: CefBrowser, downloadDidProgress download: CefDownload, control: CefDownloadControl?)
 
     // MARK: JavaScript dialogs
 
@@ -108,6 +111,23 @@ public protocol CefBrowserDelegate: AnyObject {
     /// The default is ``CefPermissionDecision/deny`` (apps that want the
     /// system prompt should override and return `.allow`).
     func browser(_ b: CefBrowser, requestsPermission request: CefPermissionRequest) -> CefPermissionDecision
+
+    /// The page requested one or more permissions and your app wants to decide
+    /// asynchronously. Resolve `callback` now or later from your own UI and
+    /// return `true`; return `false` to fall back to the synchronous
+    /// ``browser(_:requestsPermission:)`` decision.
+    ///
+    /// This is the Chrome-style prompt path: retain the callback, show a
+    /// permission banner, and call ``CefPermissionPromptCallback/resolve(allow:)``
+    /// when the user decides. CEF dismisses the prompt (and your UI should
+    /// clear it) when the page closes or navigates away.
+    func browser(_ b: CefBrowser, presentPermissionPrompt request: CefPermissionRequest, callback: CefPermissionPromptCallback) -> Bool
+
+    /// CEF dismissed an outstanding permission prompt without an app decision
+    /// (the page closed or navigated away). `promptID` matches the value on
+    /// the ``CefPermissionRequest/promptID`` you received; drop any UI you
+    /// presented for it. The callback wrapper is released by its deinit.
+    func browser(_ b: CefBrowser, didDismissPermissionPrompt promptID: UInt64)
 
     // MARK: Navigation / requests
 
@@ -187,7 +207,7 @@ extension CefBrowserDelegate {
     public func browser(_ b: CefBrowser, decidePolicyForDownload download: CefDownload, suggestedName: String) -> CefDownloadDecision {
         .allow(destination: nil)
     }
-    public func browser(_ b: CefBrowser, downloadDidProgress download: CefDownload) {}
+    public func browser(_ b: CefBrowser, downloadDidProgress download: CefDownload, control: CefDownloadControl?) {}
 
     public func browser(_ b: CefBrowser, runJSDialog dialog: CefJSDialog, callback: CefJSDialogCallback) -> Bool { false }
     public func browser(_ b: CefBrowser, runBeforeUnloadDialog message: String, isReload: Bool, callback: CefJSDialogCallback) -> Bool { false }
@@ -197,6 +217,8 @@ extension CefBrowserDelegate {
     public func browserContextMenuDidClose(_ b: CefBrowser) {}
 
     public func browser(_ b: CefBrowser, requestsPermission request: CefPermissionRequest) -> CefPermissionDecision { .deny }
+    public func browser(_ b: CefBrowser, presentPermissionPrompt request: CefPermissionRequest, callback: CefPermissionPromptCallback) -> Bool { false }
+    public func browser(_ b: CefBrowser, didDismissPermissionPrompt promptID: UInt64) {}
 
     public func browser(_ b: CefBrowser, decidePolicyForNavigation url: URL?, isRedirect: Bool, userGesture: Bool) -> CefNavigationDecision { .allow }
     public func browser(_ b: CefBrowser, didRequestNewTab url: URL?) -> Bool { false }

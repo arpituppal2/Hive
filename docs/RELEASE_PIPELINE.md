@@ -1,15 +1,16 @@
 # Hive Release Pipeline — What's Left, In Order
 
-**Status:** v1.0.0 (build 124) — 1558 tests / 144 suites green, CI/CD green.
-Everything below is **release-critical and unfinished**, ranked by value.
+**Status:** Local validation current — **1,635 tests / 157 suites green**, product build, ad-hoc bundle, preflight, and bootstrap smoke all pass. Distribution-only items below remain credential-gated and are not implied by the local artifact.
+
+The remaining work is explicitly split between repository-complete validation and external release provisioning.
 
 ---
 
-## The three real blockers (not the CSS treadmill)
+## Distribution blockers (external credentials, not local code defects)
 
-The CSS/test work is done and validated. These are the three things that
-separate "a repo with a browser" from "a downloadable, updatable, notarized
-browser":
+The repository's local build/test/bundle/preflight/smoke path is green. These
+are the remaining items that separate a locally validated ad-hoc artifact from
+a downloadable, updatable, notarized browser:
 
 ### 1. 🔴 Notarization — needs your Apple credentials
 Nothing code-wise remains; the pipeline exists end-to-end:
@@ -83,9 +84,7 @@ single seam where that drops in.
 `BrowserState+<Domain>.swift` extensions (`scripts/split_browser_state.py`,
 commit `eb3506fd`). `GeminiSidePanel` (1,921 → 281), `WebChromeHandler`
 (1,319 → 802, DTOs + agent tools carved), `SheetsPanelView` (938 → ~100 +
-10 extensions), and `SettingsView` (770 → 83 + 7 extensions) followed with
-`scripts/split_swift_type.py` (commit `371fddcd`). Pure refactors, zero
-behavior change, 1,567 tests green.
+10 extensions), and`SettingsView` (770 → 83 + 7 extensions) followed with `scripts/split_swift_type.py` (commit `371fddcd`). These were pure refactors with zero behavior change; the decomposition checkpoint had 1,567 tests, and the current suite is 1,635 tests / 157 suites.
 
 ---
 
@@ -117,8 +116,10 @@ manager; nothing pretends to be a live extension).
 ## Standard release runbook
 
 ```bash
-# 1. Full validation
-swift test                                        # 1567 / 145
+# 1. Full local validation
+swift build --product Hive
+swift test                                        # 1635 / 157
+# Current validation also runs both product builds before packaging.
 
 # 2. Local ad-hoc bundle (dev only — never distribute)
 bash scripts/build-hive-app.sh --allow-adhoc
@@ -126,8 +127,18 @@ bash scripts/preflight-hive-app.sh --app dist/Hive.app --allow-adhoc
 HIVE_SMOKE_TIMEOUT_SECONDS=60 bash scripts/smoke-test-hive-app.sh
 
 # 3. REAL release (after creds are set)
+# CloudKit is optional. The checked-in entitlements are intentionally
+# CloudKit-disabled. To enable sync, create a release-only entitlements file
+# from the checked-in file and add the matching iCloud container capability:
+cp Sources/Hive/Hive.entitlements /tmp/Hive.release.entitlements
+# Add these keys to /tmp/Hive.release.entitlements using Xcode's Signing & Capabilities
+# (or PlistBuddy), replacing the example identifier with your provisioned value:
+#   com.apple.developer.icloud-container-identifiers = ( iCloud.com.hive.browser )
+#   com.apple.developer.icloud-services = ( CloudDocuments, CloudKit )
+# Then build with the exact same identifier:
+HIVE_CLOUDKIT_CONTAINER=iCloud.com.hive.browser \
 HIVE_VERSION=1.0.1 HIVE_BUILD=125 \
-  bash scripts/build-hive-app.sh                  # signs → dmgs → notarizes → staples
+  bash scripts/build-hive-app.sh --entitlements /tmp/Hive.release.entitlements # signs → dmgs → notarizes → staples
 
 # 4. Sparkle appcast
 generate_appcast --download-url-prefix https://github.com/arpituppal2/Hive/releases/download dist/
@@ -144,5 +155,6 @@ generate_appcast --download-url-prefix https://github.com/arpituppal2/Hive/relea
 | `HIVE_VERSION` | CFBundleShortVersionString (e.g. 1.0.1) |
 | `HIVE_BUILD` | CFBundleVersion — must match `sparkle:version` |
 | `HIVE_APPCAST_URL` | overrides the default GitHub Pages appcast URL |
+| `HIVE_CLOUDKIT_CONTAINER` | optional; enables sync only in a non-ad-hoc build when `--entitlements` contains the same `iCloud.*` identifier |
 | `HIVE_WORKER_REQUIREMENT` / `HIVE_WORKER_TEAM_ID` | release worker auth |
 | `DEVELOPER_ID_APPLICATION`, `APPLE_ID`, `APPLE_APP_PASSWORD`, `APPLE_TEAM_ID` | signing + notarization |

@@ -107,10 +107,97 @@ public struct CefPermissionRequest: Sendable, Equatable {
     public var kinds: CefPermissionKind
     /// The origin (scheme + host) requesting permission.
     public var origin: String
+    /// CEF's prompt identifier from `on_show_permission_prompt`, used to match
+    /// the later `on_dismiss_permission_prompt` notification. 0 for media
+    /// access requests, which have no dismissal notification.
+    public var promptID: UInt64
 
-    public init(kinds: CefPermissionKind, origin: String) {
+    public init(kinds: CefPermissionKind, origin: String, promptID: UInt64 = 0) {
         self.kinds = kinds
         self.origin = origin
+        self.promptID = promptID
+    }
+}
+
+/// Resolves an in-flight permission request. Call exactly one of
+/// ``resolve(allow:)`` or ``dismiss()`` — either synchronously from the
+/// delegate or later from your own UI (the same retained-callback pattern as
+/// ``CefJSDialogCallback``).
+///
+/// The wrapper owns the CEF callback's +1 reference: it is released on the
+/// first resolution (or in `deinit` if the app never resolves it, e.g. when
+/// CEF dismisses the prompt because the page navigated away).
+public final class CefPermissionPromptCallback: @unchecked Sendable {
+    private enum Backing {
+        case prompt(UnsafeMutablePointer<cef_permission_prompt_callback_t>)
+        case media(UnsafeMutablePointer<cef_media_access_callback_t>, requestedMask: UInt32)
+    }
+
+    private let backing: Backing
+    private var consumed = false
+
+    /// Takes ownership of a +1 `cef_permission_prompt_callback_t` reference
+    /// (from `on_show_permission_prompt`).
+    init(prompt: UnsafeMutablePointer<cef_permission_prompt_callback_t>) {
+        backing = .prompt(prompt)
+    }
+
+    /// Takes ownership of a +1 `cef_media_access_callback_t` reference (from
+    /// `on_request_media_access_permission`), remembering the requested mask
+    /// so the allow path can pass it back unchanged.
+    init(media: UnsafeMutablePointer<cef_media_access_callback_t>, requestedMask: UInt32) {
+        backing = .media(media, requestedMask: requestedMask)
+    }
+
+    deinit {
+        if !consumed {
+            releaseBacking()
+        }
+    }
+
+    private func releaseBacking() {
+        switch backing {
+        case .prompt(let raw):
+            cefRelease(UnsafeMutableRawPointer(raw))
+        case .media(let raw, _):
+            cefRelease(UnsafeMutableRawPointer(raw))
+        }
+    }
+
+    /// Grants or refuses the request. For media access the allow path passes
+    /// the originally requested mask (CEF requires the allowed mask to be a
+    /// subset of the requested mask; granting the full request is therefore
+    /// exactly the requested mask).
+    public func resolve(allow: Bool) {
+        guard !consumed else { return }
+        consumed = true
+        switch backing {
+        case .prompt(let raw):
+            let decision: CefPermissionDecision = allow ? .allow : .deny
+            raw.pointee.cont?(raw, decision.cefResult)
+        case .media(let raw, let requestedMask):
+            if allow {
+                raw.pointee.cont?(raw, requestedMask)
+            } else {
+                raw.pointee.cancel?(raw)
+            }
+        }
+        releaseBacking()
+    }
+
+    /// Dismisses without a decision (the page may ask again). Maps to
+    /// ``CefPermissionDecision/dismiss`` for permission prompts and `cancel`
+    /// for media access.
+    public func dismiss() {
+        guard !consumed else { return }
+        consumed = true
+        switch backing {
+        case .prompt(let raw):
+            raw.pointee.cont?(raw, CefPermissionDecision.dismiss.cefResult)
+        case .media(let raw, _):
+            raw.pointee.cancel?(raw)
+        }
+        releaseBacking()
     }
 }
 

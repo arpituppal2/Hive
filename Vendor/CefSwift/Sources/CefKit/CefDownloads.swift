@@ -17,6 +17,9 @@ public struct CefDownload: Sendable, Equatable {
     public var isComplete: Bool
     /// Whether the download was canceled or interrupted.
     public var isCanceled: Bool
+    /// Whether the download was paused via ``CefDownloadControl/pause()``.
+    /// The authoritative reconcile signal for a pause/resume request.
+    public var isPaused: Bool
     /// Where the file is being written, once a destination is known.
     public var fullPath: URL?
 
@@ -27,6 +30,7 @@ public struct CefDownload: Sendable, Equatable {
         totalBytes: Int64,
         isComplete: Bool,
         isCanceled: Bool,
+        isPaused: Bool = false,
         fullPath: URL?
     ) {
         self.id = id
@@ -35,6 +39,7 @@ public struct CefDownload: Sendable, Equatable {
         self.totalBytes = totalBytes
         self.isComplete = isComplete
         self.isCanceled = isCanceled
+        self.isPaused = isPaused
         self.fullPath = fullPath
     }
 }
@@ -79,7 +84,51 @@ extension CefDownload {
             isComplete: (item.pointee.is_complete?(item) ?? 0) != 0,
             isCanceled: (item.pointee.is_canceled?(item) ?? 0) != 0
                 || (item.pointee.is_interrupted?(item) ?? 0) != 0,
+            isPaused: (item.pointee.is_paused?(item) ?? 0) != 0,
             fullPath: path.isEmpty ? nil : URL(fileURLWithPath: path)
         )
+    }
+}
+
+/// Live controller for one CEF file download. ``pause()``, ``resume()`` and
+/// ``cancel()`` are fire-and-forget CEF commands: the authoritative outcome
+/// arrives in the next ``CefDownload`` snapshot (its ``isPaused`` bit
+/// reconciles a pause/resume request).
+///
+/// The wrapper owns the CEF download-item callback's reference and releases
+/// it on deinit. Store it for the lifetime of the transfer; the delegate
+/// stops delivering it once the download reaches a terminal state, so never
+/// call through it after ``CefDownload.isComplete``/``isCanceled``.
+public final class CefDownloadControl: @unchecked Sendable {
+    nonisolated(unsafe) private var callback: UnsafeMutablePointer<cef_download_item_callback_t>?
+
+    /// Takes ownership of the +1 reference delivered by `on_download_updated`.
+    init(raw: UnsafeMutablePointer<cef_download_item_callback_t>) {
+        callback = raw
+    }
+
+    deinit {
+        releaseCallback()
+    }
+
+    /// Pauses the transfer. No-op after terminal state.
+    public func pause() {
+        callback?.pointee.pause?(callback)
+    }
+
+    /// Resumes a paused transfer.
+    public func resume() {
+        callback?.pointee.resume?(callback)
+    }
+
+    /// Cancels the transfer.
+    public func cancel() {
+        callback?.pointee.cancel?(callback)
+    }
+
+    private func releaseCallback() {
+        guard let callback else { return }
+        self.callback = nil
+        cefRelease(UnsafeMutableRawPointer(callback))
     }
 }

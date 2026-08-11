@@ -78,7 +78,7 @@ native UI; the start page is web content served by the app itself.
 
 ```sh
 swift build --product Hive          # compile
-swift test                          # 983 tests / 130 suites
+swift test                          # 1,635 tests / 157 suites (current local validation)
 swift package cef bundle --product Hive \
   --configuration debug --output dist-debug --bundle-id com.hive.browser.debug --sign -
 scripts/build-hive-app.sh --allow-adhoc   # release app bundle

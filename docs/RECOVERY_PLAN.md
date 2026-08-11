@@ -4,23 +4,22 @@ One-shot autonomous recovery: repair, verify, document, and ship the Hive
 browser from the state found in the worktree (docs-only git history; product
 source never committed; two live defects).
 
-**Branch:** `mission/recovery-and-ship` — every claim backed by evidence
-(`.hive/mission/baseline/`, `.hive/mission/evidence/`, `docs/DECISIONS.md`).
+**Branch:** `mission/recovery-and-ship` — claims are separated into validated local evidence and explicit external/human limitations (`.hive/mission/baseline/`, `.hive/mission/evidence/`, `docs/DECISIONS.md`, `.hive/mission/FINAL_VALIDATION.md`). Current continuation edits are uncommitted; this plan does not claim a clean or coherent final history until they are reviewed and committed.
 
 ## Status
 
 | Task | Scope | Status | Evidence |
 | --- | --- | --- | --- |
-| T01 | Baseline: build, tests, smoke | ✅ | `.hive/mission/baseline/*.log` |
-| T02 | Ledger + docs (this file, ARCHITECTURE, DECISIONS) | ✅ | `docs/` |
-| T03 | Live fixes: duplicate start tab, `hive://` scheme | ✅ | CDP flow; commit `f19c0c5` |
-| T04 | Adversarial QA (corrupt session, crash recovery) | ✅ headless | relaunch tests; UI-level ops deferred — needs human/visual pass |
-| T05 | UI review (screenshots + a11y) | ⏳ blocked on visual | `.hive/mission/evidence/window-t05.png` (model has no image input) |
-| T06 | Security: entitlements, debug port, secrets | ✅ | commit `d39da2b` |
-| T07 | Release validation: build, preflight, smoke | 🔄 in progress | `scripts/build-hive-app.sh --allow-adhoc` |
-| T08 | Final docs + coherent history | ⏳ | — |
-| T09 | **Major restructure: HiveChromium → Hive as primary target** | ✅ | Package.swift updated, Sources/Hive/ renamed, all references fixed |
-| T10 | Full test suite passes (983 tests) | ✅ | `swift test` |
+| T001 | Repository census and baseline | ✅ | `.hive/mission/baseline/*.log` |
+| T002 | Delete legacy Hive target | ✅ | `Package.swift`, `Sources/Hive/`; build/test green |
+| T003 | Make HiveChromium the primary Hive target | ✅ | `Package.swift`, `Sources/Hive/`; restructure references fixed |
+| T004 | Complete browser fundamentals | ✅ headless | tabs, workspaces, split view, navigation, persistence, CDP lifecycle |
+| T005 | Fix HiveCore integration | ✅ | `Sources/HiveCore/`; latest suite 1,635/157 |
+| T006 | UI/HIG/accessibility review and polish | ⚠️ human visual sign-off remains | `.hive/mission/evidence/window-t05.png`; headless validation cannot certify pixel fidelity |
+| T007 | Security and privacy review | ✅ | entitlements/debug-port/secrets checks pass |
+| T008 | Swarm/AI graceful degradation | ✅ | honest provider degradation and CDP regression coverage |
+| T009 | Full test suite and validation | ✅ local validation | 1,635 tests / 157 suites; HiveCore/Hive product builds pass; current ad-hoc bundle, preflight, and 60s smoke readiness remain green |
+| T010 | Documentation and final validation | ✅ docs current / history pending | current validation addenda and release boundary are documented; continuation edits remain uncommitted |
 
 ## Found defects (fixed)
 
@@ -32,15 +31,21 @@ source never committed; two live defects).
   factories are per-context and not inherited. Fixed by vendoring CefSwift
   (pinned, MIT) and replaying registered handlers onto each new context.
 
-## Remaining work
+## Remaining work / explicit limitations
 
-1. **T07** — full release validation: `scripts/build-hive-app.sh
-   --allow-adhoc`, preflight, entitlement checks, smoke, `swift test`.
-2. **T05** — human visual pass on `window-t05.png` (and any UI fixes).
-3. **T04 remainder** — UI-level adversarial ops (rapid tab create/close,
-   reorder, keyboard) via interactive browser automation or manual.
-4. **T08** — `FINAL_VALIDATION.md`, `THIRD_PARTY_NOTICES.md` (CefSwift MIT,
-   CEF BSD-ish, mlx-swift Apache-2.0), coherent commit history, push.
+1. **T05 sign-off** — a human visual pass on `window-t05.png` and the running
+   app remains recommended; this environment cannot certify pixel fidelity or
+   interactive HIG behavior without a display-driven UI harness.
+2. **T04 UI adversarial remainder** — rapid tab create/close, reorder, and
+   keyboard flows have headless/state coverage but still benefit from manual
+   or display-driven interaction testing.
+3. **Distribution release** — Developer ID signing, notarization, APNs/CloudKit
+   provisioning, and Sparkle appcast signing remain credential-gated; the
+   validated `dist/Hive.app` is ad-hoc and local-development-only.
+4. **Extensions** — Chrome-style extension loading remains deferred pending a
+   CEF re-vendor with extension headers; the current manager is intentionally
+   honest about that capability boundary.
+
 
 ## Out of scope (noted)
 

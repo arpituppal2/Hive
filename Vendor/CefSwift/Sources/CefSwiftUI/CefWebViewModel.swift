@@ -91,8 +91,10 @@ public final class CefWebViewModel {
     public var onDownloadDecision: ((CefDownload, _ suggestedName: String) -> CefDownloadDecision)?
 
     /// Called whenever a download's progress or state changes (including the
-    /// final completed/canceled update).
-    public var onDownloadProgress: ((CefDownload) -> Void)?
+    /// final completed/canceled update). `control` is the live
+    /// pause/resume/cancel controller while the transfer is active, `nil`
+    /// from the terminal update on.
+    public var onDownloadProgress: ((CefDownload, CefDownloadControl?) -> Void)?
 
     /// Called just before a page context menu is shown. Mutate `menu` to add,
     /// remove, or replace items (CEF's standard Back/Forward/Reload/Copy/Paste/
@@ -105,6 +107,42 @@ public final class CefWebViewModel {
     /// command (navigate, clipboard, view-source, …). When `nil`, all commands
     /// fall through to CEF.
     public var onContextMenuCommand: ((Int, CefContextMenuParams) -> Bool)?
+
+    /// Called when the page requests one or more permissions (camera,
+    /// microphone, geolocation, notifications, …). Return `true` if you
+    /// retained the callback and will resolve it later (Chrome-style prompt);
+    /// `false` falls back to the synchronous `requestsPermission` decision
+    /// (which defaults to deny).
+    public var onPermissionPrompt: ((CefPermissionRequest, CefPermissionPromptCallback) -> Bool)?
+
+    /// Called when CEF dismisses an outstanding permission prompt without an
+    /// app decision (the page closed or navigated away). Clear any UI you
+    /// presented for the matching prompt id (the value on
+    /// `CefPermissionRequest.promptID`).
+    public var onPermissionPromptDismissed: ((UInt64) -> Void)?
+
+    /// Called whenever the browser's main-frame URL changes (including
+    /// navigations and in-page history transitions). Lets the host drop
+    /// per-tab transient UI (e.g. a pending permission prompt for a page that
+    /// just navigated away).
+    public var onURLChanged: ((URL?) -> Void)?
+    /// The main frame failed to load. Delivers the Chromium error code,
+    /// a human-readable description, and the URL that failed.
+    public var onLoadError: ((Int, String, URL?) -> Void)?
+
+    /// The main frame encountered a certificate-validation failure.
+    /// Returning `true` overrides the failure and continues the load;
+    /// returning `false` cancels it (CEF shows its own error page).
+    /// Delivers the failed URL and the Chromium net-error code
+    /// (ERR_CERT_* — e.g. -200..-216).
+    public var onCertificateError: ((URL?, Int) -> Bool)?
+
+    /// Called before a navigation starts (`on_before_browse`). Return
+    /// ``CefNavigationDecision/allow`` to proceed, or ``CefNavigationDecision/cancel``
+    /// to block the load — e.g. to hand an external scheme (`mailto:`, `tel:`)
+    /// to the OS instead of rendering an error page. When `nil`, all
+    /// navigations are allowed.
+    public var onNavigationPolicy: ((URL?, _ isRedirect: Bool, _ userGesture: Bool) -> CefNavigationDecision)?
 
     /// Called once when a CEF browser is created and attached to this model.
     /// Use this to wire up CDP or other per-browser infrastructure.
@@ -166,6 +204,9 @@ public final class CefWebViewModel {
     /// Reloads the current page.
     public func reload() { browser?.reload() }
 
+    /// Reloads the current page bypassing caches (hard reload, ⌥⌘R).
+    public func reloadIgnoringCache() { browser?.reload(ignoreCache: true) }
+
     /// Stops the current load.
     public func stopLoading() { browser?.stopLoading() }
 
@@ -188,6 +229,15 @@ extension CefWebViewModel: CefBrowserDelegate {
         isApplyingBrowserURL = true
         self.url = url
         isApplyingBrowserURL = false
+        onURLChanged?(url)
+    }
+
+    public func browser(_ b: CefBrowser, didFailLoad code: Int, errorText: String, failedURL: String) {
+        onLoadError?(code, errorText, URL(string: failedURL))
+    }
+
+    public func browser(_ b: CefBrowser, didEncounterCertificateError url: URL?, errorCode: Int) -> Bool {
+        onCertificateError?(url, errorCode) ?? false
     }
 
     public func browser(
@@ -253,8 +303,8 @@ extension CefWebViewModel: CefBrowserDelegate {
         onDownloadDecision?(download, suggestedName) ?? .allow(destination: nil)
     }
 
-    public func browser(_ b: CefBrowser, downloadDidProgress download: CefDownload) {
-        onDownloadProgress?(download)
+    public func browser(_ b: CefBrowser, downloadDidProgress download: CefDownload, control: CefDownloadControl?) {
+        onDownloadProgress?(download, control)
     }
 
     public func browser(_ b: CefBrowser, configureContextMenu menu: CefMenuModel, params: CefContextMenuParams) {
@@ -263,5 +313,26 @@ extension CefWebViewModel: CefBrowserDelegate {
 
     public func browser(_ b: CefBrowser, contextMenuCommand commandID: Int, params: CefContextMenuParams) -> Bool {
         onContextMenuCommand?(commandID, params) ?? false
+    }
+
+    public func browser(
+        _ b: CefBrowser,
+        presentPermissionPrompt request: CefPermissionRequest,
+        callback: CefPermissionPromptCallback
+    ) -> Bool {
+        onPermissionPrompt?(request, callback) ?? false
+    }
+
+    public func browser(_ b: CefBrowser, didDismissPermissionPrompt promptID: UInt64) {
+        onPermissionPromptDismissed?(promptID)
+    }
+
+    public func browser(
+        _ b: CefBrowser,
+        decidePolicyForNavigation url: URL?,
+        isRedirect: Bool,
+        userGesture: Bool
+    ) -> CefNavigationDecision {
+        onNavigationPolicy?(url, isRedirect, userGesture) ?? .allow
     }
 }

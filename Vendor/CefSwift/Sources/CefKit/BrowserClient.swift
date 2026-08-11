@@ -57,6 +57,12 @@ final class BrowserClient {
     // but keeping the snapshot avoids re-reading the borrowed struct).
     private var lastContextMenuParams = CefContextMenuParams()
 
+    /// Live pause/resume/cancel controllers per active download id. Each
+    /// control owns the CEF download-item callback's reference and releases
+    /// it on deinit; entries are dropped on the terminal update or when the
+    /// browser closes. Only touched on the main actor.
+    private var downloadControls: [UInt32: CefDownloadControl] = [:]
+
     func attach(_ browser: CefBrowser) {
         self.browser = browser
         if let pendingTitle { browser.applyTitle(pendingTitle) }
@@ -112,6 +118,8 @@ final class BrowserClient {
             cefRelease(browser.map(UnsafeMutableRawPointer.init))
             guard let client = BrowserClient.owner(handlerSelf.map(UnsafeMutableRawPointer.init)) else { return }
             MainActor.assumeIsolated {
+                // Any in-flight download's controller dies with its browser.
+                client.downloadControls.removeAll()
                 client.browser?.handleBeforeClose()
             }
         }
@@ -341,14 +349,28 @@ final class BrowserClient {
         }
         download.pointee.on_download_updated = { handlerSelf, browser, item, callback in
             cefRelease(browser.map(UnsafeMutableRawPointer.init))
-            cefRelease(callback.map(UnsafeMutableRawPointer.init))  // cancel/pause/resume unused
-            guard let item else { return }
+            guard let item else {
+                // No snapshot to reconcile; drop the callback reference.
+                cefRelease(callback.map(UnsafeMutableRawPointer.init))
+                return
+            }
             let download = CefDownload(item: item)
             cefRelease(UnsafeMutableRawPointer(item))
-            guard let client = BrowserClient.owner(handlerSelf.map(UnsafeMutableRawPointer.init)) else { return }
+            guard let client = BrowserClient.owner(handlerSelf.map(UnsafeMutableRawPointer.init)) else {
+                cefRelease(callback.map(UnsafeMutableRawPointer.init))
+                return
+            }
             MainActor.assumeIsolated {
+                // reconcileDownloadControl takes ownership of the incoming
+                // +1 callback reference (stores or releases it) and returns
+                // the control the delegate should receive.
+                let control = client.reconcileDownloadControl(
+                    id: download.id,
+                    incomingCallback: callback,
+                    isTerminal: download.isComplete || download.isCanceled
+                )
                 guard let cefBrowser = client.browser else { return }
-                cefBrowser.delegate?.browser(cefBrowser, downloadDidProgress: download)
+                cefBrowser.delegate?.browser(cefBrowser, downloadDidProgress: download, control: control)
             }
         }
         downloadPointer = download
@@ -444,6 +466,37 @@ final class BrowserClient {
             guard let browser = client.browser else { return fallback }
             return body(client, browser)
         }
+    }
+
+    /// Owns the incoming +1 callback reference from `on_download_updated`.
+    /// Either stores it in a live ``CefDownloadControl`` for this download
+    /// (returned to the delegate) or releases it — terminal updates, updates
+    /// for a download that already has a control (CEF hands out a fresh
+    /// reference to the SAME underlying callback object per update), and
+    /// unusable callbacks are all released here.
+    private func reconcileDownloadControl(
+        id: UInt32,
+        incomingCallback: UnsafeMutablePointer<cef_download_item_callback_t>?,
+        isTerminal: Bool
+    ) -> CefDownloadControl? {
+        if isTerminal {
+            // The transfer ended: the stored callback is invalid from here on.
+            downloadControls.removeValue(forKey: id)
+            if let incomingCallback {
+                cefRelease(UnsafeMutableRawPointer(incomingCallback))
+            }
+            return nil
+        }
+        if let existing = downloadControls[id] {
+            if let incomingCallback {
+                cefRelease(UnsafeMutableRawPointer(incomingCallback))
+            }
+            return existing
+        }
+        guard let incomingCallback else { return nil }
+        let control = CefDownloadControl(raw: incomingCallback)  // owns the +1
+        downloadControls[id] = control
+        return control
     }
 
     // MARK: State routing (main thread)
@@ -629,34 +682,54 @@ extension BrowserClient {
             let origin = CefStringUtil.string(from: requestingOrigin)
             let kinds = CefPermissionKind.fromMediaTypes(requestedPermissions)
             let request = CefPermissionRequest(kinds: kinds, origin: origin)
+            // The wrapper owns the +1: resolution releases it exactly once,
+            // and deinit releases it if the app never resolves (retained
+            // prompt dismissed by CEF).
+            let wrapper = CefPermissionPromptCallback(media: callback, requestedMask: requestedPermissions)
             return BrowserClientCallbacks.run(handlerSelf, default: Int32(0)) { _, cefBrowser in
-                let decision = cefBrowser.delegate?.browser(cefBrowser, requestsPermission: request) ?? .deny
-                switch decision {
-                case .allow:
-                    callback.pointee.cont?(callback, kinds.mediaMask(within: requestedPermissions))
-                case .deny, .dismiss:
-                    callback.pointee.cancel?(callback)
+                let handled = cefBrowser.delegate?.browser(cefBrowser, presentPermissionPrompt: request, callback: wrapper)
+                    ?? false
+                if !handled {
+                    // Synchronous fallback (existing behavior): resolve from
+                    // the policy decision immediately.
+                    let decision = cefBrowser.delegate?.browser(cefBrowser, requestsPermission: request) ?? .deny
+                    switch decision {
+                    case .allow: wrapper.resolve(allow: true)
+                    case .deny, .dismiss: wrapper.resolve(allow: false)
+                    }
                 }
-                cefRelease(UnsafeMutableRawPointer(callback))
                 return 1
             }
         }
         handler.pointee.on_show_permission_prompt = {
-            handlerSelf, browser, _, requestingOrigin, requestedPermissions, callback in
+            handlerSelf, browser, promptID, requestingOrigin, requestedPermissions, callback in
             cefRelease(browser.map(UnsafeMutableRawPointer.init))
             guard let callback else { return 0 }
             let origin = CefStringUtil.string(from: requestingOrigin)
             let kinds = CefPermissionKind.fromRequestTypes(requestedPermissions)
-            let request = CefPermissionRequest(kinds: kinds, origin: origin)
+            let request = CefPermissionRequest(kinds: kinds, origin: origin, promptID: promptID)
+            let wrapper = CefPermissionPromptCallback(prompt: callback)
             return BrowserClientCallbacks.run(handlerSelf, default: Int32(0)) { _, cefBrowser in
-                let decision = cefBrowser.delegate?.browser(cefBrowser, requestsPermission: request) ?? .deny
-                callback.pointee.cont?(callback, decision.cefResult)
-                cefRelease(UnsafeMutableRawPointer(callback))
+                let handled = cefBrowser.delegate?.browser(cefBrowser, presentPermissionPrompt: request, callback: wrapper)
+                    ?? false
+                if !handled {
+                    let decision = cefBrowser.delegate?.browser(cefBrowser, requestsPermission: request) ?? .deny
+                    switch decision {
+                    case .allow: wrapper.resolve(allow: true)
+                    case .deny: wrapper.resolve(allow: false)
+                    case .dismiss: wrapper.dismiss()
+                    }
+                }
                 return 1
             }
         }
-        handler.pointee.on_dismiss_permission_prompt = { _, browser, _, _ in
+        handler.pointee.on_dismiss_permission_prompt = { handlerSelf, browser, promptID, _ in
             cefRelease(browser.map(UnsafeMutableRawPointer.init))
+            guard let client = BrowserClient.owner(handlerSelf.map(UnsafeMutableRawPointer.init)) else { return }
+            MainActor.assumeIsolated {
+                guard let cefBrowser = client.browser else { return }
+                cefBrowser.delegate?.browser(cefBrowser, didDismissPermissionPrompt: promptID)
+            }
         }
         permissionPointer = handler
     }

@@ -1,8 +1,14 @@
 # Hive Browser — Pre-Launch Checklist
 
+> **Current local validation (2026-08-09):** 1,635 tests / 157 suites pass; HiveCore and Hive product builds pass; the current ad-hoc bundle, preflight, and 60-second smoke readiness checks pass. Developer ID signing, notarization, and clean-machine installation remain external release checks.
+>
+> The checked boxes in the launch-artifact section below preserve the historical v1.0.0 launch snapshot. They do not certify the current ad-hoc artifact for distribution; use `docs/RELEASE_PIPELINE.md` for the current release boundary.
+
+## Historical v1.0.0 Launch Artifact Snapshot
+
 ## 48 Hours Before Launch
 
-### 1. App Build & Distribution
+### 1. App Build & Distribution (historical snapshot)
 - [x] Release .dmg built (ad-hoc signed, `dist/Hive.dmg`)
 - [x] SHA-256 recorded: `3a5ccff0654c25132dda918f3d866293c5021efbacd1b906887191adbe644b36`
 - [x] Sparkle appcast updated with correct file size + SHA
@@ -11,7 +17,7 @@
 - [ ] Notarization stapling (post-Developer ID)
 - [ ] Test clean-machine install: download .dmg, mount, drag to /Applications, launch
 
-### 2. Landing Page & Web Assets
+### 2. Landing Page & Web Assets (historical snapshot)
 - [x] `web/index.html` — landing page with download CTA + waitlist link
 - [x] `web/waitlist.html` — email capture waitlist (localStorage)
 - [x] `web/privacy.html` — privacy policy
@@ -22,7 +28,7 @@
 - [ ] Verify all links resolve (privacy, terms, download, waitlist)
 - [ ] Add Open Graph / Twitter Card meta tags for social sharing
 
-### 3. App Store Connect (if submitting to Mac App Store)
+### 3. App Store Connect (future distribution gate)
 - [ ] App name + subtitle (30 chars each) optimized for keywords
 - [ ] Mac screenshots (2880x1800) showing dark + light mode
 - [ ] Privacy Nutrition Label completed
@@ -30,7 +36,7 @@
 - [ ] Review notes with demo credentials if gated
 - [ ] Featuring Nomination submitted (2+ weeks lead time)
 
-### 4. Press & Community Outreach
+### 4. Press & Community Outreach (launch preparation)
 - [x] `docs/LAUNCH_COPY.md` — Show HN, Product Hunt, Reddit copy ready
 - [ ] Product Hunt launch scheduled (Tuesday-Thursday, 12:01 AM PST)
 - [ ] Show HN post drafted + ready to submit (Monday-Thursday morning)
@@ -46,8 +52,8 @@
 - [ ] Mastodon post prepared for indie dev community
 - [ ] Hacker News profile ready with launch context in bio
 
-### 6. Last-Minute QA
-- [x] Full test suite: 1272 tests / 144 suites PASS
+### 6. Last-Minute QA (historical snapshot plus open manual checks)
+- [x] Full test suite: 1,621 tests / 155 suites PASS
 - [x] Bundle + smoke test PASS
 - [ ] Clean-machine test: fresh macOS user account, install .dmg, launch
 - [ ] Test all keyboard shortcuts (Cmd+T, Cmd+W, Cmd+L, Cmd+K, Cmd+Q)
@@ -59,7 +65,7 @@
 - [ ] Test AI council with no API keys (should degrade gracefully)
 - [ ] Test crash recovery: SIGKILL + relaunch, verify session restore
 
-### 7. Final Checks
+### 7. Final Checks (current release gates)
 - [ ] Privacy policy URL loads in incognito (no broken links)
 - [ ] No hardcoded local paths in release binary
 - [ ] No secrets, API keys, or tokens in binary or repo
@@ -77,5 +83,6 @@
 ---
 
 **Last updated:** 2026-08-09
-**Tests:** 1266 / 144 suites PASS
-**Build:** v1.0.0, commit `5c88084`
+**Latest local tests:** 1,635 / 157 suites PASS
+**Latest local build:** HiveCore + Hive product builds, ad-hoc bundle, preflight, and 60-second smoke readiness PASS; sync outbox latest-ledger regression coverage included
+**Distribution:** Developer ID signing, notarization, and clean-machine install remain pending

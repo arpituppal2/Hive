@@ -79,6 +79,7 @@
 #include "include/capi/cef_scheme_capi.h"
 #include "include/capi/cef_string_visitor_capi.h"
 #include "include/capi/cef_task_capi.h"
+#include "include/capi/cef_task_manager_capi.h"
 #include "include/capi/cef_values_capi.h"
 
 // Views framework (chrome-style windows: cef_browser_view + cef_window).

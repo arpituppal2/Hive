@@ -46,6 +46,7 @@ CCEF_SYM(cef_browser_t*, cef_browser_host_create_browser_sync,
          (windowInfo, client, url, settings, extra_info, request_context))
 CCEF_SYM(cef_browser_t*, cef_browser_host_get_browser_by_identifier,
          (int browser_id), (browser_id))
+CCEF_SYM(cef_task_manager_t*, cef_task_manager_get, (void), ())
 
 // --- Strings -----------------------------------------------------------------
 CCEF_SYM(int, cef_string_utf8_to_utf16,
