@@ -29,7 +29,7 @@ A small, cross-platform Rust boundary for Hive's research transport.
 ## Deliberate boundary
 
 This crate does **not** yet provide HTML extraction, source/claim persistence,
-an IPC/FFI bridge into HiveChromium, or a browser network interception layer.
+an IPC/FFI bridge into Hive, or a browser network interception layer.
 The `research_client` module provides an in-memory, source-shaped fetch record
 with requested/final URL, HTTP metadata, redirect count, retrieval time, and a
 SHA-256 body hash; it does not persist that record or invent titles, claims, or
@@ -62,11 +62,13 @@ run until its deadline before its cancelled result is suppressed/emitted. A
 `cancel` call; it does not silently discard work or release the slot early.
 Cancelling an inactive or already finished ID returns `not_found`; terminal
 results are not retained for idempotent replay. DNS resolution can also outlive
-the per-fetch deadline because it is synchronous. The worker is still not wired
-to HiveChromium, and Honeycomb persistence, lifecycle enforcement, extraction,
-and browser network interception remain unimplemented.
+the per-fetch deadline because it is synchronous. The Rust crate is not directly
+coupled to the Hive Swift targets; Hive integrates it through
+`ResearchWorkerClient` and `ResearchHandoffCoordinator`. The crate itself does
+not provide FFI/browser IPC, Honeycomb persistence or lifecycle enforcement,
+HTML extraction, or browser network interception.
 
-## Packaging for HiveChromium
+## Packaging for Hive
 
 Build and stage the optional browser helper explicitly:
 
@@ -76,7 +78,7 @@ Build and stage the optional browser helper explicitly:
 
 The script requires `HIVE_WORKER_REQUIREMENT` and places an unsigned
 `hive-fetch-worker` plus `hive-worker-requirement.txt` in
-`Sources/HiveChromium/Resources/ResearchWorker/`. Both generated files are
+`Sources/Hive/Resources/ResearchWorker/`. Both generated files are
 git-ignored. `HIVE_WORKER_REQUIREMENT` must be the exact macOS designated
 requirement for the signed Hive helper; do not substitute a placeholder Team ID.
 Direct staging also rejects the local all-zero Team ID unless the caller passes
@@ -85,23 +87,23 @@ non-distribution warning; the release assembler never passes it in its default
 mode.
 The release pipeline must sign the helper, embed both files in the final app
 bundle, and verify the requirement against the signed helper before enabling
-production handoff. Until those steps exist, HiveChromium's grounding action
+production handoff. Until those steps exist, Hive's grounding action
 remains visible but fails closed with an unavailable status; it never runs an
 arbitrary development executable.
 
 ## Release verification
 
-After the app has been signed, verify the actual HiveChromium bundle before
+After the app has been signed, verify the actual Hive bundle before
 creating a DMG or submitting it for notarization:
 
 ```sh
 HIVE_WORKER_TEAM_ID="$APPLE_TEAM_ID" \
   scripts/verify-research-worker.sh \
-  --app path/to/HiveChromium.app
+  --app path/to/Hive.app
 ```
 
 The verifier is read-only. It checks the helper's strict code signature, the
-SwiftPM `Hive_HiveChromium.bundle` resource location, the fixed helper
+SwiftPM `Hive_Hive.bundle` resource location, the fixed helper
 identifier, the exact Team ID in both signature metadata and the designated
 requirement, and the bounded requirement file. Add
 `--require-stapled-ticket` only after notarization/stapling and only when the
@@ -114,7 +116,7 @@ Gatekeeper execution assessment.
 Before treating a bundle as a release artifact, run the structural preflight:
 
 ```sh
-scripts/preflight-hivechromium-app.sh --app path/to/HiveChromium.app
+scripts/preflight-hive-app.sh --app path/to/Hive.app
 ```
 
 It checks the actual CEF framework, framework binary, all five helper bundles
@@ -137,7 +139,7 @@ scripts/verify-research-worker.sh \
   --team-id "$APPLE_TEAM_ID"
 ```
 
-## Local HiveChromium assembly scaffold
+## Local Hive assembly scaffold
 
 The repository includes a deterministic macOS assembly wrapper around CefSwift's
 own CEF bundler:
@@ -146,20 +148,20 @@ own CEF bundler:
 DEVELOPER_ID_APPLICATION='Developer ID Application: Hive, Inc. (TEAMID)' \\
 HIVE_WORKER_TEAM_ID="$APPLE_TEAM_ID" \\
 HIVE_WORKER_REQUIREMENT='anchor apple generic and certificate leaf[subject.OU] = "TEAMID" and identifier "com.hive.browser.research-worker"' \\
-  scripts/build-hivechromium-app.sh
+  scripts/build-hive-app.sh
 ```
 
 The wrapper requires a real Developer ID identity, stages the Rust worker,
 builds the SwiftPM release product, asks CefSwift to assemble Chromium and its
-helper apps, embeds the exact `Hive_HiveChromium.bundle` from
+helper apps, embeds the exact `Hive_Hive.bundle` from
 `swift build --show-bin-path`, signs the worker/resource/app layers, and runs
-`verify-research-worker.sh`. The exact three-key policy is checked by
-`scripts/verify-hivechromium-entitlements.sh` before signing. For a
+`verify-research-worker.sh`. The exact hardened-runtime policy is checked by
+`scripts/verify-hive-entitlements.sh` before signing. For a
 release-grade assembly, pass the reviewed entitlements policy explicitly:
 
 ```sh
-scripts/build-hivechromium-app.sh \
-  --entitlements Sources/HiveChromium/HiveChromium.entitlements
+scripts/build-hive-app.sh \
+  --entitlements Sources/Hive/Hive.entitlements
 ```
 
 When that flag is supplied, the assembler signs the pinned CefSwift layout
@@ -175,15 +177,15 @@ fixture remain release inputs. Do not put the example Team ID or requirement in
 a release environment.
 
 The dedicated protected CI workflow is
-`.github/workflows/hivechromium-release.yml`. It invokes the same exact
+`.github/workflows/hive-release.yml`. It invokes the same exact
 allowlist validator before importing credentials. It runs only for protected
-`hive-v*.*.*` tags, requires the `hivechromium-release` GitHub Environment, and
+`hive-v*.*.*` tags, requires the `hive-release` GitHub Environment, and
 fails closed unless that environment supplies the Developer ID certificate,
 worker requirement, Apple Team ID, and App Store Connect API-key inputs. GitHub
 repository administrators must protect the tag pattern and require human
 reviewers on that Environment; the workflow cannot make an unprotected tag
 trustworthy by itself. It also refuses to run until
-`Sources/HiveChromium/HiveChromium.entitlements` exists and sets the reviewed
+`Sources/Hive/Hive.entitlements` exists and sets the reviewed
 CEF library-validation policy explicitly.
 
 For local cached development assembly only, use the explicit `--allow-adhoc`
@@ -191,8 +193,7 @@ flag. It uses the all-zero sentinel requirement, signs ad hoc, runs structural
 preflight, and skips release-only worker verification. It must never be used
 for distribution or notarization:
 
-```sh
-scripts/build-hivechromium-app.sh --allow-adhoc --output /tmp/hivechromium-local
+```sh  scripts/build-hive-app.sh --allow-adhoc --output /tmp/hive-local
 ```
 
 ## Validation
@@ -209,15 +210,18 @@ The default build excludes hostile and synthetic fixture binaries. The
 source provenance mapping, already-finished cancellation, and watchdog-forced
 shutdown.
 
-The crate currently has no dependency on the Swift targets and is not wired
-into the shipped browser shell. It is a tested Rust transport plus standalone
-worker foundation, not an end-to-end Hive research feature. The reusable
-`supervisor` module now owns a compiled worker process, performs the `Ready`
-handshake, routes typed responses, enforces a fetch in-flight limit, drains
-stdout/stderr on dedicated threads, and applies an explicit graceful-shutdown
-watchdog with kill/reap fallback. It deliberately does not restart workers;
-restart/backoff is an application policy above this boundary. The worker still
-maintains its own active registry and writes diagnostics only to stderr.
+The crate has no direct dependency on the Swift targets. The shipped Hive
+browser composes it through `ResearchWorkerClient` and
+`ResearchHandoffCoordinator`, while this crate remains a tested Rust transport
+and standalone worker boundary rather than a provider of FFI/browser IPC,
+HTML extraction, source persistence, or browser network interception. The
+reusable `supervisor` module now owns a compiled worker process, performs the
+`Ready` handshake, routes typed responses, enforces a fetch in-flight limit,
+drains stdout/stderr on dedicated threads, and applies an explicit
+graceful-shutdown watchdog with kill/reap fallback. It deliberately does not
+restart workers; restart/backoff is an application policy above this boundary.
+The worker still maintains its own active registry and writes diagnostics only
+to stderr.
 The repository includes subprocess integration tests against the compiled
 worker binary, while worker and supervisor tests cover cancellation races,
 saturation, request routing, duplicate IDs, and shutdown ordering. `ShutdownAck`
@@ -225,6 +229,7 @@ is not a hard wall-clock guarantee: synchronous DNS remains non-interruptible.
 The supervisor's watchdog is the process-level boundary, and the hostile worker
 fixture verifies the direct-child `Forced` kill/reap path.
 Process-group or descendant cleanup, restart/backoff, and application-specific
-retry policy remain outside this crate. The worker is still not wired to
-HiveChromium, and no FFI/browser IPC claim is made.
+retry policy remain outside this crate. Hive's Swift integration is the
+application-level composition boundary; this crate makes no FFI or browser IPC
+claim.
 
