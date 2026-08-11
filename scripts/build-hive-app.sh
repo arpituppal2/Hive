@@ -161,6 +161,12 @@ ditto "$ICON_SOURCE" "$APP_PATH/Contents/Resources/AppIcon.icns"
   /usr/libexec/PlistBuddy -c 'Set :NSSpeechRecognitionUsageDescription Hive uses speech recognition to turn your voice into a command.' "$APP_PATH/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c 'Add :NSMicrophoneUsageDescription string Hive uses the microphone only while you hold the voice control to listen.' "$APP_PATH/Contents/Info.plist" 2>/dev/null || \
   /usr/libexec/PlistBuddy -c 'Set :NSMicrophoneUsageDescription Hive uses the microphone only while you hold the voice control to listen.' "$APP_PATH/Contents/Info.plist"
+# The Morning Brief's calendar-aware looking-ahead is opt-in: EventKit access
+# is requested only when the user enables "Include Today's Calendar" in
+# Settings (macOS 14+ uses the full-access key). No apostrophes inside the
+# single-quoted PlistBuddy string.
+/usr/libexec/PlistBuddy -c 'Add :NSCalendarsFullAccessUsageDescription string Hive reads your calendar only when you enable calendar events in the brief settings.' "$APP_PATH/Contents/Info.plist" 2>/dev/null || \
+  /usr/libexec/PlistBuddy -c 'Set :NSCalendarsFullAccessUsageDescription Hive reads your calendar only when you enable calendar events in the brief settings.' "$APP_PATH/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP_PATH/Contents/Info.plist" | grep -Fxq 'com.hive.browser' || \
   fail 'generated app bundle identifier is not com.hive.browser'
 /usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$APP_PATH/Contents/Info.plist" | grep -Fxq '14.0' || \
@@ -228,6 +234,30 @@ fi
 if [[ -n "$FEED_URL" ]]; then
   /usr/libexec/PlistBuddy -c "Add :SUFeedURL string $FEED_URL" "$APP_PATH/Contents/Info.plist" 2>/dev/null || \
     /usr/libexec/PlistBuddy -c "Set :SUFeedURL $FEED_URL" "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
+fi
+
+# CloudKit activation is explicit for the same reason: calling
+# CKContainer.default() in a bundle without an iCloud container entitlement
+# can trap synchronously. Release owners provide the container identifier only
+# for an entitled build; local/ad-hoc bundles remain local-only by default.
+if [[ "$ALLOW_ADHOC" -eq 0 && -n "${HIVE_CLOUDKIT_CONTAINER:-}" ]]; then
+  [[ "$HIVE_CLOUDKIT_CONTAINER" =~ ^iCloud\.[A-Za-z0-9._-]+$ ]] || \
+    fail 'HIVE_CLOUDKIT_CONTAINER must be a valid iCloud.* container identifier'
+  [[ -n "$ENTITLEMENTS_PATH" ]] || \
+    fail 'CloudKit is configured, but --entitlements was not supplied'
+  ICLOUD_CONTAINERS="$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.icloud-container-identifiers' "$ENTITLEMENTS_PATH" 2>/dev/null || true)"
+  printf '%s\n' "$ICLOUD_CONTAINERS" | grep -Fq "$HIVE_CLOUDKIT_CONTAINER" || \
+    fail "CloudKit container $HIVE_CLOUDKIT_CONTAINER is not present in the supplied iCloud entitlements"
+  /usr/libexec/PlistBuddy -c "Add :CloudKitContainerIdentifier string ${HIVE_CLOUDKIT_CONTAINER}" "$APP_PATH/Contents/Info.plist" 2>/dev/null || \
+    /usr/libexec/PlistBuddy -c "Set :CloudKitContainerIdentifier ${HIVE_CLOUDKIT_CONTAINER}" "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
+  printf '  CloudKit container injected: %s\n' "$HIVE_CLOUDKIT_CONTAINER"
+else
+  # Avoid carrying a stale key if the bundle directory is reused between
+  # configured and local builds. No key means BrowserState remains local-only.
+  /usr/libexec/PlistBuddy -c 'Delete :CloudKitContainerIdentifier' "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
+  printf '%s\n' '  CloudKit: disabled (requires a non-ad-hoc entitled build and HIVE_CLOUDKIT_CONTAINER)'
+fi
+if [[ -n "$FEED_URL" ]]; then
   /usr/libexec/PlistBuddy -c 'Add :SUEnableAutomaticChecks bool true' "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
   /usr/libexec/PlistBuddy -c 'Add :SUScheduledCheckInterval integer 86400' "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
   printf '  Sparkle feed injected: %s (SUEnableAutomaticChecks=true, 24h interval)\n' "$FEED_URL"

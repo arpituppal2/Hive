@@ -22,6 +22,31 @@ struct WebChromeToken: Codable, Sendable {
     let token: String
 }
 
+/// Initial state request for a per-tab start page. `privateStart` is optional
+/// on decode so older embedded pages remain compatible during upgrades.
+struct WebChromeStartRequest: Codable, Sendable {
+    let token: String
+    let privateStart: Bool
+    let chromeShell: Bool
+
+    init(token: String, privateStart: Bool = false, chromeShell: Bool = false) {
+        self.token = token
+        self.privateStart = privateStart
+        self.chromeShell = chromeShell
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        token = try container.decode(String.self, forKey: .token)
+        privateStart = try container.decodeIfPresent(Bool.self, forKey: .privateStart) ?? false
+        chromeShell = try container.decodeIfPresent(Bool.self, forKey: .chromeShell) ?? false
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case token, privateStart, chromeShell
+    }
+}
+
 struct WebChromeTopSite: Codable, Sendable {
     let host: String
     let url: String
@@ -34,6 +59,13 @@ struct WebChromeRecentItem: Codable, Sendable {
     let host: String
     let faviconURL: String?
     let timeLabel: String
+    /// Chrome-history-style day bucket: "Today", "Yesterday", or a localized
+    /// date (e.g. "Aug 8, 2026"). Optional so legacy fixtures decode as
+    /// ungrouped (single flat list).
+    let dayLabel: String?
+    /// Durable history-entry id, used by per-item delete. Optional so legacy
+    /// fixtures decode (rows without it simply skip the Delete action).
+    let historyID: String?
 }
 
 struct WebChromeSpace: Codable, Sendable {
@@ -57,6 +89,17 @@ struct WebChromeStartData: Codable, Sendable {
     let isChromePanelOpen: String?
     let chromeMode: String
     let chromeDimension: Double
+    /// Current default search engine display name (Settings panel selector).
+    let searchEngine: String
+    /// HTTPS-Only mode state (Settings panel toggle, mirrors the native
+    /// Privacy row; UserDefaults-backed).
+    let httpsOnlyEnabled: Bool
+    /// Network-level ad/tracker blocking (EasyList engine). Mirrors the native
+    /// Privacy toggle; web chrome Settings exposes the same switch.
+    let adBlockEnabled: Bool
+    /// Free memory from inactive tabs (Chrome Memory Saver parity). Mirrors
+    /// the native Performance toggle.
+    let memorySaverEnabled: Bool
     let tabGroups: [WebChromeTabGroup]
     let history: [WebChromeRecentItem]
     let bookmarks: [WebChromeBookmark]
@@ -70,6 +113,99 @@ struct WebChromeStartData: Codable, Sendable {
     let councilError: String?
     let agentError: String?
     let lastQuery: String?
+    /// Non-sensitive sync lifecycle diagnostic for the browser chrome only.
+    /// Never includes URLs, titles, ciphertext, or key material.
+    let syncDiagnostic: String?
+
+    /// Removes normal-profile browsing data before a private start page is
+    /// hydrated. Keep the same DTO so the JS renderer has one stable contract.
+    func redactedForPrivateStart() -> WebChromeStartData {
+        WebChromeStartData(
+            topSites: [],
+            recent: [],
+            spaces: [],
+            accentHex: accentHex,
+            tabs: tabs.filter(\.isPrivate),
+            activeTabID: activeTabID.flatMap { id in tabs.contains { $0.id == id && $0.isPrivate } ? id : nil },
+            layout: layout,
+            isPrivateBrowsing: true,
+            isSplitActive: false,
+            isChromePanelOpen: nil,
+            chromeMode: chromeMode,
+            chromeDimension: chromeDimension,
+            searchEngine: searchEngine,
+            httpsOnlyEnabled: httpsOnlyEnabled,
+            adBlockEnabled: adBlockEnabled,
+            memorySaverEnabled: memorySaverEnabled,
+            tabGroups: [],
+            history: [],
+            bookmarks: [],
+            downloads: [],
+            councilVerdict: nil,
+            isCouncilConvening: false,
+            councilLiveResponses: [],
+            deepResearchStep: nil,
+            agentTask: nil,
+            councilError: nil,
+            agentError: nil,
+            lastQuery: nil,
+            syncDiagnostic: nil
+        )
+    }
+
+    /// Normal per-tab start pages may show normal-profile suggestions, but
+    /// never receive private-tab metadata from the shared BrowserState.
+    func redactedForNormalStart() -> WebChromeStartData {
+        let visibleTabIDs = Set(tabs.filter { !$0.isPrivate }.map(\.id))
+        let visibleSpaces = spaces.map { space in
+            WebChromeSpace(
+                id: space.id,
+                name: space.name,
+                colorHex: space.colorHex,
+                tabCount: tabs.filter { !$0.isPrivate && $0.workspaceID == space.id }.count
+            )
+        }
+        let visibleGroups = tabGroups.map { group in
+            WebChromeTabGroup(
+                id: group.id,
+                name: group.name,
+                colorHex: group.colorHex,
+                tabIDs: group.tabIDs.filter { visibleTabIDs.contains($0) },
+                isCollapsed: group.isCollapsed
+            )
+        }
+        return WebChromeStartData(
+            topSites: topSites,
+            recent: recent,
+            spaces: visibleSpaces,
+            accentHex: accentHex,
+            tabs: tabs.filter { !$0.isPrivate },
+            activeTabID: activeTabID.flatMap { id in tabs.contains { $0.id == id && !$0.isPrivate } ? id : nil },
+            layout: layout,
+            isPrivateBrowsing: false,
+            isSplitActive: false,
+            isChromePanelOpen: nil,
+            chromeMode: chromeMode,
+            chromeDimension: chromeDimension,
+            searchEngine: searchEngine,
+            httpsOnlyEnabled: httpsOnlyEnabled,
+            adBlockEnabled: adBlockEnabled,
+            memorySaverEnabled: memorySaverEnabled,
+            tabGroups: visibleGroups,
+            history: history,
+            bookmarks: bookmarks,
+            downloads: downloads,
+            councilVerdict: councilVerdict,
+            isCouncilConvening: isCouncilConvening,
+            councilLiveResponses: councilLiveResponses,
+            deepResearchStep: deepResearchStep,
+            agentTask: agentTask,
+            councilError: councilError,
+            agentError: agentError,
+            lastQuery: lastQuery,
+            syncDiagnostic: syncDiagnostic
+        )
+    }
 }
 
 struct WebChromeCouncilVerdict: Codable, Sendable {
@@ -134,6 +270,9 @@ struct WebChromeDownload: Codable, Sendable {
     let url: String
     let state: String
     let progress: Double
+    /// Whether the file exists on disk and can be revealed in Finder
+    /// (completed non-canceled downloads only).
+    let hasDestination: Bool
 }
 
 struct WebChromeSession: Codable, Sendable {
@@ -167,6 +306,27 @@ struct WebChromeTab: Codable, Sendable {
      let workspaceID: String
     let groupID: String?
     let isBookmarked: Bool
+    /// Whether the active page is in Reader Mode (toolbar toggle state).
+    let isReaderMode: Bool
+    /// Active page zoom percentage (100 = default). Lets the web chrome show
+    /// a live zoom indicator next to the address bar.
+    let zoomPercent: Int?
+    /// Renderer-level mute (CEF SetAudioMuted). Optional so legacy fixtures
+    /// without the keys decode as unmuted.
+    let isMuted: Bool?
+    /// Whether the tab's renderer is currently producing audio.
+    let isMediaPlaying: Bool?
+    /// Committed navigation entries for the back-button long-press/right-click
+    /// menu (Chrome/Safari convention). Newest first, capped at 12. Optional
+    /// so legacy fixtures without the keys decode as absent.
+    let backHistory: [WebChromeNavEntry]?
+    /// Committed navigation entries for the forward-button menu, nearest first.
+    let forwardHistory: [WebChromeNavEntry]?
+}
+
+struct WebChromeNavEntry: Codable, Sendable {
+    let title: String
+    let url: String
 }
 
 struct WebChromeLayoutRequest: Codable, Sendable {
@@ -206,6 +366,15 @@ struct WebChromeReorderRequest: Codable, Sendable {
 struct WebChromeURLRequest: Codable, Sendable {
     let token: String
     let url: String
+}
+
+/// Open-a-link-in-a-new-tab request (middle/⌘-click, drag-onto-tab-strip).
+/// `activate` is optional and defaults to true (foreground) so legacy callers
+/// that omit it keep foreground behavior.
+struct WebChromeOpenTabRequest: Codable, Sendable {
+    let token: String
+    let url: String
+    let activate: Bool?
 }
 
 struct WebChromeIDRequest: Codable, Sendable {
@@ -324,6 +493,17 @@ struct WebChromeAgentNewTab: Codable, Sendable {
 struct WebChromeAgentTabID: Codable, Sendable {
     let token: String
     let id: String
+}
+
+struct WebChromeBoolRequest: Codable, Sendable {
+    let token: String
+    let value: Bool
+}
+
+struct WebChromePrefRequest: Codable, Sendable {
+    let token: String
+    let key: String
+    let value: Bool
 }
 
 struct WebChromeTextRequest: Codable, Sendable {

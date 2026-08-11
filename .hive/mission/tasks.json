@@ -76,7 +76,7 @@
       "files_claimed": [
         "Sources/HiveCore/"
       ],
-      "test_evidence": "HiveCore integrated with CEF-backed shell; 1072 tests / 143 suites pass including AI, persistence, policy suites",
+      "test_evidence": "HiveCore integrated with CEF-backed shell; latest full suite is 1,635 tests / 157 suites, including AI, persistence, policy, sync, and privacy suites",
       "commit_ref": "707e773..58af561",
       "remaining_risks": ""
     },
@@ -144,7 +144,7 @@
         "T008"
       ],
       "files_claimed": [],
-      "test_evidence": "swift test: 1072 tests / 143 suites pass (60s); release bundle + preflight PASS; smoke (readiness + session recovery) PASS",
+      "test_evidence": "Latest validation: swift test 1,635 tests / 157 suites pass; HiveCore/Hive product builds pass; current ad-hoc bundle, preflight, and 60s smoke readiness remain green; encrypted sync outbox latest-ledger regression coverage included",
       "commit_ref": "latest",
       "remaining_risks": ""
     },
@@ -162,7 +162,7 @@
         "THIRD_PARTY_NOTICES.md",
         ".hive/mission/FINAL_VALIDATION.md"
       ],
-      "test_evidence": "ARCHITECTURE.md, RECOVERY_PLAN.md, DECISIONS.md, THIRD_PARTY_NOTICES.md, FINAL_VALIDATION.md (SHIPPED), WEB_CHROME_BRIDGE.md, UI_UX_PLAN.md all current",
+      "test_evidence": "ARCHITECTURE.md, RECOVERY_PLAN.md, DECISIONS.md, THIRD_PARTY_NOTICES.md, FINAL_VALIDATION.md, RELEASE_PIPELINE.md, WEB_CHROME_BRIDGE.md, and UI_UX_PLAN.md are current; latest local validation is 1,635 tests / 157 suites with HiveCore/Hive builds passing; current ad-hoc bundle, preflight, and 60s smoke readiness remain green; sync outbox race coverage included",
       "commit_ref": "eafded4..58af561",
       "remaining_risks": ""
     }

@@ -68,6 +68,18 @@ extension SettingsView {
                     .font(HiveDesign.Typography.smallLabel)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+
+                Toggle("Auto Archive", isOn: $state.enableAutoArchive)
+                Text("Tabs untouched for 14+ days move to the Archive instead of staying on the tab strip. Restore them any time from the Archive panel (/archive).")
+                    .font(HiveDesign.Typography.smallLabel)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Toggle("Download Notifications", isOn: $state.downloadNotificationsEnabled)
+                Text("Shows a macOS notification when a download finishes. The first one asks for permission — you can change it later in System Settings.")
+                    .font(HiveDesign.Typography.smallLabel)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             if UpdateManager.shared.canCheckForUpdates {

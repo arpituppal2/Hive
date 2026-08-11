@@ -29,7 +29,22 @@ extension BrowserState {
     func duplicateTab(id: String) {
         guard let source = tabs.first(where: { $0.id == id }) else { return }
         let profile = source.isPrivate ? CefProfile.incognito() : cefProfile(for: source.workspaceID)
-        let tab = Tab(url: source.model.url, workspaceID: source.workspaceID, profileID: source.profileID, groupID: source.groupID, isPinned: source.isPinned, isEssential: source.isEssential, isPrivate: source.isPrivate, profile: profile)
+        let effectiveURL = source.model.url ?? source.savedURL
+        // Duplicating a cold tab should produce a live copy, just like the
+        // browser's normal duplicate-tab gesture. Use the durable wake URL so
+        // hibernated internal routes retain their destination and provenance.
+        let tab = Tab(
+            url: effectiveURL,
+            workspaceID: source.workspaceID,
+            profileID: source.profileID,
+            groupID: source.groupID,
+            isPinned: source.isPinned,
+            isEssential: source.isEssential,
+            isPrivate: source.isPrivate,
+            profile: profile,
+            customTitle: source.customTitle
+        )
+        markInternalTabIfNeeded(tab)
         tabs.append(tab)
         activeTabID = tab.id
         wireTabHooks(tab)
@@ -38,12 +53,14 @@ extension BrowserState {
 
 
     func closeOtherTabs(id: String) {
-        let removedIDs = tabs.filter { $0.id != id && !$0.isPinned && !$0.isEssential }.map(\.id)
-        tabs.removeAll { $0.id != id && !$0.isPinned && !$0.isEssential }
+        let removedIDs = tabs.filter { $0.id != id && !$0.isPinned && !$0.isEssential && !$0.isPrivate }.map(\.id)
+        tabs.removeAll { $0.id != id && !$0.isPinned && !$0.isEssential && !$0.isPrivate }
         removedIDs.forEach {
             navigationAttempts.invalidate(tabID: $0)
             tabObservationTasks["navigation-\($0)"]?.cancel()
             invalidatePreview(for: $0)
+            dropPendingPermissionPrompts(forTabID: $0)
+            enqueueSyncTombstone(kind: .tab, recordID: $0)
         }
         if let notice = navigationHealthNotice, removedIDs.contains(notice.tabID) {
             navigationHealthNotice = nil
@@ -55,13 +72,17 @@ extension BrowserState {
 
     func closeTabsToRight(id: String) {
         guard let pivot = tabs.firstIndex(where: { $0.id == id }) else { return }
-        let toClose = tabs.suffix(from: pivot + 1).filter { !$0.isPinned && !$0.isEssential }
+        let toClose = tabs.suffix(from: pivot + 1).filter { !$0.isPinned && !$0.isEssential && !$0.isPrivate }
         let removedIDs = toClose.map(\.id)
-        tabs.removeAll { tab in toClose.contains(where: { $0.id == tab.id }) }
+        tabs.removeAll { tab in
+            !tab.isPrivate && toClose.contains(where: { $0.id == tab.id })
+        }
         removedIDs.forEach {
             navigationAttempts.invalidate(tabID: $0)
             tabObservationTasks["navigation-\($0)"]?.cancel()
             invalidatePreview(for: $0)
+            dropPendingPermissionPrompts(forTabID: $0)
+            enqueueSyncTombstone(kind: .tab, recordID: $0)
         }
         if let notice = navigationHealthNotice, removedIDs.contains(notice.tabID) {
             navigationHealthNotice = nil
@@ -77,8 +98,7 @@ extension BrowserState {
     func setupAI() {
         guard swarmOrchestrator == nil else { return }
         swarmOrchestrator = SwarmOrchestrator(
-            dispatcher: .shared, hotMemory: hotMemory, ledger: eventLedger,
-            honeycomb: honeycomb
+            dispatcher: .shared, hotMemory: hotMemory, ledger: eventLedger
         )
         let tavilyKey = self.tavilyAPIKey
         let searchProvider: WebSearchProvider? = tavilyKey.isEmpty ? nil : TavilySearchProvider(apiKey: tavilyKey)
@@ -104,9 +124,17 @@ extension BrowserState {
         // data and must never leak into a private window.
         let resolvedURL: URL
         if let url {
-            resolvedURL = url
+            // HTTPS-Only: upgrade plaintext destinations opened from the chrome
+            // (links, omnibox-typed, floating-bar) just like active-tab loads.
+            resolvedURL = HTTPSOnlyPolicy.upgraded(
+                url,
+                enabled: isHTTPSOnlyEnabled,
+                exceptions: httpsOnlyExceptions
+            ) ?? url
         } else if isPrivate {
-            resolvedURL = Self.webChromeStartURL
+            // The marker lets the start-page bridge request a redacted
+            // snapshot even when a normal tab is active elsewhere.
+            resolvedURL = URL(string: "\(Self.webChromeStartURL.absoluteString)?private=1")!
         } else if openBriefOnNewTab {
             resolvedURL = Self.webChromeBriefURL
         } else {
@@ -114,6 +142,7 @@ extension BrowserState {
         }
         let profile = isPrivate ? CefProfile.incognito() : cefProfile(for: workspaceID)
         let tab = Tab(url: resolvedURL, workspaceID: workspaceID, profileID: profileID, groupID: groupID, isPrivate: isPrivate, profile: profile)
+        markInternalTabIfNeeded(tab)
         withAnimation(isReduceMotionEnabled ? nil : HiveDesign.Animation.springQuick) {
             tabs.append(tab)
             if activate {
@@ -121,6 +150,9 @@ extension BrowserState {
             }
         }
         wireTabHooks(tab)
+        Task { @MainActor [weak self] in
+            await self?.pushTabToCloud(tab)
+        }
         scheduleAutosave()
         broadcastWebChromeState()
         return tab
@@ -145,17 +177,37 @@ extension BrowserState {
 
         if !removedTab.isPrivate {
             closedTabs.append(removedTab)
+            enqueueSyncTombstone(kind: .tab, recordID: removedTab.id)
+        } else {
+            // A closed private tab can never be reopened — prune its mute so
+            // no stale ID lingers in the session-scoped set (it never enters
+            // the ⌘⇧T stack, so eviction pruning can't reach it).
+            mutedTabIDs.remove(removedTab.id)
+            siteMutedTabIDs.remove(removedTab.id)
         }
         if closedTabs.count > 10 {
             let dropped = closedTabs.removeFirst()
-            // The dropped tab can never be reopened — prune its zoom so dead
-            // keys don't accumulate in the session file. Retained tabs keep
-            // their zoom so ⌘⇧T restores it (Chrome restores zoom on reopen).
+            // The dropped tab can never be reopened — prune its zoom and mute
+            // so dead keys don't accumulate (zoom is session-file durable,
+            // mute is session-scoped; neither should linger for a tab that
+            // can never come back). Retained tabs keep both so ⌘⇧T restores
+            // them (Chrome restores zoom and mute on reopen).
             tabZoomLevels[dropped.id] = nil
+            mutedTabIDs.remove(dropped.id)
+            siteMutedTabIDs.remove(dropped.id)
         }
         mruTabIDs.removeAll { $0 == id }
+        // The tab's back/forward menus can never be shown again — drop its
+        // navigation-entry stacks so closed tabs don't accumulate entries.
+        tabNavBack[id] = nil
+        tabNavForward[id] = nil
         // Drop the closed tab's pooled preview renderer (its browser is dead).
         invalidatePreview(for: id)
+        // Release any permission prompt the page left unanswered, and drop
+        // any autofill chip pointing at the closed tab.
+        dropPendingPermissionPrompts(forTabID: id)
+        dropAutofillSuggestion(forTabID: id)
+        dropPasswordCaptureOffer(forTabID: id)
         // Clean up media tracking and the mini-player for the closed tab.
         mediaPlayingTabIDs.remove(id)
         mediaVideoPlayingTabIDs.remove(id)
@@ -208,9 +260,20 @@ extension BrowserState {
         // active tab).
         updateMiniPlayerAfterSwitch(from: activeTabID, to: id)
         activeTabID = id
-        // Re-apply the tab's persisted zoom (the browser may be freshly
-        // attached after a hibernate wake).
+        // Reader word count belongs to the previous page: the new tab either
+        // has its own (reported on its own injection) or none, and a stale
+        // count must never linger in the Reader bar.
+        readerWordCount = nil
+        // Re-apply the tab's persisted zoom and mute (the browser may be
+        // freshly attached after a hibernate wake). A durable site mute also
+        // re-applies here so a muted host stays muted across hibernation.
         applyStoredZoom(for: tab)
+        applyStoredMute(for: tab)
+        applySiteMuteIfNeeded(for: tab)
+        // HTTPS-Only: the warning banner follows the active tab's current page
+        // across switches. A hibernated tab's blank model clears the banner
+        // (no page is being viewed).
+        updateHTTPSOnlyNotice(for: tab.model.url ?? tab.savedURL, tabID: tab.id)
         // Keep hot memory's current page honest when switching tabs — the AI
         // must reference what the user is actually viewing, not the last
         // navigated page. Also bump the page node's hot score so revisiting
@@ -236,6 +299,17 @@ extension BrowserState {
         // (set in wireTabHooks) will wire it when it becomes ready.
         if let browser = tab.model.browser {
             wireCDP(to: browser)
+        }
+        // A chip for any tab other than the newly active one must never
+        // follow the user — its form is no longer the visible page (the
+        // render gate also blocks it, but dropping keeps the state honest).
+        if pendingAutofillSuggestion?.tabID != id {
+            pendingAutofillSuggestion = nil
+        }
+        // Same rule for a pending password offer: it belongs to the tab we
+        // just left, so it must not follow the user to the new tab.
+        if pendingPasswordCaptureOffer?.tabID != id {
+            pendingPasswordCaptureOffer = nil
         }
         broadcastWebChromeState()
     }

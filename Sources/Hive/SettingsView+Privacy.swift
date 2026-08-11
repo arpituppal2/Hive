@@ -69,6 +69,82 @@ extension SettingsView {
                 }
             }
 
+            settingsGroup("HTTPS-Only Mode") {
+                Toggle("Always use secure connections", isOn: $state.isHTTPSOnlyEnabled)
+                Text("Upgrades plaintext HTTP addresses to HTTPS and warns when a page still loads over HTTP. Use \"Load anyway\" on the warning to allow a site to stay on HTTP.")
+                    .font(HiveDesign.Typography.smallLabel)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if !state.httpsOnlyExceptions.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Sites allowed to use HTTP")
+                            .font(HiveDesign.Typography.smallLabelBold)
+                            .foregroundStyle(.secondary)
+                        ForEach(Array(state.httpsOnlyExceptions).sorted(), id: \.self) { host in
+                            HStack(spacing: 6) {
+                                Text(host)
+                                    .font(HiveDesign.Typography.smallLabel)
+                                    .lineLimit(1)
+                                Spacer()
+                                Button("Remove") {
+                                    var exceptions = state.httpsOnlyExceptions
+                                    exceptions.remove(host)
+                                    state.httpsOnlyExceptions = exceptions
+                                }
+                                .buttonStyle(.borderless)
+                                .controlSize(.mini)
+                            }
+                        }
+                    }
+                    .padding(.top, 2)
+                }
+            }
+
+            settingsGroup("Clear Browsing Data") {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Remove browsing history, downloads, cookies, and cache")
+                            .font(HiveDesign.Typography.smallLabel)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer()
+                    Button("Clear Browsing Data…") { state.isClearDataPanelOpen = true }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                }
+            }
+
+            settingsGroup("Site Settings") {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Review per-site zoom, mute, HTTPS-Only, and permission decisions")
+                            .font(HiveDesign.Typography.smallLabel)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer()
+                    Button("Manage Site Settings…") { state.openSiteSettings() }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                }
+            }
+
+            settingsGroup("Safety Check") {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Review saved passwords, Safe Browsing, extensions, updates, and notification permissions")
+                            .font(HiveDesign.Typography.smallLabel)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer()
+                    Button("Run Safety Check…") { state.isSafetyCheckPanelOpen = true }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                }
+            }
+
             settingsGroup("Safe Browsing (Google)") {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Protects against phishing, malware, and deceptive sites. Only 4 bytes of a URL hash are sent to Google.")

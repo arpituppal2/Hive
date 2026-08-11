@@ -19,6 +19,10 @@ struct AddressBar: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var text: String = ""
     @FocusState private var isFocused: Bool
+    /// Set when ⌘L (or the Focus Address command) demands select-all-on-focus
+    /// (Chrome convention: typing replaces the URL). Cleared once applied so a
+    /// plain mouse click never nukes the caret position.
+    @State private var pendingSelectAll = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -50,7 +54,26 @@ struct AddressBar: View {
                     }
                     .onSubmit { submit() }
                     .onChange(of: state.addressFocusTrigger) { _, _ in
-                        isFocused = true
+                        // ⌘L convention: focus AND select all so typing replaces
+                        // the current URL (matches the web chrome's ⌘L handler).
+                        if isFocused {
+                            // Already focused — select-all now (the flag path
+                            // below only fires on a focus transition, so a
+                            // second ⌘L would otherwise silently no-op and
+                            // leak the flag into the next focus event).
+                            selectAllInField()
+                        } else {
+                            pendingSelectAll = true
+                            isFocused = true
+                        }
+                    }
+                    .onChange(of: isFocused) { _, focused in
+                        guard focused, pendingSelectAll else { return }
+                        pendingSelectAll = false
+                        // The field's NSTextView becomes the first responder
+                        // after SwiftUI commits focus; select all on the next
+                        // main-queue turn so the selection lands on the URL.
+                        selectAllInField()
                     }
 
                 if !text.isEmpty {
@@ -150,6 +173,17 @@ struct AddressBar: View {
         guard !q.isEmpty else { return }
         isFocused = false
         state.submitGeminiQuery(q)
+    }
+
+    /// Selects the whole URL once the field's NSTextView is the first
+    /// responder (deferred a main-queue turn so SwiftUI's focus commit
+    /// lands first). Used by the ⌘L select-all path.
+    private func selectAllInField() {
+        DispatchQueue.main.async {
+            if let editor = NSApp.keyWindow?.firstResponder as? NSTextView {
+                editor.selectAll(nil)
+            }
+        }
     }
 
     // MARK: - Favicon

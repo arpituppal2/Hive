@@ -10,6 +10,7 @@ public enum BrowserCommand: String, Sendable, Codable, CaseIterable, Identifiabl
     case newPrivateTab
     case closeTab
     case closeOtherTabs
+    case cleanTabs
     case duplicateTab
     case pinTab
     case muteTab
@@ -31,6 +32,7 @@ public enum BrowserCommand: String, Sendable, Codable, CaseIterable, Identifiabl
     case showHistory
     case showBookmarks
     case toggleBookmarkBar
+    case showBoosts
     case showSettings
     case printPage
     case toggleSwarm
@@ -202,6 +204,7 @@ public extension CommandRegistry {
         .init(id: .newPrivateTab, title: "New Private Tab", keywords: ["tab", "private", "incognito"],   category: .tab, shortcut: .init(key: "n", modifiers: [.command, .shift]), slashAliases: ["private", "private tab"]),
         .init(id: .closeTab,      title: "Close Tab",       keywords: ["tab", "close"],               category: .tab, slashAliases: ["close", "close tab"]),
         .init(id: .closeOtherTabs,title: "Close Other Tabs",keywords: ["tab", "close", "other"],        category: .tab),
+        .init(id: .cleanTabs,     title: "Clean Up Tabs",    keywords: ["tab", "duplicate", "clean", "stale", "tidy"], category: .tab, slashAliases: ["clean", "clean tabs"]),
         .init(id: .duplicateTab,  title: "Duplicate Tab",   keywords: ["tab", "duplicate", "clone"],    category: .tab),
         .init(id: .pinTab,        title: "Pin / Unpin Tab", keywords: ["tab", "pin"],                   category: .tab),
         .init(id: .muteTab,       title: "Mute / Unmute Site", keywords: ["tab", "mute", "site"],      category: .tab),
@@ -223,6 +226,7 @@ public extension CommandRegistry {
         .init(id: .showHistory,   title: "Show History",      keywords: ["history", "browse"], category: .view, shortcut: .init(key: "y", modifiers: [.command]), slashAliases: ["history"]),
         .init(id: .showBookmarks, title: "Show Bookmarks",    keywords: ["bookmarks", "favorites"], category: .view, shortcut: .init(key: "b", modifiers: [.command, .option]), slashAliases: ["bookmarks", "bookmark"]),
         .init(id: .toggleBookmarkBar, title: "Toggle Bookmark Bar", keywords: ["bookmarks", "bar"], category: .view, shortcut: .init(key: "b", modifiers: [.command, .shift])),
+        .init(id: .showBoosts,      title: "Manage Site Boosts",   keywords: ["boost", "boosts", "css", "theme"], category: .view, slashAliases: ["boosts", "boost"]),
         .init(id: .showSettings,  title: "Show Settings",     keywords: ["settings", "preferences"], category: .tools, shortcut: .init(key: ",", modifiers: [.command])),
         .init(id: .printPage,     title: "Print Page",        keywords: ["print", "pdf"], category: .tools, shortcut: .init(key: "p", modifiers: [.command])),
         .init(id: .toggleSwarm,   title: "Ask Swarm",         keywords: ["ai", "chat", "swarm", "intelligence"], category: .tools, slashAliases: ["swarm", "ask"]),

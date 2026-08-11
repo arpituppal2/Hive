@@ -64,6 +64,27 @@ struct BrowserSessionIntegrityTests {
         #expect(session.windows[0].tabs.count == 2)
     }
 
+    @Test("groups cannot restore tabs owned by another space")
+    func filtersCrossSpaceGroupReferences() {
+        let firstSpace = Space(
+            id: "first",
+            name: "First",
+            tabIDs: ["first-tab"],
+            groups: [TabGroup(id: "group", name: "Mixed", tabIDs: ["first-tab", "second-tab"])]
+        )
+        let secondSpace = Space(id: "second", name: "Second", tabIDs: ["second-tab"])
+        let session = BrowserSession(windows: [BrowserSessionWindow(
+            spaces: [firstSpace, secondSpace],
+            tabs: [BrowserTab(id: "first-tab"), BrowserTab(id: "second-tab")]
+        )])
+
+        let normalization = session.normalizedForRestore
+        let group = normalization.session.windows[0].spaces[0].groups[0]
+
+        #expect(group.tabIDs == ["first-tab"])
+        #expect(normalization.report.removedDanglingTabReferences == 1)
+    }
+
     @Test("empty groups are preserved as user state")
     func preservesEmptyGroups() {
         let session = BrowserSession(windows: [BrowserSessionWindow(

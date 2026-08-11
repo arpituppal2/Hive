@@ -322,8 +322,8 @@ extension BrowserState {
               let model = activeModel,
               let url = model.url,
               url.absoluteString != "about:blank",
-              // The web start page is chrome — it must never leak into AI context.
-              url.absoluteString != Self.webChromeStartURL.absoluteString else { return nil }
+              // Hive-owned web chrome is UI — it must never leak into AI context.
+              !Self.isInternalWebChromeURL(url) else { return nil }
         let rawTitle = model.title.isEmpty ? (url.host ?? url.absoluteString) : model.title
         // Context broker (SWARM-003): redact credentials, bound the excerpt,
         // and label sensitivity before anything reaches a model — the scope

@@ -88,8 +88,25 @@ struct CommandPaletteOverlay: View {
 
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        ForEach(Array(filteredCommands.enumerated()), id: \.element.id) { index, command in
-                            CommandRow(command: command, isSelected: index == selectedIndex) { execute(command) }
+                        if filteredCommands.isEmpty {
+                            VStack(spacing: HiveDesign.Space.sm) {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.system(size: HiveDesign.Icon.xl))
+                                    .foregroundStyle(.tertiary)
+                                Text("No matching commands")
+                                    .font(HiveDesign.Typography.body)
+                                    .foregroundStyle(.secondary)
+                                Text("Try a different search — commands, tabs, and workspaces all appear here.")
+                                    .font(HiveDesign.Typography.caption)
+                                    .foregroundStyle(.tertiary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, HiveDesign.Space.xxl)
+                        } else {
+                            ForEach(Array(filteredCommands.enumerated()), id: \.element.id) { index, command in
+                                CommandRow(command: command, isSelected: index == selectedIndex) { execute(command) }
+                            }
                         }
                     }
                     .padding(.vertical, 6)
@@ -99,7 +116,7 @@ struct CommandPaletteOverlay: View {
                 Divider()
 
                 HStack {
-                    Text("\(filteredCommands.count) commands")
+                    Text(filteredCommands.isEmpty ? "No results" : "\(filteredCommands.count) commands")
                         .font(HiveDesign.Typography.smallLabel)
                         .foregroundStyle(.secondary)
                     Spacer()
@@ -232,6 +249,12 @@ struct PaletteCommand: Identifiable {
             PaletteCommand(title: "Search Tabs", subtitle: "Jump to any open tab across spaces", icon: "square.on.square", keywords: ["tabs", "search", "switch", "jump", "spaces"], shortcut: "⇧⌘A") { state in
                 state.openTabSearch()
             },
+            PaletteCommand(title: "Tab Overview", subtitle: "Visual grid of all open tabs", icon: "square.grid.2x2", keywords: ["tabs", "overview", "grid", "visual", "all", "spaces", "workspace"], shortcut: nil) { state in
+                state.openTabGrid()
+            },
+            PaletteCommand(title: "Group Similar Tabs", subtitle: "Auto-group open tabs by site", icon: "square.stack.3d.up.fill", keywords: ["group", "tabs", "similar", "organize", "domain", "site"], shortcut: nil) { state in
+                state.groupSimilarTabs()
+            },
             PaletteCommand(title: "Fullscreen", subtitle: "Enter or exit full screen", icon: "arrow.up.left.and.arrow.down.right", keywords: ["fullscreen", "full", "screen"], shortcut: "⌃⌘F") { state in
                 state.toggleFullscreen()
             },
@@ -262,6 +285,32 @@ struct PaletteCommand: Identifiable {
                 PaletteCommand(title: "Reader Mode", subtitle: "Read the page distraction-free", icon: "book", keywords: ["reader", "read", "article"], shortcut: nil) { state in
                     state.toggleReaderMode()
                 },
+                PaletteCommand(title: "Take Screenshot…", subtitle: "Save the current page as a PNG", icon: "camera.viewfinder", keywords: ["screenshot", "capture", "png", "image", "save"], shortcut: nil) { state in
+                    state.capturePageScreenshot()
+                },
+                PaletteCommand(title: "Copy Screenshot", subtitle: "Copy the current page to the clipboard", icon: "doc.on.clipboard", keywords: ["screenshot", "copy", "capture", "clipboard", "image"], shortcut: nil) { state in
+                    state.copyPageScreenshot()
+                },
+                PaletteCommand(title: "Capture Full Page…", subtitle: "Save the whole scrollable page as a tall PNG", icon: "rectangle.stack.fill", keywords: ["screenshot", "full", "page", "long", "capture", "png", "save"], shortcut: nil) { state in
+                    state.captureFullPageScreenshot()
+                },
+                PaletteCommand(title: "Copy Full Page", subtitle: "Copy the whole page to the clipboard", icon: "rectangle.on.rectangle", keywords: ["screenshot", "full", "page", "copy", "capture", "long"], shortcut: nil) { state in
+                    state.copyFullPageScreenshot()
+                },
+                PaletteCommand(title: "Rename Active Tab…", subtitle: "Give the current tab a custom name", icon: "pencil", keywords: ["rename", "tab", "name", "label", "title"], shortcut: nil) { state in
+                    if let tab = state.activeTab {
+                        state.presentTabRename(tab)
+                    }
+                },
+                PaletteCommand(title: "Copy Page URL", subtitle: "Copy the current page's address", icon: "link", keywords: ["copy", "url", "address", "link"], shortcut: nil) { state in
+                    state.copyPageURL()
+                },
+                PaletteCommand(title: "Copy All Tab URLs", subtitle: "Copy every open tab URL in this workspace", icon: "doc.on.doc", keywords: ["copy", "url", "links", "tabs", "workspace"], shortcut: nil) { state in
+                    state.copyAllTabURLs()
+                },
+                PaletteCommand(title: "Copy All Tabs as Markdown", subtitle: "Copy every tab as a markdown link list", icon: "text.quote", keywords: ["copy", "markdown", "links", "tabs", "notes", "workspace"], shortcut: nil) { state in
+                    state.copyAllTabsAsMarkdown()
+                },
             ])
         }
 
@@ -270,8 +319,22 @@ struct PaletteCommand: Identifiable {
             ("Downloads", "View and manage downloads", "arrow.down.circle", ["download", "files"], nil, { $0.isDownloadsPanelOpen = true }),
             ("History", "Browse your browsing history", "clock.arrow.circlepath", ["history"], nil, { $0.isHistoryPanelOpen = true }),
             ("Bookmarks Manager", "Organize saved bookmarks", "bookmark", ["bookmark", "bookmarks"], "⌥⌘B", { $0.openBookmarksManager() }),
+            ("Bookmark All Tabs", "Save every open tab in a new folder", "bookmark.fill", ["bookmark", "all", "tabs", "folder", "save"], "⇧⌘D", { $0.bookmarkAllTabs() }),
+            ("Reading List", "Articles saved for later", "book.closed", ["reading", "read", "later", "save", "articles"], nil, { $0.isReadingListPanelOpen = true }),
+            ("Pinned Apps", "Manage quick-launch web apps", "square.grid.2x2.fill", ["pinned", "apps", "app", "rail", "favorites"], nil, { $0.isPinnedAppsPanelOpen = true }),
+            ("Archive", "Recently archived cold tabs", "archivebox", ["archive", "archived", "cold", "old", "shelf", "recently"], nil, { $0.isArchivePanelOpen = true }),
+            ("Workspaces", "Manage workspaces", "square.stack.3d.up", ["workspaces", "workspace", "spaces", "manage", "switch"], nil, { $0.openWorkspaceManager() }),
+            ("Profiles", "Manage browsing profiles", "person.circle", ["profiles", "profile", "person", "browsing", "manage"], nil, { $0.openProfileManager() }),
+            ("Tab Groups", "Manage tab groups in this workspace", "folder", ["tab", "groups", "group", "folder", "manage"], nil, { $0.openTabGroupManager() }),
+            ("Search Engines", "Manage search engines", "magnifyingglass.circle", ["search", "engine", "engines", "manage", "custom"], nil, { $0.openSearchEngineManager() }),
+            ("Keyboard Shortcuts", "See all shortcuts", "keyboard", ["shortcuts", "keyboard", "keys", "help"], nil, { $0.openKeyboardShortcuts() }),
+            ("Memory Saver", "Sleep and wake tabs to save memory", "leaf", ["memory", "saver", "sleep", "wake", "tabs", "performance", "hibernate"], nil, { $0.openMemorySaver() }),
+            ("Task Manager", "Live per-process memory and CPU", "chart.bar.fill", ["task", "manager", "process", "memory", "cpu", "performance"], "⇧⎋", { $0.openTaskManager() }),
             ("Passwords", "View saved passwords", "key", ["password", "passwords", "login"], nil, { $0.isPasswordsManagerOpen = true }),
             ("Privacy Report", "Trackers blocked and protections", "checkmark.shield", ["privacy", "tracker", "shield", "report"], nil, { $0.openPrivacyReport() }),
+            ("Safety Check…", "Review passwords, Safe Browsing, and updates", "checkmark.shield.fill", ["safety", "check", "security", "passwords", "audit", "updates", "shield", "extensions"], nil, { $0.isSafetyCheckPanelOpen = true }),
+            ("Clear Browsing Data…", "Remove history, downloads, cookies, and cache", "trash", ["clear", "browsing", "data", "history", "cookies", "cache", "delete"], nil, { $0.isClearDataPanelOpen = true }),
+            ("Site Settings", "Review per-site zoom, mute, and permissions", "globe.americas", ["site", "sites", "per-site", "zoom", "mute", "permissions", "settings"], nil, { $0.openSiteSettings() }),
             ("Ask Hive", "Open the AI assistant panel", "sparkles", ["ai", "ask", "assistant", "hive", "gemini", "chat"], nil, { $0.toggleGeminiPanel() }),
             ("Knowledge", "Open your Honeycomb memory", "hexagon", ["knowledge", "memory", "honeycomb", "graph"], nil, { $0.toggleKnowledgePanel() }),
             ("Studio", "Open the code workspace", "chevron.left.forwardslash.chevron.right", ["studio", "code", "repo", "project", "diff", "edit"], nil, { $0.toggleStudioPanel() }),

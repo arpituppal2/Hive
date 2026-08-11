@@ -202,6 +202,7 @@ struct TabSearchOverlay: View {
     }
 
     private func displayTitle(_ tab: BrowserState.Tab) -> String {
+        if let custom = tab.customTitle, !custom.isEmpty { return custom }
         if !tab.model.title.isEmpty { return tab.model.title }
         if let url = tab.model.url ?? tab.savedURL, url.absoluteString != "about:blank" {
             return url.host ?? url.absoluteString
@@ -270,11 +271,18 @@ private struct TabSearchRow: View {
                         .foregroundStyle(.secondary)
                 }
 
-                // Live playing indicator from the media probe
-                if state.mediaPlayingTabIDs.contains(entry.tab.id) {
+                // Browser-level mute / live playing indicator — muted takes
+                // precedence so the row always tells the truth.
+                if state.isTabMuted(entry.tab.id) {
+                    Image(systemName: "speaker.slash.fill")
+                        .font(HiveDesign.Typography.microLabel)
+                        .foregroundStyle(HiveDesign.Accent.primary)
+                        .help("Muted")
+                } else if state.mediaPlayingTabIDs.contains(entry.tab.id) {
                     Image(systemName: "speaker.wave.2.fill")
                         .font(HiveDesign.Typography.microLabel)
                         .foregroundStyle(HiveDesign.Accent.primary)
+                        .help("Playing audio")
                 }
 
                 // Active tab marker

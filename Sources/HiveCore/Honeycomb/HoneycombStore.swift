@@ -70,6 +70,24 @@ public actor HoneycombStore {
         case unknown        // fallback for unrecognized types
     }
 
+    /// A prior version captured before a durable node correction.
+    public struct Revision: Sendable, Codable, Identifiable, Equatable {
+        public let id: String
+        public let nodeID: String
+        public let previousLabel: String
+        public let previousMetadata: JSONValue
+        public let revisedAt: Date
+
+        public init(id: String, nodeID: String, previousLabel: String,
+                    previousMetadata: JSONValue, revisedAt: Date) {
+            self.id = id
+            self.nodeID = nodeID
+            self.previousLabel = previousLabel
+            self.previousMetadata = previousMetadata
+            self.revisedAt = revisedAt
+        }
+    }
+
     /// A typed directed edge between two nodes.
     public struct Edge: Sendable, Codable, Identifiable, Equatable {
         public let id: String           // UUID
@@ -114,7 +132,7 @@ public actor HoneycombStore {
 
     // MARK: - Schema version
 
-    private static let currentSchemaVersion: Int32 = 1
+    private static let currentSchemaVersion: Int32 = 2
 
     // MARK: - Database handle
 
@@ -157,6 +175,10 @@ public actor HoneycombStore {
         let current = currentUserVersion(on: db)
         if current < 1 {
             try migrateV1(on: db)
+            setUserVersion(1, on: db)
+        }
+        if current < 2 {
+            try migrateV2(on: db)
             setUserVersion(Self.currentSchemaVersion, on: db)
         }
     }
@@ -226,6 +248,36 @@ public actor HoneycombStore {
         try nonisolatedExecute("""
             CREATE INDEX IF NOT EXISTS idx_revisions_node ON honeycomb_revisions(node_id)
             """, on: db)
+    }
+
+    /// Removes nodes created by the pre-admission librarian path before the
+    /// store is exposed to callers. Runs in the schema migration transaction,
+    /// so Knowledge/FTS reads cannot observe a half-cleaned database.
+    private nonisolated func migrateV2(on db: OpaquePointer?) throws {
+        try nonisolatedExecute("BEGIN TRANSACTION", on: db)
+        do {
+            try nonisolatedExecute(
+                "DELETE FROM honeycomb_fts WHERE node_id IN (SELECT id FROM honeycomb_nodes WHERE provenance = ?)",
+                args: [.text("librarian-extraction")],
+                on: db
+            )
+            try nonisolatedExecute(
+                "DELETE FROM honeycomb_nodes WHERE provenance = ?",
+                args: [.text("librarian-extraction")],
+                on: db
+            )
+            try nonisolatedExecute("COMMIT", on: db)
+        } catch {
+            do {
+                try nonisolatedExecute("ROLLBACK", on: db)
+            } catch let rollbackError {
+                throw HoneycombError.transactionRollbackFailed(
+                    operation: String(describing: error),
+                    rollback: String(describing: rollbackError)
+                )
+            }
+            throw error
+        }
     }
 
     private nonisolated func currentUserVersion(on db: OpaquePointer?) -> Int32 {
@@ -315,41 +367,174 @@ public actor HoneycombStore {
         return unique.compactMap { byID[$0] }
     }
 
-    /// Updates an existing node's label, metadata, and updated_at timestamp.
+    /// Updates an existing node's label, metadata, content hash, and updated_at timestamp.
+    /// Omitting `contentHash` preserves the existing hash for generic metadata edits.
     /// Returns the updated node, or nil if the node doesn't exist.
     @discardableResult
-    public func updateNode(id: String, label: String? = nil, metadata: JSONValue? = nil) throws -> Node? {
+    public func updateNode(id: String, label: String? = nil, metadata: JSONValue? = nil,
+                           contentHash: String? = nil) throws -> Node? {
         guard var node = try getNode(id: id) else { return nil }
-        // Record revision before overwriting (AGENTS.md §8.3)
-        let prevMetadataJSON = try encodeJSON(node.metadata)
-        try execute("""
-            INSERT INTO honeycomb_revisions (id, node_id, previous_label, previous_metadata_json, revised_at)
-            VALUES (?, ?, ?, ?, ?)
-            """, args: [.text(UUID().uuidString), .text(id), .text(node.label),
-                       .text(prevMetadataJSON), .text(iso8601(Date()))])
-        if let label { node.label = label }
-        if let metadata { node.metadata = metadata }
-        node.updatedAt = Date()
-        let metadataJSON = try encodeJSON(node.metadata)
-        try execute("""
-            UPDATE honeycomb_nodes SET label = ?, metadata_json = ?, updated_at = ?
-            WHERE id = ?
-            """, args: [.text(node.label), .text(metadataJSON), .text(iso8601(node.updatedAt)), .text(id)])
-        // Update FTS
-        try execute("DELETE FROM honeycomb_fts WHERE node_id = ?", args: [.text(id)])
-        let searchable = [node.label, searchableText(from: node.metadata)]
-            .filter { !$0.isEmpty }.joined(separator: " ")
-        if !searchable.isEmpty {
-            try execute("INSERT INTO honeycomb_fts (node_id, label, searchable_text) VALUES (?, ?, ?)",
-                        args: [.text(id), .text(node.label), .text(searchable)])
+        let updatedContentHash = contentHash ?? node.contentHash
+        if let updatedContentHash,
+           let duplicate = try findNode(type: node.type, contentHash: updatedContentHash),
+           duplicate.id != id {
+            throw HoneycombError.contentHashConflict(
+                type: node.type,
+                contentHash: updatedContentHash,
+                existingNodeID: duplicate.id
+            )
         }
-        return node
+        // Record the revision, node mutation, and FTS replacement as one
+        // transaction. A failure in any step must not leave a revision for a
+        // mutation that did not commit or an index that describes stale data.
+        try execute("BEGIN TRANSACTION")
+        do {
+            // Keep internal transport/retention fields out of correction
+            // history; revisions remain auditable without becoming a second
+            // dump of fetch metadata.
+            let revisionMetadata = Self.userVisibleMetadata(from: node.metadata)
+            let prevMetadataJSON = try encodeJSON(revisionMetadata)
+            try execute("""
+                INSERT INTO honeycomb_revisions (id, node_id, previous_label, previous_metadata_json, revised_at)
+                VALUES (?, ?, ?, ?, ?)
+                """, args: [.text(UUID().uuidString), .text(id), .text(node.label),
+                           .text(prevMetadataJSON), .text(iso8601(Date()))])
+            if let label { node.label = label }
+            if let metadata { node.metadata = metadata }
+            node.updatedAt = Date()
+            let metadataJSON = try encodeJSON(node.metadata)
+            try execute("""
+                UPDATE honeycomb_nodes SET label = ?, metadata_json = ?, content_hash = ?, updated_at = ?
+                WHERE id = ?
+                """, args: [.text(node.label), .text(metadataJSON), .text(updatedContentHash ?? ""),
+                           .text(iso8601(node.updatedAt)), .text(id)])
+            // Replace the FTS row inside the same transaction.
+            try execute("DELETE FROM honeycomb_fts WHERE node_id = ?", args: [.text(id)])
+            let searchable = [node.label, searchableText(from: node.metadata)]
+                .filter { !$0.isEmpty }.joined(separator: " ")
+            if !searchable.isEmpty {
+                try execute("INSERT INTO honeycomb_fts (node_id, label, searchable_text) VALUES (?, ?, ?)",
+                            args: [.text(id), .text(node.label), .text(searchable)])
+            }
+            try execute("COMMIT")
+        } catch {
+            do {
+                try execute("ROLLBACK")
+            } catch let rollbackError {
+                throw HoneycombError.transactionRollbackFailed(
+                    operation: String(describing: error),
+                    rollback: String(describing: rollbackError)
+                )
+            }
+            throw error
+        }
+        return Node(
+            id: node.id,
+            type: node.type,
+            label: node.label,
+            metadata: node.metadata,
+            contentHash: updatedContentHash,
+            createdAt: node.createdAt,
+            updatedAt: node.updatedAt,
+            provenance: node.provenance
+        )
+    }
+
+    /// Returns the durable correction history for a node, newest first.
+    /// Revisions are intentionally exposed as structured data so an inspector
+    /// can show what changed without scraping SQLite or the export format.
+    public func getRevisions(nodeID: String, limit: Int = 50) throws -> [Revision] {
+        let rows = try query("""
+            SELECT id, node_id, previous_label, previous_metadata_json, revised_at
+            FROM honeycomb_revisions
+            WHERE node_id = ?
+            ORDER BY revised_at DESC
+            LIMIT ?
+            """, args: [.text(nodeID), .int(Int32(max(0, limit)))])
+        return rows.map { row in
+            Revision(
+                id: row[0].stringValue,
+                nodeID: row[1].stringValue,
+                previousLabel: row[2].stringValue,
+                previousMetadata: (try? decodeJSON(row[3].stringValue)) ?? .object([:]),
+                revisedAt: parseISO8601(row[4].stringValue) ?? Date()
+            )
+        }
     }
 
     /// Deletes a node and all its edges (CASCADE). Also removes from FTS.
     public func deleteNode(id: String) throws {
         try execute("DELETE FROM honeycomb_fts WHERE node_id = ?", args: [.text(id)])
         try execute("DELETE FROM honeycomb_nodes WHERE id = ?", args: [.text(id)])
+    }
+
+    /// Exports one durable node as a provenance-stamped Markdown record.
+    /// The export is a snapshot of the current node and includes linked source
+    /// URLs when the graph has them. Candidate hot-memory entries never reach
+    /// this API because they have no Honeycomb node to export.
+    public func exportMarkdown(_ node: Node) throws -> String {
+        guard let current = try getNode(id: node.id) else {
+            throw HoneycombError.nodeNotFound(node.id)
+        }
+        guard Self.isInspectableNode(current) else {
+            throw HoneycombError.exportNotPermitted(current.id)
+        }
+        var lines = [
+            "# \(current.label)",
+            "",
+            "- Type: `\(current.type.rawValue)`",
+            "- Provenance: `\(current.provenance)`",
+            "- Created: \(iso8601(current.createdAt))",
+            "- Updated: \(iso8601(current.updatedAt))"
+        ]
+        let content: String? = {
+            guard case .object(let values) = current.metadata else { return nil }
+            switch current.type {
+            case .claim:
+                if case .string(let text) = values["text"] { return text }
+            case .brief, .capture, .note, .decision, .question, .preference:
+                if case .string(let text) = values["content"] { return text }
+            case .source:
+                // Exports cite the bounded, user-facing snippet. Full fetched
+                // bodies remain internal grounding data and are never emitted
+                // into a Markdown artifact by default.
+                if case .string(let snippet) = values["snippet"] { return snippet }
+            default:
+                break
+            }
+            return nil
+        }()
+        if let content, !content.isEmpty {
+            lines += ["", "## Content", "", content]
+        }
+        let linkedSources = try getEdges(from: current.id)
+            .compactMap { try? getNode(id: $0.targetID) }
+            .filter { $0.type == .source }
+        if !linkedSources.isEmpty {
+            lines += ["", "## Sources", ""]
+            for source in linkedSources {
+                let url: String
+                if case .object(let values) = source.metadata,
+                   case .string(let storedURL) = values["url"] {
+                    url = storedURL
+                } else {
+                    url = source.label
+                }
+                lines.append("- [\(source.label)](\(url))")
+            }
+        }
+        // Export only stable, user-meaningful metadata. Internal transport,
+        // retention, and extraction fields remain in the graph but do not leak
+        // into a user-facing Markdown artifact by default.
+        if case .object(let values) = current.metadata {
+            let filtered = values.filter { Self.userVisibleMetadataKeys.contains($0.key) }
+            if !filtered.isEmpty {
+                let metadata = try encodeJSON(.object(filtered))
+                lines += ["", "## Metadata", "", "```json", metadata, "```"]
+            }
+        }
+        lines += ["", "_Exported from Hive · \(iso8601(Date()))_", ""]
+        return lines.joined(separator: "\n")
     }
 
     /// Finds a node by type and content_hash. Returns nil if no match.
@@ -557,6 +742,15 @@ public actor HoneycombStore {
         return count
     }
 
+    /// Removes durable nodes written by the pre-admission librarian path.
+    /// This migration is intentionally idempotent: once the legacy provenance
+    /// is gone, later launches are no-ops. Edges and FTS rows are removed by
+    /// the same cascade-aware delete path used by user deletion.
+    @discardableResult
+    public func purgeLegacyLibrarianExtraction() throws -> Int {
+        try deleteByProvenance("librarian-extraction")
+    }
+
     /// Deletes nodes older than the given date. Returns count deleted.
     /// Batch-deletes FTS rows and nodes in two queries (no O(n) round trips).
     @discardableResult
@@ -737,6 +931,32 @@ public actor HoneycombStore {
         return try JSONDecoder().decode(JSONValue.self, from: data)
     }
 
+    /// Single eligibility policy for user-facing durable-memory surfaces.
+    /// Candidate/session records, explicit private records, and known legacy
+    /// private/model-derived records are never inspectable or exportable.
+    public nonisolated static func isInspectableNode(_ node: Node) -> Bool {
+        let legacyPrivateProvenances: Set<String> = [
+            "private-browsing", "private_capture", "private-voice"
+        ]
+        guard node.provenance != "librarian-extraction",
+              !legacyPrivateProvenances.contains(node.provenance) else { return false }
+        guard case .object(let values) = node.metadata else { return true }
+        if case .bool(let isPrivate) = values["isPrivate"], isPrivate { return false }
+        if case .bool(let isCandidate) = values["candidate"], isCandidate { return false }
+        return true
+    }
+
+    private nonisolated static let userVisibleMetadataKeys: Set<String> = [
+        "url", "title", "content", "text", "snippet", "confidence",
+        "freshness", "contradictionState", "evidenceSpans", "sourceIDs",
+        "category"
+    ]
+
+    private nonisolated static func userVisibleMetadata(from metadata: JSONValue) -> JSONValue {
+        guard case .object(let values) = metadata else { return .object([:]) }
+        return .object(values.filter { userVisibleMetadataKeys.contains($0.key) })
+    }
+
     private nonisolated func searchableText(from metadata: JSONValue) -> String {
         switch metadata {
         case .string(let s):           return s
@@ -767,10 +987,14 @@ public actor HoneycombStore {
 
 // MARK: - Errors
 
-public enum HoneycombError: Error, Sendable {
+public enum HoneycombError: Error, Sendable, Equatable {
     case openFailed(String)
     case sqlError(String)
     case parameterMismatch(expected: Int, got: Int)
+    case nodeNotFound(String)
+    case exportNotPermitted(String)
+    case contentHashConflict(type: HoneycombStore.NodeType, contentHash: String, existingNodeID: String)
+    case transactionRollbackFailed(operation: String, rollback: String)
 }
 
 // MARK: - CommonCrypto bridge (zero-dep, system library)

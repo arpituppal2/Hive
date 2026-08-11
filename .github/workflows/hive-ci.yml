@@ -82,8 +82,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          scripts/verify-hivechromium-entitlements.sh Sources/Hive/Hive.entitlements
-          scripts/test-hivechromium-entitlements.sh
+          scripts/verify-hive-entitlements.sh Sources/Hive/Hive.entitlements
+          scripts/test-hive-entitlements.sh
 
   assemble-and-smoke:
     name: Assemble & Smoke (Ad-Hoc)

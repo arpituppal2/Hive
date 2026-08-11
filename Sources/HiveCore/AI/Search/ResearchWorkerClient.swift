@@ -40,10 +40,10 @@ public actor ResearchWorkerClient {
         return hasValidCodeSignature(at: workerURL, requirementString: requirementString)
     }
 
-    /// Accept only the SwiftPM resource-bundle layout used by HiveChromium:
-    /// `<target>.bundle/Contents/Resources/ResearchWorker/worker`. This avoids
+    /// Accept only the SwiftPM resource-bundle layout used by Hive:
+    /// `Hive_Hive.bundle/Contents/Resources/ResearchWorker/worker`. This avoids
     /// treating an arbitrary executable directory as a production resource.
-    private nonisolated static func trustedResourceRoot(for workerURL: URL) -> URL? {
+    nonisolated static func trustedResourceRoot(for workerURL: URL) -> URL? {
         let expectedDirectory = workerURL.deletingLastPathComponent()
         guard expectedDirectory.lastPathComponent == "ResearchWorker",
               workerURL.lastPathComponent == "hive-fetch-worker" else {
@@ -55,8 +55,7 @@ public actor ResearchWorkerClient {
             return nil
         }
         let bundleURL = resourcesURL.deletingLastPathComponent().deletingLastPathComponent()
-        guard bundleURL.pathExtension == "bundle",
-              bundleURL.lastPathComponent.hasSuffix("_HiveChromium.bundle") else {
+        guard bundleURL.lastPathComponent == "Hive_Hive.bundle" else {
             return nil
         }
         return resourcesURL
@@ -363,12 +362,33 @@ public actor ResearchWorkerClient {
            FileManager.default.isExecutableFile(atPath: override) {
             return URL(fileURLWithPath: override)
         }
-        let candidates = [
-            Bundle.main.resourceURL?.appendingPathComponent("hive-fetch-worker"),
-            Bundle.main.executableURL?.deletingLastPathComponent().appendingPathComponent("hive-fetch-worker"),
-            URL(fileURLWithPath: ".build/arm64-apple-macosx/debug/hive-fetch-worker", relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
-        ].compactMap { $0 }
-        return candidates.first { FileManager.default.isExecutableFile(atPath: $0.path) }
+        let bundleWorker = Bundle.main.resourceURL.map(workerURL(fromResourceRoot:))
+        let buildWorker = URL(
+            fileURLWithPath: ".build/arm64-apple-macosx/debug/Hive_Hive.bundle/Contents/Resources/ResearchWorker/hive-fetch-worker",
+            relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        )
+        return [bundleWorker, buildWorker]
+            .compactMap { $0 }
+            .first { FileManager.default.isExecutableFile(atPath: $0.path) }
+    }
+
+    /// Resolves both roots used by macOS app bundles and SwiftPM resource
+    /// bundles. `Bundle.main.resourceURL` normally points to the app's
+    /// `Contents/Resources`, while tests and resource-bundle entry points may
+    /// already provide `Hive_Hive.bundle` as the root.
+    nonisolated static func workerURL(fromResourceRoot root: URL) -> URL {
+        let bundleRoot: URL
+        if root.lastPathComponent == "Hive_Hive.bundle" {
+            bundleRoot = root
+        } else if root.lastPathComponent == "Resources",
+                  root.deletingLastPathComponent().lastPathComponent == "Contents",
+                  root.deletingLastPathComponent().deletingLastPathComponent().lastPathComponent == "Hive_Hive.bundle" {
+            bundleRoot = root.deletingLastPathComponent().deletingLastPathComponent()
+        } else {
+            bundleRoot = root.appendingPathComponent("Hive_Hive.bundle", isDirectory: true)
+        }
+        return bundleRoot
+            .appendingPathComponent("Contents/Resources/ResearchWorker/hive-fetch-worker")
     }
 
     // MARK: - Wire codec

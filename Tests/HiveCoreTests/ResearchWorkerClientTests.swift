@@ -116,6 +116,37 @@ struct ResearchWorkerClientTests {
         #expect(!ResearchWorkerClient.isCanonicalReleaseRequirement("   "))
     }
 
+    @Test func trustedResourceRootAcceptsCurrentHiveBundleAndRejectsLegacyName() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("hive-research-worker-layout-\(UUID().uuidString)")
+        let currentWorker = root
+            .appendingPathComponent("Hive_Hive.bundle/Contents/Resources/ResearchWorker/hive-fetch-worker")
+        let legacyWorker = root
+            .appendingPathComponent("Hive_HiveChromium.bundle/Contents/Resources/ResearchWorker/hive-fetch-worker")
+        try FileManager.default.createDirectory(
+            at: currentWorker.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.createDirectory(
+            at: legacyWorker.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        #expect(ResearchWorkerClient.trustedResourceRoot(for: currentWorker)?.lastPathComponent == "Resources")
+        #expect(ResearchWorkerClient.trustedResourceRoot(for: legacyWorker) == nil)
+    }
+
+    @Test func workerLocatorHandlesAppResourcesAndAlreadyBundledRoots() {
+        let appResources = URL(fileURLWithPath: "/tmp/Hive.app/Contents/Resources")
+        let resourceBundle = appResources.appendingPathComponent("Hive_Hive.bundle")
+        let bundledResources = resourceBundle.appendingPathComponent("Contents/Resources")
+        let expectedWorker = resourceBundle.appendingPathComponent("Contents/Resources/ResearchWorker/hive-fetch-worker")
+        #expect(ResearchWorkerClient.workerURL(fromResourceRoot: appResources).path == expectedWorker.path)
+        #expect(ResearchWorkerClient.workerURL(fromResourceRoot: resourceBundle).path == expectedWorker.path)
+        #expect(ResearchWorkerClient.workerURL(fromResourceRoot: bundledResources).path == expectedWorker.path)
+    }
+
     @Test func unsignedExecutableFailsCodeSignatureGate() throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("hive-research-worker-signature-\(UUID().uuidString)")

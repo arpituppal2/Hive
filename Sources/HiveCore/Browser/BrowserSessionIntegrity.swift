@@ -94,7 +94,10 @@ private extension BrowserSessionWindow {
 
             normalized.groups = space.groups.map { group in
                 var normalizedGroup = group
-                let filteredGroupIDs = group.tabIDs.filter(validTabIDs.contains)
+                // A group belongs to this space; a tab that exists in the
+                // session but belongs to another space must not be restored
+                // into this group's UI.
+                let filteredGroupIDs = group.tabIDs.filter(uniqueSpaceIDs.contains)
                 let uniqueGroupIDs = orderedUnique(filteredGroupIDs)
                 report = report + BrowserSessionRepairReport(
                     removedDanglingTabReferences: group.tabIDs.count - filteredGroupIDs.count,

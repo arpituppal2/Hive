@@ -11,8 +11,7 @@ struct ContextRequestCoordinatorTests {
         let orchestrator = SwarmOrchestrator(
             dispatcher: .shared,
             hotMemory: hotMemory,
-            ledger: ledger,
-            honeycomb: honeycomb
+            ledger: ledger
         )
         let token = ContextTransitionToken()
         return (

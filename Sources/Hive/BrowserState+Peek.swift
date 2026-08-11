@@ -405,20 +405,104 @@ extension BrowserState {
     }
 
 
-    /// Mutes or unmutes the mini-player's tab via the page's own media
-    /// element. Muting stops the speaker indicator (probe reports stopped)
-    /// and hides the player — matching the "no mini-player for muted media"
-    /// behavior Arc uses.
+    /// Mutes or unmutes the mini-player's tab. Routes through the SAME
+    /// browser-level CEF mute as the tab pill — one source of truth, so a
+    /// mini-player-muted tab shows `speaker.slash.fill` in the tab strip and
+    /// vice versa. Browser-level mute keeps the media element playing (the
+    /// probe still reports playing), so the card stays visible with its
+    /// speaker state flipped — Arc keeps the player for muted media too.
     func toggleMiniPlayerMute() {
-        guard let tab = miniPlayerTab, !tab.isHibernated else { return }
-        tab.model.executeJavaScript("""
-        (function(){
-          var els = document.querySelectorAll('video,audio');
-          for (var i = 0; i < els.length; i++){
-            if (!els[i].paused) { els[i].muted = !els[i].muted; return; }
-          }
-        })();
-        """)
+        guard let tab = miniPlayerTab else { return }
+        toggleMuteTab(id: tab.id)
+    }
+
+
+    /// Whether the mini-player's tab is currently muted (drives the player's
+    /// speaker icon).
+    var isMiniPlayerMuted: Bool {
+        guard let id = miniPlayerTabID else { return false }
+        return isTabMuted(id)
+    }
+
+
+    /// Whether the tab is muted at the browser level (CEF `SetAudioMuted`).
+    /// Reads the app-owned set so the UI is correct even before the renderer
+    /// attaches (cold/waking tabs).
+    func isTabMuted(_ id: String) -> Bool {
+        mutedTabIDs.contains(id)
+    }
+
+
+    /// Toggles whole-renderer muting for a tab — Chrome parity for the tab
+    /// speaker. Applies via the real CEF audio-mute API so it works before
+    /// any media plays, survives navigations, and never touches the page's
+    /// own elements. Private tabs are treated like any tab (mute is
+    /// renderer-local and leaves no durable record).
+    func toggleMuteTab(id: String) {
+        guard let tab = tabs.first(where: { $0.id == id }) else { return }
+        if mutedTabIDs.contains(id) {
+            mutedTabIDs.remove(id)
+            tab.model.browser?.isAudioMuted = false
+        } else {
+            mutedTabIDs.insert(id)
+            tab.model.browser?.isAudioMuted = true
+        }
+    }
+
+
+    /// Re-applies a tab's stored mute when its browser attaches (hibernate
+    /// wake or lazy restore). Mirrors `applyStoredZoom`'s attach-time
+    /// convention; no-op until the CEF browser exists.
+    func applyStoredMute(for tab: Tab) {
+        guard mutedTabIDs.contains(tab.id), let browser = tab.model.browser else { return }
+        browser.isAudioMuted = true
+    }
+
+
+    /// The URL used for site keying: the live page, or the durable wake URL
+    /// for hibernated tabs whose model is blank (matches `duplicateTab` and
+    /// `HibernationAdapter.effectiveWakeURL` conventions). Without this, a
+    /// cold tab could never be site-muted and the menu would lie.
+    private func siteURL(for tab: Tab) -> URL? {
+        tab.model.url ?? tab.savedURL
+    }
+
+
+    /// Whether the tab's site (http/https host, www-stripped) is in the
+    /// durable per-site mute set (Safari/Chrome "Mute Site"). Works for
+    /// hibernated tabs via their saved wake URL.
+    func isSiteMuted(for tab: Tab) -> Bool {
+        guard let host = SiteMutePolicy.hostKey(for: siteURL(for: tab)) else { return false }
+        return siteMutedHosts.contains(host)
+    }
+
+
+    /// Toggles the durable per-site mute. Muting a site mutes every open tab
+    /// currently on that host (hibernated ones included, via their wake URL);
+    /// unmuting releases exactly the mutes this site mute created — per-tab
+    /// mutes the user set independently survive, matching Chrome's layered
+    /// model. Private tabs participate like any tab: the mute set is a
+    /// preference, not browsing data, and never leaves the device.
+    func toggleSiteMute(for tab: Tab) {
+        guard let host = SiteMutePolicy.hostKey(for: siteURL(for: tab)) else { return }
+        toggleSiteMute(host: host)
+    }
+
+
+    /// Applies a site mute to a tab whose current host is in the durable set.
+    /// Called after navigation completes and at browser attach, mirroring
+    /// `applySiteZoom`/`applyStoredMute`'s conventions. No-op until the CEF
+    /// browser exists; no-op for unmuted hosts (per-tab mute stays
+    /// independent). Provenance is recorded so "Unmute Site" can release it
+    /// without touching independent per-tab mutes.
+    func applySiteMuteIfNeeded(for tab: Tab) {
+        guard let host = SiteMutePolicy.hostKey(for: siteURL(for: tab)),
+              siteMutedHosts.contains(host),
+              let browser = tab.model.browser
+        else { return }
+        mutedTabIDs.insert(tab.id)
+        siteMutedTabIDs.insert(tab.id)
+        browser.isAudioMuted = true
     }
 
 

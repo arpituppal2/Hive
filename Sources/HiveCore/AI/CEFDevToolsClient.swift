@@ -338,13 +338,74 @@ public final class CDPClient {
 
     // MARK: Screenshot
 
-    public func captureScreenshot() async throws -> Data? {
-        let result = try await send(method: "Page.captureScreenshot", params: ["format": "png"])
+    public func captureScreenshot(timeout: Duration = .seconds(30)) async throws -> Data? {
+        let result = try await send(
+            method: "Page.captureScreenshot",
+            params: ["format": "png"],
+            timeout: timeout
+        )
         guard let inner = unwrapResult(result) else { return nil }
         if let dataStr = inner["data"] as? String {
             return Data(base64Encoded: dataStr)
         }
         return nil
+    }
+
+    /// Captures the entire scrollable page, not just the viewport (Chrome's
+    /// "full page" screenshot / Safari's full-page capture). CDP's
+    /// `captureBeyondViewport` stitches the whole document together, so a
+    /// long article produces one tall PNG. Best-effort: some pages (fixed
+    /// viewport layouts, infinite scroll) capture only what's reachable.
+    public func captureFullPageScreenshot(timeout: Duration = .seconds(30)) async throws -> Data? {
+        let result = try await send(
+            method: "Page.captureScreenshot",
+            params: ["format": "png", "captureBeyondViewport": true, "fromSurface": true],
+            timeout: timeout
+        )
+        guard let inner = unwrapResult(result) else { return nil }
+        if let dataStr = inner["data"] as? String {
+            return Data(base64Encoded: dataStr)
+        }
+        return nil
+    }
+
+    // MARK: - Clear Browsing Data (Chrome parity)
+
+    /// Clears the browser-wide HTTP cache (`Network.clearBrowserCache`). CDP
+    /// cache clearing is browser-global regardless of which target issued it,
+    /// so one call covers every workspace/profile.
+    public func clearBrowserCache(timeout: Duration = .seconds(10)) async throws {
+        _ = try await send(method: "Network.clearBrowserCache", timeout: timeout)
+    }
+
+    /// Clears all browser cookies (`Network.clearBrowserCookies`). Also
+    /// browser-global; no per-site or time-scoped variant exists in CDP, which
+    /// is why the Clear Browsing Data panel clears cookies in full.
+    public func clearBrowserCookies(timeout: Duration = .seconds(10)) async throws {
+        _ = try await send(method: "Network.clearBrowserCookies", timeout: timeout)
+    }
+
+    /// Returns every cookie the browser currently holds (`Network.getCookies`)
+    /// as raw dictionaries (`name`, `domain`, `path`, `httpOnly`, …). Callers
+    /// filter with `SiteDataPolicy.cookieDomainMatches` for per-site removal.
+    public func networkCookies(timeout: Duration = .seconds(10)) async throws -> [[String: Any]] {
+        let result = try await send(method: "Network.getCookies", timeout: timeout)
+        guard let inner = unwrapResult(result),
+              let cookies = inner["cookies"] as? [[String: Any]]
+        else { return [] }
+        return cookies
+    }
+
+    /// Deletes one cookie by name + exact domain (`Network.deleteCookies`).
+    /// The domain is passed through as CDP reported it (leading dot
+    /// preserved) so exact-domain matching deletes both host-only and
+    /// domain-scoped cookies; `path` defaults to "/" to cover every path.
+    public func deleteCookie(name: String, domain: String, path: String = "/", timeout: Duration = .seconds(10)) async throws {
+        _ = try await send(method: "Network.deleteCookies", params: [
+            "name": name,
+            "domain": domain,
+            "path": path
+        ], timeout: timeout)
     }
 
     // MARK: Diff — What changed since last snapshot

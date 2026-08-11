@@ -16,6 +16,7 @@ import CefSwiftUI
 import CefKit
 import HiveCore
 import AppKit
+import UniformTypeIdentifiers
 
 
 // MARK: - BrowserState + ContextMenu
@@ -30,6 +31,20 @@ extension BrowserState {
     /// built-in IDs so CEF executes them; app actions use the user range.
     func buildContextMenu(_ menu: CefMenuModel, params: CefContextMenuParams) {
         menu.clear()
+
+        // Chrome/Safari parity: navigation entries head the menu. CEF can't
+        // gray items, so Back/Forward appear only when the active tab actually
+        // has history — a dead Back entry would be worse than none.
+        // Standard command IDs, so CEF executes the navigation itself.
+        if activeModel?.canGoBack == true {
+            menu.addItem(commandID: CefContextMenuCommand.back.rawValue, title: "Back")
+        }
+        if activeModel?.canGoForward == true {
+            menu.addItem(commandID: CefContextMenuCommand.forward.rawValue, title: "Forward")
+        }
+        if activeModel?.canGoBack == true || activeModel?.canGoForward == true {
+            menu.addSeparator()
+        }
 
         menu.addItem(commandID: CefContextMenuCommand.reload.rawValue, title: "Reload")
         menu.addSeparator()
@@ -65,9 +80,50 @@ extension BrowserState {
         if !params.isEditable, !selection.isEmpty {
             menu.addItem(commandID: CefContextMenuCommand.copy.rawValue, title: "Copy")
             menu.addItem(commandID: HiveContextMenuAction.searchSelection.rawValue,
-                         title: "Search \"\(truncatedSelection(selection))\" with \(searchEngine.rawValue)")
+                         title: "Search \"\(truncatedSelection(selection))\" with \(searchEngineDisplayName)")
             menu.addItem(commandID: HiveContextMenuAction.askHiveSelection.rawValue, title: "Ask Hive about selection")
             menu.addSeparator()
+        }
+
+        // Arc-parity Boost: any real web page can get a site style.
+        if httpOnlyURL(activeModel?.url) != nil {
+            menu.addItem(commandID: HiveContextMenuAction.createBoostForPage.rawValue, title: "Boost This Site…")
+            // Safari-parity Reading List: save the current page for later, or
+            // remove it when it's already saved (menu reflects live state).
+            // Private tabs never offer it — a private page leaves no durable
+            // trace, so a dead menu item would be worse than none.
+            if activeTab?.isPrivate != true {
+                if isInReadingList(activeModel?.url) {
+                    menu.addItem(commandID: HiveContextMenuAction.removeFromReadingList.rawValue, title: "Remove from Reading List")
+                } else {
+                    menu.addItem(commandID: HiveContextMenuAction.addToReadingList.rawValue, title: "Add to Reading List")
+                }
+                // Arc-parity Pinned Apps: pin the current page as a quick-launch
+                // app, or unpin it when it's already pinned (state-aware menu).
+                if isPinnedWebApp(activeModel?.url) {
+                    menu.addItem(commandID: HiveContextMenuAction.removeFromPinnedApps.rawValue, title: "Remove from Pinned Apps")
+                } else {
+                    menu.addItem(commandID: HiveContextMenuAction.addToPinnedApps.rawValue, title: "Add to Pinned Apps")
+                }
+            }
+        }
+
+        // Chrome/Arc parity: capture the current page from any web context menu.
+        if httpOnlyURL(activeModel?.url) != nil {
+            menu.addItem(commandID: HiveContextMenuAction.capturePageScreenshot.rawValue, title: "Take Screenshot…")
+            menu.addItem(commandID: HiveContextMenuAction.copyPageScreenshot.rawValue, title: "Copy Screenshot")
+            // Chrome/Safari parity: full-page capture of the whole scrollable
+            // document (Safari's "full page" screenshot).
+            menu.addItem(commandID: HiveContextMenuAction.captureFullPageScreenshot.rawValue, title: "Capture Full Page…")
+            menu.addItem(commandID: HiveContextMenuAction.copyFullPageScreenshot.rawValue, title: "Copy Full Page")
+            menu.addItem(commandID: HiveContextMenuAction.copyPageURL.rawValue, title: "Copy Page URL")
+        }
+        // Arc parity: copy every open tab URL in this workspace.
+        if httpOnlyURL(activeModel?.url) != nil, !tabs.isEmpty {
+            menu.addItem(commandID: HiveContextMenuAction.copyAllTabURLs.rawValue,
+                         title: "Copy All Tab URLs")
+            menu.addItem(commandID: HiveContextMenuAction.copyAllTabsMarkdown.rawValue,
+                         title: "Copy All Tabs as Markdown")
         }
 
         // The Hive differentiator: every page menu ends with Ask Hive.
@@ -95,9 +151,7 @@ extension BrowserState {
             if let source = httpOnlyURL(params.sourceURL) { saveImageAs(url: source) }
         case .searchSelection:
             let q = params.selectionText.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !q.isEmpty,
-                  let encoded = q.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                  let url = URL(string: searchEngine.searchURL + encoded)
+            guard !q.isEmpty, let url = searchURL(for: q)
             else { return }
             newTab(url: url, activate: false)
         case .askHiveSelection:
@@ -106,7 +160,183 @@ extension BrowserState {
             askHive(q)
         case .askHivePage:
             askHive("Tell me about \(activeModel?.title ?? "this page")")
+        case .createBoostForPage:
+            guard let url = activeModel?.url, httpOnlyURL(url) != nil,
+                  let host = url.host else { return }
+            // Prefill the editor with this host; the Boosts sheet opens the
+            // editor on appear when a pending host is set.
+            pendingBoostHost = host
+            isBoostsPanelOpen = true
+        case .addToReadingList:
+            _ = addCurrentPageToReadingList()
+        case .removeFromReadingList:
+            removeCurrentPageFromReadingList()
+        case .addToPinnedApps:
+            _ = addCurrentPageAsPinnedApp()
+        case .removeFromPinnedApps:
+            if let url = activeModel?.url {
+                pinnedWebApps.removeAll { app in
+                    PinnedWebAppPolicy.isSameApp(app.url, url)
+                }
+            }
+        case .capturePageScreenshot:
+            capturePageScreenshot()
+        case .copyPageScreenshot:
+            copyPageScreenshot()
+        case .captureFullPageScreenshot:
+            captureFullPageScreenshot()
+        case .copyFullPageScreenshot:
+            copyFullPageScreenshot()
+        case .copyPageURL:
+            copyPageURL()
+        case .copyAllTabURLs:
+            copyAllTabURLs()
+        case .copyAllTabsMarkdown:
+            copyAllTabsAsMarkdown()
         }
+    }
+
+
+    // MARK: - Page Screenshot (Chrome / Arc parity)
+
+    /// Captures the current page through the CDP bridge and shows a Save
+    /// panel. Uses the page title for the suggested filename (sanitized), and
+    /// surfaces the saved file as a completed download. No-op on chrome/blank
+    /// pages and when the CDP bridge isn't wired.
+    func capturePageScreenshot() {
+        guard screenshotReady() else { return }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                // A short bound keeps a wedged CDP target from hanging the
+                // interaction for the full 30s default.
+                guard let data = try await self.cdpClient.captureScreenshot(timeout: .seconds(10)) else { return }
+                guard !Task.isCancelled else { return }
+                self.saveScreenshot(
+                    data,
+                    message: "Save a screenshot of \(self.activeModel?.url?.host ?? "this page")",
+                    filename: self.screenshotFilename(from: self.activeModel?.title ?? self.activeModel?.url?.host ?? "page")
+                )
+            } catch {
+                NSLog("[HiveScreenshot] Capture failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    /// Captures the current page and copies the PNG to the pasteboard — the
+    /// quick share/annotate path.
+    func copyPageScreenshot() {
+        guard screenshotReady() else { return }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                guard let data = try await self.cdpClient.captureScreenshot(timeout: .seconds(10)) else { return }
+                guard !Task.isCancelled else { return }
+                self.copyToPasteboard(data)
+            } catch {
+                NSLog("[HiveScreenshot] Copy failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    /// Captures the whole scrollable page (not just the viewport) and shows a
+    /// Save panel, sharing the viewport path's save/download behavior. Chrome
+    /// "full page" / Safari full-page capture parity.
+    func captureFullPageScreenshot() {
+        guard screenshotReady() else { return }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                guard let data = try await self.cdpClient.captureFullPageScreenshot(timeout: .seconds(20)) else { return }
+                guard !Task.isCancelled else { return }
+                self.saveScreenshot(
+                    data,
+                    message: "Save a full-page screenshot of \(self.activeModel?.url?.host ?? "this page")",
+                    filename: self.screenshotFilename(from: self.activeModel?.title ?? self.activeModel?.url?.host ?? "page", suffix: "-full")
+                )
+            } catch {
+                NSLog("[HiveScreenshot] Full-page capture failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    /// Copies the full-page capture to the pasteboard.
+    func copyFullPageScreenshot() {
+        guard screenshotReady() else { return }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                guard let data = try await self.cdpClient.captureFullPageScreenshot(timeout: .seconds(20)) else { return }
+                guard !Task.isCancelled else { return }
+                self.copyToPasteboard(data)
+            } catch {
+                NSLog("[HiveScreenshot] Full-page copy failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    /// Copies PNG bytes to the general pasteboard.
+    func copyToPasteboard(_ data: Data) {
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setData(data, forType: .png)
+    }
+
+    /// Shared screenshot save path: NSSavePanel → write → completed Download
+    /// item. The record's source URL is the page, not the local file —
+    /// matching saveImageAs so the Downloads panel and persisted history show
+    /// where the screenshot came from.
+    private func saveScreenshot(_ data: Data, message: String, filename: String) {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = filename
+        panel.allowedContentTypes = [.png]
+        panel.message = message
+        guard panel.runModal() == .OK, let destination = panel.url else { return }
+        do {
+            try data.write(to: destination)
+        } catch {
+            NSLog("[HiveScreenshot] Save failed: \(error.localizedDescription)")
+            return
+        }
+        var item = DownloadItem(
+            suggestedName: destination.lastPathComponent,
+            url: activeModel?.url ?? destination
+        )
+        item.isComplete = true
+        item.destinationURL = destination
+        downloads.append(item)
+        scheduleAutosave()
+    }
+
+    /// True when a screenshot is actually possible: a real http(s) page with an
+    /// attached browser that isn't hibernated. Prevents a 30s CDP timeout on a
+    /// sleeping or unattached tab.
+    private func screenshotReady() -> Bool {
+        guard canUseWebPageActions,
+              let tab = activeTab,
+              !tab.isHibernated,
+              tab.model.browser != nil,
+              httpOnlyURL(tab.model.url) != nil
+        else { return false }
+        return true
+    }
+
+    /// Sanitizes a page title into a safe save-panel default: control
+    /// characters stripped, path separators replaced, whitespace collapsed,
+    /// and a length cap so a 300-char title never produces an unwieldy name.
+    /// `suffix` (e.g. "-full") distinguishes full-page captures from viewport
+    /// ones in the suggested filename.
+    func screenshotFilename(from raw: String, suffix: String = "") -> String {
+        let cleaned = raw
+            .unicodeScalars
+            .filter { $0.value >= 0x20 }
+            .map(String.init)
+            .joined()
+            .replacingOccurrences(of: "/", with: "-")
+            .split(whereSeparator: \.isWhitespace)
+            .joined(separator: " ")
+        let capped = cleaned.count > 60 ? String(cleaned.prefix(60)).trimmingCharacters(in: .whitespaces) : cleaned
+        return (capped.isEmpty ? "screenshot" : capped) + suffix + ".png"
     }
 
 
@@ -121,6 +351,64 @@ extension BrowserState {
         let pb = NSPasteboard.general
         pb.clearContents()
         pb.setString(text, forType: .string)
+    }
+
+
+    /// Copies the current page's http(s) URL to the pasteboard. No-op on
+    /// chrome/blank pages — internal URLs are noise, not shareable links.
+    func copyPageURL() {
+        guard let url = activeModel?.url, httpOnlyURL(url) != nil else { return }
+        copyToPasteboard(url.absoluteString)
+    }
+
+
+    /// Copies every open tab URL in the current workspace, one per line — the
+    /// Arc "copy links" share path. Only real http(s) pages are included;
+    /// internal chrome and blank pages are noise, not links, and private tabs
+    /// never leave ephemeral state (their URLs stay off the shared clipboard).
+    /// The workspace's copyable tabs: non-private tabs in the current
+    /// workspace with a real http(s) page. Hibernated tabs contribute their
+    /// wake URL (the blank live model would otherwise drop them). Shared by
+    /// the URL and markdown copy variants so their exclusions never drift.
+    private func workspaceCopyableTabs() -> [Tab] {
+        tabs.filter { tab in
+            guard tab.workspaceID == currentWorkspaceID, !tab.isPrivate,
+                  let url = tab.model.url ?? tab.savedURL,
+                  httpOnlyURL(url) != nil
+            else { return false }
+            return true
+        }
+    }
+
+    func copyAllTabURLs() {
+        let urls = workspaceCopyableTabs()
+            .compactMap { $0.model.url ?? $0.savedURL }
+            .map(\.absoluteString)
+        guard !urls.isEmpty else { return }
+        copyToPasteboard(urls.joined(separator: "\n"))
+    }
+
+
+    /// Copies the current workspace's tabs as a markdown link list
+    /// (`[Title](<url>)` per line) — a ready-made outline for notes, docs,
+    /// and handoffs. Same exclusions as `copyAllTabURLs` (private tabs,
+    /// non-http pages); a custom tab name wins, else the page title, else the
+    /// host. Labels collapse whitespace runs (page titles can contain
+    /// newlines) and escape `[`/`]`; destinations are wrapped in angle
+    /// brackets so URLs containing `)` or spaces stay valid markdown.
+    func copyAllTabsAsMarkdown() {
+        let lines = workspaceCopyableTabs().compactMap { tab -> String? in
+            guard let url = tab.model.url ?? tab.savedURL else { return nil }
+            let title = tab.customTitle ?? tab.model.title
+            let collapsed = title.split(whereSeparator: \.isWhitespace).joined(separator: " ")
+            let label = collapsed.isEmpty ? (url.host ?? url.absoluteString) : collapsed
+            let escaped = label
+                .replacingOccurrences(of: "[", with: "\\[")
+                .replacingOccurrences(of: "]", with: "\\]")
+            return "[\(escaped)](<\(url.absoluteString)>)"
+        }
+        guard !lines.isEmpty else { return }
+        copyToPasteboard(lines.joined(separator: "\n"))
     }
 
 
@@ -188,12 +476,18 @@ extension BrowserState {
                     if scheme == "http" || scheme == "https" {
                         model.executeJavaScript(Self.linkPeekProbeScript)
                         model.executeJavaScript(Self.mediaStateProbeScript)
+                        // Autofill never runs in private tabs (the probe would
+                        // be harmless on its own, but no probe, no fill path).
+                        if self.tabs.first(where: { $0.id == tabID })?.isPrivate != true {
+                            model.executeJavaScript(Self.autofillProbeScript)
+                        }
                     }
                     // The browser is attached now — re-apply this tab's
-                    // persisted zoom (wake/duplicate/split paths never go
-                    // through selectTab).
+                    // persisted zoom and mute (wake/duplicate/split paths
+                    // never go through selectTab).
                     if let tab = self.tabs.first(where: { $0.id == tabID }) {
                         self.applyStoredZoom(for: tab)
+                        self.applyStoredMute(for: tab)
                     }
                     self.tabObservationTasks.removeValue(forKey: key)
                     return
@@ -254,12 +548,36 @@ extension BrowserState {
                         model.executeJavaScript(Self.linkPeekProbeScript)
                         model.executeJavaScript(Self.mediaStateProbeScript)
                         self.applyCosmeticAdBlock(on: model, url: completedURL)
+                        // User-authored site styles never reach private tabs
+                        // (Chrome extensions don't inject into incognito).
+                        if !currentTab.isPrivate {
+                            // Login pages usually arrive via a redirect — this
+                            // fresh JS context needs the autofill probe re-armed
+                            // too (never in private tabs).
+                            model.executeJavaScript(Self.autofillProbeScript)
+                            self.applyBoosts(on: model, url: completedURL)
+                        }
                     }
-                    // Zoom is sticky per tab across navigations (Chrome-like).
+                    // Zoom and mute are sticky per tab across navigations
+                    // (Chrome-like); re-apply both on the completing tab.
                     self.applyStoredZoom(for: currentTab)
+                    self.applyStoredMute(for: currentTab)
                     let title = model.title
+                    // Back/forward menu stack: record the committed page in the
+                    // owning tab's entry list (never private tabs — their
+                    // navigation must leave no trace in chrome surfaces).
+                    if let completedURL,
+                       currentTab.isPrivate == false,
+                       completedURL.scheme?.lowercased() == "http" || completedURL.scheme?.lowercased() == "https" {
+                        self.recordCommittedNavigation(for: tabID, url: completedURL, title: title)
+                    }
+                    // History entries are admitted at navigation start, but the
+                    // CEF completion is delayed and focus can move meanwhile.
+                    // Resolve privacy from the completing tab, never from the
+                    // global active-tab projection, before touching durable state.
                     if let entryID,
                        let completedURL,
+                       currentTab.isPrivate == false,
                        !title.isEmpty,
                        let idx = self.historyItems.lastIndex(where: { $0.id == entryID }) {
                         let currentFavicon = self.historyItems[idx].faviconURL ?? model.faviconURL

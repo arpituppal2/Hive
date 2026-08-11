@@ -131,7 +131,35 @@ struct HorizontalChromeView: View {
     private var navigationButtons: some View {
         HStack(spacing: HiveDesign.Space.xxs) {
             navButton("chevron.left", enabled: state.canGoBack) { state.goBack() }
+                // Chrome/Safari convention: right-click (or control-click) the
+                // back/forward buttons to jump to a recent committed entry.
+                .contextMenu {
+                    if state.activeBackHistory.isEmpty {
+                        Text("No back history")
+                    } else {
+                        ForEach(state.activeBackHistory.prefix(12), id: \.url) { entry in
+                            Button {
+                                state.navigateFromHistoryMenu(to: entry.url)
+                            } label: {
+                                Label(entry.title, systemImage: "arrow.left")
+                            }
+                        }
+                    }
+                }
             navButton("chevron.right", enabled: state.canGoForward) { state.goForward() }
+                .contextMenu {
+                    if state.activeForwardHistory.isEmpty {
+                        Text("No forward history")
+                    } else {
+                        ForEach(state.activeForwardHistory.prefix(12), id: \.url) { entry in
+                            Button {
+                                state.navigateFromHistoryMenu(to: entry.url)
+                            } label: {
+                                Label(entry.title, systemImage: "arrow.right")
+                            }
+                        }
+                    }
+                }
             Button(action: { state.isLoading ? state.stop() : state.reload() }) {
                 Image(systemName: state.isLoading ? "xmark" : "arrow.clockwise")
                     .font(.system(size: HiveDesign.Typography.sizeMD, weight: .medium))
@@ -140,6 +168,7 @@ struct HorizontalChromeView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(state.isLoading ? "Stop loading" : "Reload page")
+            .help(state.isLoading ? "Stop (Esc)" : "Reload (⌘R)")
         }
     }
 
@@ -152,6 +181,7 @@ struct HorizontalChromeView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(systemName == "chevron.left" ? "Go back" : "Go forward")
+        .help(systemName == "chevron.left" ? "Back (⌘[)" : "Forward (⌘])")
         .disabled(!enabled)
     }
 
@@ -206,6 +236,7 @@ struct HorizontalChromeView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("New tab")
+        .help("New Tab (⌘T)")
         .padding(.leading, 2)
     }
 
@@ -224,6 +255,7 @@ struct HorizontalChromeView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("Memory saver")
                 .accessibilityValue("Enabled")
+                .help("Memory Saver (leaf)")
             }
             if state.isVoiceModeActive { badge("mic.fill", color: HiveDesign.Accent.primary) }
             if state.canUseWebPageActions {
@@ -256,9 +288,10 @@ struct HorizontalChromeView: View {
                 .accessibilityHint("Activate to restore 100 percent")
                 .help("Zoom \(state.activeZoomPercent)% — click to reset")
             }
-            iconButton("arrow.down.circle", active: state.downloads.contains(where: { !$0.isComplete })) { state.isDownloadsPanelOpen = true }
+            DownloadsStatusView()
             iconButton("paintpalette", active: state.isCustomizePanelOpen) { state.isCustomizePanelOpen.toggle() }
             iconButton("rectangle.lefthalf.inset.filled", active: false) { state.toggleLayout() }
+            SyncStatusView()
             Divider().frame(height: 18)
             profileIcon
         }
@@ -293,6 +326,7 @@ struct HorizontalChromeView: View {
         }
         .menuStyle(.borderlessButton)
         .accessibilityLabel("Profile and workspace menu")
+        .help("Profile and workspaces")
     }
 
     private func iconButton(_ icon: String, active: Bool, action: @escaping () -> Void) -> some View {
@@ -305,6 +339,7 @@ struct HorizontalChromeView: View {
         .buttonStyle(.plain)
         .accessibilityLabel(toolbarLabel(for: icon))
         .accessibilityValue(active ? "Open" : "Closed")
+        .help(toolbarLabel(for: icon))
     }
 
     private func toolbarLabel(for icon: String) -> String {
@@ -335,10 +370,16 @@ struct HorizontalChromeView: View {
 
 struct BookmarksBar: View {
     @Environment(BrowserState.self) private var state
+    /// Root-scope only: folders and content bookmarks at the top level. Items
+    /// inside folders are reached by drilling in via the manager (Chrome/Safari
+    /// bookmarks-bar behavior).
+    private var rootItems: [Bookmark] {
+        state.bookmarks.filter { $0.parentID == nil }
+    }
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 0) {
-                ForEach(state.bookmarks) { bookmark in
+                ForEach(rootItems) { bookmark in
                     BookmarkButton(bookmark: bookmark)
                 }
             }
@@ -354,18 +395,36 @@ struct BookmarkButton: View {
     let bookmark: Bookmark
     @State private var isHovered: Bool = false
     var body: some View {
-        Button(action: { state.navigateToURL(bookmark.url) }) {
-            Text(bookmark.title)
-                .font(.system(size: HiveDesign.Typography.sizeMD, weight: .medium))
-                .foregroundStyle(HiveDesign.Text.secondary)
-                .lineLimit(1)
-                .padding(.horizontal, HiveDesign.Space.xs)
-                .padding(.vertical, 2)
-                .background(isHovered ? HiveDesign.Surface.level2 : Color.clear)
-                .clipShape(RoundedRectangle(cornerRadius: HiveDesign.Radius.xs, style: .continuous))
+        // Folders drill into the manager; content bookmarks navigate. A
+        // folder has no URL — navigating it would be a blank page.
+        Button(action: {
+            if bookmark.isFolder {
+                state.openBookmarksManager(folderID: bookmark.id)
+            } else {
+                state.navigateToURL(bookmark.url)
+            }
+        }) {
+            HStack(spacing: 4) {
+                if bookmark.isFolder {
+                    Image(systemName: "folder.fill")
+                        .font(.system(size: HiveDesign.Typography.sizeSM))
+                        .foregroundStyle(Color.hiveAccent)
+                }
+                Text(bookmark.title)
+                    .font(.system(size: HiveDesign.Typography.sizeMD, weight: .medium))
+                    .foregroundStyle(HiveDesign.Text.secondary)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, HiveDesign.Space.xs)
+            .padding(.vertical, 2)
+            .background(isHovered ? HiveDesign.Surface.level2 : Color.clear)
+            .clipShape(RoundedRectangle(cornerRadius: HiveDesign.Radius.xs, style: .continuous))
         }
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
+        .help(bookmark.isFolder ? "Open \(bookmark.title) folder" : "Open \(bookmark.title)")
+        .accessibilityLabel(bookmark.isFolder ? "\(bookmark.title) folder" : bookmark.title)
+        .accessibilityHint(bookmark.isFolder ? "Opens the bookmarks manager in this folder" : "Opens this bookmark")
     }
 }
 
@@ -403,6 +462,8 @@ struct HorizontalEssentialPill: View {
         .contextMenu {
             Button("Close") { state.closeTab(id: tab.id) }
             Button("Reload") { state.reloadTab(id: tab.id) }
+            Divider()
+            Button("Bookmark All Tabs…") { state.bookmarkAllTabs() }
             Divider()
             if tab.isPinned { Button("Unpin") { state.togglePinTab(id: tab.id) } }
             else { Button("Pin") { state.togglePinTab(id: tab.id) } }
@@ -472,13 +533,18 @@ struct HorizontalTabPill: View {
                     .font(HiveDesign.Typography.shortcutBadge)
                     .foregroundStyle(HiveDesign.Text.tertiary)
             }
-            // Live playing indicator from the media-state probe — only shows
-            // for genuinely playing, unmuted media.
-            if state.mediaPlayingTabIDs.contains(tab.id) {
-                Image(systemName: "speaker.wave.2.fill")
-                    .font(HiveDesign.Typography.microLabel)
-                    .foregroundStyle(HiveDesign.Accent.primary)
-                    .help("Playing audio")
+            // Browser-level mute state (CEF SetAudioMuted) takes precedence
+            // over the live playing indicator: one interactive speaker button
+            // that shows and toggles the tab's real mute.
+            if state.isTabMuted(tab.id) || state.mediaPlayingTabIDs.contains(tab.id) {
+                Button(action: { state.toggleMuteTab(id: tab.id) }) {
+                    Image(systemName: state.isTabMuted(tab.id) ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                        .font(HiveDesign.Typography.microLabel)
+                        .foregroundStyle(state.isTabMuted(tab.id) ? HiveDesign.Accent.primary : HiveDesign.Text.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(state.isTabMuted(tab.id) ? "Unmute tab" : "Mute tab")
+                .accessibilityLabel(state.isTabMuted(tab.id) ? "Unmute tab" : "Mute tab")
             }
             if isHovered || isActive {
                 Button(action: { state.closeTab(id: tab.id) }) {
@@ -577,7 +643,10 @@ struct HorizontalTabPill: View {
             Divider()
             Button("Ask about this tab") { state.askAboutTab(id: tab.id) }
             Button("Duplicate") { state.duplicateTab(id: tab.id) }
+            Button("Rename…") { state.presentTabRename(tab) }
             Button("Reload") { state.reloadTab(id: tab.id) }
+            Button(state.isTabMuted(tab.id) ? "Unmute Tab" : "Mute Tab") { state.toggleMuteTab(id: tab.id) }
+            Button(state.isSiteMuted(for: tab) ? "Unmute Site" : "Mute Site") { state.toggleSiteMute(for: tab) }
             Divider()
             if tab.id != state.activeTabID {
                 if state.splitSecondaryTabID == tab.id {
@@ -621,6 +690,9 @@ struct HorizontalTabPill: View {
     }
 
     private var displayTitle: String {
+        if let custom = tab.customTitle, !custom.isEmpty {
+            return tab.isHibernated ? "\(custom) · sleeping" : custom
+        }
         if tab.isHibernated { return "\(tab.model.title.isEmpty ? (tab.savedURL?.host ?? "Tab") : tab.model.title) · sleeping" }
         if !tab.model.title.isEmpty { return tab.model.title }
         if let host = tab.model.url?.host { return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host }

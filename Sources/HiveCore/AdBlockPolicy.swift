@@ -19,11 +19,10 @@ public enum AdBlockPolicy {
     public static func cdpURLPatterns<S: Sequence>(for domains: S) -> [String]
         where S.Element == String {
         var patterns: [String] = []
+        var seen = Set<String>()
         for entry in domains {
-            let host = entry
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-                .lowercased()
-            guard !host.isEmpty else { continue }
+            guard let host = normalizedHost(entry),
+                  seen.insert(host).inserted else { continue }
             patterns.append("*://*.\(host)/*")
             patterns.append("*://\(host)/*")
         }
@@ -57,10 +56,31 @@ public enum AdBlockPolicy {
     }
 
     /// Escapes text for safe interpolation inside a double-quoted JS string.
+    /// Normalizes a hostname without accepting a scheme, path, or embedded
+    /// whitespace. Filter lists sometimes carry DNS-style leading/trailing
+    /// dots; stripping those here keeps both CDP patterns and IO-thread host
+    /// matching consistent. A trailing DNS root dot on the request host is
+    /// normalized the same way.
+    private static func normalizedHost(_ value: String) -> String? {
+        let host = value
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .trimmingCharacters(in: CharacterSet(charactersIn: "."))
+        let forbidden = CharacterSet.whitespacesAndNewlines
+            .union(.controlCharacters)
+            .union(CharacterSet(charactersIn: "/:*?#\\\\"))
+        guard !host.isEmpty,
+              host.unicodeScalars.allSatisfy({ !forbidden.contains($0) }) else { return nil }
+        return host
+    }
+
     private static func jsEscaped(_ s: String) -> String {
         s.replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "\"", with: "\\\"")
-            .replacingOccurrences(of: "\n", with: " ")
+            .replacingOccurrences(of: "\n", with: "\\n")
+            .replacingOccurrences(of: "\r", with: "\\r")
+            .replacingOccurrences(of: "\u{2028}", with: "\\u2028")
+            .replacingOccurrences(of: "\u{2029}", with: "\\u2029")
     }
 
     /// Subdomain-aware network-layer blocking decision. Returns true when
@@ -71,14 +91,10 @@ public enum AdBlockPolicy {
     /// lock-free — safe to call from the browser's IO thread.
     public static func shouldBlockNetworkHost<S: Sequence>(_ host: String?, domains: S) -> Bool
         where S.Element == String {
-        guard let host else { return false }
-        let lowered = host.lowercased()
+        guard let rawHost = host, let host = normalizedHost(rawHost) else { return false }
         for entry in domains {
-            let domain = entry
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-                .lowercased()
-            guard !domain.isEmpty else { continue }
-            if lowered == domain || lowered.hasSuffix("." + domain) { return true }
+            guard let domain = normalizedHost(entry) else { continue }
+            if host == domain || host.hasSuffix("." + domain) { return true }
         }
         return false
     }

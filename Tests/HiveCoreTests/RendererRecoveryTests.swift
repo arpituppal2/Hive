@@ -198,6 +198,42 @@ struct RendererRecoveryTests {
         #expect(!failure.reason.contains("https://evil.example"))
         #expect(failure.reason.contains("[redacted]"))
         #expect(failure.reason.contains("[url]"))
+
+        let bearerFailure = RendererFailureEvent(
+            tabID: "tab-bearer",
+            reason: "Authorization: Bearer bearer-secret access_token=access-secret client_secret: client-secret",
+            occurredAt: t0
+        )
+        #expect(!bearerFailure.reason.contains("bearer-secret"))
+        #expect(!bearerFailure.reason.contains("access-secret"))
+        #expect(!bearerFailure.reason.contains("client-secret"))
+        #expect(bearerFailure.reason.contains("Authorization=[redacted]"))
+
+        let quotedFailure = RendererFailureEvent(
+            tabID: "tab-quoted",
+            reason: "{\"authorization\": \"Bearer quoted-secret\", \"token\": \"quoted-token\"}",
+            occurredAt: t0
+        )
+        #expect(!quotedFailure.reason.contains("quoted-secret"))
+        #expect(!quotedFailure.reason.contains("quoted-token"))
+
+        let escapedFailure = RendererFailureEvent(
+            tabID: "tab-escaped",
+            reason: "token=\"secret,with;delimiters\\\"and-suffix\"",
+            occurredAt: t0
+        )
+        #expect(!escapedFailure.reason.contains("secret,with;delimiters"))
+        #expect(!escapedFailure.reason.contains("and-suffix"))
+
+        let unterminatedFailure = RendererFailureEvent(
+            tabID: "tab-unterminated",
+            reason: "token=\"unterminated,still-secret trailing context",
+            occurredAt: t0
+        )
+        #expect(!unterminatedFailure.reason.contains("unterminated"))
+        #expect(!unterminatedFailure.reason.contains("still-secret"))
+        #expect(bearerFailure.reason.contains("access_token=[redacted]"))
+        #expect(bearerFailure.reason.contains("client_secret=[redacted]"))
         let containsOnlyPrintableScalars = failure.reason.unicodeScalars.allSatisfy {
             $0.value >= 0x20 && $0.value != 0x7F
         }

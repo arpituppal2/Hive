@@ -78,10 +78,19 @@ struct ExtensionItem: Identifiable, Sendable, Codable {
 // MARK: - Passwords
 
 struct SavedPassword: Identifiable, Sendable {
-    let id = UUID()
+    /// Stable across edits — the password manager reuses the id when a row
+    /// is updated so the List keeps row identity (no remove+insert churn).
+    let id: UUID
     var username: String
     var password: String
     var site: String
+
+    init(id: UUID = UUID(), username: String, password: String, site: String) {
+        self.id = id
+        self.username = username
+        self.password = password
+        self.site = site
+    }
 
     /// Passwords start empty. Users import from Chrome/Safari or save as they browse.
     static let defaults: [SavedPassword] = []
@@ -141,10 +150,18 @@ struct DownloadItem: Identifiable, Sendable, Codable {
     var isCanceled: Bool = false
     var isInterrupted: Bool = false
     /// The destination is available after the native progress callback reports
-    /// it. Active downloads remain observational until CefKit exposes a
-    /// supported control callback; no local flag is allowed to imply transfer
-    /// control that the engine did not confirm.
+    /// it.
     var destinationURL: URL?
+    /// Live CEF controller for pause/resume/cancel, delivered with each
+    /// progress update while the transfer is active. Runtime-only: custom
+    /// Codable persists terminal history through `TerminalDownloadRecord`,
+    /// which never carries process-local control state.
+    var downloadControl: CefDownloadControl?
+    /// UI-level pause/resume request state (HiveCore state machine).
+    /// `requestPause`/`requestResume` run on the UI before the CEF control is
+    /// invoked; every native progress update reconciles against the snapshot's
+    /// authoritative `isPaused` bit.
+    var controlState: DownloadControlStateMachine = DownloadControlStateMachine()
 
     init(
         id: UUID = UUID(),
@@ -168,6 +185,8 @@ struct DownloadItem: Identifiable, Sendable, Codable {
         self.isCanceled = isCanceled
         self.isInterrupted = isInterrupted
         self.destinationURL = destinationURL
+        self.downloadControl = nil
+        self.controlState = DownloadControlStateMachine()
     }
 
     /// Persist terminal download history through the dependency-light

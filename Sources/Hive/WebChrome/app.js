@@ -10,6 +10,7 @@
   'use strict';
 
   var IS_CHROME = location.search.indexOf('chrome=1') !== -1;
+  var PRIVATE_START = new URLSearchParams(location.search).get('private') === '1';
   var hasBridge = !!(window.cefSwift && window.cefSwift.invoke);
 
   function api(name, params) {
@@ -18,6 +19,37 @@
     if (!hasBridge) return Promise.resolve(null);
     try { return Promise.resolve(window.cefSwift.invoke(name, p)); }
     catch (e) { return Promise.resolve(null); }
+  }
+
+  // Start pages cannot safely mutate the globally-active browser tab through
+  // the shared bridge. Navigate locally instead; the CEF tab owns this page.
+  // The persistent chrome shell keeps using native bridge actions.
+  function navigate(urlOrQuery) {
+    var value = String(urlOrQuery || '').trim();
+    if (!value) return;
+    if (!IS_CHROME) {
+      var isHTTP = value.indexOf('http://') === 0 || value.indexOf('https://') === 0;
+      var url = isHTTP ? value :
+        'https://www.google.com/search?q=' + encodeURIComponent(value);
+      window.location.href = url;
+      return;
+    }
+    api('hive.navigate', { url: value });
+  }
+
+  function submitAddress(value) {
+    var text = String(value || '').trim();
+    if (!text) return;
+    if (!IS_CHROME) { navigate(text); return; }
+    api('hive.submit', { text: text });
+  }
+
+  // Browser convention: plain click navigates the active tab; ⌘/⌃/middle
+  // click opens the target in a new background tab (Chrome/Safari parity).
+  function openURL(url, e) {
+    var bg = e && (e.metaKey || e.ctrlKey || e.button === 1);
+    if (bg) api('hive.newTabWithURL', { url: url, activate: false });
+    else navigate(url);
   }
 
   /* ---------------- theme + prefs (localStorage, per profile) ---------------- */
@@ -34,11 +66,23 @@
   function applyTheme() {
     var light = prefs.theme === 'light' || (prefs.theme === 'system' && mq && mq.matches);
     document.body.dataset.theme = light ? 'light' : 'dark';
+    // Toolbar sun/moon glyph follows the active theme (native-menu parity).
+    $('themeSun').hidden = light;
+    $('themeMoon').hidden = !light;
     if (prefs.animations) document.body.classList.remove('no-motion');
     else document.body.classList.add('no-motion');
   }
   applyTheme();
   if (mq) mq.addEventListener('change', applyTheme);
+
+  // Toolbar sun/moon button: cycles System → Light → Dark (native-menu parity).
+  $('btnTheme').addEventListener('click', function () {
+    var order = ['system', 'light', 'dark'];
+    prefs.theme = order[(order.indexOf(prefs.theme) + 1) % order.length];
+    savePrefs();
+    applyTheme();
+    showToast('Theme: ' + prefs.theme.charAt(0).toUpperCase() + prefs.theme.slice(1), 'info');
+  });
 
   /* ---------------- density + focus mode ---------------- */
 
@@ -113,15 +157,25 @@
     topSites: [], recent: [], history: [], bookmarks: [], downloads: [],
     layout: 'vertical', isPrivateBrowsing: false, isSplitActive: false,
     isChromePanelOpen: null, chromeMode: 'sidebar', chromeDimension: 270,
+    searchEngine: 'Google', httpsOnlyEnabled: false, adBlockEnabled: true, memorySaverEnabled: true,
     councilVerdict: null, isCouncilConvening: false, councilLiveResponses: [], deepResearchStep: null,
-    agentTask: null, councilError: null, agentError: null, lastQuery: ''
+    agentTask: null, councilError: null, agentError: null, lastQuery: '', syncDiagnostic: null
   };
 
   var lastTabsJSON = '';
+  var lastActiveTabID = null;
+
+  var lastSyncDiagnostic = null;
 
   function apply(data) {
     if (!data) return;
     for (var k in data) if (k in state) state[k] = data[k];
+    if (IS_CHROME && data.syncDiagnostic && data.syncDiagnostic !== lastSyncDiagnostic) {
+      lastSyncDiagnostic = data.syncDiagnostic;
+      showToast(data.syncDiagnostic, 'error');
+    } else if (data.syncDiagnostic == null) {
+      lastSyncDiagnostic = null;
+    }
     document.body.dataset.mode = state.layout;
     if (IS_CHROME) {
       chromeEl.classList.remove('chrome--sidebar', 'chrome--strip');
@@ -130,7 +184,7 @@
     applyTheme();
     applyDensity();
     var activeTab = state.tabs.find(function (t) { return t.id === state.activeTabID; });
-    var tabLoading = !!(activeTab && activeTab.loading);
+    var tabLoading = !!(activeTab && activeTab.isLoading);
     $('btnReload').classList.toggle('reloading', tabLoading);
     var addrProgress = $('addrProgress');
     if (addrProgress) addrProgress.classList.toggle('loading', tabLoading);
@@ -141,9 +195,12 @@
     renderPanel();
     renderBookmarksBar();
     renderStartPage();
+    updateTabScrollButtons();
   }
 
-  function refresh() { api('hive.getStartData').then(apply); }
+  function refresh() {
+    api('hive.getStartData', { privateStart: PRIVATE_START, chromeShell: IS_CHROME }).then(apply);
+  }
 
   /* ---------------- DOM helpers ---------------- */
 
@@ -161,6 +218,12 @@
   }
   var ICONS = {
     close: 'M6 6l12 12M18 6L6 18',
+    volume: 'M4 9v6h4l5 4V5L8 9H4Zm11.5 0a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11',
+    play: 'M7 4.5v15l12-7.5-12-7.5Z',
+    pause: 'M7 5h3.5v14H7V5Zm6.5 0H17v14h-3.5V5Z',
+    folder: 'M3.5 6.5h6.2l2 2h8.8v9h-17v-11Z',
+    eye: 'M12 5.5c4 0 7.4 2.3 9.5 6.5-2.1 4.2-5.5 6.5-9.5 6.5S4.6 16.2 2.5 12C4.6 7.8 8 5.5 12 5.5Zm0 3.5a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z',
+    volumeMuted: 'M4 9v6h4l5 4V5L8 9H4Zm14.5-1.5 3 3m0-3-3 3',
     search: 'M10.5 3a7.5 7.5 0 1 0 4.8 13.3L20 21l1.5-1.5-4.7-4.7A7.5 7.5 0 0 0 10.5 3Zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Z',
     globe: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm-9 9h18M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21m0-18C9.5 5.6 8.2 8.7 8.2 12s1.3 6.4 3.8 9',
     clock: 'M12 5a7 7 0 1 0 0 14 7 7 0 0 0 0-14Zm0 3v4.5l3 1.8',
@@ -173,6 +236,12 @@
     window: 'M4 4h16v16H4V4Zm2 2v12h12V6H6Zm3 3h6v6H9V9Z',
     private: 'M12 6.5c3.8 0 7.1 1.7 9.5 5.5-2.4 3.8-5.7 5.5-9.5 5.5S4.9 15.8 2.5 12C4.9 8.2 8.2 6.5 12 6.5Zm0 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z',
     focus: 'M5 12h14',
+    reload: 'M20 12a8 8 0 1 1-2.34-5.66M20 4v4h-4',
+    stop: 'M7 7h10v10H7z',
+    print: 'M7 8V4h10v4m-10 4h10m2 0v6H5v-6h14m-2 4h.01',
+    zoom: 'M12 6v12M6 12h12M21 21l-4.7-4.7',
+    zoomOut: 'M6 12h12M21 21l-4.7-4.7',
+    refresh: 'M12 3a9 9 0 1 0 9 9M12 3v5m0-5 3.5 3.5',
     chevronDown: 'M6 9l6 6 6-6',
     chevronRight: 'M9 6l6 6-6 6'
   };
@@ -211,6 +280,11 @@
   /* ---------- tab list ---------- */
 
   var groupMap = {};
+  // Tab entrance gating: ids seen in the previous render never re-animate
+  // on state broadcasts (no re-pop of the strip); only genuinely new tabs
+  // play tab-in. The maps are plain id sets for O(1) membership.
+  var seenTabIDs = null;
+  var renderPrevTabSeen = null;
 
   function refreshGroupMap() {
     groupMap = {};
@@ -248,9 +322,40 @@
       existing = div;
     }
     var rect = el.getBoundingClientRect();
-    existing.style.left = (rect.right + 12) + 'px';
-    existing.style.top = Math.min(rect.top, window.innerHeight - 260) + 'px';
+    var peekW = 320;
+    var peekH = 240;
+    var isStrip = document.body.dataset.mode === 'horizontal';
+    var left = 0, top = 0;
+    if (isStrip) {
+      // Strip layout (tabs across the top): peek drops BELOW the tab,
+      // clamped horizontally so it never leaves the window.
+      left = Math.max(8, Math.min(rect.left, window.innerWidth - peekW - 8));
+      top = Math.min(rect.bottom + 10, window.innerHeight - peekH - 8);
+    } else {
+      // Sidebar layout (tabs down the left): peek to the RIGHT of the tab,
+      // flipping to the left when it would cross the window's right edge.
+      left = (rect.right + 12 + peekW <= window.innerWidth - 8)
+        ? rect.right + 12
+        : Math.max(8, rect.left - peekW - 12);
+      top = Math.min(rect.top, window.innerHeight - peekH - 8);
+    }
+    existing.style.left = left + 'px';
+    existing.style.top = Math.max(8, top) + 'px';
     existing.dataset.visible = 'true';
+    // Wire the peek's actions once (Switch / Close) — delegated so re-shows
+    // of the same element keep working (Arc tab-hover preview parity).
+    if (!existing.dataset.wired) {
+      existing.dataset.wired = 'true';
+      existing.querySelector('.tab-peek__action--primary').addEventListener('click', function () {
+        if (existing._peekTabID) api('hive.selectTab', { id: existing._peekTabID });
+        hideTabPeek();
+      });
+      existing.querySelector('.tab-peek__action:not(.tab-peek__action--primary)').addEventListener('click', function () {
+        if (existing._peekTabID) api('hive.closeTab', { id: existing._peekTabID });
+        hideTabPeek();
+      });
+    }
+    existing._peekTabID = t.id;
   }
 
   function hideTabPeek() {
@@ -262,6 +367,12 @@
     refreshGroupMap();
     var list = $('tabList');
     var groups = groupedTabs();
+    // Snapshot the current id set for the fresh-tab diff, then expose it to
+    // tabHTML as the "previous render" before building.
+    var nextSeen = {};
+    state.tabs.forEach(function (t) { nextSeen[t.id] = 1; });
+    renderPrevTabSeen = seenTabIDs;
+    seenTabIDs = nextSeen;
     var html = '';
     groups.forEach(function (g) {
       if (g[0] === 'Essential' || g[0] === 'Pinned') {
@@ -303,9 +414,15 @@
     });
 
     upgradeTabFavicons();
-    if (changed) {
+    // Keep the active tab in view on both layouts: keyboard switching (⌘1-9,
+    // arrows, workspace moves) changes the active id without changing the tab
+    // set, so track both. block+inline nearest is a no-op for the axis that
+    // isn't scrollable (Chrome parity).
+    var activeChanged = lastActiveTabID !== state.activeTabID;
+    lastActiveTabID = state.activeTabID;
+    if (changed || activeChanged) {
       var active = list.querySelector('.tab[data-active="true"]');
-      if (active && state.layout === 'sidebar') active.scrollIntoView({ block: 'nearest' });
+      if (active) active.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     }
   }
 
@@ -314,12 +431,40 @@
     var hue = Math.abs(hash(host || t.id)) % 360;
     var active = t.id === state.activeTabID;
     var groupStripe = groupColor ? ' style="border-left:3px solid ' + sanitizeHex(groupColor) + '"' : '';
-    return '<div class="tab" data-id="' + t.id + '" data-active="' + active + '" ' + groupStripe +
-      'draggable="true" role="tab" aria-selected="' + active + '" title="' + esc(t.title) + '">' +
-      '<span class="tab__fav" data-host="' + esc(host || '') + '" style="background:hsl(' + hue + ',32%,48%)">' +
-      esc((host || '?').charAt(0).toUpperCase()) + '</span>' +
+    // Roving tabindex: only the active tab is in the Tab order; arrow keys
+    // move focus and select (native-browser keyboard UX).
+    var muted = !!t.isMuted;
+    var playing = !!t.isMediaPlaying;
+    // Chrome/Arc convention: a speaker badge appears on playing tabs; a muted
+    // tab shows a crossed speaker and clicking either toggles renderer mute.
+    var muteBadge = (playing || muted)
+      ? '<span class="tab__mute' + (muted ? ' is-muted' : '') + '" data-mute="' + t.id + '" ' +
+        'title="' + (muted ? 'Unmute tab' : 'Mute tab') + '" role="button" tabindex="-1">' +
+        svg(muted ? ICONS.volumeMuted : ICONS.volume, 12) + '</span>'
+      : '';
+    // Chrome convention: while a tab is loading, the favicon slot shows a
+    // spinner; it swaps to the letter-avatar (or real favicon) once the load
+    // finishes and the shell broadcasts the fresh tab state.
+    var favHTML = t.isLoading
+      ? '<span class="tab__fav tab__fav--loading" aria-hidden="true"><i></i></span>'
+      : '<span class="tab__fav" data-host="' + esc(host || '') + '" style="background:hsl(' + hue + ',32%,48%)">' +
+        esc((host || '?').charAt(0).toUpperCase()) + '</span>';
+    // Chrome/Arc convention: private tabs carry a dark incognito badge so
+    // they're unmistakable in a mixed strip, even out of focus.
+    var privateBadge = t.isPrivate
+      ? '<span class="tab__private" title="Private tab">' + svg(ICONS.private, 10) + '</span>'
+      : '';
+    // Only a tab that didn't exist in the previous render gets the entrance
+    // animation; a re-rendered existing tab updates in place, silently.
+    var fresh = !(renderPrevTabSeen && renderPrevTabSeen[t.id]);
+    return '<div class="tab' + (fresh ? ' tab--fresh' : '') + '" data-id="' + t.id + '" data-active="' + active + '"' +
+      (t.url ? ' data-url="' + esc(t.url) + '"' : '') + ' ' + groupStripe +
+      'draggable="true" role="tab" aria-selected="' + active + '" tabindex="' + (active ? 0 : -1) + '" title="' + esc(t.title) + '">' +
+      favHTML +
       (t.isPinned ? '<span class="tab__pin">' + svg(ICONS.pin, 11) + '</span>' : '') +
+      privateBadge +
       '<span class="tab__title">' + esc(t.title || 'New Tab') + '</span>' +
+      muteBadge +
       '<span class="tab__close" data-close="' + t.id + '" title="Close tab (⌘W)">' +
       svg(ICONS.close, 12) + '</span></div>';
   }
@@ -393,6 +538,12 @@
       animateCloseTab(close.dataset.close);
       return;
     }
+    var mute = e.target.closest('[data-mute]');
+    if (mute) {
+      e.stopPropagation();
+      api('hive.toggleTabMute', { id: mute.dataset.mute });
+      return;
+    }
     var toggle = e.target.closest('[data-toggle]');
     if (toggle) {
       api('hive.toggleTabGroup', { id: toggle.dataset.toggle });
@@ -419,6 +570,24 @@
       }
     }
   });
+
+  // Keyboard tab switching (Chrome parity): arrows move focus + select,
+  // Home/End jump, Enter/Space selects the focused tab.
+  $('tabList').addEventListener('keydown', function (e) {
+    var t = e.target;
+    if (!t || !t.classList || !t.classList.contains('tab')) return;
+    var tabs = Array.prototype.slice.call(this.querySelectorAll('.tab'));
+    var idx = tabs.indexOf(t);
+    if (idx < 0) return;
+    var next = null;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); next = tabs[idx + 1] || tabs[0]; }
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); next = tabs[idx - 1] || tabs[tabs.length - 1]; }
+    else if (e.key === 'Home') { e.preventDefault(); next = tabs[0]; }
+    else if (e.key === 'End') { e.preventDefault(); next = tabs[tabs.length - 1]; }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); api('hive.selectTab', { id: t.dataset.id }); return; }
+    else return;
+    if (next) { next.focus(); api('hive.selectTab', { id: next.dataset.id }); }
+  });
   function finishGroupRename(input) {
     var name = input.value.trim();
     if (!name) return;
@@ -429,20 +598,143 @@
 
   $('tabList').addEventListener('contextmenu', function (e) {
     var tab = e.target.closest('.tab');
-    if (!tab) return;
-    e.preventDefault();
-    showCtxMenu(e.clientX, e.clientY, tab.dataset.id);
+    if (tab) {
+      e.preventDefault();
+      showCtxMenu(e.clientX, e.clientY, tab.dataset.id);
+      return;
+    }
+    var group = e.target.closest('.groupheader');
+    if (group) {
+      e.preventDefault();
+      showGroupMenu(e.clientX, e.clientY, group);
+    }
+  });
+
+  // Tab-group header context menu (Chrome/Arc parity): rename (focuses the
+  // inline input), recolor from the preset palette, or ungroup the whole
+  // group. Reuses the shared ctxmenu element.
+  var GROUP_COLORS = ['#6366F1', '#F97316', '#10B981', '#EF4444', '#F59E0B', '#8B5CF6', '#06B6D4', '#64748B'];
+  function showGroupMenu(x, y, header) {
+    var g = groupMap[header.dataset.gid];
+    if (!g) return;
+    ctx.innerHTML = '';
+    var rename = el('button', 'ctxmenu__item');
+    rename.textContent = 'Rename group';
+    rename.addEventListener('click', function () {
+      ctx.hidden = true;
+      var input = header.querySelector('.groupheader__name');
+      if (input) { input.focus(); input.select(); }
+    });
+    ctx.appendChild(rename);
+    var swatchRow = el('div', 'ctxmenu__swatches');
+    swatchRow.setAttribute('role', 'group');
+    swatchRow.setAttribute('aria-label', 'Group color');
+    GROUP_COLORS.forEach(function (hex) {
+      var dot = el('button', 'ctxmenu__swatch' + (g.colorHex === hex ? ' is-active' : ''));
+      dot.style.background = hex;
+      dot.title = hex;
+      dot.setAttribute('aria-label', 'Color ' + hex);
+      dot.addEventListener('click', function () {
+        ctx.hidden = true;
+        api('hive.setTabGroupColor', { id: g.id, colorHex: hex }).then(function () { refresh(); });
+      });
+      swatchRow.appendChild(dot);
+    });
+    ctx.appendChild(swatchRow);
+    var sep = el('div', 'ctxmenu__sep');
+    ctx.appendChild(sep);
+    var ungroup = el('button', 'ctxmenu__item ctxmenu__item--danger');
+    ungroup.textContent = 'Ungroup';
+    ungroup.addEventListener('click', function () {
+      ctx.hidden = true;
+      api('hive.deleteTabGroup', { id: g.id }).then(function () { refresh(); });
+    });
+    ctx.appendChild(ungroup);
+    ctx.hidden = false;
+    var w = ctx.offsetWidth, h = ctx.offsetHeight;
+    ctx.style.left = Math.min(x, window.innerWidth - w - 8) + 'px';
+    ctx.style.top = Math.min(y, window.innerHeight - h - 8) + 'px';
+  }
+
+  // Middle-click closes the tab (Chrome/Safari/Arc convention); middle-click
+  // on empty strip space opens a new tab in the background (Chrome/Firefox).
+  $('tabList').addEventListener('auxclick', function (e) {
+    if (e.button !== 1) return;
+    var tab = e.target.closest('.tab');
+    if (tab) {
+      e.preventDefault();
+      animateCloseTab(tab.dataset.id);
+    } else if (e.target === this || e.target.closest('.tabgroup, .groupheader')) {
+      // closest() so middle-clicking a header's children (name/disclosure)
+      // still counts as empty-strip space.
+      e.preventDefault();
+      api('hive.newTabBackground');
+    }
+  });
+
+  // Double-click empty strip space opens a new tab (Chrome convention).
+  $('tabList').addEventListener('dblclick', function (e) {
+    if (e.target === this || e.target.classList.contains('tabgroup') ||
+        e.target.classList.contains('groupheader')) {
+      api('hive.newTab');
+    }
   });
 
   function animateCloseTab(id) {
     var node = $('tabList').querySelector('.tab[data-id="' + id + '"]');
+    function doClose() { api('hive.closeTab', { id: id }); }
     if (node) {
       node.classList.add('anim-out');
-      setTimeout(function () { api('hive.closeTab', { id: id }); }, 140);
+      setTimeout(doClose, 140);
     } else {
-      api('hive.closeTab', { id: id });
+      doClose();
     }
+    // Tab-closed undo toast (Chrome parity): an Undo button brings the tab
+    // back via the native last-closed stack (⌘⇧T path). One toast at a time;
+    // a fresh close replaces the previous toast's window.
+    var region = toastRegion();
+    var old = document.getElementById('hive-undo-toast');
+    if (old) old.remove();
+    var toast = document.createElement('div');
+    toast.id = 'hive-undo-toast';
+    toast.className = 'hive-toast hive-toast--info hive-undo';
+    toast.setAttribute('role', 'status');
+    toast.innerHTML = '<span class="hive-toast__msg">Tab closed</span>' +
+      '<button class="hive-undo__btn">Undo</button>';
+    toast.querySelector('.hive-undo__btn').addEventListener('click', function () {
+      toast.remove();
+      api('hive.reopenClosedTab').then(function () { refresh(); });
+    });
+    region.appendChild(toast);
+    setTimeout(function () {
+      if (toast.isConnected) toast.classList.add('hive-toast--leaving');
+      setTimeout(function () { if (toast.isConnected) toast.remove(); }, 300);
+    }, 6000);
   }
+
+  // External drops: a URL (or text) dragged from a page or the Finder can be
+  // dropped anywhere on the tab strip to open it in a new tab — and onto the
+  // address bar to navigate the active tab. Internal tab drags keep the
+  // reorder path; the two never collide because dragID is only set by
+  // dragstart on a .tab.
+  function externalURLFromDrop(e) {
+    var types = e.dataTransfer ? (e.dataTransfer.types || []) : [];
+    var url = '';
+    try {
+      if (types.indexOf('text/uri-list') !== -1) {
+        url = (e.dataTransfer.getData('text/uri-list') || '').split('\n')[0].trim();
+      } else if (types.indexOf('text/plain') !== -1) {
+        url = (e.dataTransfer.getData('text/plain') || '').trim();
+      }
+    } catch (err) {}
+    return url;
+  }
+
+  // Favicon URL that failed to load — treated as "no favicon" on every
+  // subsequent render (reassigning the same errored src does not re-fire
+  // onerror, so without this cache the broken img would show instead of the
+  // lock glyph after the first failure).
+  var failedFavicon = '';
 
   // Drag-and-drop reorder
   var dragID = null;
@@ -472,27 +764,93 @@
   $('tabList').addEventListener('dragover', function (e) {
     e.preventDefault();
     var tab = e.target.closest('.tab');
-    if (!tab || !dragID || tab.dataset.id === dragID) return;
-    var rect = tab.getBoundingClientRect();
-    var before = e.clientY < rect.top + rect.height / 2;
-    var cls = before ? 'drag-over-top' : 'drag-over-bottom';
-    Array.prototype.forEach.call(this.querySelectorAll('.tab'), function (t) {
-      t.classList.remove('drag-over-top', 'drag-over-bottom');
-    });
-    tab.classList.add(cls);
+    if (tab) {
+      // Internal reorder over an existing tab.
+      if (!dragID || tab.dataset.id === dragID) return;
+      var rect = tab.getBoundingClientRect();
+      var before = e.clientY < rect.top + rect.height / 2;
+      var cls = before ? 'drag-over-top' : 'drag-over-bottom';
+      Array.prototype.forEach.call(this.querySelectorAll('.tab'), function (t) {
+        t.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+      tab.classList.add(cls);
+    } else if (!dragID && externalURLFromDrop(e)) {
+      // External link/text hovered over the strip → open-in-new-tab affordance.
+      this.classList.add('drop-zone');
+    }
+  });
+  $('tabList').addEventListener('dragleave', function (e) {
+    this.classList.remove('drop-zone');
   });
   $('tabList').addEventListener('drop', function (e) {
     e.preventDefault();
+    this.classList.remove('drop-zone');
     var tab = e.target.closest('.tab');
-    if (!tab || !dragID) return;
-    var all = Array.prototype.slice.call(this.querySelectorAll('.tab'));
-    var from = all.indexOf(this.querySelector('.tab[data-id="' + dragID + '"]'));
-    var to = all.indexOf(tab);
-    var rect = tab.getBoundingClientRect();
-    var before = e.clientY < rect.top + rect.height / 2;
-    var target = before ? to : to + 1;
-    if (from < to && before) target = to - 1;
-    api('hive.reorderTab', { from: dragID, to: target });
+    if (dragID) {
+      if (!tab) return;
+      var all = Array.prototype.slice.call(this.querySelectorAll('.tab'));
+      var from = all.indexOf(this.querySelector('.tab[data-id="' + dragID + '"]'));
+      var to = all.indexOf(tab);
+      var rect = tab.getBoundingClientRect();
+      var before = e.clientY < rect.top + rect.height / 2;
+      var target = before ? to : to + 1;
+      if (from < to && before) target = to - 1;
+      api('hive.reorderTab', { from: dragID, to: target });
+      return;
+    }
+    var url = externalURLFromDrop(e);
+    if (url) api('hive.newTabWithURL', { url: url });
+  });
+
+  // Horizontal strip scroll buttons (Chrome parity): pinned overlay chevrons
+  // that appear only when the strip overflows, disabled at the scroll ends.
+  var tabRegion = $('tabRegion');
+  function updateTabScrollButtons() {
+    if (!tabRegion) return;
+    var hasOverflow = tabRegion.scrollWidth > tabRegion.clientWidth + 8;
+    $('tabScrollLeft').hidden = !hasOverflow;
+    $('tabScrollRight').hidden = !hasOverflow;
+    if (hasOverflow) {
+      $('tabScrollLeft').dataset.disabled = tabRegion.scrollLeft <= 2 ? 'true' : 'false';
+      var maxLeft = tabRegion.scrollWidth - tabRegion.clientWidth - 2;
+      $('tabScrollRight').dataset.disabled = tabRegion.scrollLeft >= maxLeft ? 'true' : 'false';
+    }
+  }
+  if (tabRegion) {
+    tabRegion.addEventListener('scroll', function () { updateTabScrollButtons(); }, { passive: true });
+    window.addEventListener('resize', function () { updateTabScrollButtons(); });
+    $('tabScrollLeft').addEventListener('click', function () {
+      tabRegion.scrollBy({ left: -Math.max(200, tabRegion.clientWidth * 0.6), behavior: 'smooth' });
+    });
+    $('tabScrollRight').addEventListener('click', function () {
+      tabRegion.scrollBy({ left: Math.max(200, tabRegion.clientWidth * 0.6), behavior: 'smooth' });
+    });
+    // Wheel over the tab region scrolls the strip (Chrome parity), unless the
+    // region is scrolled to an end (then the event bubbles to the page).
+    $('tabRegion').addEventListener('wheel', function (e) {
+      if (document.body.dataset.mode !== 'horizontal') return;
+      if (this.scrollWidth <= this.clientWidth) return;
+      var atStart = this.scrollLeft <= 0 && e.deltaY < 0;
+      var atEnd = this.scrollLeft + this.clientWidth >= this.scrollWidth - 1 && e.deltaY > 0;
+      if (atStart || atEnd) return;
+      e.preventDefault();
+      this.scrollLeft += e.deltaY;
+      updateTabScrollButtons();
+    }, { passive: false });
+  }
+
+  // Drop a URL/text onto the address bar → navigate the active tab.
+  var addressForm = $('addressbarForm');
+  addressForm.addEventListener('dragover', function (e) {
+    e.preventDefault();
+    if (externalURLFromDrop(e)) addressForm.classList.add('drop-zone');
+  });
+  addressForm.addEventListener('dragleave', function () { addressForm.classList.remove('drop-zone'); });
+  addressForm.addEventListener('drop', function (e) {
+    e.preventDefault();
+    addressForm.classList.remove('drop-zone');
+    var url = externalURLFromDrop(e);
+    if (url) navigate(url);
   });
 
   /* ---------- toolbar ---------- */
@@ -504,17 +862,74 @@
     var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
     $('btnBack').dataset.disabled = active && active.canGoBack ? 'false' : 'true';
     $('btnForward').dataset.disabled = active && active.canGoForward ? 'false' : 'true';
+    $('addrClear').hidden = !addrInput.value.trim();
+    // Chrome/Arc convention: badge the downloads button while any download is
+    // in flight (paused counts too — it needs attention). Completed or failed
+    // downloads leave the panel badge until the panel is opened.
+    var activeDls = (state.downloads || []).filter(function (d) {
+      var s = String(d.state || '');
+      return s === 'inProgress' || s === 'downloading' || s === 'paused';
+    });
+    var dlBtn = $('btnDownloads');
+    var badge = dlBtn.querySelector('.navbtn__badge');
+    if (activeDls.length) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'navbtn__badge';
+        badge.setAttribute('aria-hidden', 'true');
+        dlBtn.appendChild(badge);
+      }
+      badge.textContent = activeDls.length > 9 ? '9+' : String(activeDls.length);
+    } else if (badge) {
+      badge.remove();
+    }
     if (active) {
+      var fav = active.faviconURL || '';
+      var addrFav = $('addrFav');
       if (active.url === null || active.url === 'hive://start' || active.url.indexOf('hive://start') === 0) {
         addrInput.value = '';
         $('addrLock').dataset.secure = 'false';
+        $('addrLock').title = '';
+        addrFav.hidden = true;
+        $('addrLockGlyph').hidden = false;
       } else {
         addrInput.value = active.url;
-        $('addrLock').dataset.secure = active.url.indexOf('https://') === 0 ? 'true' : 'false';
+        var isSecure = active.url.indexOf('https://') === 0;
+        $('addrLock').dataset.secure = isSecure ? 'true' : 'false';
+        $('addrLock').title = isSecure
+          ? 'Connection is secure — click for site settings'
+          : 'Connection is not secure — click for site settings';
+        // Chrome omnibox convention: the page favicon leads the address bar;
+        // the lock glyph only shows when no favicon is available or the
+        // connection is not secure. The browser caches favicon fetches, so
+        // re-assigning src each render is cheap.
+        if (fav && fav !== failedFavicon) {
+          addrFav.src = fav;
+          addrFav.hidden = false;
+          $('addrLockGlyph').hidden = isSecure;
+          addrFav.onerror = function () { failedFavicon = fav; this.hidden = true; $('addrLockGlyph').hidden = false; };
+        } else {
+          addrFav.hidden = true;
+          $('addrLockGlyph').hidden = false;
+        }
       }
     }
+    var isLoading = !!(active && active.isLoading);
+    $('btnReload').title = isLoading ? 'Stop (Esc)' : 'Reload (⌘R)';
     $('btnBookmark').dataset.active = active && active.isBookmarked ? 'true' : 'false';
     $('btnBookmark').style.color = active && active.isBookmarked ? 'var(--accent-3)' : '';
+    // Reader Mode is only meaningful on real web pages (Safari parity).
+    var url = active && active.url ? String(active.url) : '';
+    var isWebPage = url.indexOf('http://') === 0 || url.indexOf('https://') === 0;
+    $('btnReader').hidden = !isWebPage;
+    $('btnReader').dataset.active = active && active.isReaderMode ? 'true' : 'false';
+    $('btnReader').title = active && active.isReaderMode ? 'Exit Reader Mode' : 'Reader Mode';
+    // Live zoom indicator (Chrome/Arc parity): shown only when zoom ≠ 100%.
+    var zoom = active && active.zoomPercent ? Math.round(active.zoomPercent) : 100;
+    var zoomBtn = $('btnZoom');
+    zoomBtn.hidden = zoom === 100;
+    zoomBtn.textContent = zoom + '%';
+    zoomBtn.title = 'Zoom ' + zoom + '% — click to reset (⌘0)';
   }
 
   var addrTimer = null;
@@ -525,7 +940,17 @@
     addrTimer = setTimeout(function () {
       api('hive.suggest', { text: q }).then(function (res) {
         if (!res || !res.suggestions || !res.suggestions.length) { hideSuggest(); return; }
-        renderSuggest(res.suggestions);
+        // Paste-and-go pins above native results while the field is untouched.
+        // URL-ish text offers "Paste and go to …" (Chrome); anything else
+        // offers "Paste and search for …" — same omnibox convention.
+        var items = res.suggestions;
+        if (pasteGoText && addrInput.value.trim() === pasteGoText) {
+          var pasteGo = looksLikeURL(pasteGoText)
+            ? { kind: 'url', text: 'Paste and go to ' + pasteGoText, url: pasteGoText }
+            : { kind: 'search', text: 'Paste and search for "' + pasteGoText + '"', query: pasteGoText };
+          items = [pasteGo].concat(items);
+        }
+        renderSuggest(items);
       });
     }, 120);
   }
@@ -542,9 +967,10 @@
         : '<span class="sugg__icon">' + svg(ICONS.search, 14) + '</span>') +
         '<span class="sugg__text">' + esc(s.text) + '</span>' +
         (s.url ? '<span class="sugg__url">' + esc(s.url) + '</span>' : '');
-      row.addEventListener('click', function () {
-        if (s.tabID) api('hive.selectTab', { id: s.tabID });
-        else api('hive.navigate', { url: s.url || s.text });
+      row.__sugg = s;
+      row.addEventListener('click', function (e) {
+        if (s.tabID && IS_CHROME) api('hive.selectTab', { id: s.tabID });
+        else openURL(s.url || s.query || s.text, e);
         hideSuggest();
       });
       suggestBox.appendChild(row);
@@ -558,6 +984,11 @@
   addrInput.addEventListener('focus', function () {
     if (state.chromeMode === 'sidebar') api('hive.setChromeDimension', { dimension: 560 });
     else api('hive.setChromeDimension', { dimension: 420 });
+    // Browser convention: focusing the URL bar selects the whole address so
+    // typing replaces it (⌘L / click). A tick keeps the click's caret from
+    // fighting the selection; a second click drops the selection for editing.
+    var self = this;
+    setTimeout(function () { self.select(); }, 0);
   });
   addrInput.addEventListener('blur', function () {
     // P2.4 parity with the native bar: the ⇧⏎ affordance only shows while focused.
@@ -569,7 +1000,47 @@
   addrInput.addEventListener('input', function () {
     // P2.4: show the ⇧⏎ Ask Hive affordance only while typing.
     $('aiHint').hidden = !addrInput.value.trim();
+    $('addrClear').hidden = !addrInput.value.trim();
+    // Editing after a paste clears the pinned paste-and-go row.
+    if (pasteGoText && addrInput.value.trim() !== pasteGoText) pasteGoText = '';
     onAddrInput();
+  });
+
+  // Paste-and-go (Chrome omnibox convention): pasting into the address bar
+  // pins a "Paste and go to …" / "Paste and search for …" suggestion above
+  // the native results, committed with Enter or click. It stays pinned only
+  // while the field is untouched.
+  var pasteGoText = '';
+  // URL heuristic (Chrome omnibox): explicit scheme, or a bare hostname with
+  // at least one dot / localhost — anything else pastes as a search query.
+  function looksLikeURL(t) {
+    if (!t) return false;
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(t)) return true;
+    if (/\s/.test(t)) return false;
+    if (/^localhost(:\d+)?$/i.test(t)) return true;
+    // Bare hostname: at least one dot, and the final label must start with a
+    // letter (so version strings like "1.2.3" stay searches, matching Chrome).
+    return /^[a-z0-9-]+(\.[a-z][a-z0-9-]*)+/i.test(t);
+  }
+  addrInput.addEventListener('paste', function (e) {
+    var text = (e.clipboardData ? e.clipboardData.getData('text') : '') || '';
+    text = text.trim();
+    pasteGoText = (text && text.length <= 2048) ? text : '';
+  });
+
+  // Address-bar clear (✕) — browser convention for fast wipe + retype.
+  $('addrClear').addEventListener('click', function () {
+    addrInput.value = '';
+    $('aiHint').hidden = true;
+    $('addrClear').hidden = true;
+    hideSuggest();
+    addrInput.focus();
+  });
+
+  // Security lock → the per-site settings hub for the active page (Chrome
+  // chrome://settings/content parity).
+  $('addrLock').addEventListener('click', function () {
+    api('hive.openSiteSettings');
   });
   addrInput.addEventListener('keydown', function (e) {
     var items = suggestBox.querySelectorAll('.sugg');
@@ -582,25 +1053,70 @@
       suggIndex = (suggIndex - 1 + items.length) % items.length;
       markSugg(items);
     } else if (e.key === 'Escape') {
-      hideSuggest();
-      addrInput.blur();
+      // stopPropagation: the two-stage behavior must not be cut short by the
+      // document-level Esc chain (which would blur the field right after the
+      // first Esc restores the URL).
+      e.stopPropagation();
+      // Two-stage Esc (Chrome omnibox): a first Esc closes the suggestion
+      // list and restores the page URL; a second Esc blurs the field.
+      if (!suggestBox.hidden) {
+        hideSuggest();
+        return;
+      }
+      var committedTab = state.tabs.find(function (x) { return x.id === state.activeTabID; });
+      var committed = committedTab && committedTab.url &&
+        (committedTab.url.indexOf('http://') === 0 || committedTab.url.indexOf('https://') === 0)
+        ? committedTab.url : '';
+      if (committed && addrInput.value !== committed) {
+        addrInput.value = committed;
+        onAddrInput();
+        addrInput.select();
+      } else {
+        addrInput.blur();
+      }
+    } else if (e.key === 'Tab') {
+      // Chrome omnibox convention: Tab completes the field with the
+      // highlighted suggestion's URL (or the first suggestion when none is
+      // highlighted), without committing the navigation.
+      var tabRows = suggestBox.querySelectorAll('.sugg');
+      if (tabRows.length) {
+        e.preventDefault();
+        var chosen = suggIndex >= 0 ? tabRows[suggIndex] : tabRows[0];
+        var s = chosen.__sugg;
+        if (s.url) {
+          addrInput.value = s.url;
+          onAddrInput();
+          addrInput.select();
+        }
+      }
     } else if (e.key === 'Enter') {
       e.preventDefault();
       // P2.4 dual-mode URL bar: ⇧⏎ sends the text to the agent dock
       // instead of navigating/searching (Dia parity).
-      if (e.shiftKey) {
+      if (e.shiftKey && !e.metaKey) {
         agentAsk(addrInput.value);
         addrInput.value = '';
         hideSuggest();
         return;
       }
+      // Chrome omnibox conventions: ⌘⏎ appends .com, ⌘⇧⏎ appends .org, and
+      // ⌥⌘⏎ appends .net — but ONLY when the input is a bare hostname (no
+      // scheme, no dot, no spaces), exactly like Chrome. A chosen suggestion
+      // always wins over the modifier.
+      var tld = null;
+      if (e.metaKey) {
+        var bare = /^[a-z0-9-]+$/i.test(addrInput.value.trim());
+        if (bare) tld = e.altKey ? '.net' : (e.shiftKey ? '.org' : '.com');
+      }
       var chosen = suggIndex >= 0 && items[suggIndex];
       if (chosen) {
         var s = chosen.__sugg;
-        if (s.tabID) api('hive.selectTab', { id: s.tabID });
-        else api('hive.navigate', { url: s.url || s.text });
+        if (s.tabID && IS_CHROME) api('hive.selectTab', { id: s.tabID });
+        else navigate(s.url || s.query || s.text);
+      } else if (tld) {
+        submitAddress(addrInput.value.trim() + tld);
       } else {
-        api('hive.submit', { text: addrInput.value });
+        submitAddress(addrInput.value);
       }
       hideSuggest();
     }
@@ -613,11 +1129,112 @@
 
   $('btnBack').addEventListener('click', function () { api('hive.back'); });
   $('btnForward').addEventListener('click', function () { api('hive.forward'); });
+
+  // Back/forward long-press + right-click history menus (Chrome/Safari
+  // convention): hold the button (~600ms) or right-click it to reveal the
+  // recent committed entries; picking one jumps the active tab to it. A hold
+  // that opened the menu suppresses the click that fires on release, so the
+  // page never navigates on top of the menu.
+  function navHistoryMenu(direction, anchor, atX, atY) {
+    var tab = state.tabs.find(function (t) { return t.id === state.activeTabID; });
+    var entries = direction === 'back'
+      ? (tab && tab.backHistory) : (tab && tab.forwardHistory);
+    if (!entries || !entries.length) return;
+    ctx.innerHTML = '';
+    entries.forEach(function (e) {
+      var b = el('button', 'ctxmenu__item');
+      b.textContent = e.title || e.url;
+      b.title = e.url || '';
+      b.addEventListener('click', function () {
+        ctx.hidden = true;
+        api('hive.navigate', { url: e.url });
+      });
+      ctx.appendChild(b);
+    });
+    ctx.hidden = false;
+    var x = atX, y = atY;
+    if (x === undefined) {
+      var rect = anchor.getBoundingClientRect();
+      x = rect.left;
+      y = rect.bottom + 4;
+    }
+    var w = ctx.offsetWidth, h = ctx.offsetHeight;
+    ctx.style.left = Math.min(x, window.innerWidth - w - 8) + 'px';
+    ctx.style.top = Math.min(y, window.innerHeight - h - 8) + 'px';
+  }
+  [
+    ['btnBack', 'back'],
+    ['btnForward', 'forward']
+  ].forEach(function (pair) {
+    var btn = $(pair[0]);
+    var holdTimer = null;
+    btn.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0) return;
+      clearTimeout(holdTimer);
+      holdTimer = setTimeout(function () {
+        navHistoryMenu(pair[1], btn);
+        // One-shot DOCUMENT-level capture guard for the release-click that
+        // follows this hold. Listeners on the button itself fire in target
+        // phase in registration order (the navigate listener is registered
+        // first), so a same-element guard would run too late. Document capture
+        // runs before the target phase; the contains() gate lets a subsequent
+        // context-menu item click (also a click event) navigate normally.
+        document.addEventListener('click', function guard(e) {
+          document.removeEventListener('click', guard, true);
+          if (e.target && btn.contains(e.target)) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+        }, true);
+      }, 600);
+    });
+    btn.addEventListener('pointerup', function () { clearTimeout(holdTimer); });
+    btn.addEventListener('pointerleave', function () { clearTimeout(holdTimer); });
+    btn.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      navHistoryMenu(pair[1], btn, e.clientX, e.clientY);
+    });
+  });
+  $('btnHome').addEventListener('click', function () { api('hive.goHome'); });
+  // Reload ↔ Stop toggle (Chrome parity): while the page loads the button
+  // shows a stop square; clicking it cancels the load.
   $('btnReload').addEventListener('click', function () {
-    this.classList.add('reloading');
-    api('hive.reload');
+    if (this.classList.contains('reloading')) {
+      this.classList.remove('reloading');
+      api('hive.stop');
+    } else {
+      this.classList.add('reloading');
+      api('hive.reload');
+    }
+  });
+  // Right-click Reload shows the page-actions reload menu (Chrome parity):
+  // plain Reload vs Empty Cache and Hard Reload (⌥⌘R).
+  $('btnReload').addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+    var items = [
+      { label: 'Reload (⌘R)', action: function () { api('hive.reload'); } },
+      { label: 'Empty Cache and Hard Reload (⌥⌘R)', action: function () { api('hive.reloadIgnoringCache'); } }
+    ];
+    ctx.innerHTML = '';
+    items.forEach(function (item) {
+      var b = el('button', 'ctxmenu__item');
+      b.textContent = item.label;
+      b.addEventListener('click', function () { ctx.hidden = true; item.action(); });
+      ctx.appendChild(b);
+    });
+    ctx.hidden = false;
+    var w = ctx.offsetWidth, h = ctx.offsetHeight;
+    ctx.style.left = Math.min(e.clientX, window.innerWidth - w - 8) + 'px';
+    ctx.style.top = Math.min(e.clientY, window.innerHeight - h - 8) + 'px';
   });
   $('btnBookmark').addEventListener('click', function () { api('hive.toggleBookmark'); });
+  $('btnReader').addEventListener('click', function () {
+    api('hive.toggleReaderMode').then(function () { refresh(); });
+  });
+  $('btnFullscreen').addEventListener('click', function () { api('hive.toggleFullscreen'); });
+  $('btnZoom').addEventListener('click', function () {
+    api('hive.resetZoom').then(function () { refresh(); });
+  });
   $('btnSettings').addEventListener('click', function () { openPanel('settings'); });
   $('btnDownloads').addEventListener('click', function () { openPanel('downloads'); });
   /* ---------- persistent agent dock (Comet-style) ---------- */
@@ -659,8 +1276,11 @@
 
   // Wire static listeners once at init — never inside render functions
   // (renderStartPage re-runs on every refresh; stacking listeners there
-  // would fire navigate('hive://brief/') N times per click).
-  $('btnOpenBrief').addEventListener('click', function () { navigate('hive://brief/'); });
+  // would open the brief route more than once per click).
+  $('btnOpenBrief').addEventListener('click', function () {
+    if (IS_CHROME) api('hive.openBrief');
+    else window.location.href = 'hive://brief/';
+  });
 
   $('btnCouncil').addEventListener('click', function () {
     var active = state.tabs.find(function (t) { return t.id === state.activeTabID; });
@@ -668,6 +1288,10 @@
     api('hive.agent.run', { text: question }).then(function () { refresh(); });
   });
   $('btnNewTab').addEventListener('click', function () { api('hive.newTab'); });
+  // Chrome convention: middle-click the + button opens a tab in the background.
+  $('btnNewTab').addEventListener('auxclick', function (e) {
+    if (e.button === 1) { e.preventDefault(); api('hive.newTabBackground'); }
+  });
 
   $('btnPanelClose').addEventListener('click', function () { closePanel(); });
 
@@ -683,7 +1307,32 @@
       var hue = Math.abs(hash(ws.colorHex || ws.id)) % 360;
       w.innerHTML = '<span class="workspace__dot" style="background:' + ws.colorHex + '"></span>' +
         '<span>' + esc(ws.name) + '</span><span class="workspace__count">' + ws.tabCount + '</span>';
+      // Keyboard-accessible workspace switcher (role + roving focus).
+      w.setAttribute('role', 'button');
+      w.tabIndex = -1;
       w.addEventListener('click', function () { api('hive.switchWorkspace', { id: ws.id }); });
+      w.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          api('hive.switchWorkspace', { id: ws.id });
+        } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          var next = w.nextElementSibling;
+          if (next) { next.tabIndex = 0; next.focus(); }
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          var prev = w.previousElementSibling;
+          if (prev) { prev.tabIndex = 0; prev.focus(); }
+        }
+      });
+      w.addEventListener('focus', function () { w.tabIndex = 0; });
+      w.addEventListener('blur', function () { w.tabIndex = -1; });
+      // Middle-click switches workspace too (tab-strip convention).
+      w.addEventListener('auxclick', function (e) {
+        if (e.button !== 1) return;
+        e.preventDefault();
+        api('hive.switchWorkspace', { id: ws.id });
+      });
       // DND drop target: drag a tab onto a workspace dot to move it
       w.addEventListener('dragover', function (e) {
         e.preventDefault();
@@ -933,12 +1582,38 @@
     if (!name) return;
     if (name === 'settings') body.innerHTML = settingsHTML();
     else if (name === 'history')
-      body.innerHTML = listHTML(state.history, 'le', historyRow, 'No browsing history yet') +
+      body.innerHTML = historyPanelHTML() +
         (state.history.length ? '<button class="le__clear" data-clear-history>Clear history</button>' : '');
     else if (name === 'bookmarks') body.innerHTML = bookmarksHTML();
-    else if (name === 'downloads') body.innerHTML = listHTML(state.downloads, 'le', downloadRow, 'No downloads yet');
+    else if (name === 'downloads') body.innerHTML = downloadsPanelHTML() +
+      (state.downloads.length ? '<button class="le__clear" data-clear-downloads>Clear finished downloads</button>' : '');
     wirePanelEvents(body, name);
   }
+
+  /* ---------- status bubble ---------- */
+  // Chrome convention: hovering any chrome surface that leads somewhere shows
+  // the destination URL in a small bottom-left bubble. It clears when the
+  // pointer leaves a URL-bearing element, leaves the window, or blurs.
+  var hiveStatus = null;
+  function statusURL(url) {
+    if (!hiveStatus) {
+      hiveStatus = document.createElement('div');
+      hiveStatus.id = 'hiveStatus';
+      document.body.appendChild(hiveStatus);
+    }
+    hiveStatus.textContent = url || '';
+    hiveStatus.hidden = !url;
+  }
+  document.addEventListener('pointerover', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('[data-url], a[href]') : null;
+    if (el) {
+      var u = el.getAttribute('data-url') || el.getAttribute('href');
+      if (u) { statusURL(u); return; }
+    }
+    statusURL('');
+  });
+  document.addEventListener('pointerleave', function () { statusURL(''); });
+  window.addEventListener('blur', function () { statusURL(''); });
 
   function listHTML(items, cls, rowFn, emptyText) {
     if (!items.length) {
@@ -947,17 +1622,58 @@
     return items.map(rowFn).join('');
   }
 
+  // Chrome-history grouping: Today / Yesterday / This Week / Older headers
+  // (dayLabel comes from the native snapshot, matching the native HistoryPanel).
+  var historyQuery = '';
+  function historyPanelHTML() {
+    var listHTML_ = historyListHTML();
+    if (!listHTML_) return '<div class="palette__empty">No browsing history yet</div>';
+    return '<div class="panel-search">' +
+      svg(ICONS.search, 13) +
+      '<input id="historySearch" type="search" placeholder="Search history (⌘F)" value="' + esc(historyQuery) + '" aria-label="Search history">' +
+      (historyQuery ? '<button class="panel-search__clear" id="historySearchClear" aria-label="Clear search">' + svg(ICONS.close, 11) + '</button>' : '') +
+      '</div>' + listHTML_;
+  }
+  function historyListHTML() {
+    if (!state.history.length) return '';
+    var q = historyQuery.trim().toLowerCase();
+    var items = q
+      ? state.history.filter(function (i) {
+          return (i.title || '').toLowerCase().indexOf(q) >= 0 ||
+            (i.url || '').toLowerCase().indexOf(q) >= 0 ||
+            (i.host || '').toLowerCase().indexOf(q) >= 0;
+        })
+      : state.history;
+    if (!items.length) return '<div class="palette__empty">No results for "' + esc(historyQuery) + '"</div>';
+    var groups = [];
+    var order = ['Today', 'Yesterday', 'This Week', 'Older'];
+    items.forEach(function (item) {
+      var key = item.dayLabel || 'Older';
+      var g = groups[groups.length - 1];
+      if (!g || g.key !== key) { g = { key: key, items: [] }; groups.push(g); }
+      g.items.push(item);
+    });
+    groups.sort(function (a, b) { return order.indexOf(a.key) - order.indexOf(b.key); });
+    return groups.map(function (g) {
+      return '<div class="history-group"><div class="history-group__header">' + esc(g.key) +
+        '</div>' + g.items.map(historyRow).join('') + '</div>';
+    }).join('');
+  }
+
   function historyRow(item) {
     var hue = Math.abs(hash(item.host || item.url || '')) % 360;
-    return '<div class="le" data-url="' + esc(item.url) + '" title="' + esc(item.url) + '">' +
+    return '<div class="le" data-url="' + esc(item.url) + '" data-history-id="' + esc(item.historyID || '') +
+      '" title="' + esc(item.url) + '">' +
       tileHTML(item.host, item.title, hue) +
       '<span class="le__body"><span class="le__title">' + esc(item.title) + '</span>' +
       '<span class="le__meta">' + esc(item.url) + '</span></span>' +
-      '<span class="le__time">' + esc(item.timeLabel) + '</span></div>';
+      '<span class="le__time">' + esc(item.timeLabel) + '</span>' +
+      (item.historyID ? '<button class="le__del" title="" aria-label="Delete entry">' + svg(ICONS.close, 10) + '</button>' : '') +
+      '</div>';
   }
   function bookmarkRow(bm) {
     var hue = Math.abs(hash(bm.host || bm.title || '')) % 360;
-    return '<div class="le" data-url="' + esc(bm.url) + '" title="' + esc(bm.url) + '">' +
+    return '<div class="le" data-url="' + esc(bm.url) + '" data-bm-id="' + esc(bm.id) + '" title="' + esc(bm.url) + '">' +
       tileHTML(bm.host, bm.title, hue) +
       '<span class="le__body"><span class="le__title">' + esc(bm.title) + '</span>' +
       '<span class="le__meta">' + esc(bm.url) + '</span></span>' +
@@ -975,13 +1691,55 @@
       : st ? st.charAt(0).toUpperCase() + st.slice(1) : 'Downloading';
     var inFlight = st === 'downloading' || st === 'inProgress' || st === 'paused';
     var bar = inFlight ? '<span class="le__bar"><i style="width:' + pct + '%"></i></span>' : '';
+    // Chrome parity: pause/resume/cancel controls on live rows (a paused row
+    // may resume, an active row may pause or cancel, nothing terminal is
+    // mutable). Actions refresh the panel through the native snapshot.
+    var controls = '';
+    if (st === 'completed' && dl.hasDestination) {
+      controls = '<span class="le__actions">' +
+        '<button class="le__act" data-dl-act="open-file" data-dl-id="' + esc(dl.id) + '" title="Open file">' + svg(ICONS.eye, 12) + '</button>' +
+        '<button class="le__act" data-dl-act="reveal" data-dl-id="' + esc(dl.id) + '" title="Show in Finder">' + svg(ICONS.folder, 12) + '</button>' +
+        '</span>';
+    } else if (st === 'paused') {
+      controls = '<span class="le__actions">' +
+        '<button class="le__act" data-dl-act="resume" data-dl-id="' + esc(dl.id) + '" title="Resume download">' + svg(ICONS.play, 12) + '</button>' +
+        '<button class="le__act le__act--danger" data-dl-act="cancel" data-dl-id="' + esc(dl.id) + '" title="Cancel download">' + svg(ICONS.close, 12) + '</button>' +
+        '</span>';
+    } else if (inFlight) {
+      controls = '<span class="le__actions">' +
+        '<button class="le__act" data-dl-act="pause" data-dl-id="' + esc(dl.id) + '" title="Pause download">' + svg(ICONS.pause, 12) + '</button>' +
+        '<button class="le__act le__act--danger" data-dl-act="cancel" data-dl-id="' + esc(dl.id) + '" title="Cancel download">' + svg(ICONS.close, 12) + '</button>' +
+        '</span>';
+    }
     return '<div class="le" data-url="' + esc(dl.url) + '" data-dl-id="' + esc(dl.id) +
       '" data-dl-state="' + esc(st) + '" title="' + esc(dl.url) + '">' +
       '<span class="le__tile">' + svg(ICONS.download, 14) + '</span>' +
       '<span class="le__body"><span class="le__title">' + esc(dl.title || dl.name || 'Download') + '</span>' +
       '<span class="le__meta">' + esc(dl.url) + '</span>' +
       '<span class="le__state">' + esc(label) + (inFlight ? ' · ' + pct + '%' : '') + '</span>' + bar +
-      '</span></div>';
+      '</span>' + controls + '</div>';
+  }
+
+  // Chrome downloads panel convention: Active / Completed / Failed sections
+  // with headers rather than one undifferentiated list. The buckets match the
+  // native state strings exactly (completed / cancelled / failed / paused /
+  // inProgress / pending) so a canceled or failed file is never presented
+  // under a "Completed" header.
+  function downloadsPanelHTML() {
+    if (!state.downloads.length) return '<div class="palette__empty">No downloads yet</div>';
+    var active = [], completed = [], failed = [];
+    state.downloads.forEach(function (dl) {
+      var st = String(dl.state || 'pending');
+      if (st === 'completed') completed.push(dl);
+      else if (st === 'cancelled' || st === 'failed') failed.push(dl);
+      else active.push(dl);
+    });
+    var header = function (t) { return '<div class="history-group__header">' + t + '</div>'; };
+    var html = '';
+    if (active.length) html += header('Active') + active.map(downloadRow).join('');
+    if (completed.length) html += header('Completed') + completed.map(downloadRow).join('');
+    if (failed.length) html += header('Failed & Cancelled') + failed.map(downloadRow).join('');
+    return html;
   }
 
   function bookmarksHTML() {
@@ -1005,18 +1763,34 @@
         (hint ? '<div class="setting__hint">' + hint + '</div>' : '') + '</div>' +
         '<span class="toggle" data-toggle="' + name + '" data-on="' + (on ? 'true' : 'false') + '"></span></div>';
     };
-    return '<div class="panel-section"><h3>Layout</h3>' +
+    var engines = ['DuckDuckGo', 'Google', 'Bing', 'Brave Search', 'Startpage', 'Ecosia'];
+    return '<div class="panel-section"><h3>Search Engine</h3>' +
+      '<div class="setting"><div><div class="setting__label">Default search engine</div>' +
+      '<div class="setting__hint">Used for address-bar and start-page searches</div></div></div>' +
+      seg('engine', engines.map(function (e) { return { v: e, label: e }; }), state.searchEngine) +
+      '</div>' +
+      '<div class="panel-section"><h3>Layout</h3>' +
       '<div class="setting"><div><div class="setting__label">Tab layout</div>' +
       '<div class="setting__hint">Vertical sidebar (Arc/Zen) or horizontal strip (Chrome/Brave)</div></div>' +
       seg('layout', [{ v: 'vertical', label: 'Vertical' }, { v: 'horizontal', label: 'Horizontal' }], state.layout) + '</div>' +
       '<div class="setting"><div><div class="setting__label">Density</div></div>' +
       seg('density', [{ v: 'comfortable', label: 'Comfortable' }, { v: 'compact', label: 'Compact' }], prefs.density) + '</div>' +
-      toggle('bookmarksBar', prefs.bookmarksBar, 'Show bookmarks bar');
+      toggle('bookmarksBar', prefs.bookmarksBar, 'Show bookmarks bar') +
     '</div>' +
       '<div class="panel-section"><h3>Appearance</h3>' +
       '<div class="setting"><div><div class="setting__label">Theme</div></div>' +
       seg('theme', [{ v: 'system', label: 'System' }, { v: 'light', label: 'Light' }, { v: 'dark', label: 'Dark' }], prefs.theme) + '</div>' +
       toggle('animations', prefs.animations, 'Animations', 'Transitions, glows, and spring motion') +
+      '</div>' +
+      '<div class="panel-section"><h3>Privacy</h3>' +
+      toggle('httpsOnly', state.httpsOnlyEnabled, 'Always use secure connections',
+        'Upgrade http to https where possible; plaintext pages show a warning banner') +
+      toggle('adBlock', state.adBlockEnabled, 'Block ads & trackers',
+        'Blocks known ad/tracker domains and hides ad elements after load (EasyList-based)') +
+      '</div>' +
+      '<div class="panel-section"><h3>Performance</h3>' +
+      toggle('memorySaver', state.memorySaverEnabled, 'Memory Saver',
+        'Frees memory from inactive tabs; inactive tabs reload when you switch back') +
       '</div>' +
       '<div class="panel-section"><h3>About</h3>' +
       '<div class="setting"><div><div class="setting__label">Hive Browser</div>' +
@@ -1024,11 +1798,28 @@
   }
 
   function wirePanelEvents(body, name) {
+    var hSearch = body.querySelector('#historySearch');
+    if (hSearch) {
+      hSearch.addEventListener('input', function () {
+        historyQuery = hSearch.value;
+        renderPanel();
+        var re = body.querySelector('#historySearch');
+        if (re) re.focus();
+      });
+      var hClear = body.querySelector('#historySearchClear');
+      if (hClear) hClear.addEventListener('click', function () {
+        historyQuery = '';
+        renderPanel();
+        var re = body.querySelector('#historySearch');
+        if (re) re.focus();
+      });
+    }
     body.querySelectorAll('[data-seg]').forEach(function (item) {
       item.addEventListener('click', function () {
         var key = item.dataset.seg;
         var val = item.dataset.val;
         if (key === 'layout') api('hive.setLayout', { mode: val });
+        else if (key === 'engine') api('hive.setSearchEngine', { text: val });
         else if (key === 'theme') { prefs.theme = val; savePrefs(); applyTheme(); }
         else if (key === 'density') { prefs.density = val; savePrefs(); applyDensity(); }
         renderPanel();
@@ -1040,17 +1831,171 @@
         var on = t.dataset.on !== 'true';
         if (key === 'bookmarksBar') { prefs.bookmarksBar = on; savePrefs(); renderBookmarksBar(); }
         else if (key === 'animations') { prefs.animations = on; savePrefs(); applyTheme(); }
+        else if (key === 'httpsOnly') api('hive.setHTTPSOnly', { value: on }).then(function () { refresh(); });
+        else if (key === 'adBlock' || key === 'memorySaver')
+          api('hive.setBrowserPref', { key: key === 'adBlock' ? 'adBlock' : 'memorySaver', value: on }).then(function () { refresh(); });
         t.dataset.on = on ? 'true' : 'false';
       });
     });
+    function panelRowOpen(row, e) {
+      if (row.dataset.dlId !== undefined) {
+        if (row.dataset.dlState === 'completed') api('hive.openDownload', { id: row.dataset.dlId });
+        return;
+      }
+      // Chrome/Safari convention: middle-click or ⌘/⌃-click opens a
+      // history/bookmark row in a new background tab, keeping the panel open.
+      if (e && (e.metaKey || e.ctrlKey || e.button === 1)) {
+        api('hive.newTabWithURL', { url: row.dataset.url, activate: false });
+        return;
+      }
+      navigate(row.dataset.url);
+      if (name === 'history') closePanel();
+    }
     body.querySelectorAll('.le[data-url]').forEach(function (row) {
-      row.addEventListener('click', function () {
-        if (row.dataset.dlId !== undefined) {
-          if (row.dataset.dlState === 'completed') api('hive.openDownload', { id: row.dataset.dlId });
-          return;
+      row.addEventListener('click', function (e) { panelRowOpen(row, e); });
+      // Arrow-key row navigation + Enter/Space to open (Chrome panel parity).
+      row.setAttribute('tabindex', '0');
+      row.addEventListener('keydown', function (e) {
+        // Never steal activation from the row's own controls (bookmark ×,
+        // download pause/cancel/reveal) — their buttons handle their keys.
+        if (e.target !== row && (e.target.closest('button, input, [data-toggle]'))) return;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          var rows = Array.prototype.slice.call(body.querySelectorAll('.le[data-url]'));
+          var i = rows.indexOf(row);
+          var n = e.key === 'ArrowDown' ? rows[i + 1] || rows[0] : rows[i - 1] || rows[rows.length - 1];
+          if (n) n.focus();
+        } else if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          panelRowOpen(row, e);
         }
-        api('hive.navigate', { url: row.dataset.url });
-        if (name === 'history') closePanel();
+      });
+      row.addEventListener('auxclick', function (e) {
+        if (e.button !== 1) return;
+        e.preventDefault();
+        panelRowOpen(row, e);
+      });
+    });
+    // History row hover ✕ (Chrome parity): deletes the entry without
+    // opening the context menu. stopPropagation keeps the row's click
+    // navigation (panelRowOpen) from firing.
+    function deleteHistoryRow(hid) {
+      if (!hid) return;
+      api('hive.deleteHistoryItem', { id: hid }).then(function () { refresh(); });
+    }
+    body.querySelectorAll('.le[data-history-id] .le__del').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var row = btn.closest('.le');
+        if (row) deleteHistoryRow(row.dataset.historyId);
+      });
+    });
+    // History row context menu (Chrome parity, mirroring the native panel):
+    // Open in New Tab / Copy URL / Delete Entry.
+    body.querySelectorAll('.le[data-history-id]').forEach(function (row) {
+      row.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        var url = row.dataset.url;
+        var hid = row.dataset.historyId;
+        ctx.innerHTML = '';
+        if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
+          var open = el('button', 'ctxmenu__item');
+          open.textContent = 'Open in New Tab';
+          open.addEventListener('click', function () {
+            ctx.hidden = true;
+            api('hive.newTabWithURL', { url: url, activate: false }).then(function () { refresh(); });
+          });
+          ctx.appendChild(open);
+          var copy = el('button', 'ctxmenu__item');
+          copy.textContent = 'Copy URL';
+          copy.addEventListener('click', function () {
+            ctx.hidden = true;
+            api('hive.copyLink', { url: url });
+          });
+          ctx.appendChild(copy);
+        }
+        if (hid) {
+          ctx.appendChild(el('div', 'ctxmenu__sep'));
+          var del = el('button', 'ctxmenu__item ctxmenu__item--danger');
+          del.textContent = 'Delete Entry';
+          del.addEventListener('click', function () {
+            ctx.hidden = true;
+            deleteHistoryRow(hid);
+          });
+          ctx.appendChild(del);
+        }
+        ctx.hidden = false;
+        var w = ctx.offsetWidth, h = ctx.offsetHeight;
+        ctx.style.left = Math.min(e.clientX, window.innerWidth - w - 8) + 'px';
+        ctx.style.top = Math.min(e.clientY, window.innerHeight - h - 8) + 'px';
+      });
+    });
+    // Downloads row context menu (Chrome parity): Open / Show in Finder /
+    // Copy Link / Remove from list. Terminal rows only for Open/Reveal/
+    // Remove; Copy Link works for any row with a source URL.
+    body.querySelectorAll('.le[data-dl-id]').forEach(function (row) {
+      row.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        var id = row.dataset.dlId;
+        var url = row.dataset.url;
+        var st = row.dataset.dlState;
+        // Native DTO state names: completed | cancelled | failed | paused |
+        // inProgress | pending (cancelled double-l and failed match the
+        // Swift projection exactly).
+        var terminal = st === 'completed' || st === 'cancelled' || st === 'failed';
+        ctx.innerHTML = '';
+        if (terminal && st === 'completed') {
+          var open = el('button', 'ctxmenu__item');
+          open.textContent = 'Open';
+          open.addEventListener('click', function () {
+            ctx.hidden = true;
+            api('hive.openDownloadFile', { id: id });
+          });
+          ctx.appendChild(open);
+          var reveal = el('button', 'ctxmenu__item');
+          reveal.textContent = 'Show in Finder';
+          reveal.addEventListener('click', function () {
+            ctx.hidden = true;
+            api('hive.revealDownload', { id: id });
+          });
+          ctx.appendChild(reveal);
+        }
+        if (url && (url.indexOf('http://') === 0 || url.indexOf('https://') === 0)) {
+          var copy = el('button', 'ctxmenu__item');
+          copy.textContent = 'Copy Link';
+          copy.addEventListener('click', function () {
+            ctx.hidden = true;
+            api('hive.copyLink', { url: url });
+          });
+          ctx.appendChild(copy);
+        }
+        if (terminal) {
+          ctx.appendChild(el('div', 'ctxmenu__sep'));
+          var del = el('button', 'ctxmenu__item ctxmenu__item--danger');
+          del.textContent = 'Remove from List';
+          del.addEventListener('click', function () {
+            ctx.hidden = true;
+            api('hive.removeDownload', { id: id }).then(function () { refresh(); });
+          });
+          ctx.appendChild(del);
+        }
+        ctx.hidden = false;
+        var w = ctx.offsetWidth, h = ctx.offsetHeight;
+        ctx.style.left = Math.min(e.clientX, window.innerWidth - w - 8) + 'px';
+        ctx.style.top = Math.min(e.clientY, window.innerHeight - h - 8) + 'px';
+      });
+    });
+    body.querySelectorAll('[data-dl-act]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var id = btn.dataset.dlId;
+        if (btn.dataset.dlAct === 'pause') api('hive.pauseDownload', { id: id });
+        else if (btn.dataset.dlAct === 'resume') api('hive.resumeDownload', { id: id });
+        else if (btn.dataset.dlAct === 'cancel') api('hive.cancelDownload', { id: id });
+        else if (btn.dataset.dlAct === 'reveal') api('hive.revealDownload', { id: id });
+        else if (btn.dataset.dlAct === 'open-file') api('hive.openDownloadFile', { id: id });
+        setTimeout(refresh, 400);
       });
     });
     body.querySelectorAll('[data-remove]').forEach(function (btn) {
@@ -1061,9 +2006,49 @@
         });
       });
     });
+    // Bookmark row context menu (Chrome parity): Open in New Tab / Copy URL.
+    body.querySelectorAll('.le[data-bm-id]').forEach(function (row) {
+      row.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        var url = row.dataset.url;
+        ctx.innerHTML = '';
+        if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
+          var open = el('button', 'ctxmenu__item');
+          open.textContent = 'Open in New Tab';
+          open.addEventListener('click', function () {
+            ctx.hidden = true;
+            api('hive.newTabWithURL', { url: url, activate: false });
+          });
+          ctx.appendChild(open);
+          var copy = el('button', 'ctxmenu__item');
+          copy.textContent = 'Copy URL';
+          copy.addEventListener('click', function () {
+            ctx.hidden = true;
+            api('hive.copyLink', { url: url });
+          });
+          ctx.appendChild(copy);
+        }
+        ctx.hidden = false;
+        var w = ctx.offsetWidth, h = ctx.offsetHeight;
+        ctx.style.left = Math.min(e.clientX, window.innerWidth - w - 8) + 'px';
+        ctx.style.top = Math.min(e.clientY, window.innerHeight - h - 8) + 'px';
+      });
+    });
     var clearBtn = body.querySelector('[data-clear-history]');
     if (clearBtn) clearBtn.addEventListener('click', function () {
-      api('hive.clearHistory').then(function (res) {
+      // Chrome convention: destructive wipe requires explicit confirmation.
+      // In-page modal — window.confirm is a no-op in this CEF embed (the
+      // browser client does not implement OnJSDialog).
+      confirmAction('Clear all browsing history? This cannot be undone.', function (ok) {
+        if (!ok) return;
+        api('hive.clearHistory').then(function (res) {
+          if (res !== null) refresh();
+        });
+      }, 'Clear');
+    });
+    var clearDlBtn = body.querySelector('[data-clear-downloads]');
+    if (clearDlBtn) clearDlBtn.addEventListener('click', function () {
+      api('hive.clearFinishedDownloads').then(function (res) {
         if (res !== null) refresh();
       });
     });
@@ -1080,13 +2065,58 @@
     bar.hidden = false;
     var list = $('bookmarksList');
     list.innerHTML = '';
-    state.bookmarks.slice(0, 24).forEach(function (bm) {
+    // Overflow handling (Chrome bookmarks-bar convention): the first 12
+    // bookmarks render as chips; the rest spill into a "»" menu so nothing
+    // is silently unreachable. The cap keeps the bar from eating toolbar
+    // width — the overflow menu is one click away.
+    var visibleCount = Math.min(state.bookmarks.length, 12);
+    state.bookmarks.slice(0, visibleCount).forEach(function (bm) {
       var chip = el('span', 'bmchip', null);
       chip.textContent = bm.title;
       chip.title = bm.url;
-      chip.addEventListener('click', function () { api('hive.navigate', { url: bm.url }); });
+      chip.dataset.url = bm.url || '';
+      // ⌘/⌃/middle-click opens the bookmark in a background tab (Chrome
+      // bookmarks-bar convention), plain click navigates the active tab.
+      chip.addEventListener('click', function (e) { openURL(bm.url, e); });
+      chip.addEventListener('auxclick', function (e) { if (e.button === 1) { e.preventDefault(); api('hive.newTabWithURL', { url: bm.url, activate: false }); } });
       list.appendChild(chip);
     });
+    var overflow = state.bookmarks.slice(visibleCount);
+    if (overflow.length) {
+      var more = el('button', 'bmchip bmchip--more', null);
+      more.textContent = '»';
+      more.title = 'More bookmarks (' + overflow.length + ')';
+      more.setAttribute('aria-label', 'More bookmarks');
+      more.setAttribute('aria-haspopup', 'menu');
+      more.addEventListener('click', function (e) {
+        e.stopPropagation();
+        // Deliberately no event passed to openURL: the » button's click
+        // event is captured here, and its modifiers must not leak into the
+        // menu items' navigation (a ⌘-click on » must not make every item
+        // open in the background). Menu items always navigate the active tab.
+        var items = overflow.map(function (bm) {
+          return {
+            label: bm.title,
+            url: bm.url,
+            action: function () { openURL(bm.url); }
+          };
+        });
+        ctx.innerHTML = '';
+        items.forEach(function (item) {
+          var b = el('button', 'ctxmenu__item');
+          b.textContent = item.label;
+          b.title = item.url || '';
+          b.addEventListener('click', function () { ctx.hidden = true; item.action(); });
+          ctx.appendChild(b);
+        });
+        ctx.hidden = false;
+        var rect = more.getBoundingClientRect();
+        var w = ctx.offsetWidth, h = ctx.offsetHeight;
+        ctx.style.left = Math.min(rect.left, window.innerWidth - w - 8) + 'px';
+        ctx.style.top = Math.min(rect.bottom + 4, window.innerHeight - h - 8) + 'px';
+      });
+      list.appendChild(more);
+    }
   }
 
   /* ---------- context menu ---------- */
@@ -1104,6 +2134,11 @@
       items.push({ sep: true });
       items.push({ label: 'Close tab', danger: true, action: function () { animateCloseTab(id); } });
     }
+    var tabURL = t.url || '';
+    if (tabURL.indexOf('http://') === 0 || tabURL.indexOf('https://') === 0) {
+      items.push({ sep: true });
+      items.push({ label: 'Copy Link', action: function () { api('hive.copyLink', { url: tabURL }); } });
+    }
     items.push({ sep: true });
     items.push({ label: 'Reopen closed tab', action: function () { api('hive.reopenClosedTab'); } });
     ctx.innerHTML = '';
@@ -1119,10 +2154,45 @@
     ctx.style.left = Math.min(x, window.innerWidth - w - 8) + 'px';
     ctx.style.top = Math.min(y, window.innerHeight - h - 8) + 'px';
   }
+
+  // Click-away or window blur dismisses the context menu (native-menu
+  // convention); Escape closes it too (global keydown). The suggestion
+  // dropdown follows the same convention: an outside mousedown or window blur
+  // closes it, while clicking the address field itself keeps it open.
+  document.addEventListener('mousedown', function (e) {
+    if (!ctx.hidden && !ctx.contains(e.target)) ctx.hidden = true;
+    if (!suggestBox.hidden && !suggestBox.contains(e.target) && !addrInput.contains(e.target)) hideSuggest();
+  }, true);
+  document.addEventListener('blur', function () {
+    if (ctx && !ctx.hidden) ctx.hidden = true;
+    if (!suggestBox.hidden) hideSuggest();
+  }, true);
   document.addEventListener('click', function (e) {
     if (ctx.hidden) return;
     if (!ctx.contains(e.target)) ctx.hidden = true;
   });
+
+  // Start-page top-site shortcut menu (Chrome NTP parity): open the tile in a
+  // new background tab, or remove the host from the grid (persisted natively).
+  function showTopSiteMenu(x, y, site) {
+    var items = [
+      { label: 'Open in new tab', action: function () { api('hive.newTabWithURL', { url: site.url, activate: false }); } },
+      { label: 'Remove from top sites', action: function () {
+        api('hive.hideTopSite', { text: site.host }).then(function () { refresh(); });
+      } }
+    ];
+    ctx.innerHTML = '';
+    items.forEach(function (item) {
+      var b = el('button', 'ctxmenu__item');
+      b.textContent = item.label;
+      b.addEventListener('click', function () { ctx.hidden = true; item.action(); });
+      ctx.appendChild(b);
+    });
+    ctx.hidden = false;
+    var w = ctx.offsetWidth, h = ctx.offsetHeight;
+    ctx.style.left = Math.min(x, window.innerWidth - w - 8) + 'px';
+    ctx.style.top = Math.min(y, window.innerHeight - h - 8) + 'px';
+  }
 
   /* ---------- command palette ---------- */
 
@@ -1138,7 +2208,14 @@
 
   function paletteActions(q) {
     var actions = [
-      { icon: ICONS.globe, label: 'Morning Brief', run: function () { navigate('hive://brief/'); } },
+      { icon: ICONS.globe, label: 'Morning Brief', run: function () {
+        if (IS_CHROME) api('hive.openBrief');
+        else window.location.href = 'hive://brief/';
+      } },
+      { icon: ICONS.search, label: 'Open Agent Workspace', run: function () {
+        if (IS_CHROME) api('hive.openPolar');
+        else window.location.href = 'hive://polar/';
+      } },
       { icon: ICONS.globe, label: 'New Tab', run: function () { api('hive.newTab'); } },
       { icon: ICONS.panel, label: state.layout === 'vertical' ? 'Switch to Horizontal tabs' : 'Switch to Vertical tabs',
         run: function () { api('hive.setLayout', { mode: state.layout === 'vertical' ? 'horizontal' : 'vertical' }); showToast('Layout switched to ' + (state.layout === 'vertical' ? 'horizontal' : 'vertical') + ' tabs', 'success'); } },
@@ -1171,10 +2248,25 @@
 
       { icon: ICONS.focus, label: 'Focus Mode: hide chrome', run: toggleCompactMode },
       { icon: ICONS.bookmark, label: (prefs.bookmarksBar ? 'Hide' : 'Show') + ' bookmarks bar',
-        run: function () { prefs.bookmarksBar = !prefs.bookmarksBar; savePrefs(); renderBookmarksBar(); } }
+        run: function () { prefs.bookmarksBar = !prefs.bookmarksBar; savePrefs(); renderBookmarksBar(); } },
+      { sep: true, label: 'Page Actions' },
+      { icon: ICONS.reload, label: 'Reload (⌘R)', run: function () { api('hive.reload'); } },
+      { icon: ICONS.reload, label: 'Reload Ignoring Cache (⌥⌘R)', run: function () { api('hive.reloadIgnoringCache'); } },
+      { icon: ICONS.stop, label: 'Stop Loading (⌘.)', run: function () { api('hive.stop'); } },
+      { icon: ICONS.search, label: 'Reader Mode', run: function () { api('hive.toggleReaderMode'); } },
+      { icon: ICONS.private, label: 'Fullscreen (⌃⌘F)', run: function () { api('hive.toggleFullscreen'); } },
+      { icon: ICONS.print, label: 'Print… (⌘P)', run: function () { api('hive.printPage'); } },
+      { icon: ICONS.zoom, label: 'Zoom In (⌘+)', run: function () { api('hive.zoomIn'); } },
+      { icon: ICONS.zoomOut, label: 'Zoom Out (⌘-)', run: function () { api('hive.zoomOut'); } },
+      { icon: ICONS.refresh, label: 'Reset Zoom (⌘0)', run: function () { api('hive.resetZoom'); } }
     ];
-    return actions.filter(function (a) {
+    var matched = actions.filter(function (a) {
       return !q || a.label.toLowerCase().indexOf(q) !== -1;
+    });
+    // Drop section headers (seps) that have no visible items under them.
+    return matched.filter(function (a, i) {
+      if (!a.sep) return true;
+      return matched.slice(i + 1).some(function (b) { return !b.sep; });
     });
   }
 
@@ -1183,10 +2275,17 @@
     q = q.toLowerCase();
     list.innerHTML = '';
     var rows = [];
+    var itemIndex = 0;
     paletteActions(q).forEach(function (a, i) {
+      if (a.sep) {
+        var s = el('div', 'palette__sep', null);
+        s.textContent = a.label || '';
+        list.appendChild(s);
+        return;
+      }
       var row = el('div', 'palette__item', null);
       row.innerHTML = '<span class="sugg__icon">' + svg(a.icon, 15) + '</span><span>' + esc(a.label) + '</span>';
-      row.dataset.index = i;
+      row.dataset.index = itemIndex++;
       row.addEventListener('click', function () { closePalette(); a.run(); });
       list.appendChild(row);
       rows.push(row);
@@ -1236,6 +2335,10 @@
       var idx = palIndex < 0 ? 0 : palIndex;
       items[idx].click();
     } else if (e.key === 'Escape') {
+      // stopPropagation: the document-level Esc chain must not also run
+      // (closing the palette with Esc must never fall through to the
+      // exit-fullscreen branch or blur other fields).
+      e.stopPropagation();
       closePalette();
     }
     Array.prototype.forEach.call(items, function (n, i) {
@@ -1252,16 +2355,84 @@
 
   document.addEventListener('keydown', function (e) {
     var meta = e.metaKey || e.ctrlKey;
+    // Ctrl+Tab / Ctrl+Shift+Tab: cycle tabs (Chrome/Arc convention; ⌘⇥ is
+    // reserved by the OS for app switching). Cycling skips pinned/essential
+    // tabs, wraps around, and shows a transient toast for visual feedback.
+    // ⌘⌥1-9 switches space (Arc/Chrome-profile convention, documented in the
+    // shortcuts overlay). 9+ spaces wrap to the last slot; 0 is a no-op.
+    if (meta && e.altKey && /^[1-9]$/.test(e.key) && (state.spaces || []).length > 1) {
+      e.preventDefault();
+      var idx = Math.min(parseInt(e.key, 10) - 1, state.spaces.length - 1);
+      var ws = state.spaces[idx];
+      if (ws) api('hive.switchWorkspace', { id: ws.id });
+      return;
+    }
+    if (e.ctrlKey && !e.metaKey && !e.altKey && e.key === 'Tab') {
+      e.preventDefault();
+      var cycle = state.tabs.filter(function (t) { return !t.isPinned && !t.isEssential; });
+      if (cycle.length > 1) {
+        var cur = cycle.findIndex(function (t) { return t.id === state.activeTabID; });
+        var next = e.shiftKey
+          ? (cur <= 0 ? cycle.length - 1 : cur - 1)
+          : (cur < 0 ? 0 : (cur + 1) % cycle.length);
+        api('hive.selectTab', { id: cycle[next].id }).then(function () {
+          var t = cycle[next];
+          showToast((e.shiftKey ? 'Previous' : 'Next') + ' tab: ' + (t.title || t.host || 'New Tab'), 'info');
+        });
+      }
+      return;
+    }
+    // ⌘P: print the active page (native print dialog, Safari/Chrome parity).
+    if (meta && e.key.toLowerCase() === 'p') { e.preventDefault(); api('hive.printPage'); return; }
+    // ⌘.: stop the current load (matches the native Stop menu item).
+    if (meta && e.key === '.') { e.preventDefault(); api('hive.stop'); return; }
+    // ⌘+/⌘-/⌘0: page zoom (Chrome/Safari parity). Ignored while typing in
+    // the address bar (where ⌘+/- may mean something else) — same as Chrome.
+    if (meta && (e.key === '=' || e.key === '+' || e.key === '-') &&
+        !(document.activeElement && document.activeElement.tagName === 'INPUT')) {
+      e.preventDefault();
+      api(e.key === '-' ? 'hive.zoomOut' : 'hive.zoomIn').then(function () { refresh(); });
+      return;
+    }
+    if (meta && e.key === '0' &&
+        !(document.activeElement && document.activeElement.tagName === 'INPUT')) {
+      e.preventDefault();
+      api('hive.resetZoom').then(function () { refresh(); });
+      return;
+    }
     if (e.key === 'Escape') {
+      // The final else only runs when NOTHING above consumed the Esc — so
+      // closing a panel/palette/overlay with Esc can never also trigger it.
       if (state.isChromePanelOpen) closePanel();
       else if (!$('paletteBackdrop').hidden) closePalette();
       else if (!document.getElementById('shortcutsOverlay').hidden) { document.getElementById('shortcutsOverlay').hidden = true; restoreFocus(); }
+      else if (!ctx.hidden) ctx.hidden = true;
       else if (document.body.dataset.compact) setCompactMode(false);
       else if (!suggestBox.hidden) hideSuggest();
       else if (document.activeElement === addrInput) addrInput.blur();
+      // Last resort: leave fullscreen (Chrome/Safari convention). The bridge
+      // no-ops when the window isn't actually fullscreen.
+      else api('hive.exitFullscreen');
       return;
     }
-    if (meta && e.key.toLowerCase() === 'a') { e.preventDefault(); agentDockOpen(); return; }
+    // ⌘⇧R toggles Reader Mode (Safari convention). Chrome's ⌘⇧R hard-reload
+    // is relocated to ⌥⌘R (below) to avoid the clash.
+    if (meta && e.shiftKey && e.key.toLowerCase() === 'r') { e.preventDefault(); api('hive.toggleReaderMode').then(function () { refresh(); }); return; }
+    // ⌥⌘R hard-reloads, bypassing caches (Chrome's ⌘⇧R relocated here).
+    if (meta && e.altKey && !e.shiftKey && e.key.toLowerCase() === 'r') { e.preventDefault(); api('hive.reloadIgnoringCache'); return; }
+    // ⌘⇧C copies the active page URL (Chrome convention).
+    if (meta && e.shiftKey && e.key.toLowerCase() === 'c') { e.preventDefault(); api('hive.copyPageURL'); return; }
+    // ⌘A asks the agent (documented in the dock hero); ⌘⇧A is Tab Search
+    // (native SwiftUI overlay, via bridge). They must not collide.
+    if (meta && !e.shiftKey && e.key.toLowerCase() === 'a') { e.preventDefault(); agentDockOpen(); return; }
+    if (meta && e.shiftKey && e.key.toLowerCase() === 'a') { e.preventDefault(); api('hive.openTabSearch'); return; }
+    // ⌃⌘F toggles fullscreen (Safari/Chrome convention); plain ⌘F is Find.
+    if (e.ctrlKey && e.metaKey && e.key.toLowerCase() === 'f') {
+      e.preventDefault();
+      api('hive.toggleFullscreen');
+      return;
+    }
+    if (meta && e.key.toLowerCase() === 'f') { e.preventDefault(); api('hive.openFindBar'); return; }
     if (meta && e.key.toLowerCase() === 'k') { e.preventDefault(); openPalette(); return; }
     if (meta && e.key.toLowerCase() === 'n' && e.shiftKey) { e.preventDefault(); api('hive.newPrivateTab'); return; }
     if (meta && e.key.toLowerCase() === 'n') { e.preventDefault(); api('hive.newWindow'); return; }
@@ -1277,10 +2448,24 @@
     }
     if (meta && e.key === '[') { api('hive.back'); return; }
     if (meta && e.key === ']') { api('hive.forward'); return; }
-    if (meta && e.key.toLowerCase() === 'r') { api('hive.reload'); return; }
+    // ⌘⇧H — Home (⌥⌘H is macOS's system "Hide Others", so Hive uses the
+    // Safari-adjacent ⌘⇧H to avoid the collision).
+    if (meta && e.shiftKey && e.key.toLowerCase() === 'h') { e.preventDefault(); api('hive.goHome'); return; }
+    if (meta && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'r') { api('hive.reload'); return; }
     if (meta && e.key.toLowerCase() === 'd') { e.preventDefault(); api('hive.toggleBookmark'); return; }
     if (meta && e.key.toLowerCase() === 'y') { e.preventDefault(); openPanel('history'); return; }
     if (meta && e.key.toLowerCase() === 'j') { e.preventDefault(); openPanel('downloads'); return; }
+    // ⌘⇧⌫ — Clear Browsing Data (Chrome parity; Backspace is the Mac delete key).
+    if (meta && e.shiftKey && e.key === 'Backspace') { e.preventDefault(); api('hive.openClearData'); return; }
+    if (meta && e.shiftKey && e.key.toLowerCase() === 'b') {
+      // ⌘⇧B toggles the bookmarks bar (Chrome convention, overlay-documented).
+      e.preventDefault();
+      prefs.bookmarksBar = !prefs.bookmarksBar;
+      savePrefs();
+      renderBookmarksBar();
+      showToast('Bookmarks bar ' + (prefs.bookmarksBar ? 'shown' : 'hidden'), 'info');
+      return;
+    }
     if (meta && e.key.toLowerCase() === 'b') { e.preventDefault(); openPanel('bookmarks'); return; }
     if (meta && !e.shiftKey && /^[1-9]$/.test(e.key)) {
       e.preventDefault();
@@ -1300,8 +2485,25 @@
   var stage = $('stage');
   var stageQuery = $('stageQuery');
 
+  var startPageFirstRender = true;
+  var startEnterUntil = 0;
   function renderStartPage() {
     if (IS_CHROME) return;
+    // Entrance choreography: the first render adds .start--enter, and any
+    // broadcast that lands inside the animation window is skipped entirely
+    // so the staggered entrance always plays in full — a second startup
+    // broadcast (loading-state flips, progress) must not truncate it or
+    // re-pop the sections. After the window, renders rebuild statically.
+    var now = Date.now();
+    if (startPageFirstRender) {
+      startPageFirstRender = false;
+      startEnterUntil = now + 450;
+      stage.classList.add('start--enter');
+    } else if (now < startEnterUntil) {
+      return;
+    } else {
+      stage.classList.remove('start--enter');
+    }
     $('briefCard').hidden = false;
     var grid = $('topsitesGrid');
     grid.innerHTML = '';
@@ -1310,10 +2512,51 @@
       var tile = el('div', 'topsite', null);
       tile.innerHTML = '<span class="topsite__icon" style="background:hsl(' + hue + ',32%,48%)">' + esc(site.host.charAt(0).toUpperCase()) + '</span>' +
         '<span class="topsite__label">' + esc(site.host) + '</span>';
-      tile.addEventListener('click', function () { api('hive.navigate', { url: site.url }); });
+      tile.addEventListener('click', function (e) { openURL(site.url, e); });
+      tile.addEventListener('auxclick', function (e) {
+        if (e.button === 1) { e.preventDefault(); openURL(site.url, e); }
+      });
+      // Chrome NTP: right-click a shortcut tile for Open in new tab / Remove,
+      // and Enter opens the focused tile (keyboard accessibility).
+      tile.setAttribute('data-url', site.url || '');
+      tile.setAttribute('role', 'button');
+      tile.tabIndex = 0;
+      tile.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openURL(site.url, e);
+        }
+      });
+      tile.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        showTopSiteMenu(e.clientX, e.clientY, site);
+      });
       grid.appendChild(tile);
     });
     $('topSitesSection').hidden = !state.topSites.length;
+    $('recentSection').hidden = !state.recent.length;
+    // "See more" expands the recent list to the full start-data history
+    // (Chrome NTP convention); the start page already carries state.history.
+    $('recentMore').addEventListener('click', function () {
+      if (state.recent.length >= (state.history || []).length) return;
+      var recent = $('recentList');
+      recent.innerHTML = '';
+      (state.history || []).forEach(function (item) {
+        var hue = Math.abs(hash(item.host || '')) % 360;
+        var row = el('div', 'le', null);
+        row.dataset.url = item.url || '';
+        row.innerHTML = tileHTML(item.host, item.title, hue) +
+          '<span class="le__body"><span class="le__title">' + esc(item.title) + '</span>' +
+          '<span class="le__meta">' + esc(item.url) + '</span></span>' +
+          '<span class="le__time">' + esc(item.timeLabel || '') + '</span>';
+        row.addEventListener('click', function (e) { openURL(item.url, e); });
+        row.addEventListener('auxclick', function (e) {
+          if (e.button === 1) { e.preventDefault(); openURL(item.url, e); }
+        });
+        recent.appendChild(row);
+      });
+      this.hidden = true;
+    });
 
     var recent = $('recentList');
     recent.innerHTML = '';
@@ -1324,10 +2567,12 @@
         '<span class="le__body"><span class="le__title">' + esc(item.title) + '</span>' +
         '<span class="le__meta">' + esc(item.url) + '</span></span>' +
         '<span class="le__time">' + esc(item.timeLabel) + '</span>';
-      row.addEventListener('click', function () { api('hive.navigate', { url: item.url }); });
+      row.addEventListener('click', function (e) { openURL(item.url, e); });
+      row.addEventListener('auxclick', function (e) {
+        if (e.button === 1) { e.preventDefault(); openURL(item.url, e); }
+      });
       recent.appendChild(row);
     });
-    $('recentSection').hidden = !state.recent.length;
 
     var spaces = $('spacesRow');
     spaces.innerHTML = '';
@@ -1337,6 +2582,11 @@
       s.innerHTML = '<span class="workspace__dot" style="background:' + ws.colorHex + '"></span>' +
         '<span>' + esc(ws.name) + '</span><span class="workspace__count">' + ws.tabCount + '</span>';
       s.addEventListener('click', function () { api('hive.switchWorkspace', { id: ws.id }); });
+      s.addEventListener('auxclick', function (e) {
+        if (e.button !== 1) return;
+        e.preventDefault();
+        api('hive.switchWorkspace', { id: ws.id });
+      });
       spaces.appendChild(s);
     });
     $('spacesSection').hidden = !state.spaces.length;
@@ -1357,8 +2607,9 @@
           row.innerHTML = '<span class="sugg__icon">' + svg(ICONS.search, 14) + '</span>' +
             '<span class="sugg__text">' + esc(s.text) + '</span>' +
             (s.url ? '<span class="sugg__url">' + esc(s.url) + '</span>' : '');
-          row.addEventListener('click', function () {
-            api(s.tabID ? 'hive.selectTab' : 'hive.navigate', s.tabID ? { id: s.tabID } : { url: s.url || s.text });
+          row.addEventListener('click', function (e) {
+            if (s.tabID && IS_CHROME) api('hive.selectTab', { id: s.tabID });
+            else openURL(s.url || s.text, e);
             stageSuggest.hidden = true;
           });
           stageSuggest.appendChild(row);
@@ -1367,18 +2618,73 @@
       });
     }, 120);
   });
+  var stageSuggIndex = -1;
+  function markStageSugg() {
+    Array.prototype.forEach.call(stageSuggest.querySelectorAll('.sugg'), function (n, i) {
+      n.dataset.active = i === stageSuggIndex ? 'true' : 'false';
+    });
+  }
   stageQuery.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { stageQuery.blur(); }
+    var rows = stageSuggest.querySelectorAll('.sugg');
+    if (e.key === 'Escape') {
+      stageSuggest.hidden = true;
+      stageSuggIndex = -1;
+      stageQuery.blur();
+      return;
+    }
+    if (e.key === 'ArrowDown' && rows.length) {
+      e.preventDefault();
+      stageSuggIndex = (stageSuggIndex + 1) % rows.length;
+      markStageSugg();
+      return;
+    }
+    if (e.key === 'ArrowUp' && rows.length) {
+      e.preventDefault();
+      stageSuggIndex = (stageSuggIndex - 1 + rows.length) % rows.length;
+      markStageSugg();
+      return;
+    }
     if (e.key === 'Enter') {
       e.preventDefault();
-      api('hive.submit', { text: stageQuery.value });
+      var chosen = stageSuggIndex >= 0 ? rows[stageSuggIndex] : null;
+      if (chosen) chosen.click();
+      else submitAddress(stageQuery.value);
+      stageSuggest.hidden = true;
+      stageSuggIndex = -1;
     }
+  });
+  stageQuery.addEventListener('blur', function () {
+    stageSuggIndex = -1;
   });
   document.addEventListener('keydown', function (e) {
     if (IS_CHROME) return;
     if (e.key === 'Escape' && document.activeElement === stageQuery) {
       stageQuery.blur();
     }
+  });
+
+  // Chrome NTP convention: start typing anywhere to search. A printable key
+  // (with no modifier, not already in an input/textarea) focuses the stage
+  // query and inserts the character.
+  document.addEventListener('keydown', function (e) {
+    if (IS_CHROME) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    // Never route keystrokes behind an open overlay (confirm modal, shortcuts
+    // overlay, palette) into the search box.
+    if (document.querySelector('.hive-confirm')) return;
+    if (!document.getElementById('shortcutsOverlay').hidden) return;
+    if (!$('paletteBackdrop').hidden) return;
+    var el = document.activeElement;
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return;
+    if (e.key.length !== 1 || e.key === ' ') return;
+    // '?' opens the shortcuts overlay — never route it into the search box.
+    if (e.key === '?') return;
+    e.preventDefault();
+    stageQuery.focus();
+    // Append when the box already has text (Chrome NTP behavior); replace when
+    // it is empty.
+    stageQuery.value = stageQuery.value ? stageQuery.value + e.key : e.key;
+    stageQuery.dispatchEvent(new Event('input'));
   });
 
   $('stageSearchForm').addEventListener('submit', function (e) { e.preventDefault(); });
@@ -1425,6 +2731,19 @@
       window.cefSwift.on('hive.stateChanged', function (data) {
         if (typeof data === 'string') { try { data = JSON.parse(data); } catch (e) { return; } }
         apply(data);
+        // Chrome/Arc convention: toast when a download completes, once per file
+        // (compared against the previous snapshot's completed set).
+        if (data && data.downloads && window.__lastCompletedDls) {
+          (data.downloads || []).forEach(function (dl) {
+            if ((dl.state === 'completed' || dl.state === 'complete') &&
+                window.__lastCompletedDls.indexOf(dl.id) === -1) {
+              showToast('Download complete: ' + (dl.name || 'file'), 'success');
+            }
+          });
+        }
+        window.__lastCompletedDls = (data && data.downloads || [])
+          .filter(function (dl) { return dl.state === 'completed' || dl.state === 'complete'; })
+          .map(function (dl) { return dl.id; });
         if (IS_CHROME && data && data.layout) {
           chromeEl.classList.remove('chrome--sidebar', 'chrome--strip');
           chromeEl.classList.add('chrome--' + (data.layout === 'vertical' ? 'sidebar' : 'strip'));
@@ -1692,6 +3011,46 @@ function toastRegion() {
   }
   return el;
 }
+// In-page confirmation modal (window.confirm is a no-op in this CEF embed —
+// the browser client does not implement OnJSDialog). Used for destructive
+// actions like clearing history. Returns via callback(true/false); Escape and
+// backdrop-click cancel.
+function confirmAction(message, cb, okLabel) {
+  var existing = document.querySelector('.hive-confirm');
+  if (existing) existing.remove();
+  var wrap = document.createElement('div');
+  wrap.className = 'hive-confirm';
+  wrap.setAttribute('role', 'alertdialog');
+  wrap.setAttribute('aria-modal', 'true');
+  wrap.setAttribute('aria-label', 'Confirm');
+  wrap.innerHTML = '<div class="hive-confirm__card">' +
+    '<div class="hive-confirm__msg">' + esc(message) + '</div>' +
+    '<div class="hive-confirm__actions">' +
+    '<button class="hive-confirm__btn" data-confirm="cancel">Cancel</button>' +
+    '<button class="hive-confirm__btn hive-confirm__btn--danger" data-confirm="ok">' + esc(okLabel || 'Confirm') + '</button>' +
+    '</div></div>';
+  function done(ok) {
+    wrap.remove();
+    document.removeEventListener('keydown', onKey, true);
+    cb(ok);
+  }
+  function onKey(e) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation(); // never let the global Escape handler also fire
+      done(false);
+    }
+  }
+  wrap.addEventListener('mousedown', function (e) {
+    if (e.target === wrap) done(false);
+  });
+  wrap.querySelector('[data-confirm="cancel"]').addEventListener('click', function () { done(false); });
+  wrap.querySelector('[data-confirm="ok"]').addEventListener('click', function () { done(true); });
+  document.addEventListener('keydown', onKey, true);
+  document.body.appendChild(wrap);
+  wrap.querySelector('[data-confirm="ok"]').focus();
+}
+
 function showToast(message, type) {
   var kind = type || 'info';
   var icons = { success: '✓', error: '✕', info: 'i' };

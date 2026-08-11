@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VALIDATOR="$ROOT_DIR/scripts/verify-hivechromium-entitlements.sh"
+VALIDATOR="$ROOT_DIR/scripts/verify-hive-entitlements.sh"
 SOURCE="$ROOT_DIR/Sources/Hive/Hive.entitlements"
 
 fail() {

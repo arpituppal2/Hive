@@ -43,7 +43,7 @@ extension BrowserState {
         guard !isKnowledgePersistenceDegraded, !isAuditPersistenceDegraded else {
             throw CaptureError.persistenceUnavailable
         }
-        guard !isPrivateBrowsing,
+        guard MemoryAdmissionPolicy.userAuthoredCapture(isPrivate: isPrivateBrowsing) == .durable,
               let ctx = buildPageContext(), let pageURL = ctx.url else {
             throw CaptureError.noPage
         }
@@ -127,6 +127,9 @@ extension BrowserState {
         guard !isKnowledgePersistenceDegraded, !isAuditPersistenceDegraded else {
             throw CaptureError.persistenceUnavailable
         }
+        guard !isPrivateBrowsing else {
+            throw CaptureError.privateBrowsing
+        }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             throw CaptureError.noNote
@@ -203,10 +206,11 @@ extension BrowserState {
     /// Sources/Hive/WebChrome/brief/). The template is JSON-driven — the HTML
     /// holds a __HIVE_BRIEF_JSON__ placeholder filled at serve time — so Hive
     /// injects *real* browsing data with zero JS surgery: greeting + time, the
-    /// user's open tabs as to-dos, top history domains as suggested tasks, and
-    /// a source credit footer. Honest: when there is no history yet, the brief
-    /// greets without inventing fake items.
-    func buildBriefJSON() -> String {
+    /// user's open tabs as to-dos, top history domains as suggested tasks, a
+    /// memory-derived "Started for you" card (P2.6), a painting caption, a
+    /// looking-ahead blurb, and a source credit footer. Honest: when there is
+    /// no history or memory yet, the brief greets without inventing items.
+    func buildBriefJSON() async -> String {
         // Hardened JSON escaper for untrusted browser data (tab titles, URLs,
         // hosts — all network/user-controlled). Beyond standard JSON escapes it
         // neutralizes '<' '>' '&' and U+2028/2029 so a malicious page title can
@@ -285,6 +289,12 @@ extension BrowserState {
             sources.append(["url": site.url.absoluteString, "name": site.host])
         }
 
+        // P2.6 Proactive Briefing: derive the proactive sections from real
+        // Honeycomb memory (captures, notes, briefs, sources, claims created
+        // since yesterday). A storage read failure degrades to an empty
+        // window — the brief still renders, just without the memory card.
+        let proactivePlan = await proactiveBriefPlan()
+
         func jsonItems(_ items: [[String: String]]) -> String {
             items.map { item in
                 "{" + item.map { "\"\($0.key)\":\"\(esc($0.value))\"" }.joined(separator: ",") + "}"
@@ -295,10 +305,101 @@ extension BrowserState {
         members.append("\"header\": { \"greeting\": \"\(esc(greeting))\", \"date_time\": \"\(isoDate)\" }")
         members.append("\"top_todos\": [\(jsonItems(todos))]")
         members.append("\"tasks\": [\(jsonItems(tasks))]")
+        // The template renders proactive_work only when present — omit the key
+        // entirely when the planner surfaced nothing, never an empty card.
+        if let work = proactivePlan.proactiveWork {
+            members.append("\"proactive_work\": { \"title\": \"\(esc(work.title))\", \"reasoning\": \"\(esc(work.reasoning))\" }")
+        }
+        members.append("\"painting\": { \"caption\": \"\(esc(proactivePlan.paintingCaption))\" }")
+        members.append("\"looking_ahead_blurb\": \"\(esc(proactivePlan.lookingAheadBlurb))\"")
         if !sources.isEmpty {
             members.append("\"footer\": { \"sources\": [\(jsonItems(sources))] }")
         }
         return "{\n  " + members.joined(separator: ",\n  ") + "\n}"
+    }
+
+
+    /// Feeds the pure `ProactiveBriefPlanner` with real Honeycomb memory from
+    /// the past day (titles + creation times only — never page content) and
+    /// today's calendar events. Calendar events are read through the opt-in
+    /// EventKit adapter only when the user enabled "Include Today's Calendar"
+    /// (default off); a permission denial or read failure degrades to no
+    /// events, keeping the looking-ahead section memory-driven.
+    private func proactiveBriefPlan() async -> ProactiveBriefPlanner.Plan {
+        let kinds: [(HoneycombStore.NodeType, ProactiveBriefPlanner.MemoryItem.Kind)] = [
+            (.capture, .capture),
+            (.note, .note),
+            (.brief, .brief),
+            (.source, .source),
+            (.claim, .claim),
+        ]
+        var memory: [ProactiveBriefPlanner.MemoryItem] = []
+        for (nodeType, plannerKind) in kinds {
+            let nodes = (try? await honeycomb.getNodesByType(nodeType, limit: 60)) ?? []
+            for node in nodes {
+                // Note labels ARE the note's first 80 chars — freeform personal
+                // text, not a page title. The brief is already browsing-data
+                // derived, but a raw note snippet surfacing in the proactive
+                // card is more sensitive than a URL; replace it with a generic
+                // label so the card never quotes user notes verbatim.
+                let title: String
+                if plannerKind == .note {
+                    title = "A note saved to memory"
+                } else {
+                    title = node.label
+                }
+                memory.append(ProactiveBriefPlanner.MemoryItem(
+                    kind: plannerKind,
+                    title: title,
+                    createdAt: node.createdAt
+                ))
+            }
+        }
+        let events: [ProactiveBriefPlanner.CalendarEvent]
+        if includeCalendarInBrief && enableProactiveBriefing {
+            events = await ProactiveBriefCalendar.todayEvents(limit: 12)
+        } else {
+            events = []
+        }
+        return ProactiveBriefPlanner.plan(
+            now: Date(),
+            calendar: .autoupdatingCurrent,
+            memory: memory,
+            events: events
+        )
+    }
+
+
+    /// P2.6 daily rollover: when the local calendar day changes, refresh any
+    /// open brief tabs so the "since yesterday" window regenerates without a
+    /// manual reload. Runs off the same 60s cadence as the hibernation timer.
+    /// The day ordinal is seeded at start so the first pass (60s after launch)
+    /// is a no-op — open brief tabs are never reloaded spuriously.
+    func startProactiveBriefTimer() {
+        proactiveBriefTask?.cancel()
+        lastProactiveBriefDay = Calendar.current.ordinality(of: .day, in: .era, for: Date()) ?? 0
+        proactiveBriefTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(60))
+                guard let self, !Task.isCancelled else { return }
+                self.runProactiveBriefPass()
+            }
+        }
+    }
+
+
+    /// One proactive-brief pass: regenerate when the day rolled over and open
+    /// brief tabs are present. Scoped to the hive://brief route only — the
+    /// same internal-route discipline as the rest of the web chrome.
+    func runProactiveBriefPass() {
+        guard enableProactiveBriefing else { return }
+        let day = Calendar.current.ordinality(of: .day, in: .era, for: Date()) ?? 0
+        guard day != lastProactiveBriefDay else { return }
+        lastProactiveBriefDay = day
+        for tab in tabs where tab.model.url?.host?.lowercased() == "brief" {
+            guard !tab.isHibernated else { continue }
+            tab.model.reload()
+        }
     }
 
 
@@ -311,17 +412,26 @@ extension BrowserState {
     /// `window.cefSwift._emit` to capture browsing data. We emit only into
     /// browsers whose current URL is our own web chrome.
     func broadcastWebChromeState() {
-        let snapshot = webChromeStartData()
-        guard let data = try? JSONEncoder().encode(snapshot),
-              let json = String(data: data, encoding: .utf8)
-        else { return }
-        let script = "if(window.cefSwift&&window.cefSwift._emit){window.cefSwift._emit(\"hive.stateChanged\","
-            + json + ");}"
-        if let chrome = chromeModel, chrome.url?.host == "start" {
+        func script(for snapshot: WebChromeStartData) -> String? {
+            guard let data = try? JSONEncoder().encode(snapshot),
+                  let json = String(data: data, encoding: .utf8)
+            else { return nil }
+            return "if(window.cefSwift&&window.cefSwift._emit){window.cefSwift._emit(\"hive.stateChanged\","
+                + json + ");}"
+        }
+
+        // The persistent shell is a normal-profile surface and receives the
+        // complete browser snapshot. Per-tab start pages are routed by their
+        // own URL; private pages receive only the redacted snapshot.
+        if let chrome = chromeModel, Self.isWebChromeURL(chrome.url),
+           let script = script(for: webChromeStartData()) {
             chrome.browser?.executeJavaScript(script)
         }
-        for tab in tabs where tab.model.url?.host == "start" {
-            tab.model.browser?.executeJavaScript(script)
+        for tab in tabs where Self.isWebChromeStartURL(tab.model.url) {
+            let snapshot = webChromeStartData(privateStart: tab.isPrivate, chromeShell: false)
+            if let script = script(for: snapshot) {
+                tab.model.browser?.executeJavaScript(script)
+            }
         }
     }
 }

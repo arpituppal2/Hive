@@ -5,8 +5,10 @@ import CefKit
 // MARK: - DownloadManagerSheet
 //
 // Chrome/Safari-style download manager. Shows native progress snapshots and
-// completed history with Finder reveal. CefKit currently exposes no supported
-// active-download control API, so the active row is intentionally observational.
+// completed history with Finder reveal. Active rows expose real pause/resume/
+// cancel controls through CefKit's live download controller, reconciled by the
+// HiveCore DownloadControlStateMachine; completed rows offer Finder reveal,
+// open-file, source-reopen (interrupted), and remove-from-history actions.
 
 struct DownloadManagerSheet: View {
     @Environment(BrowserState.self) private var state
@@ -124,6 +126,7 @@ struct DownloadManagerSheet: View {
 // MARK: - ActiveDownloadRow
 
 private struct ActiveDownloadRow: View {
+    @Environment(BrowserState.self) private var state
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let download: DownloadItem
     @State private var isHovered: Bool = false
@@ -132,10 +135,19 @@ private struct ActiveDownloadRow: View {
     private var statusColor: Color { .blue }
 
     private var progressText: String {
-        if download.progress > 0 && download.progress < 1 {
-            return "\(Int(download.progress * 100))%"
+        switch download.controlState.state {
+        case .pauseRequested: return "Pausing…"
+        case .resumeRequested: return "Resuming…"
+        case .paused:
+            let base = download.progress > 0 && download.progress < 1
+                ? "\(Int(download.progress * 100))%" : "0%"
+            return "Paused — \(base)"
+        case .active:
+            if download.progress > 0 && download.progress < 1 {
+                return "\(Int(download.progress * 100))%"
+            }
+            return "Downloading…"
         }
-        return "Downloading…"
     }
 
     var body: some View {
@@ -174,12 +186,48 @@ private struct ActiveDownloadRow: View {
             Spacer()
 
             if isHovered {
-                Text("Native controls unavailable")
-                    .font(HiveDesign.Typography.buttonCaption)
-                    .foregroundStyle(.tertiary)
-                    .help("CefKit currently reports download progress but does not expose pause, resume, or cancel controls")
-                    .accessibilityLabel("Download controls unavailable")
-                    .accessibilityHint("The download is being monitored by the browser; controls will appear when the engine exposes them")
+                if download.downloadControl != nil {
+                    HStack(spacing: 10) {
+                        switch download.controlState.state {
+                        case .active:
+                            Button(action: { state.pauseDownload(id: download.id) }) {
+                                Image(systemName: "pause.fill")
+                                    .font(HiveDesign.Typography.sidebarItem)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .buttonStyle(.plain)
+                            .help("Pause download")
+                            .accessibilityLabel("Pause download")
+                        case .paused:
+                            Button(action: { state.resumeDownload(id: download.id) }) {
+                                Image(systemName: "play.fill")
+                                    .font(HiveDesign.Typography.sidebarItem)
+                                    .foregroundStyle(Color.hiveAccent)
+                            }
+                            .buttonStyle(.plain)
+                            .help("Resume download")
+                            .accessibilityLabel("Resume download")
+                        case .pauseRequested, .resumeRequested:
+                            ProgressView()
+                                .controlSize(.small)
+                                .frame(width: 14, height: 14)
+                        }
+
+                        Button(role: .destructive) { state.cancelDownload(id: download.id) } label: {
+                            Image(systemName: "xmark")
+                                .font(HiveDesign.Typography.sidebarItem)
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .help("Cancel download")
+                        .accessibilityLabel("Cancel download")
+                    }
+                } else {
+                    Text("Waiting for engine…")
+                        .font(HiveDesign.Typography.buttonCaption)
+                        .foregroundStyle(.tertiary)
+                        .help("The download controller becomes available on the first engine update")
+                }
             }
         }
         .padding(.horizontal, 16)
@@ -273,6 +321,18 @@ private struct CompletedDownloadRow: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .onHover { isHovered = $0 }
+        // Drag-out (Chrome/Safari downloads convention): completed downloads
+        // can be dragged from the panel to Finder or another app. Only
+        // terminal, non-canceled transfers whose file exists on disk are
+        // draggable; the row stays inert otherwise.
+        .onDrag {
+            guard !isCanceled, !isInterrupted, let dest = download.destinationURL,
+                  FileManager.default.fileExists(atPath: dest.path)
+            else { return NSItemProvider(object: download.suggestedName as NSString) }
+            let provider = NSItemProvider(object: dest as NSURL)
+            provider.suggestedName = download.suggestedName
+            return provider
+        }
     }
 
     private func showInFinder() {

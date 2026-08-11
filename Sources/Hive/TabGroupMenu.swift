@@ -57,6 +57,36 @@ struct TabGroupColorMenu: View {
 
 // MARK: - TabGroupMenuSection
 //
+// MARK: - HiveToast
+
+/// Transient feedback capsule for one-shot actions (Group Similar Tabs,
+/// Clear Browsing Data). Rendered in the window's top banner stack,
+/// auto-cleared by the state owner.
+struct HiveToast: View {
+    let message: String
+    /// SF Symbol shown in the leading accent icon; defaults to the
+    /// actions/checkmark style.
+    var iconName: String = "checkmark.circle.fill"
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: iconName)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(HiveDesign.Accent.primary)
+            Text(message)
+                .font(HiveDesign.Typography.smallLabelBold)
+                .foregroundStyle(HiveDesign.Text.primary)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(.regularMaterial, in: Capsule())
+        .overlay(Capsule().strokeBorder(HiveDesign.Surface.level2, lineWidth: 1))
+        .shadow(color: .black.opacity(0.18), radius: 8, y: 3)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(message)
+    }
+}
+
 // Reusable context-menu section for tab-group management, Chrome-class:
 //   • New Group… (auto-named, cycles the palette)
 //   • when the tab is already grouped: recolor submenu (checkmark on current),

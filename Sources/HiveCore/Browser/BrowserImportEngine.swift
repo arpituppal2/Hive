@@ -5,7 +5,7 @@ import SQLite3
 //
 // Parses bookmarks and history from external browser profile directories.
 // Supports Safari (Bookmarks.plist), Chrome/Chromium-based browsers (JSON Bookmarks),
-// and Firefox (places.sqlite via system SQLite3).
+// and Firefox/Zen (places.sqlite via system SQLite3).
 //
 // All parsing is read-only — we extract what we can, skip what we can't, and report
 // honest counts. The caller is responsible for merging results into ChromeUserPrefs.
@@ -301,9 +301,12 @@ public struct BrowserImportEngine {
             let bookmarks = parseChromiumBookmarks(at: "\(profile)/Bookmarks").bookmarks
             let history = parseChromiumHistory(at: "\(profile)/History")
             return (bookmarks, history)
-        case "firefox":
-            // Firefox profile path varies — find the first .default-release directory.
-            let profilesDir = "\(home)/Library/Application Support/Firefox/Profiles"
+        case "firefox", "zen":
+            // Firefox and Zen both use Mozilla-style profiles: a Profiles
+            // directory of per-profile folders (`.default-release`/`.default`
+            // suffixes) holding a `places.sqlite` bookmarks/history database.
+            let appSupportName = browserID == "zen" ? "zen" : "Firefox"
+            let profilesDir = "\(home)/Library/Application Support/\(appSupportName)/Profiles"
             if let contents = try? FileManager.default.contentsOfDirectory(atPath: profilesDir),
                let profileDir = contents.first(where: { $0.hasSuffix(".default-release") || $0.hasSuffix(".default") }) {
                 return parseFirefoxDatabase(at: "\(profilesDir)/\(profileDir)/places.sqlite")

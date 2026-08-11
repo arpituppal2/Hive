@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MANIFEST="$ROOT_DIR/native/hive-fetch-boundary/Cargo.toml"
 PROFILE="release"
-RESOURCE_DIR="$ROOT_DIR/Sources/HiveChromium/Resources/ResearchWorker"
+RESOURCE_DIR="$ROOT_DIR/Sources/Hive/Resources/ResearchWorker"
 TARGET_DIR=""
 ALLOW_ADHOC=0
 
@@ -16,7 +16,7 @@ Usage: scripts/build-research-worker.sh [options]
 
 Options:
   --debug              Build the debug worker instead of release.
-  --resource-dir DIR  Stage into DIR instead of HiveChromium Resources.
+  --resource-dir DIR  Stage into DIR instead of Hive Resources.
   --target-dir DIR    Use Cargo's target directory DIR.
   --allow-adhoc       Local development only; permits the all-zero dummy Team ID.
                        Never use this mode for a release artifact.

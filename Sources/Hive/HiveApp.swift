@@ -9,6 +9,8 @@ import Foundation
 
 @main
 struct HiveApp: CefSwiftApp {
+    @NSApplicationDelegateAdaptor(HiveApplicationDelegate.self) private var applicationDelegate
+
 
     /// Custom schemes registered in every CEF process. `hive://` serves the
     /// hand-drawn web chrome (start page) — see WebChromeHandler.swift.
@@ -69,6 +71,7 @@ struct HiveApp: CefSwiftApp {
         WindowGroup(id: "main") {
             BrowserWindow()
                 .environment(state)
+                .task { applicationDelegate.bind(state: state) }
                 .frame(minWidth: 960, idealWidth: 1280, minHeight: 640, idealHeight: 800)
                 .sheet(isPresented: $showOnboarding) {
                     OnboardingSheet()
@@ -113,22 +116,40 @@ struct BrowserCommands: Commands {
 
     var body: some Commands {
         CommandGroup(after: .newItem) {
+            Button("New Window") {
+                // WindowGroup gives every scene the same shared BrowserState;
+                // the AppKit route opens a second window of the same scene.
+                NotificationCenter.default.post(name: Notification.Name("HiveRequestNewWindow"), object: nil)
+            }
+            .keyboardShortcut("n", modifiers: .command)
             Button("New Tab") { state.showFloatingURLBar(opensNewTab: true) }
                 .keyboardShortcut("t", modifiers: .command)
             Button("Close Tab") { state.closeActiveTab() }
                 .keyboardShortcut("w", modifiers: .command)
+            Button("Close Window") { NSApp.keyWindow?.performClose(nil) }
+                .keyboardShortcut("w", modifiers: [.command, .shift])
             Button("Reopen Closed Tab") { state.reopenLastClosed() }
                 .keyboardShortcut("t", modifiers: [.command, .shift])
             Divider()
             ForEach(1...min(9, state.visibleTabs.count), id: \.self) { i in
                 Button("Tab \(i)") {
-                    state.selectTab(id: state.visibleTabs[i-1].id)
+                    // Chrome/Safari convention: ⌘9 always jumps to the LAST
+                    // tab, even when more than nine are open.
+                    if i == 9, state.visibleTabs.count > 9, let last = state.visibleTabs.last {
+                        state.selectTab(id: last.id)
+                    } else {
+                        state.selectTab(id: state.visibleTabs[i-1].id)
+                    }
                 }
                 .keyboardShortcut(KeyEquivalent(Character("\(i)")), modifiers: .command)
             }
             Divider()
             Button("New Private Tab") { state.newPrivateTab() }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
+            Button(state.activeTab.map { state.isTabMuted($0.id) } ?? false ? "Unmute Tab" : "Mute Tab") {
+                if let id = state.activeTab?.id { state.toggleMuteTab(id: id) }
+            }
+            .keyboardShortcut("m", modifiers: [.command, .shift])
             if state.canUseWebPageActions {
                 Button("Summarize Page") { state.summarizeCurrentPage() }
                     .keyboardShortcut("s", modifiers: [.option])
@@ -144,6 +165,8 @@ struct BrowserCommands: Commands {
                 .keyboardShortcut("]", modifiers: .command)
             Button("Reload") { state.reload() }
                 .keyboardShortcut("r", modifiers: .command)
+            Button("Reload Ignoring Cache") { state.reloadIgnoringCache() }
+                .keyboardShortcut("r", modifiers: [.command, .option])
             Button("Stop") { state.stop() }
                 .keyboardShortcut(".", modifiers: .command)
             Divider()
@@ -151,7 +174,15 @@ struct BrowserCommands: Commands {
                 .keyboardShortcut("y", modifiers: .command)
             Button("Show Downloads") { state.isDownloadsPanelOpen = true }
                 .keyboardShortcut("j", modifiers: [.command, .shift])
+            Button("Clear Browsing Data…") { state.isClearDataPanelOpen = true }
+                .keyboardShortcut(.delete, modifiers: [.command, .shift])
             Divider()
+            Button("Go to Home Page") { state.goHome() }
+                .keyboardShortcut("h", modifiers: [.command, .shift])
+            Button("Copy Current URL") { state.copyPageURL() }
+                .keyboardShortcut("c", modifiers: [.command, .shift])
+            Button("Toggle Reader Mode") { state.toggleReaderMode() }
+                .keyboardShortcut("r", modifiers: [.command, .shift])
             Button("Focus Address Bar") { state.showFloatingURLBar(prefill: state.activeModel?.url?.absoluteString ?? "", opensNewTab: false) }
                 .keyboardShortcut("l", modifiers: .command)
         }
@@ -165,6 +196,10 @@ struct BrowserCommands: Commands {
                 .keyboardShortcut("b", modifiers: [.command, .shift])
             Button("Bookmarks Manager") { state.openBookmarksManager() }
                 .keyboardShortcut("b", modifiers: [.command, .option])
+            Button("Bookmark All Tabs…") { state.bookmarkAllTabs() }
+                .keyboardShortcut("d", modifiers: [.command, .shift])
+            Button("Task Manager…") { state.openTaskManager() }
+                .keyboardShortcut(.escape, modifiers: .shift)
         }
 
         CommandGroup(after: .toolbar) {
@@ -175,6 +210,10 @@ struct BrowserCommands: Commands {
             if state.canUseWebPageActions {
                 Button("Find in Page...") { state.openFindBar() }
                     .keyboardShortcut("f", modifiers: .command)
+                Button("Find Next") { state.findNextInPage() }
+                    .keyboardShortcut("g", modifiers: .command)
+                Button("Find Previous") { state.findPreviousInPage() }
+                    .keyboardShortcut("g", modifiers: [.command, .shift])
                 Divider()
                 Button("Zoom In") { state.zoomIn() }
                     .keyboardShortcut("+", modifiers: .command)

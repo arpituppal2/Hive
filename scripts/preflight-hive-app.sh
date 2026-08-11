@@ -123,6 +123,9 @@ EXPECTED_NESTED_BUNDLES=(
   "$FRAMEWORKS/Hive Helper (Plugin).app"
   "$FRAMEWORKS/Hive Helper (Renderer).app"
 )
+for expected_bundle in "${EXPECTED_NESTED_BUNDLES[@]}"; do
+  [[ -d "$expected_bundle" ]] || fail "missing expected nested bundle: $expected_bundle"
+done
 while IFS= read -r -d '' nested_bundle; do
   expected=0
   for expected_bundle in "${EXPECTED_NESTED_BUNDLES[@]}"; do
@@ -143,8 +146,10 @@ done < <(find "$RESOURCES" -type d -name '*_Hive.bundle' -path '*/Contents/Resou
 RESOURCE_BUNDLE="${bundle_candidates[0]}"
 WORKER="$RESOURCE_BUNDLE/Contents/Resources/ResearchWorker/hive-fetch-worker"
 REQUIREMENT="$RESOURCE_BUNDLE/Contents/Resources/ResearchWorker/hive-worker-requirement.txt"
+SPARKLE_UPDATER="$FRAMEWORKS/Sparkle.framework/Versions/B/Updater.app/Contents/MacOS/Updater"
 [[ -x "$WORKER" ]] || fail "missing or non-executable embedded research worker"
 [[ -f "$REQUIREMENT" ]] || fail "missing embedded worker requirement"
+[[ -x "$SPARKLE_UPDATER" ]] || fail "missing or non-executable Sparkle updater"
 
 # Adblock native engine (optional — warn if missing, don't fail)
 ADBLOCK_DYLIB="$FRAMEWORKS/libhive_adblock_ffi.dylib"
@@ -172,6 +177,9 @@ signature_team_identifier() {
 
 verify_signature "$CEF_FRAMEWORK"
 verify_signature "$CEF_FRAMEWORK/Chromium Embedded Framework"
+verify_signature "$FRAMEWORKS/Sparkle.framework"
+verify_signature "$FRAMEWORKS/Sparkle.framework/Versions/B/Updater.app"
+verify_signature "$SPARKLE_UPDATER"
 if [[ "${#CEF_LIBRARIES[@]}" -gt 0 ]]; then
   for library in "${CEF_LIBRARIES[@]}"; do
     verify_signature "$library"
@@ -208,6 +216,9 @@ if [[ "$signature_kind" == "adhoc" || -z "$team_identifier" || "$team_identifier
     }
     assert_adhoc_signature "$CEF_FRAMEWORK"
     assert_adhoc_signature "$CEF_FRAMEWORK/Chromium Embedded Framework"
+    assert_adhoc_signature "$FRAMEWORKS/Sparkle.framework"
+    assert_adhoc_signature "$FRAMEWORKS/Sparkle.framework/Versions/B/Updater.app"
+    assert_adhoc_signature "$SPARKLE_UPDATER"
     if [[ "${#CEF_LIBRARIES[@]}" -gt 0 ]]; then
       for library in "${CEF_LIBRARIES[@]}"; do
         assert_adhoc_signature "$library"
@@ -228,7 +239,7 @@ if [[ "$signature_kind" == "adhoc" || -z "$team_identifier" || "$team_identifier
   fi
 else
   printf 'Signature Team ID: %s\n' "$team_identifier"
-  for signed_path in "$CEF_FRAMEWORK" "$CEF_FRAMEWORK/Chromium Embedded Framework" "$WORKER" "$RESOURCE_BUNDLE" "$MAIN_EXECUTABLE" "$APP_PATH"; do
+  for signed_path in "$CEF_FRAMEWORK" "$CEF_FRAMEWORK/Chromium Embedded Framework" "$FRAMEWORKS/Sparkle.framework" "$FRAMEWORKS/Sparkle.framework/Versions/B/Updater.app" "$SPARKLE_UPDATER" "$WORKER" "$RESOURCE_BUNDLE" "$MAIN_EXECUTABLE" "$APP_PATH"; do
     nested_team="$(signature_team_identifier "$signed_path")"
     [[ "$nested_team" == "$team_identifier" ]] || \
       fail "nested signature TeamIdentifier mismatch: $signed_path"

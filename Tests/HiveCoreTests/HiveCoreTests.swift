@@ -4390,6 +4390,43 @@ struct BrowserSessionStoreTests {
         #expect(recovered == nil)   // the lostNoBackup branch in HiveApp
     }
 
+    @Test func successiveCorruptQuarantinesPreserveBothFiles() async throws {
+        let dir = try tmpDir(); defer { cleanup(dir) }
+        let url = dir.appendingPathComponent("session.json")
+        let prev = dir.appendingPathComponent("session.prev.json")
+        let store = BrowserSessionStore(url: url, prevURL: prev)
+
+        // The first load moves the corrupt primary out of the way. Recreate
+        // corruption before the second load so both quarantine operations run
+        // in the same test (and normally within the same wall-clock second).
+        try Data("first corrupt payload".utf8).write(to: url, options: .atomic)
+        guard case .corrupt(let firstQuarantine, nil, _) = await store.load() else {
+            Issue.record("expected first corrupt file to be quarantined without recovery")
+            return
+        }
+        let first = try #require(firstQuarantine)
+        #expect(FileManager.default.fileExists(atPath: first.path))
+
+        try Data("second corrupt payload".utf8).write(to: url, options: .atomic)
+        guard case .corrupt(let secondQuarantine, nil, _) = await store.load() else {
+            Issue.record("expected second corrupt file to be quarantined without recovery")
+            return
+        }
+        let second = try #require(secondQuarantine)
+        #expect(FileManager.default.fileExists(atPath: second.path))
+        #expect(first != second, "successive quarantine operations must use distinct destinations")
+
+        let quarantines = try FileManager.default.contentsOfDirectory(atPath: dir.path)
+            .filter { $0.contains(".corrupt-") }
+        #expect(quarantines.count == 2,
+                "both corrupt payloads must remain recoverable after same-second quarantines")
+        let quarantinedData = try quarantines.map {
+            try String(contentsOf: dir.appendingPathComponent($0), encoding: .utf8)
+        }
+        #expect(quarantinedData.contains("first corrupt payload"))
+        #expect(quarantinedData.contains("second corrupt payload"))
+    }
+
     @Test func flushWritesImmediatelyAndCancelsDebounce() async throws {
         let dir = try tmpDir(); defer { cleanup(dir) }
         let url = dir.appendingPathComponent("session.json")
@@ -6319,10 +6356,6 @@ struct BeeQueueTests {
         #expect(e.title == "Example")
     }
 
-@Test func boostPreservesName() {
-        let b = Boost(name: "Dark Mode", urlPattern: "*.example.com", isEnabled: true)
-        #expect(b.name == "Dark Mode")
-    }
 
 @Test func autoArchivePolicyDefaultThreshold() {
         #expect(AutoArchivePolicy.defaultThreshold == 14 * 86_400)
@@ -7365,10 +7398,6 @@ struct BeeQueueTests {
         #expect(!app.isLoaded)
     }
 
-@Test func boostCollectionInit() {
-        let c = BoostCollection()
-        #expect(c.boosts.isEmpty)
-    }
 
 @Test func councilEventEnums() {
         let resp = CouncilResponse(provider: .mlxLocal, answer: "hi", confidence: 0.8, citations: [], duration: 0.05, status: .success)

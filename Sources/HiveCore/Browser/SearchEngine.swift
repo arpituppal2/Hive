@@ -195,8 +195,9 @@ public enum SearchEngine {
 // for searches containing those chars). We allow alphanumerics + a safe subset, encode `+`
 // as `%2B` (so it isn't read as space), and spaces as `+` — matching DuckDuckGo's idiom.
 
-private extension CharacterSet {
+extension CharacterSet {
     /// Allowed unencoded inside a search query: alphanumeric, a few safe symbols, space (→ +).
+    /// Internal (not private) so keyword search templates encode identically.
     static let urlQueryAllowedAllowed: CharacterSet = {
         var cs = CharacterSet.alphanumerics
         cs.insert(charactersIn: "-._~")        // unreserved per RFC 3986

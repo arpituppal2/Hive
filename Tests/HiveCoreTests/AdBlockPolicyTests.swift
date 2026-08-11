@@ -29,6 +29,18 @@ struct AdBlockPolicyTests {
         #expect(patterns.count == 4)
     }
 
+    @Test("cdpURLPatterns normalizes dotted hosts and removes duplicates")
+    func patternDottedHostNormalization() {
+        let patterns = AdBlockPolicy.cdpURLPatterns(for: [
+            ".DoubleClick.Net.", "doubleclick.net", "ads.example/", "*.bad.example",
+            "query.example?x=1", "fragment.example#section", "slash\\\\example"
+        ])
+        #expect(patterns == [
+            "*://*.doubleclick.net/*",
+            "*://doubleclick.net/*"
+        ])
+    }
+
     @Test("cdpURLPatterns returns empty for empty input")
     func patternEmpty() {
         #expect(AdBlockPolicy.cdpURLPatterns(for: []).isEmpty)
@@ -47,6 +59,18 @@ struct AdBlockPolicyTests {
         #expect(script!.contains("__hiveAdBlockCosmeticInstalled"))
         #expect(script!.contains(".ad-banner, #sponsored { display: none !important; }"))
         #expect(script!.contains("hive-adblock-cosmetic"))
+    }
+
+    @Test("cosmeticHideScript escapes control characters and line separators")
+    func cosmeticControlCharacterEscaping() {
+        let script = AdBlockPolicy.cosmeticHideScript(selectors: [".ad\rbanner", ".test\u{2028}selector", ".para\u{2029}graph"])
+        #expect(script != nil)
+        #expect(script!.contains("\\r"))
+        #expect(script!.contains("\\u2028"))
+        #expect(script!.contains("\\u2029"))
+        #expect(!script!.contains("\r"))
+        #expect(!script!.contains("\u{2028}"))
+        #expect(!script!.contains("\u{2029}"))
     }
 
     @Test("cosmeticHideScript escapes quotes in selectors")
@@ -79,6 +103,14 @@ struct AdBlockPolicyTests {
         #expect(AdBlockPolicy.shouldBlockNetworkHost("cdn.ads.example", domains: domains))
         #expect(!AdBlockPolicy.shouldBlockNetworkHost(nil, domains: domains))
         #expect(!AdBlockPolicy.shouldBlockNetworkHost("", domains: domains))
+    }
+
+    @Test("network host matcher normalizes DNS root dots and rejects malformed domains")
+    func hostMatcherNormalizesAndRejectsMalformedDomains() {
+        let domains = [".doubleclick.net.", "ads.example/"]
+        #expect(AdBlockPolicy.shouldBlockNetworkHost("secure.doubleclick.net.", domains: domains))
+        #expect(!AdBlockPolicy.shouldBlockNetworkHost("ads.example", domains: domains))
+        #expect(!AdBlockPolicy.shouldBlockNetworkHost("doubleclick.net/path", domains: domains))
     }
 
     @Test("network host matcher accepts a Set input")

@@ -79,6 +79,78 @@ struct SitePermissionPolicyTests {
         #expect(SitePermissionPolicy.normalizedHost("   ") == "")
     }
 
+    // MARK: - resolution(_:permissions:isPrivate:)
+
+    @Test func emptyRequestResolvesAllowWithoutPrompting() {
+        #expect(SitePermissionPolicy.resolution(
+            requestedKinds: [], permissions: [], isPrivate: false
+        ) == .allow)
+    }
+
+    @Test func noStoredDecisionsPrompts() {
+        #expect(SitePermissionPolicy.resolution(
+            requestedKinds: [.camera, .microphone], permissions: [], isPrivate: false
+        ) == .prompt)
+    }
+
+    @Test func allRequestedKindsGrantedResolvesAllow() {
+        let permissions = [
+            SitePermission(host: host, kind: .camera, state: .allow),
+            SitePermission(host: host, kind: .microphone, state: .allow)
+        ]
+        #expect(SitePermissionPolicy.resolution(
+            requestedKinds: [.camera, .microphone], permissions: permissions, isPrivate: false
+        ) == .allow)
+    }
+
+    @Test func anyRequestedKindDeniedResolvesDenyForWholeRequest() {
+        let permissions = [
+            SitePermission(host: host, kind: .camera, state: .allow),
+            SitePermission(host: host, kind: .microphone, state: .deny)
+        ]
+        #expect(SitePermissionPolicy.resolution(
+            requestedKinds: [.camera, .microphone], permissions: permissions, isPrivate: false
+        ) == .deny)
+    }
+
+    @Test func partialGrantsPromptForTheUnresolvedKind() {
+        let permissions = [SitePermission(host: host, kind: .camera, state: .allow)]
+        #expect(SitePermissionPolicy.resolution(
+            requestedKinds: [.camera, .microphone], permissions: permissions, isPrivate: false
+        ) == .prompt)
+    }
+
+    @Test func unrelatedGrantsDoNotCountTowardRequest() {
+        let permissions = [SitePermission(host: host, kind: .notifications, state: .allow)]
+        #expect(SitePermissionPolicy.resolution(
+            requestedKinds: [.camera], permissions: permissions, isPrivate: false
+        ) == .prompt)
+    }
+
+    @Test func privateTabsAlwaysPromptEvenWithFullGrants() {
+        let permissions = [
+            SitePermission(host: host, kind: .camera, state: .allow),
+            SitePermission(host: host, kind: .microphone, state: .allow)
+        ]
+        #expect(SitePermissionPolicy.resolution(
+            requestedKinds: [.camera, .microphone], permissions: permissions, isPrivate: true
+        ) == .prompt)
+    }
+
+    @Test func privateTabsNeverAutoDenyFromStoredDenial() {
+        let permissions = [SitePermission(host: host, kind: .camera, state: .deny)]
+        #expect(SitePermissionPolicy.resolution(
+            requestedKinds: [.camera], permissions: permissions, isPrivate: true
+        ) == .prompt)
+    }
+
+    @Test func duplicateRequestedKindsAreTreatedAsOneSet() {
+        let permissions = [SitePermission(host: host, kind: .camera, state: .allow)]
+        #expect(SitePermissionPolicy.resolution(
+            requestedKinds: [.camera, .camera], permissions: permissions, isPrivate: false
+        ) == .allow)
+    }
+
     @Test func allPermissionKindsAreNonEmpty() {
         #expect(!SitePermissionKind.allCases.isEmpty)
     }

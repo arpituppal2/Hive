@@ -100,6 +100,9 @@ extension BrowserState {
             isCompactMode: isCompactMode,
             showBookmarksBar: chromePreferences.showBookmarksBar,
             isMemorySaverEnabled: isMemorySaverEnabled,
+            openBriefOnNewTab: openBriefOnNewTab,
+            enableProactiveBriefing: enableProactiveBriefing,
+            includeCalendarInBrief: includeCalendarInBrief,
             accentColorHex: browserAccentColorHex,
             searchEngine: searchEngine.rawValue,
             preferredModelProvider: preferredModelProvider,
@@ -127,7 +130,8 @@ extension BrowserState {
                     isEssential: $0.isEssential,
                     isPrivate: nil,
                     isHibernated: $0.isHibernated ? true : nil,
-                    savedURLString: $0.isHibernated ? $0.savedURL?.absoluteString : nil
+                    savedURLString: $0.isHibernated ? $0.savedURL?.absoluteString : nil,
+                    customTitle: $0.customTitle
                 )
             },
             bookmarks: bookmarks,
@@ -136,6 +140,12 @@ extension BrowserState {
             userDefinedCommands: userDefinedCommands,
             tabZoomLevels: persistedZoomLevels,
             installedExtensions: installedExtensions,
+            boosts: boosts,
+            sitePermissions: sitePermissions,
+            readingList: readingList,
+            pinnedWebApps: pinnedWebApps,
+            archivedTabs: archivedTabs,
+            enableAutoArchive: enableAutoArchive,
             snapshotSequence: nextSnapshotSequence,
             isCleanExit: cleanExit,
             schemaVersion: 1

@@ -141,10 +141,16 @@ final class BrowserState {
         var isHibernated: Bool = false
         var lastAccessed: Date = Date()
         var savedURL: URL? = nil
+        /// User-assigned nickname (Arc/Safari-style tab rename). Wins over the
+        /// live page title in every tab surface; nil means "use the page title".
+        /// Persisted with the session envelope for non-private tabs.
+        var customTitle: String? = nil
 
-        init(id: String = UUID().uuidString, url: URL? = nil, workspaceID: UUID, profileID: UUID, groupID: UUID? = nil, isPinned: Bool = false, isEssential: Bool = false, isPrivate: Bool = false, profile: CefProfile? = nil) {
+        init(id: String = UUID().uuidString, url: URL? = nil, workspaceID: UUID, profileID: UUID, groupID: UUID? = nil, isPinned: Bool = false, isEssential: Bool = false, isPrivate: Bool = false, profile: CefProfile? = nil, savedURL: URL? = nil, customTitle: String? = nil) {
             self.id = id
             self.isPrivate = isPrivate
+            self.savedURL = savedURL
+            self.customTitle = customTitle
             var opts = CefBrowserOptions()
             opts.profile = profile
             self.model = CefWebViewModel(url: url, options: opts)
@@ -360,6 +366,19 @@ final class BrowserState {
     /// tab switch.
      var mediaVideoPlayingTabIDs: Set<String> = []
 
+    /// IDs of tabs muted at the browser level (CEF `SetAudioMuted` — the same
+    /// whole-renderer mute Chrome's tab speaker toggles). Independent of the
+    /// page's own media elements, so it works before anything plays and
+    /// survives page navigations. Session-scoped like Chrome's per-tab mute;
+    /// re-applied whenever a tab's browser (re)attaches after wake.
+     var mutedTabIDs: Set<String> = []
+
+    /// Subset of ``mutedTabIDs`` whose mute came from the durable per-site
+    /// mute (``siteMutedHosts``), tracked so "Unmute Site" can release only
+    /// the tabs it muted — independent per-tab mutes survive, matching
+    /// Chrome's layered mute model. Session-scoped like the per-tab set.
+     var siteMutedTabIDs: Set<String> = []
+
     /// The tab whose playback the floating mini-player controls; nil when the
     /// player is hidden. Shown when the user switches away from a playing tab
     /// (Arc behavior — the audio/video keeps going and stays one click away).
@@ -424,6 +443,12 @@ final class BrowserState {
 
     var isTabSearchOpen: Bool = false
 
+    // MARK: - Tab Overview (Arc-style visual grid)
+
+    /// Arc-style visual tab grid overlay — a grid of all open tabs across
+    /// workspaces with favicons, titles, and group colors.
+    var isTabGridOpen: Bool = false
+
     // MARK: - Page Zoom (Chrome / Edge / Safari parity)
 
     /// Native CEF zoom levels per tab id (0 = 100%; CEF's zoom level is
@@ -432,12 +457,124 @@ final class BrowserState {
     /// rehydration and hibernation can't lose the user's per-tab setting.
      var tabZoomLevels: [String: Double] = [:]
 
+    /// Per-site zoom levels remembered across sessions (Chrome/Safari
+    /// parity). Keyed by the registrable domain (e.g. "github.com").
+    /// Persisted in UserDefaults separately from the session envelope so
+    /// zoom survives even if the session is corrupted.
+    var siteZoomLevels: [String: Double] {
+        get { UserDefaults.standard.dictionary(forKey: "HiveSiteZoomLevels") as? [String: Double] ?? [:] }
+        set { UserDefaults.standard.set(newValue, forKey: "HiveSiteZoomLevels") }
+    }
+
+    // MARK: - Navigation-entry stacks (back/forward menus)
+
+    /// A committed navigation entry shown in the back/forward menus
+    /// (Chrome/Safari convention). URLs are the source of truth; titles are
+    /// backfilled lazily from the tab model at commit time.
+    struct TabNavigationEntry: Equatable, Sendable {
+        let url: URL
+        let title: String
+    }
+
+    /// Back entries per tab id, newest first (index 0 = most recent). Fed by
+    /// committed load completions (CEF 148 exposes only the current entry, so
+    /// there is no API to enumerate the history). Private tabs are never
+    /// tracked. Runtime-only: relaunch starts with an empty stack and the
+    /// first committed navigation rebuilds it.
+    var tabNavBack: [String: [TabNavigationEntry]] = [:]
+
+    /// Forward entries per tab id, nearest first (index 0 = the page you'd
+    /// go forward to next). Mirrors ``tabNavBack``.
+    var tabNavForward: [String: [TabNavigationEntry]] = [:]
+
+    /// The active tab's back entries for menus, capped for readability.
+    var activeBackHistory: [TabNavigationEntry] {
+        guard let tab = activeTab else { return [] }
+        return Array((tabNavBack[tab.id] ?? []).prefix(12))
+    }
+
+    /// The active tab's forward entries for menus, capped for readability.
+    var activeForwardHistory: [TabNavigationEntry] {
+        guard let tab = activeTab else { return [] }
+        return Array((tabNavForward[tab.id] ?? []).prefix(12))
+    }
+
+    /// Returns the registrable domain from a URL for per-site zoom keys.
+    static func hostForZoom(_ url: URL?) -> String? {
+        guard let host = url?.host?.lowercased() else { return nil }
+        // Strip www. prefix for consistent keying.
+        if host.hasPrefix("www.") { return String(host.dropFirst(4)) }
+        return host
+    }
+
+    /// Hosts the user has permanently muted (Safari/Chrome "Mute Site"). Keyed
+    /// by the same www-stripped lowercase host convention as ``siteZoomLevels``.
+    /// Any tab whose current host is in this set is muted at the browser level
+    /// automatically on navigation and attach, so a "mute this site" decision
+    /// sticks across tabs and sessions. UserDefaults-backed so it survives
+    /// relaunch without touching the session envelope (a preference, not
+    /// browsing data).
+    var siteMutedHosts: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: "HiveSiteMutedHosts") ?? []) }
+        set { UserDefaults.standard.set(Array(newValue), forKey: "HiveSiteMutedHosts") }
+    }
+
+    // MARK: - HTTPS-Only Mode (Chrome "Always use secure connections")
+
+    /// When on, http URLs are upgraded to https at the app-controlled
+    /// navigation entry points and any page that still lands on plaintext http
+    /// shows a warning banner. UserDefaults-backed (a transport preference,
+    /// never content). Defaults off; opt-in matches Chrome.
+    var isHTTPSOnlyEnabled: Bool = {
+        UserDefaults.standard.object(forKey: "HiveHTTPSOnlyEnabled") as? Bool ?? false
+    }() {
+        didSet {
+            UserDefaults.standard.set(isHTTPSOnlyEnabled, forKey: "HiveHTTPSOnlyEnabled")
+            // Turning the mode off dismisses any warning that's showing — a
+            // plaintext page stops being a problem the moment the user opts out.
+            if !isHTTPSOnlyEnabled { httpsOnlyNotice = nil }
+        }
+    }
+
+    /// Hosts the user allowed to stay on plaintext http while HTTPS-Only is
+    /// on ("Load anyway" from the warning banner). Keyed by the shared
+    /// http(s) host convention, persisted in UserDefaults.
+    var httpsOnlyExceptions: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: "HiveHTTPSOnlyExceptions") ?? []) }
+        set { UserDefaults.standard.set(Array(newValue), forKey: "HiveHTTPSOnlyExceptions") }
+    }
+
+    /// Current HTTPS-Only warning for the active tab; nil when no banner
+    /// shows. Rendered in the top banner stack; cleared on dismiss, "Load
+    /// anyway", "Use HTTPS", navigation away from http, and tab switch.
+    var httpsOnlyNotice: HTTPSOnlyNotice? = nil
+
+    /// A plaintext page surfaced by HTTPS-Only mode.
+    struct HTTPSOnlyNotice: Equatable, Sendable {
+        let host: String
+        let url: URL
+
+        var title: String { "Connection is not secure" }
+        var detail: String { "\(host) loaded over plaintext HTTP while HTTPS-Only mode is on." }
+        var accessibilityLabel: String { "\(title). \(detail)" }
+    }
+
     /// Chrome's standard zoom ladder (percent). Steps are small near 100% and
     /// coarser at the extremes — the exact ladder users expect from ⌘+/⌘-.
     static let zoomLadder: [Double] = [25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500]
 
     var isFindBarOpen: Bool = false
     var findQuery: String = ""
+
+    /// Find-in-page match counter ("3/12", "No matches") reported back from
+    /// the page's find JS over the console bridge (`HIVE_FIND|<current>|<total>`).
+    /// nil hides the counter entirely (empty field).
+    var findMatchText: String? = nil
+    /// Aa "Match case" toggle state (Chrome find-bar parity). Session-scoped;
+    /// the next find (typing, ⌘G, or the toggle itself) honors it.
+    var findMatchCaseSensitive: Bool = false
+    /// Debounces the counter's full-page text walk while the user types.
+    @ObservationIgnored var findCountDebounceTask: Task<Void, Never>?
 
     /// Persisted toolbar preference. This observer covers both Settings' direct
     /// binding and the Cmd+Shift+B command without duplicating storage calls.
@@ -450,6 +587,24 @@ final class BrowserState {
     /// default. The hand-drawn start page (search + top sites + briefcard)
     /// remains one Settings toggle away.
     var openBriefOnNewTab: Bool = true {
+        didSet {
+            if !isRestoringSession { scheduleAutosave() }
+        }
+    }
+
+    /// P2.6 Proactive Briefing: regenerate the daily brief from Honeycomb
+    /// memory on the calendar-day rollover and refresh open brief tabs. On by
+    /// default; the Settings toggle flips it off (static per-serve brief).
+    var enableProactiveBriefing: Bool = true {
+        didSet {
+            if !isRestoringSession { scheduleAutosave() }
+        }
+    }
+
+    /// P2.6 Proactive Briefing calendar half: opt-in calendar-aware looking
+    /// ahead. Default off — EventKit permission is requested only when the
+    /// user enables it in Settings.
+    var includeCalendarInBrief: Bool = false {
         didSet {
             if !isRestoringSession { scheduleAutosave() }
         }
@@ -475,6 +630,143 @@ final class BrowserState {
         }
     }
     var isBookmarksManagerOpen: Bool = false
+    /// The folder currently being browsed in the bookmarks manager (nil =
+    /// root). Also the target folder for a star-save while the manager is
+    /// open (Chrome behavior: the star saves into the folder you're viewing).
+    var bookmarksManagerFolderID: UUID? = nil
+
+    // MARK: - Reading List (Safari)
+
+    /// Articles the user explicitly saved for later — Safari Reading List
+    /// parity. Newest first; upserts (re-saving an article) move it to the
+    /// top without duplicating it. Persisted with the session envelope and
+    /// capped by ``ReadingListPolicy``. Entries are never added from private
+    /// tabs.
+    var readingList: [ReadingListEntry] = [] {
+        didSet {
+            if !isRestoringSession { scheduleAutosave() }
+        }
+    }
+    var isReadingListPanelOpen: Bool = false
+
+    // MARK: - Pinned Web Apps (Arc / Sidekick)
+
+    /// Quick-launch web apps pinned to the sidebar rail — Arc-style "Favorites".
+    /// One app per site (identity-normalized), each opening its pinned URL in a
+    /// new tab. Persisted with the session envelope and capped by
+    /// ``PinnedWebAppPolicy``. Apps are never added from private tabs.
+    var pinnedWebApps: [PinnedWebApp] = [] {
+        didSet {
+            if !isRestoringSession { scheduleAutosave() }
+        }
+    }
+    /// Arc-style Pinned Apps manager sheet.
+    var isPinnedAppsPanelOpen: Bool = false
+    /// Clean Tabs (Arc/Boost parity) review sheet — duplicate/stale candidates.
+    var isCleanTabsPanelOpen: Bool = false
+
+    // MARK: - Auto-Archive (§7 cold-tab shelf)
+
+    /// Durable "Recently Archived" shelf — records of auto-archived cold tabs
+    /// (``AutoArchivePolicy``, 14-day default). Newest first, capped by
+    /// ``TabArchiveShelfPolicy``; restoring a record reopens the tab and
+    /// removes it from the shelf. Persisted with the session envelope.
+    var archivedTabs: [ArchivedTab] = [] {
+        didSet {
+            if !isRestoringSession { scheduleAutosave() }
+        }
+    }
+    /// Archive review sheet.
+    var isArchivePanelOpen: Bool = false
+
+    // MARK: - Workspace Management Panel
+
+    /// Workspace management sheet (Arc/Safari parity).
+    var isWorkspaceManagerPanelOpen: Bool = false
+
+    // MARK: - Profile Manager Panel
+
+    /// Profile management sheet (Chrome/Safari parity).
+    var isProfileManagerPanelOpen: Bool = false
+
+    // MARK: - Tab Group Manager Panel
+
+    /// Tab group management sheet (Arc/Chrome parity).
+    var isTabGroupManagerPanelOpen: Bool = false
+
+    // MARK: - Search Engine Manager Panel
+
+    /// Search engine management sheet.
+    var isSearchEngineManagerPanelOpen: Bool = false
+
+    // MARK: - Keyboard Shortcuts Panel
+
+    /// Keyboard shortcuts reference sheet.
+    var isKeyboardShortcutsPanelOpen: Bool = false
+
+    // MARK: - Memory Saver Panel
+
+    /// Memory Saver (tab sleep management) sheet.
+    var isMemorySaverPanelOpen: Bool = false
+
+    /// Safety Check (Chrome chrome://settings/safetyCheck parity) sheet.
+    var isSafetyCheckPanelOpen: Bool = false
+
+    // MARK: - Sync Status
+
+    /// Human-readable sync state for the native chrome indicator.
+    enum SyncState: Sendable, Equatable {
+        case unavailable
+        case available
+        case syncing
+        case error(String)
+
+        var isActive: Bool {
+            if case .available = self { return true }
+            if case .syncing = self { return true }
+            return false
+        }
+
+        var iconName: String {
+            switch self {
+            case .unavailable: return "icloud.slash"
+            case .available: return "icloud.fill"
+            case .syncing: return "arrow.triangle.2.circlepath.icloud"
+            case .error: return "exclamationmark.icloud"
+            }
+        }
+
+        var label: String {
+            switch self {
+            case .unavailable: return "Sync unavailable"
+            case .available: return "Sync available"
+            case .syncing: return "Syncing…"
+            case .error(let msg): return msg
+            }
+        }
+
+        var color: Color {
+            switch self {
+            case .unavailable: return .secondary
+            case .available: return .green
+            case .syncing: return .blue
+            case .error: return .orange
+            }
+        }
+    }
+
+    var syncState: SyncState = .unavailable
+    var lastSyncDate: Date?
+    /// Whether the periodic auto-archive pass runs (Settings → Performance).
+    /// Default on, like Memory Saver; the shelf keeps archived tabs one click
+    /// away so the pass is never destructive.
+    var enableAutoArchive: Bool = true {
+        didSet {
+            if !isRestoringSession { scheduleAutosave() }
+        }
+    }
+    /// Handle to the periodic auto-archive pass; cancelled on deinit.
+    @ObservationIgnored var archiveTask: Task<Void, Never>?
 
     /// User-defined ⌘K commands persisted with the browser session.
     var userDefinedCommands: [UserDefinedCommand] = [] {
@@ -483,10 +775,42 @@ final class BrowserState {
 
     // MARK: - Search Engine
 
+    /// A custom search engine the user has added.
+    struct CustomSearchEngine: Identifiable, Hashable, Sendable, Codable {
+        let id: String
+        var name: String
+        /// URL template with `{query}` placeholder, e.g.
+        /// `https://example.com/search?q={query}`
+        var template: String
+        /// Chrome-style omnibox keyword (e.g. "yt" → `yt kittens` searches
+        /// YouTube). Empty means no keyword. Optional + decode default keeps
+        /// sessions saved before keywords shipped loading intact.
+        var keyword: String? = nil
+
+        /// Builds a search URL from the template.
+        func searchURL(for query: String) -> URL? {
+            let encoded = query.addingPercentEncoding(
+                withAllowedCharacters: .urlQueryAllowed) ?? query
+            let urlString = template.replacingOccurrences(of: "{query}", with: encoded)
+            return URL(string: urlString)
+        }
+
+        /// The host extracted from the template for display purposes.
+        var displayHost: String {
+            if let url = URL(string: template), let host = url.host {
+                return host
+            }
+            return template
+        }
+    }
+
     enum SearchEngine: String, CaseIterable, Identifiable, Sendable, Codable {
         case duckduckgo = "DuckDuckGo"
         case google = "Google"
         case bing = "Bing"
+        case brave = "Brave Search"
+        case startpage = "Startpage"
+        case ecosia = "Ecosia"
 
         var id: String { rawValue }
 
@@ -495,6 +819,9 @@ final class BrowserState {
             case .duckduckgo: return "magnifyingglass"
             case .google: return "g.circle.fill"
             case .bing: return "b.circle.fill"
+            case .brave: return "shield"
+            case .startpage: return "eye"
+            case .ecosia: return "leaf.fill"
             }
         }
 
@@ -503,6 +830,9 @@ final class BrowserState {
             case .duckduckgo: return .orange
             case .google: return .blue
             case .bing: return .teal
+            case .brave: return .orange
+            case .startpage: return .green
+            case .ecosia: return .green
             }
         }
 
@@ -511,8 +841,56 @@ final class BrowserState {
             case .duckduckgo: return "https://duckduckgo.com/?q="
             case .google: return "https://google.com/search?q="
             case .bing: return "https://bing.com/search?q="
+            case .brave: return "https://search.brave.com/search?q="
+            case .startpage: return "https://www.startpage.com/sp/search?query="
+            case .ecosia: return "https://www.ecosia.org/search?q="
             }
         }
+
+        var searchTemplate: String {
+            searchURL + "{query}"
+        }
+    }
+
+    /// User-added custom search engines, persisted in UserDefaults.
+    var customSearchEngines: [CustomSearchEngine] {
+        get {
+            guard let data = UserDefaults.standard.data(forKey: "HiveCustomSearchEngines"),
+                  let decoded = try? JSONDecoder().decode([CustomSearchEngine].self, from: data)
+            else { return [] }
+            return decoded
+        }
+        set {
+            guard let data = try? JSONEncoder().encode(newValue) else { return }
+            UserDefaults.standard.set(data, forKey: "HiveCustomSearchEngines")
+        }
+    }
+
+    /// ID of the custom search engine currently selected as default, or nil.
+    /// Persisted in UserDefaults; cleared if the engine is deleted.
+    var activeCustomSearchEngineID: String? {
+        get { UserDefaults.standard.string(forKey: "HiveActiveCustomSearchEngineID") }
+        set { UserDefaults.standard.set(newValue, forKey: "HiveActiveCustomSearchEngineID") }
+    }
+
+    /// Builds a search URL using the active custom engine if one is selected,
+    /// or the built-in search engine otherwise.
+    func searchURL(for query: String) -> URL? {
+        if let customID = activeCustomSearchEngineID,
+           let custom = customSearchEngines.first(where: { $0.id == customID }) {
+            return custom.searchURL(for: query)
+        }
+        let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
+        return URL(string: searchEngine.searchURL + encoded)
+    }
+
+    /// The display name of the currently active search engine (custom or built-in).
+    var searchEngineDisplayName: String {
+        if let customID = activeCustomSearchEngineID,
+           let custom = customSearchEngines.first(where: { $0.id == customID }) {
+            return custom.name
+        }
+        return searchEngine.rawValue
     }
 
     /// Google is the fresh-install default; persisted user choices are restored below.
@@ -703,12 +1081,14 @@ final class BrowserState {
     enum CaptureError: Error, LocalizedError {
         case noPage
         case noNote
+        case privateBrowsing
         case persistenceUnavailable
         case partialPersistence
         var errorDescription: String? {
             switch self {
             case .noPage: return "No page to capture — open a web page first."
             case .noNote: return "Nothing to capture — write a note first."
+            case .privateBrowsing: return "Private pages and notes are not added to Hive memory."
             case .persistenceUnavailable:
                 return "Capture blocked: durable storage is unavailable. Nothing was saved."
             case .partialPersistence:
@@ -789,6 +1169,11 @@ final class BrowserState {
     struct BrowserAction { let tool: String; let label: String; let url: String?; let selector: String?; let value: String? }
 
     var installedExtensions: [ExtensionItem] = ExtensionItem.defaults
+    /// Arc-style site Boosts: user-authored CSS per host. Persisted with the
+    /// session (like extensions); injected after page load by BoostMatcher.
+    var boosts: [Boost] = [] {
+        didSet { if !isRestoringSession { scheduleAutosave() } }
+    }
     var isMemorySaverEnabled: Bool = true {
         didSet {
             if !isRestoringSession { scheduleAutosave() }
@@ -820,11 +1205,140 @@ final class BrowserState {
     }
 
      var navigationHealthNotice: NavigationHealthNotice?
+
+    /// A failed main-frame load (Chromium's `didFailLoad`), keyed by tab id.
+    /// Only the active tab's entry is surfaced; a new navigation attempt or a
+    /// successful commit clears it. Not persisted — errors are session-local.
+    struct LoadErrorNotice: Equatable, Sendable {
+        let tabID: String
+        let code: Int
+        let text: String
+        let url: URL
+
+        /// A short human label for the banner (Chrome keeps it terse). Codes
+        /// are Chromium net errors: ERR_NAME_NOT_RESOLVED -105,
+        /// ERR_INTERNET_DISCONNECTED -106, ERR_CONNECTION_TIMED_OUT -118,
+        /// ERR_CONNECTION_REFUSED -102, ERR_CONNECTION_RESET -101.
+        /// ERR_CERT_* (-200..-216) also arrive through OnLoadError; they reuse
+        /// the certificate-specific wording so the banner stays honest (the
+        /// actionable bypass lives in the site-security popover).
+        var title: String {
+            switch code {
+            case -105: return "The server name could not be resolved"
+            case -106: return "The internet connection has been lost"
+            case -118: return "The connection timed out"
+            case -102: return "The server refused the connection"
+            case -101: return "The connection was reset"
+            case -200: return "The site's name does not match the certificate"
+            case -201: return "The site's certificate has expired"
+            case -202: return "The certificate authority is not trusted"
+            case -206: return "The site's certificate has been revoked"
+            case -207: return "The certificate is invalid"
+            case -208: return "The certificate uses a weak signature algorithm"
+            case -210: return "The certificate name is not unique"
+            case -211: return "The certificate uses a weak key"
+            default: return "This page couldn't be loaded"
+            }
+        }
+    }
+
+    var tabLoadErrors: [String: LoadErrorNotice] = [:]
+
+    /// A certificate-validation failure for a tab's main frame (Chromium's
+    /// `didEncounterCertificateError`), keyed by tab id. Only the active
+    /// tab's entry is surfaced; a new navigation attempt clears it. Not
+    /// persisted — errors are session-local.
+    struct CertificateErrorNotice: Equatable, Sendable {
+        let tabID: String
+        let code: Int
+        let url: URL
+
+        var host: String { url.host ?? url.absoluteString }
+
+        /// A short human label for the popover/banner. Codes are Chromium
+        /// net errors: ERR_CERT_COMMON_NAME_INVALID -200,
+        /// ERR_CERT_DATE_INVALID -201, ERR_CERT_AUTHORITY_INVALID -202,
+        /// ERR_CERT_CONTAINS_ERRORS -203, ERR_CERT_REVOKED -206,
+        /// ERR_CERT_INVALID -207, ERR_CERT_WEAK_SIGNATURE_ALGORITHM -208,
+        /// ERR_CERT_NON_UNIQUE_NAME -210, ERR_CERT_WEAK_KEY -211.
+        var title: String {
+            switch code {
+            case -200: return "The site's name does not match the certificate"
+            case -201: return "The site's certificate has expired"
+            case -202: return "The certificate authority is not trusted"
+            case -206: return "The site's certificate has been revoked"
+            case -207: return "The certificate is invalid"
+            case -208: return "The certificate uses a weak signature algorithm"
+            case -210: return "The certificate name is not unique"
+            case -211: return "The certificate uses a weak key"
+            default: return "The site's certificate could not be verified"
+            }
+        }
+    }
+
+    /// Certificate-validation failures keyed by tab id.
+    var tabCertificateErrors: [String: CertificateErrorNotice] = [:]
+
+    /// Hosts the user chose to proceed past a certificate error during this
+    /// session (Chrome keeps bypasses non-persistent too). While a host is
+    /// here the cert-error handler allows the load instead of cancelling.
+    var certificateBypassHosts: Set<String> = []
+
+    /// The active tab's load error, if any (drives the error banner).
+    var loadErrorNotice: LoadErrorNotice? {
+        guard let tab = activeTab else { return nil }
+        return tabLoadErrors[tab.id]
+    }
+
+    /// Retry action for the error banner: reload the failed address and clear
+    /// the notice (the retry's own outcome re-reports via didFailLoad or the
+    /// successful commit clears it).
+    func retryLoadError() {
+        guard let notice = loadErrorNotice else { return }
+        tabLoadErrors[notice.tabID] = nil
+        if let tab = tabs.first(where: { $0.id == notice.tabID }) {
+            tab.model.load(notice.url)
+            armNavigationObservation(for: tab, attemptID: beginNavigationAttempt(for: tab), url: notice.url)
+        }
+    }
+
+    /// Dismisses the active tab's load-error banner without retrying.
+    func dismissLoadError() {
+        guard let notice = loadErrorNotice else { return }
+        tabLoadErrors[notice.tabID] = nil
+    }
+
+    /// The active tab's certificate error, if any (drives the security
+    /// popover's warning state).
+    var certificateErrorNotice: CertificateErrorNotice? {
+        guard let tab = activeTab else { return nil }
+        return tabCertificateErrors[tab.id]
+    }
+
+    /// Proceed-past-certificate-error: remember the host for this session,
+    /// clear the notice, and reload the exact failed address. Subsequent
+    /// loads for that host are allowed by the cert-error handler.
+    func proceedPastCertificateError() {
+        guard let notice = certificateErrorNotice else { return }
+        certificateBypassHosts.insert(notice.host.lowercased())
+        tabCertificateErrors[notice.tabID] = nil
+        if let tab = tabs.first(where: { $0.id == notice.tabID }) {
+            tab.model.load(notice.url)
+            armNavigationObservation(for: tab, attemptID: beginNavigationAttempt(for: tab), url: notice.url)
+        }
+        broadcastWebChromeState()
+    }
+
     var translateBar: TranslateState? = nil
     var isGoogleLensActive: Bool = false
     var isCustomizePanelOpen: Bool = false
     var isPasswordsManagerOpen: Bool = false
     var isExtensionsManagerOpen: Bool = false
+    /// Arc-style Boosts manager sheet.
+    var isBoostsPanelOpen: Bool = false
+    /// Host prefill for the Boost editor, set by the page context menu's
+    /// "Boost This Site…" action. Cleared once the editor opens.
+    var pendingBoostHost: String? = nil
 
     // MARK: - History (Safari / Chrome / Edge / Arc)
     var historyItems: [HistoryItem] = []
@@ -834,15 +1348,100 @@ final class BrowserState {
     var downloads: [DownloadItem] = []
     var isDownloadsPanelOpen: Bool = false
 
+    /// Whether macOS notifications are posted when a download completes
+    /// (Chrome parity). UserDefaults-backed so it survives relaunch without
+    /// touching the session envelope.
+    var downloadNotificationsEnabled: Bool = {
+        UserDefaults.standard.object(forKey: "HiveDownloadNotifications") as? Bool ?? true
+    }() {
+        didSet {
+            UserDefaults.standard.set(downloadNotificationsEnabled, forKey: "HiveDownloadNotifications")
+        }
+    }
+    /// Bounded-wait timers for pending pause/resume requests, keyed by
+    /// download id. The HiveCore state machine stays pending until a native
+    /// snapshot reconciles it; this timer falls back to the last actionable
+    /// baseline so a stuck request can never trap the control behind a
+    /// disabled button.
+    @ObservationIgnored var downloadControlTimeouts: [UUID: Task<Void, Never>] = [:]
+
     // MARK: - Reader Mode (Safari / Edge / Arc / Brave / Zen)
     // Transforms the page in-place via CSS injection — no text extraction needed.
     var isReaderMode: Bool = false
+    /// Word count of the reader content, reported over the console bridge
+    /// (`HIVE_READER_WORDS|<n>`) by the injected reader JS. Shown in the
+    /// Reader Mode bar like Safari; nil until the first report arrives.
+    var readerWordCount: Int? = nil
+    /// Reader-mode appearance (font scale × theme). Persisted in UserDefaults
+    /// (like adblock); mutating it live-updates an open reader page through
+    /// the CSS custom-property script without leaving reader mode.
+    var readerStyle: ReaderStyle = {
+        let scale = UserDefaults.standard.double(forKey: "HiveReaderFontScale")
+        let themeRaw = UserDefaults.standard.string(forKey: "HiveReaderTheme") ?? ReaderTheme.auto.rawValue
+        let familyRaw = UserDefaults.standard.string(forKey: "HiveReaderFontFamily") ?? ReaderFontFamily.serif.rawValue
+        return ReaderStyle(
+            fontScale: scale == 0 ? 1.0 : scale,
+            theme: ReaderTheme(rawValue: themeRaw) ?? .auto,
+            fontFamily: ReaderFontFamily(rawValue: familyRaw) ?? .serif
+        )
+    }() {
+        didSet {
+            guard readerStyle != oldValue else { return }
+            UserDefaults.standard.set(readerStyle.fontScale, forKey: "HiveReaderFontScale")
+            UserDefaults.standard.set(readerStyle.theme.rawValue, forKey: "HiveReaderTheme")
+            UserDefaults.standard.set(readerStyle.fontFamily.rawValue, forKey: "HiveReaderFontFamily")
+            if isReaderMode, let model = activeModel {
+                model.executeJavaScript(readerStyle.cssVariableUpdateScript())
+            }
+        }
+    }
 
     // MARK: - Privacy Report (Safari)
 
     var trackerBlockedCount: Int = 0
     var isPrivacyReportOpen: Bool = false
     var isSiteSecurityPanelOpen: Bool = false
+
+    // MARK: - Site Permissions (Chrome parity)
+
+    /// Per-site permission decisions (camera, microphone, location,
+    /// notifications, popups, downloads). Private tabs never contribute
+    /// durable entries — see ``SitePermissionPolicy``. The site-security
+    /// popover and the permission banner both read and write through this
+    /// single durable projection.
+    var sitePermissions: [SitePermission] = [] {
+        didSet {
+            if !isRestoringSession { scheduleAutosave() }
+        }
+    }
+
+    /// FIFO of permission requests awaiting a user decision (Chrome-style
+    /// banner). Each entry owns its retained CEF callback; dropping an entry
+    /// (resolve, CEF dismissal, tab close, navigation) releases the callback
+    /// via deinit. The banner renders `pendingPermissionRequests.first`.
+    var pendingPermissionRequests: [PendingPermissionRequest] = []
+
+    /// The "Use saved password?" chip for the login form currently detected
+    /// on the visible page; nil when no chip is shown. Filling is always an
+    /// explicit user click (never automatic).
+    var pendingAutofillSuggestion: AutofillSuggestion? = nil
+
+    /// Hosts the user dismissed an autofill chip for this session, so an
+    /// unchanged page doesn't re-nag on the next focus. Cleared implicitly by
+    /// new navigations via `dropAutofillSuggestion(forTabID:)`.
+    @ObservationIgnored var dismissedAutofillHosts: Set<String> = []
+
+    /// The "Save password?" / "Update password?" offer for a just-submitted
+    /// login form; nil when no offer is showing. The submitted credential is
+    /// held transiently in memory only while the chip is visible — never
+    /// logged, never persisted, and only written to the Keychain by an
+    /// explicit Save/Update click.
+    var pendingPasswordCaptureOffer: PasswordCaptureOffer? = nil
+
+    /// Hosts the user chose "Never for this site" for this session (the
+    /// durable list lives in UserDefaults and is read via
+    /// `neverSavePasswordHosts`).
+    @ObservationIgnored var sessionNeverSavePasswordHosts: Set<String> = []
 
     // MARK: - Voice Mode (Comet)
     enum VoiceExecutionError: Error {
@@ -887,6 +1486,61 @@ final class BrowserState {
     var renameGroupTargetID: UUID?
     /// Draft name captured when the rename alert opens (the alert owns edits).
     var renameGroupText: String = ""
+
+    // MARK: - Tab rename (window-level alert)
+
+    /// The tab awaiting a rename in the window-level alert; nil when closed.
+    var renameTabTargetID: String?
+    /// Draft name captured when the rename alert opens (the alert owns edits).
+    var renameTabText: String = ""
+
+    /// Transient feedback for the "Group Similar Tabs" action (e.g. "Grouped
+    /// 6 tabs into 2 groups"). UI-only, auto-cleared, never persisted or
+    /// included in page/memory context.
+    var tabGroupingNotice: String? = nil
+    @ObservationIgnored var tabGroupingNoticeTask: Task<Void, Never>?
+
+    /// Transient app-wide toast feedback (Clear Browsing Data, Site Data,
+    /// Bookmark All Tabs, …). UI-only, auto-cleared, never persisted.
+    var appNotice: String? = nil
+    @ObservationIgnored var appNoticeTask: Task<Void, Never>?
+
+    /// Shows a transient app-wide toast, replacing any prior one (its pending
+    /// auto-clear is cancelled so it can never wipe this new message), and
+    /// clears itself after a few seconds. The single owner of the
+    /// `appNotice`/`appNoticeTask` lifecycle — every action that reports an
+    /// outcome through the toast routes through here.
+    func showAppNotice(_ message: String) {
+        appNoticeTask?.cancel()
+        appNotice = message
+        appNoticeTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(3.5))
+            guard let self, !Task.isCancelled else { return }
+            self.appNotice = nil
+        }
+    }
+
+    /// Clear Browsing Data (Chrome parity) review sheet.
+    var isClearDataPanelOpen: Bool = false
+
+    // MARK: - Site Settings hub (Chrome content-settings parity)
+
+    /// Per-site Settings hub sheet — every host with a remembered zoom, mute,
+    /// HTTPS-Only exception, or permission decision.
+    var isSiteSettingsPanelOpen: Bool = false
+
+    /// Chrome ⇧⎋ Task Manager — live per-process memory/CPU from CEF.
+    var isTaskManagerOpen: Bool = false
+    /// Bumped by the sheet's refresh timer so @Observable recomputes rows.
+    var taskManagerRefreshTick: Int = 0
+    /// Host the hub should scroll to and expand when opened (set by the Site
+    /// Security popover's "Site settings" row); nil opens the flat list.
+    var siteSettingsFocusHost: String? = nil
+    /// Monotonic revision bumped by every hub mutation (zoom, mute, HTTPS-Only
+    /// exception, reset). The hub's stores are UserDefaults-backed computed
+    /// properties that @Observable cannot track directly — the sheet reads
+    /// this stored counter so its rows recompute after any edit.
+    var siteSettingsRevision: Int = 0
 
     /// The web-research backend used by `/research` queries. Honest defaults:
     /// an existing Vane URL migrates to `.vane`; otherwise research stays off
@@ -976,11 +1630,18 @@ final class BrowserState {
         // initialized before `self` can be passed to register(with:).
         hotMemory = HotMemoryStore(honeycomb: honeycomb,
                                    persistenceURL: HotMemoryStore.defaultPersistenceURL)
+        // Remove claims written by the pre-admission librarian path. New model
+        // extraction is session-only until explicit user admission; this
+        // idempotent migration prevents old durable claims from remaining
+        // searchable in Knowledge after upgrade.
         isKnowledgePersistenceDegraded = honeycomb.isEphemeral
         isAuditPersistenceDegraded = eventLedger.isEphemeral
         hostContextPolicy = hostContextPolicyStore.initialPolicy
         WebChromeBridge.register(with: self)
         setupDefaults()
+        // Session restore is complete before sync starts, so encrypted remote
+        // merges compare against the full local projection.
+        setupSync()
         // Mark the restored/default state dirty immediately. A process that
         // crashes before its first mutation must still be distinguishable from
         // an orderly shutdown on the next launch.
@@ -1000,6 +1661,8 @@ final class BrowserState {
             ledger: eventLedger
         )
         startHibernationTimer()
+        startArchiveTimer()
+        startProactiveBriefTimer()
         startResearchHandoffRecovery()
 
         // The web chrome shell: one persistent browser that renders the whole
@@ -1046,6 +1709,8 @@ final class BrowserState {
 
     deinit {
         researchHandoffRecoveryTask?.cancel()
+        proactiveBriefTask?.cancel()
+        archiveTask?.cancel()
     }
 
     // MARK: - Web Chrome (hive://)
@@ -1059,6 +1724,11 @@ final class BrowserState {
     /// page). Private tabs always land on the start page — the brief is built
     /// from browsing data and must never surface in a private window.
     static let webChromeBriefURL = URL(string: "hive://brief")!
+
+    /// The local agent workspace imported from the authorized Polar bundle.
+    /// It is an ordinary Hive tab, so it inherits the active workspace/profile
+    /// and remains subject to the same tab lifecycle and persistence rules.
+    static let webChromePolarURL = URL(string: "hive://polar")!
 
     // MARK: - Omnibox Suggestions
 
@@ -1096,6 +1766,8 @@ final class BrowserState {
         var showBookmarksBar: Bool
         var isMemorySaverEnabled: Bool = true
         var openBriefOnNewTab: Bool = true
+        var enableProactiveBriefing: Bool = true
+        var includeCalendarInBrief: Bool = false
         var accentColorHex: String
         var searchEngine: String = "Google"
         var preferredModelProvider: String = "auto"
@@ -1117,6 +1789,20 @@ final class BrowserState {
         var userDefinedCommands: [UserDefinedCommand] = []
         var tabZoomLevels: [String: Double] = [:]
         var installedExtensions: [ExtensionItem] = []
+        var boosts: [Boost] = []
+        /// Per-site permission decisions (camera, microphone, location, …).
+        var sitePermissions: [SitePermission] = []
+        /// Articles saved for later (Safari Reading List). Newest first;
+        /// absent in older session files (decodes to empty).
+        var readingList: [ReadingListEntry] = []
+        /// Quick-launch web apps (Arc/Sidekick). Absent in older session files
+        /// (decodes to empty).
+        var pinnedWebApps: [PinnedWebApp] = []
+        /// Recently-archived cold tabs (§7). Absent in older session files
+        /// (decodes to empty).
+        var archivedTabs: [ArchivedTab] = []
+        /// Whether the periodic auto-archive pass runs. Default true.
+        var enableAutoArchive: Bool = true
         /// Monotonic snapshot identity used to reason about backup freshness.
         var snapshotSequence: UInt64 = 0
         /// False means the previous process did not complete an orderly quit.
@@ -1125,14 +1811,14 @@ final class BrowserState {
         var schemaVersion: Int = 1
 
         enum CodingKeys: String, CodingKey {
-            case layout, isCompactMode, showBookmarksBar, isMemorySaverEnabled, openBriefOnNewTab, accentColorHex, searchEngine,
+            case layout, isCompactMode, showBookmarksBar, isMemorySaverEnabled, openBriefOnNewTab, enableProactiveBriefing, includeCalendarInBrief, accentColorHex, searchEngine,
                  preferredModelProvider, splitSecondaryTabID, splitRatio, splitOrientation,
                  activeTabID, currentProfileID, currentWorkspaceID,
                  profiles, workspaces, tabGroups, tabInfos, bookmarks, history, downloads,
-                 userDefinedCommands, tabZoomLevels, installedExtensions, snapshotSequence, isCleanExit, schemaVersion
+                 userDefinedCommands, tabZoomLevels, installedExtensions, boosts, sitePermissions, readingList, pinnedWebApps, archivedTabs, enableAutoArchive, snapshotSequence, isCleanExit, schemaVersion
         }
 
-        init(layout: String, isCompactMode: Bool, showBookmarksBar: Bool, isMemorySaverEnabled: Bool = true, openBriefOnNewTab: Bool = true, accentColorHex: String,
+        init(layout: String, isCompactMode: Bool, showBookmarksBar: Bool, isMemorySaverEnabled: Bool = true, openBriefOnNewTab: Bool = true, enableProactiveBriefing: Bool = true, includeCalendarInBrief: Bool = false, accentColorHex: String,
              searchEngine: String, preferredModelProvider: String,
              splitSecondaryTabID: String?, splitRatio: Double, splitOrientation: String,
              activeTabID: String?,
@@ -1141,12 +1827,17 @@ final class BrowserState {
              tabInfos: [CodableTabInfo], bookmarks: [Bookmark], history: [HistoryItem],
              downloads: [DownloadItem] = [], userDefinedCommands: [UserDefinedCommand] = [],
              tabZoomLevels: [String: Double] = [:], installedExtensions: [ExtensionItem] = [],
+             boosts: [Boost] = [], sitePermissions: [SitePermission] = [],
+             readingList: [ReadingListEntry] = [], pinnedWebApps: [PinnedWebApp] = [],
+             archivedTabs: [ArchivedTab] = [], enableAutoArchive: Bool = true,
              snapshotSequence: UInt64 = 0, isCleanExit: Bool = false, schemaVersion: Int = 1) {
             self.layout = layout
             self.isCompactMode = isCompactMode
             self.showBookmarksBar = showBookmarksBar
             self.isMemorySaverEnabled = isMemorySaverEnabled
             self.openBriefOnNewTab = openBriefOnNewTab
+            self.enableProactiveBriefing = enableProactiveBriefing
+            self.includeCalendarInBrief = includeCalendarInBrief
             self.accentColorHex = accentColorHex
             self.searchEngine = searchEngine
             self.preferredModelProvider = preferredModelProvider
@@ -1166,6 +1857,12 @@ final class BrowserState {
             self.userDefinedCommands = BrowserState.normalizedUserDefinedCommands(userDefinedCommands)
             self.tabZoomLevels = tabZoomLevels
             self.installedExtensions = installedExtensions
+            self.boosts = boosts
+            self.sitePermissions = sitePermissions
+            self.readingList = readingList
+            self.pinnedWebApps = pinnedWebApps
+            self.archivedTabs = archivedTabs
+            self.enableAutoArchive = enableAutoArchive
             self.snapshotSequence = snapshotSequence
             self.isCleanExit = isCleanExit
             self.schemaVersion = schemaVersion
@@ -1182,6 +1879,8 @@ final class BrowserState {
             showBookmarksBar = try c.decodeIfPresent(Bool.self, forKey: .showBookmarksBar) ?? false
             isMemorySaverEnabled = try c.decodeIfPresent(Bool.self, forKey: .isMemorySaverEnabled) ?? true
             openBriefOnNewTab = try c.decodeIfPresent(Bool.self, forKey: .openBriefOnNewTab) ?? true
+            enableProactiveBriefing = try c.decodeIfPresent(Bool.self, forKey: .enableProactiveBriefing) ?? true
+            includeCalendarInBrief = try c.decodeIfPresent(Bool.self, forKey: .includeCalendarInBrief) ?? false
             accentColorHex = try c.decode(String.self, forKey: .accentColorHex)
             searchEngine = try c.decodeIfPresent(String.self, forKey: .searchEngine) ?? "Google"
             preferredModelProvider = try c.decodeIfPresent(String.self, forKey: .preferredModelProvider) ?? "auto"
@@ -1207,6 +1906,12 @@ final class BrowserState {
             // Forward-compatible: older session files have no zoom levels.
             tabZoomLevels = try c.decodeIfPresent([String: Double].self, forKey: .tabZoomLevels) ?? [:]
             installedExtensions = try c.decodeIfPresent([ExtensionItem].self, forKey: .installedExtensions) ?? []
+            boosts = try c.decodeIfPresent([Boost].self, forKey: .boosts) ?? []
+            sitePermissions = try c.decodeIfPresent([SitePermission].self, forKey: .sitePermissions) ?? []
+            readingList = try c.decodeIfPresent([ReadingListEntry].self, forKey: .readingList) ?? []
+            pinnedWebApps = try c.decodeIfPresent([PinnedWebApp].self, forKey: .pinnedWebApps) ?? []
+            archivedTabs = try c.decodeIfPresent([ArchivedTab].self, forKey: .archivedTabs) ?? []
+            enableAutoArchive = try c.decodeIfPresent(Bool.self, forKey: .enableAutoArchive) ?? true
             snapshotSequence = try c.decodeIfPresent(UInt64.self, forKey: .snapshotSequence) ?? 0
             isCleanExit = try c.decodeIfPresent(Bool.self, forKey: .isCleanExit) ?? false
             schemaVersion = try c.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
@@ -1226,6 +1931,8 @@ final class BrowserState {
             try c.encode(showBookmarksBar, forKey: .showBookmarksBar)
             try c.encode(isMemorySaverEnabled, forKey: .isMemorySaverEnabled)
             try c.encode(openBriefOnNewTab, forKey: .openBriefOnNewTab)
+            try c.encode(enableProactiveBriefing, forKey: .enableProactiveBriefing)
+            try c.encode(includeCalendarInBrief, forKey: .includeCalendarInBrief)
             try c.encode(accentColorHex, forKey: .accentColorHex)
             try c.encode(searchEngine, forKey: .searchEngine)
             try c.encode(preferredModelProvider, forKey: .preferredModelProvider)
@@ -1245,6 +1952,12 @@ final class BrowserState {
             try c.encode(userDefinedCommands.filter(\.isValidWebURL), forKey: .userDefinedCommands)
             try c.encode(tabZoomLevels, forKey: .tabZoomLevels)
             try c.encode(installedExtensions, forKey: .installedExtensions)
+            try c.encode(boosts, forKey: .boosts)
+            try c.encode(readingList, forKey: .readingList)
+            try c.encode(pinnedWebApps, forKey: .pinnedWebApps)
+            try c.encode(archivedTabs, forKey: .archivedTabs)
+            try c.encode(enableAutoArchive, forKey: .enableAutoArchive)
+            try c.encode(sitePermissions, forKey: .sitePermissions)
             try c.encode(snapshotSequence, forKey: .snapshotSequence)
             try c.encode(isCleanExit, forKey: .isCleanExit)
             try c.encode(schemaVersion, forKey: .schemaVersion)
@@ -1301,6 +2014,9 @@ final class BrowserState {
         /// The URL to use when the renderer is woken. Kept separately from
         /// `urlString` so future schema changes cannot lose the cold tab's page.
         let savedURLString: String?
+        /// User-assigned nickname; optional so pre-rename session files decode
+        /// as unrenamed tabs (synthesized Codable uses `decodeIfPresent`).
+        let customTitle: String?
     }
 
     /// Honest recovery metadata surfaced when the persisted session file could
@@ -1356,6 +2072,18 @@ final class BrowserState {
         case searchSelection = 26507
         case askHiveSelection = 26508
         case askHivePage = 26509
+        case createBoostForPage = 26510
+        case addToReadingList = 26511
+        case removeFromReadingList = 26512
+        case addToPinnedApps = 26513
+        case removeFromPinnedApps = 26514
+        case capturePageScreenshot = 26515
+        case copyPageScreenshot = 26516
+        case copyPageURL = 26517
+        case copyAllTabURLs = 26518
+        case copyAllTabsMarkdown = 26519
+        case captureFullPageScreenshot = 26520
+        case copyFullPageScreenshot = 26521
     }
 
     var autosaveTask: Task<Void, Never>?
@@ -1363,6 +2091,18 @@ final class BrowserState {
     // MARK: - Tab Hibernation
 
     var hibernationTask: Task<Void, Never>?
+
+    // MARK: - Proactive Briefing (P2.6)
+
+    /// Handle to the daily-rollover refresh task. Cancelled on deinit like the
+    /// hibernation timer. `@ObservationIgnored` (matching the handoff recovery
+    /// task) so deinit — a nonisolated context — can cancel it.
+    @ObservationIgnored var proactiveBriefTask: Task<Void, Never>?
+
+    /// The last calendar-day ordinal for which a proactive-brief pass ran.
+    /// Drives the once-per-day regeneration; not persisted (the brief rebuilds
+    /// on every serve regardless).
+    var lastProactiveBriefDay: Int = 0
 }
 
 struct Bookmark: Identifiable, Hashable, Sendable, Codable {
@@ -1370,23 +2110,39 @@ struct Bookmark: Identifiable, Hashable, Sendable, Codable {
     var title: String
     var urlString: String
     var faviconURL: URL?
+    /// True for a folder (no url). Folders group bookmarks via `parentID`.
+    var isFolder: Bool
+    /// The id of the folder this bookmark lives in; nil = root level.
+    var parentID: UUID?
 
     var url: URL { URL(string: urlString) ?? URL(string: "about:blank")! }
 
-    enum CodingKeys: String, CodingKey { case id, title, urlString, faviconURL }
+    /// A folder bookmark has no navigation target.
+    var isNavigable: Bool { !isFolder && !urlString.isEmpty }
+
+    enum CodingKeys: String, CodingKey { case id, title, urlString, faviconURL, isFolder, parentID }
 
     init(id: UUID = UUID(), title: String, url: URL, faviconURL: URL? = nil) {
         self.id = id
         self.title = title
         self.urlString = url.absoluteString
         self.faviconURL = faviconURL
+        self.isFolder = false
+        self.parentID = nil
     }
 
-    init(id: UUID = UUID(), title: String, urlString: String, faviconURL: URL? = nil) {
+    init(id: UUID = UUID(), title: String, urlString: String, faviconURL: URL? = nil, isFolder: Bool = false, parentID: UUID? = nil) {
         self.id = id
         self.title = title
         self.urlString = urlString
         self.faviconURL = faviconURL
+        self.isFolder = isFolder
+        self.parentID = parentID
+    }
+
+    /// Folder convenience initializer (no URL).
+    init(folderID: UUID = UUID(), title: String, parentID: UUID? = nil) {
+        self.init(id: folderID, title: title, urlString: "", isFolder: true, parentID: parentID)
     }
 
     init(from decoder: Decoder) throws {
@@ -1395,6 +2151,10 @@ struct Bookmark: Identifiable, Hashable, Sendable, Codable {
         title = try c.decode(String.self, forKey: .title)
         urlString = try c.decode(String.self, forKey: .urlString)
         faviconURL = try c.decodeIfPresent(URL.self, forKey: .faviconURL)
+        // Folders shipped after the first session format; older files are all
+        // root-level content bookmarks.
+        isFolder = try c.decodeIfPresent(Bool.self, forKey: .isFolder) ?? false
+        parentID = try c.decodeIfPresent(UUID.self, forKey: .parentID)
     }
 
     /// Bookmarks start empty — imported from other browsers or added by the user.

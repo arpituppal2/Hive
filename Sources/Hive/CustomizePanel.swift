@@ -59,6 +59,31 @@ struct CustomizePanel: View {
                 Spacer()
                 Toggle("", isOn: $state.isMemorySaverEnabled)
             }
+
+            Divider()
+
+            Button(action: { state.isBoostsPanelOpen = true }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "wand.and.stars")
+                        .font(HiveDesign.Typography.bodyMedium)
+                        .foregroundStyle(Color.hiveAccent)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Boosts")
+                            .font(HiveDesign.Typography.bodyMedium)
+                            .foregroundStyle(.primary)
+                        Text("\(state.boosts.count) site style\(state.boosts.count == 1 ? "" : "s")")
+                            .font(HiveDesign.Typography.smallLabel)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(HiveDesign.Typography.captionBold)
+                        .foregroundStyle(.tertiary)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Manage site boosts")
         }
         .padding(16)
         .frame(width: 220)

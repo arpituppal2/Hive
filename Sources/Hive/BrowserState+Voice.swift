@@ -196,6 +196,9 @@ extension BrowserState {
             )
 
         case .organize:
+            guard !isPrivateBrowsing else {
+                throw CaptureError.privateBrowsing
+            }
             guard !isKnowledgePersistenceDegraded else {
                 throw VoiceExecutionError.persistenceUnavailable
             }
@@ -310,8 +313,7 @@ extension BrowserState {
         if target.contains("."), let site = URL(string: "https://\(target)") {
             return site
         }
-        let encoded = target.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? target
-        return URL(string: searchEngine.searchURL + encoded)
+        return searchURL(for: target)
     }
 
 

@@ -65,4 +65,41 @@ public enum SitePermissionPolicy {
         case userActivatedLink
         case scriptOrUnknown
     }
+
+    /// How the browser should resolve one combined permission request from a
+    /// page before consulting the user.
+    public enum PermissionResolution: Sendable, Equatable {
+        /// Every requested kind carries an explicit grant — resolve without prompting.
+        case allow
+        /// At least one requested kind is denied — deny the whole request.
+        case deny
+        /// At least one requested kind is unresolved — surface a prompt.
+        case prompt
+    }
+
+    /// Decides whether a combined permission request can be auto-resolved from
+    /// stored per-site decisions. Private tabs never auto-resolve: they always
+    /// surface a prompt (and their answers are never persisted by
+    /// ``applying(_:forHost:kind:to:isPrivate:)``), keeping ephemeral browsing
+    /// conservative and preventing a stored grant from silently widening into a
+    /// private session.
+    public static func resolution(
+        requestedKinds: [SitePermissionKind],
+        permissions: [SitePermission],
+        isPrivate: Bool
+    ) -> PermissionResolution {
+        guard !requestedKinds.isEmpty else { return .allow }
+        if isPrivate { return .prompt }
+        let requested = Set(requestedKinds)
+        // A stored denial for any requested kind blocks the entire request. A
+        // combined prompt (e.g. camera + microphone) resolves jointly, so one
+        // denied part must not grant the rest through a partial allow.
+        let hasDenial = permissions.contains {
+            requested.contains($0.kind) && $0.state == .deny
+        }
+        if hasDenial { return .deny }
+        // Allow only when every requested kind has an explicit grant.
+        let granted = Set(permissions.filter { $0.state == .allow }.map(\.kind))
+        return requested.isSubset(of: granted) ? .allow : .prompt
+    }
 }

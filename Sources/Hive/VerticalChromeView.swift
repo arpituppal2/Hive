@@ -56,6 +56,7 @@ struct VerticalChromeView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("New tab")
+                .help("New Tab (⌘T)")
             }
             .padding(.horizontal, HiveDesign.Space.xs)
             .padding(.top, HiveDesign.Space.sm - 2)
@@ -116,6 +117,7 @@ struct VerticalChromeView: View {
                             .accessibilityLabel("\(group.name) group")
                             .accessibilityValue(group.isCollapsed ? "Collapsed, \(tabsInGroup.count) tabs" : "Expanded, \(tabsInGroup.count) tabs")
                             .accessibilityHint("Activate to \(group.isCollapsed ? "expand" : "collapse")")
+                            .help("\(group.name) group — \(group.isCollapsed ? "expand" : "collapse")")
                             .contextMenu {
                                 TabGroupActionsMenu(group: group)
                             }
@@ -217,7 +219,10 @@ struct VerticalChromeView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Open command palette")
+                .help("Command Palette (⌘K)")
                 Spacer()
+                DownloadsStatusView()
+                SyncStatusView()
                 if state.isVoiceModeActive {
                     Image(systemName: "mic.fill").font(.system(size: HiveDesign.Typography.sizeSM)).foregroundStyle(HiveDesign.Accent.primary)
                 }
@@ -301,6 +306,8 @@ struct VerticalEssentialTile: View {
         .contextMenu {
             Button("Close") { state.closeTab(id: tab.id) }
             Button("Reload") { state.reloadTab(id: tab.id) }
+            Button("Rename…") { state.presentTabRename(tab) }
+            Button(state.isSiteMuted(for: tab) ? "Unmute Site" : "Mute Site") { state.toggleSiteMute(for: tab) }
             Divider()
             if tab.isPinned { Button("Unpin") { state.togglePinTab(id: tab.id) } }
             else { Button("Pin") { state.togglePinTab(id: tab.id) } }
@@ -370,13 +377,18 @@ struct VerticalTabRow: View {
                 ProgressView().controlSize(.small).scaleEffect(0.5)
             }
 
-            // Live playing indicator from the media-state probe — only shows
-            // for genuinely playing, unmuted media.
-            if state.mediaPlayingTabIDs.contains(tab.id) {
-                Image(systemName: "speaker.wave.2.fill")
-                    .font(HiveDesign.Typography.microLabel)
-                    .foregroundStyle(HiveDesign.Accent.primary)
-                    .help("Playing audio")
+            // Browser-level mute state (CEF SetAudioMuted) takes precedence
+            // over the live playing indicator: one interactive speaker button
+            // that shows and toggles the tab's real mute.
+            if state.isTabMuted(tab.id) || state.mediaPlayingTabIDs.contains(tab.id) {
+                Button(action: { state.toggleMuteTab(id: tab.id) }) {
+                    Image(systemName: state.isTabMuted(tab.id) ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                        .font(HiveDesign.Typography.microLabel)
+                        .foregroundStyle(state.isTabMuted(tab.id) ? HiveDesign.Accent.primary : HiveDesign.Text.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(state.isTabMuted(tab.id) ? "Unmute tab" : "Mute tab")
+                .accessibilityLabel(state.isTabMuted(tab.id) ? "Unmute tab" : "Mute tab")
             }
             if isHovered || isActive {
                 Button(action: { state.closeTab(id: tab.id) }) {
@@ -458,7 +470,12 @@ struct VerticalTabRow: View {
         .contextMenu {
             Button("Ask about this tab") { state.askAboutTab(id: tab.id) }
             Button("Duplicate") { state.duplicateTab(id: tab.id) }
+            Button("Rename…") { state.presentTabRename(tab) }
             Button("Reload") { state.reloadTab(id: tab.id) }
+            Divider()
+            Button("Bookmark All Tabs…") { state.bookmarkAllTabs() }
+            Button(state.isTabMuted(tab.id) ? "Unmute Tab" : "Mute Tab") { state.toggleMuteTab(id: tab.id) }
+            Button(state.isSiteMuted(for: tab) ? "Unmute Site" : "Mute Site") { state.toggleSiteMute(for: tab) }
             Divider()
             if tab.id != state.activeTabID {
                 if state.splitSecondaryTabID == tab.id {
@@ -541,6 +558,9 @@ struct VerticalTabRow: View {
     }
 
     private var displayTitle: String {
+        if let custom = tab.customTitle, !custom.isEmpty {
+            return tab.isHibernated ? "\(custom) · sleeping" : custom
+        }
         if tab.isHibernated { return "\(tab.model.title.isEmpty ? (tab.savedURL?.host ?? "Tab") : tab.model.title) · sleeping" }
         if !tab.model.title.isEmpty { return tab.model.title }
         if let host = tab.model.url?.host { return host }

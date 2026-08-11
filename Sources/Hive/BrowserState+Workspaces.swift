@@ -123,6 +123,68 @@ extension BrowserState {
 
     // MARK: - Profiles
 
+    func addProfile(name: String, iconName: String, colorHex: String) {
+        let profile = Profile(name: name, iconName: iconName, colorHex: colorHex)
+        profiles.append(profile)
+        let workspace = addWorkspace(name: "Default", colorHex: "#F97316", iconName: "briefcase.fill", profileID: profile.id)
+        currentProfileID = profile.id
+        currentWorkspaceID = workspace.id
+        if !tabs.contains(where: { $0.workspaceID == currentWorkspaceID }) {
+            newTab()
+        }
+        scheduleAutosave()
+    }
+
+
+    func renameProfile(id: UUID, name: String) {
+        guard let index = profiles.firstIndex(where: { $0.id == id }),
+              !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        else { return }
+        profiles[index].name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        scheduleAutosave()
+    }
+
+
+    func setProfileColor(id: UUID, colorHex: String) {
+        guard let index = profiles.firstIndex(where: { $0.id == id }),
+              Color(hex: colorHex) != nil
+        else { return }
+        profiles[index].colorHex = colorHex
+        scheduleAutosave()
+    }
+
+
+    func setProfileIcon(id: UUID, iconName: String) {
+        guard let index = profiles.firstIndex(where: { $0.id == id }) else { return }
+        profiles[index].iconName = iconName
+        scheduleAutosave()
+    }
+
+
+    func deleteProfile(id: UUID) {
+        guard profiles.count > 1 else { return }
+        // Delete all workspaces belonging to this profile and their CEF profiles.
+        let profileWorkspaceIDs = Set(workspaces.filter { $0.profileID == id }.map(\.id))
+        for wsID in profileWorkspaceIDs {
+            deleteWorkspaceProfile(id: wsID)
+        }
+        workspaces.removeAll { $0.profileID == id }
+        // Move orphaned tabs to the remaining first profile's first workspace.
+        if let firstProfile = profiles.first(where: { $0.id != id }),
+           let firstWorkspace = workspaces.first(where: { $0.profileID == firstProfile.id }) {
+            for tab in tabs where tab.profileID == id {
+                tab.profileID = firstProfile.id
+                tab.workspaceID = firstWorkspace.id
+            }
+        }
+        profiles.removeAll { $0.id == id }
+        if currentProfileID == id, let first = profiles.first {
+            switchProfile(to: first.id)
+        }
+        scheduleAutosave()
+    }
+
+
     func switchProfile(to id: UUID) {
         withAnimation(isReduceMotionEnabled ? nil : HiveDesign.Animation.springQuick) {
             currentProfileID = id
@@ -171,6 +233,44 @@ extension BrowserState {
         workspaces.append(workspace)
         scheduleAutosave()
         return workspace
+    }
+
+
+    func renameWorkspace(id: UUID, name: String) {
+        guard let index = workspaces.firstIndex(where: { $0.id == id }),
+              !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        else { return }
+        workspaces[index].name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        scheduleAutosave()
+    }
+
+
+    func setWorkspaceColor(id: UUID, colorHex: String) {
+        guard let index = workspaces.firstIndex(where: { $0.id == id }),
+              Color(hex: colorHex) != nil
+        else { return }
+        workspaces[index].colorHex = colorHex
+        scheduleAutosave()
+    }
+
+
+    /// Reorders a workspace within the current profile's workspace list.
+    /// Direction: -1 moves up, +1 moves down. Clamped to valid range.
+    func moveWorkspace(id: UUID, direction: Int) {
+        let profileWorkspaces = workspacesForCurrentProfile
+        guard let fromIndex = profileWorkspaces.firstIndex(where: { $0.id == id }) else { return }
+        let toIndex = fromIndex + direction
+        guard toIndex >= 0, toIndex < profileWorkspaces.count else { return }
+        let fromGlobal = indexOfWorkspace(id: id)
+        let toGlobal = indexOfWorkspace(id: profileWorkspaces[toIndex].id)
+        guard let from = fromGlobal, let to = toGlobal else { return }
+        workspaces.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
+        scheduleAutosave()
+    }
+
+
+    private func indexOfWorkspace(id: UUID) -> Int? {
+        workspaces.firstIndex(where: { $0.id == id })
     }
 
 
@@ -294,10 +394,86 @@ extension BrowserState {
     }
 
 
+    func moveTabGroup(id: UUID, direction: Int) {
+        let currentGroups = groupsForCurrentWorkspace
+        guard let fromIndex = currentGroups.firstIndex(where: { $0.id == id }) else { return }
+        let toIndex = fromIndex + direction
+        guard toIndex >= 0, toIndex < currentGroups.count else { return }
+        let fromGlobal = tabGroups.firstIndex(where: { $0.id == id })
+        let toGlobal = tabGroups.firstIndex(where: { $0.id == currentGroups[toIndex].id })
+        guard let from = fromGlobal, let to = toGlobal else { return }
+        tabGroups.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
+        scheduleAutosave()
+    }
+
+
     func deleteTabGroup(id: UUID) {
         tabGroups.removeAll { $0.id == id }
         tabs.forEach { if $0.groupID == id { $0.groupID = nil } }
         scheduleAutosave()
+    }
+
+
+    /// Arc-style "Group Similar Tabs": every domain with 2+ ungrouped tabs in
+    /// the current workspace becomes one tab group, auto-named from the host
+    /// and cycling the palette. Pinned, essential, private, and already-grouped
+    /// tabs are never touched; each candidate keeps its workspace. Feedback
+    /// lands in ``tabGroupingNotice`` (UI-only, auto-clears).
+    func groupSimilarTabs() {
+        // Candidates: the workspace's ungrouped, groupable tabs with a real
+        // web page (hibernated tabs contribute their wake URL).
+        let candidates = tabs.compactMap { tab -> TabGroupCandidate? in
+            guard tab.workspaceID == currentWorkspaceID,
+                  !tab.isPrivate,
+                  !tab.isPinned,
+                  !tab.isEssential,
+                  tab.groupID == nil
+            else { return nil }
+            let url = tab.model.url ?? tab.savedURL
+            guard let hostKey = SimilarTabGroupPolicy.hostKey(for: url) else { return nil }
+            return TabGroupCandidate(id: tab.id, hostKey: hostKey)
+        }
+        let suggestions = SimilarTabGroupPolicy.suggestedGroups(candidates: candidates)
+
+        var groupedCount = 0
+        // Cycle the palette off the CURRENT workspace's group count, matching
+        // every other group-creation site (a fresh workspace's first run starts
+        // at the palette's first color).
+        var paletteIndex = groupsForCurrentWorkspace.count
+        for suggestion in suggestions {
+            // A second run with new tabs on an already-grouped domain tidies
+            // into the existing group instead of duplicating its name.
+            let group: TabGroup
+            if let existing = groupsForCurrentWorkspace.first(where: { $0.name == suggestion.displayName }) {
+                group = existing
+            } else {
+                let color = TabGroupPalette.colors[paletteIndex % TabGroupPalette.colors.count]
+                paletteIndex += 1
+                group = createTabGroup(name: suggestion.displayName, colorHex: color)
+            }
+            for tabID in suggestion.tabIDs {
+                moveTabToGroup(tabID: tabID, groupID: group.id)
+                groupedCount += 1
+            }
+        }
+        // Group assignments are plain (unobserved) tab properties — persist
+        // them explicitly so a force-quit right after grouping can't lose them.
+        if groupedCount > 0 { scheduleAutosave() }
+
+        // Transient, honest feedback: exact counts or a clear "nothing to do".
+        tabGroupingNoticeTask?.cancel()
+        let message: String
+        if suggestions.isEmpty {
+            message = "No similar tabs to group"
+        } else {
+            message = "Grouped \(groupedCount) tab\(groupedCount == 1 ? "" : "s") into \(suggestions.count) group\(suggestions.count == 1 ? "" : "s")"
+        }
+        tabGroupingNotice = message
+        tabGroupingNoticeTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(3.5))
+            guard let self, !Task.isCancelled else { return }
+            self.tabGroupingNotice = nil
+        }
     }
 
 

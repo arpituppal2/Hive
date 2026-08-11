@@ -124,6 +124,9 @@ extension SettingsView {
         case .duckduckgo: return "Private search, no tracking"
         case .google: return "Fast, comprehensive results"
         case .bing: return "Microsoft's search engine with AI features"
+        case .brave: return "Privacy-focused with independent index"
+        case .startpage: return "Google results with complete privacy"
+        case .ecosia: return "Eco-friendly, plants trees with searches"
         }
     }
 }

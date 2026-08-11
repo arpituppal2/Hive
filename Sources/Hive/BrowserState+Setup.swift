@@ -97,14 +97,72 @@ extension BrowserState {
     }
 
 
+    // MARK: - Tab rename (Arc / Safari parity)
+
+    /// Opens the window-level rename alert for a tab, pre-filled with its
+    /// current custom name (or the live page title when unrenamed).
+    func presentTabRename(_ tab: Tab) {
+        renameTabTargetID = tab.id
+        renameTabText = tab.customTitle ?? tab.model.title
+    }
+
+    /// Applies the alert's draft name. Empty input clears the rename so the
+    /// tab falls back to its live page title. Private tabs accept renames as
+    /// session-scoped UI state (they are never serialized).
+    func commitTabRename() {
+        defer { renameTabTargetID = nil; renameTabText = "" }
+        guard let id = renameTabTargetID,
+              let tab = tabs.first(where: { $0.id == id }) else { return }
+        let normalized = TabRenamePolicy.normalized(renameTabText)
+        tab.customTitle = normalized.isEmpty ? nil : normalized
+        if !isRestoringSession { scheduleAutosave() }
+    }
+
+    /// Cancels the in-flight tab rename without applying the draft.
+    func cancelTabRename() {
+        renameTabTargetID = nil
+        renameTabText = ""
+    }
+
+
     func deleteBookmark(id: UUID) {
+        // A folder id must never orphan its subtree: route through the
+        // subtree-sweeping delete (which tombstones every removed record).
+        if bookmarks.contains(where: { $0.id == id && $0.isFolder }) {
+            deleteBookmarkFolder(id: id)
+            return
+        }
+        let existed = bookmarks.contains { $0.id == id }
         bookmarks.removeAll { $0.id == id }
+        if existed { enqueueSyncTombstone(kind: .bookmark, recordID: id.uuidString) }
+        scheduleAutosave()
+    }
+
+    /// Edits a plain bookmark's title and/or URL in place (Chrome/Safari
+    /// manager parity). Identity, folder placement, and favicon are untouched;
+    /// the updated record flows through the same encrypted bookmark sync
+    /// boundary as every other mutation. Folders keep their own rename path.
+    func updateBookmark(id: UUID, title: String, urlString: String) {
+        guard let index = bookmarks.firstIndex(where: { $0.id == id && !$0.isFolder }) else { return }
+        let newTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let newURL = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !newTitle.isEmpty, !newURL.isEmpty, newTitle != bookmarks[index].title || newURL != bookmarks[index].urlString else { return }
+        // Reject clearly-broken URLs: anything with embedded whitespace would
+        // never navigate. Chrome is permissive for scheme-less hosts (the
+        // omnibox resolves them), so a plain space check is the right bar.
+        guard !newURL.contains(where: { $0.isWhitespace }) else { return }
+        bookmarks[index].title = newTitle
+        bookmarks[index].urlString = newURL
+        enqueueBookmark(bookmarks[index])
         scheduleAutosave()
     }
 
 
     func addBookmark(_ bookmark: Bookmark) {
         bookmarks.append(bookmark)
+        Task { @MainActor [weak self] in
+            await self?.pushBookmarkToCloud(bookmark)
+        }
         scheduleAutosave()
     }
 
@@ -114,7 +172,7 @@ extension BrowserState {
     @discardableResult
     func toggleBookmarkCurrentPage() -> Bool {
         guard let url = activeModel?.url,
-              url.absoluteString != Self.webChromeStartURL.absoluteString,
+              !Self.isInternalWebChromeURL(url),
               url.absoluteString != "about:blank"
         else { return false }
         if let existing = bookmarks.first(where: { $0.urlString == url.absoluteString }) {
@@ -385,7 +443,8 @@ extension BrowserState {
                 isEssential: tab.isEssential,
                 isPrivate: false,
                 isHibernated: tab.isHibernated,
-                savedURLString: tab.savedURLString
+                savedURLString: tab.savedURLString,
+                customTitle: original.customTitle
             )
         }
 
@@ -466,13 +525,17 @@ extension BrowserState {
             showBookmarksBar: saved.showBookmarksBar,
             isCompactMode: saved.isCompactMode,
             isMemorySaverEnabled: saved.isMemorySaverEnabled,
-            openBriefOnNewTab: saved.openBriefOnNewTab
+            openBriefOnNewTab: saved.openBriefOnNewTab,
+            enableProactiveBriefing: saved.enableProactiveBriefing,
+            includeCalendarInBrief: saved.includeCalendarInBrief
         ).normalized
         layout = TabLayout(rawValue: chromePreferences.layout) ?? .vertical
         isCompactMode = chromePreferences.isCompactMode
         showBookmarksBar = chromePreferences.showBookmarksBar
         isMemorySaverEnabled = chromePreferences.isMemorySaverEnabled
         openBriefOnNewTab = chromePreferences.openBriefOnNewTab
+        enableProactiveBriefing = chromePreferences.enableProactiveBriefing
+        includeCalendarInBrief = chromePreferences.includeCalendarInBrief
         browserAccentColorHex = saved.accentColorHex
             searchEngine = SearchEngine(rawValue: saved.searchEngine) ?? .google
             // Restore the user's model preference — it was persisted but never
@@ -487,6 +550,9 @@ extension BrowserState {
             KeychainPasswordStore.migrateFromLegacyJSON()
             // Load passwords from Keychain (not session JSON — secure hardware-backed storage)
             savedPasswords = KeychainPasswordStore.allPasswords()
+            // One-time normalization of legacy site strings (re-keys Keychain
+            // entries so dedupe and Chrome-style keys stay consistent).
+            reconcileSavedPasswordSites()
             profiles = saved.profiles.map { Profile(id: $0.id, name: $0.name, iconName: $0.iconName, colorHex: $0.colorHex) }
             currentProfileID = saved.currentProfileID
             workspaces = saved.workspaces.map { Workspace(id: $0.id, name: $0.name, colorHex: $0.colorHex, iconName: $0.iconName, profileID: $0.profileID) }
@@ -503,6 +569,12 @@ extension BrowserState {
             downloads = saved.downloads
             tabZoomLevels = saved.tabZoomLevels
             installedExtensions = saved.installedExtensions
+            boosts = saved.boosts
+            sitePermissions = saved.sitePermissions
+            readingList = saved.readingList
+            pinnedWebApps = saved.pinnedWebApps
+            archivedTabs = saved.archivedTabs
+            enableAutoArchive = saved.enableAutoArchive
 
         // Pure restore-decision contract (documented cross-browser mechanics):
         // transient blank tabs never restore, background durable tabs come back
@@ -550,9 +622,11 @@ extension BrowserState {
                 groupID: ti.groupID,
                 isPinned: ti.isPinned,
                 isEssential: ti.isEssential,
-                profile: cefProfile(for: ti.workspaceID)
+                profile: cefProfile(for: ti.workspaceID),
+                savedURL: savedURL,
+                customTitle: ti.customTitle
             )
-            tab.savedURL = savedURL
+            markInternalTabIfNeeded(tab)
             tab.isHibernated = isHibernated
             tabs.append(tab)
             wireTabHooks(tab)

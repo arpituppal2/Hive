@@ -75,6 +75,9 @@ public actor HotMemoryStore {
         /// Explicitly classified global memory (for example a user preference
         /// or durable assistant answer). Missing scope metadata is not global.
         public var isGlobal: Bool
+        /// Candidate memory is useful for the current session but must never be
+        /// written to the restart snapshot until explicitly promoted.
+        public var admission: MemoryAdmission
 
         public init(id: String, score: Double = 0.5, accessCount: Int = 1,
                     lastAccessedAt: Date = Date(), addedAt: Date = Date(),
@@ -82,7 +85,8 @@ public actor HotMemoryStore {
                     label: String? = nil, content: String? = nil,
                     workspaceID: String? = nil, projectID: String? = nil,
                     profileID: String? = nil,
-                    isPrivate: Bool = false, isGlobal: Bool = false) {
+                    isPrivate: Bool = false, isGlobal: Bool = false,
+                    admission: MemoryAdmission = .durable) {
             self.id = id
             self.score = score
             self.accessCount = accessCount
@@ -96,13 +100,14 @@ public actor HotMemoryStore {
             self.profileID = profileID
             self.isPrivate = isPrivate
             self.isGlobal = isGlobal
+            self.admission = admission
         }
 
         // Forward-compatible Codable: label/content were added after the first
         // persisted format, so old entries decode with nil without breaking.
         private enum CodingKeys: String, CodingKey {
             case id, score, accessCount, lastAccessedAt, addedAt, sourceHint,
-                 label, content, workspaceID, projectID, profileID, isPrivate, isGlobal
+                 label, content, workspaceID, projectID, profileID, isPrivate, isGlobal, admission
         }
 
         public init(from decoder: Decoder) throws {
@@ -120,6 +125,9 @@ public actor HotMemoryStore {
             profileID = try c.decodeIfPresent(String.self, forKey: .profileID)
             isPrivate = try c.decodeIfPresent(Bool.self, forKey: .isPrivate) ?? false
             isGlobal = try c.decodeIfPresent(Bool.self, forKey: .isGlobal) ?? false
+            // Older snapshots predate admission tracking and represent the
+            // already-durable hot-memory behavior.
+            admission = try c.decodeIfPresent(MemoryAdmission.self, forKey: .admission) ?? .durable
         }
 
         public func encode(to encoder: Encoder) throws {
@@ -137,6 +145,7 @@ public actor HotMemoryStore {
             try c.encodeIfPresent(profileID, forKey: .profileID)
             try c.encode(isPrivate, forKey: .isPrivate)
             try c.encode(isGlobal, forKey: .isGlobal)
+            try c.encode(admission, forKey: .admission)
         }
     }
 
@@ -240,7 +249,16 @@ public actor HotMemoryStore {
             // externally modified snapshot with duplicate IDs degrades to
             // first-wins (keeps the first occurrence, drops later ones)
             // instead of trapping in the actor's init.
-            hotEntries = Dictionary(snapshot.entries.map { ($0.id, $0) },
+            hotEntries = Dictionary(snapshot.entries
+                                        .filter {
+                                            $0.admission == .durable &&
+                                            // Pre-admission snapshots could contain
+                                            // librarian IDs that were incorrectly
+                                            // treated as durable. Do not resurrect
+                                            // those legacy model-derived entries.
+                                            !$0.id.hasPrefix("librarian-")
+                                        }
+                                        .map { ($0.id, $0) },
                                     uniquingKeysWith: { first, _ in first })
             forgottenNodeIDs = Set(snapshot.forgotten)
             activeProjectID = snapshot.activeProjectID
@@ -284,10 +302,11 @@ public actor HotMemoryStore {
                               label: String? = nil, content: String? = nil,
                               workspaceID: String? = nil, projectID: String? = nil,
                               profileID: String? = nil,
-                              isPrivate: Bool = false) {
+                              isPrivate: Bool = false,
+                              admission: MemoryAdmission = .durable) {
         recordAccess(id: id, sourceHint: sourceHint, label: label, content: content,
                      workspaceID: workspaceID, projectID: projectID, profileID: profileID,
-                     isPrivate: isPrivate, isGlobal: false)
+                     isPrivate: isPrivate, isGlobal: false, admission: admission)
     }
 
     /// Records explicitly global memory. This separate API prevents ordinary
@@ -296,13 +315,13 @@ public actor HotMemoryStore {
     public func didAccessGlobalNode(id: String, sourceHint: String,
                                     label: String? = nil, content: String? = nil) {            recordAccess(id: id, sourceHint: sourceHint, label: label, content: content,
                      workspaceID: nil, projectID: nil, profileID: nil,
-                     isPrivate: false, isGlobal: true)
+                     isPrivate: false, isGlobal: true, admission: .durable)
     }
 
     private func recordAccess(id: String, sourceHint: String,
                               label: String?, content: String?,
                               workspaceID: String?, projectID: String?, profileID: String?,
-                              isPrivate: Bool, isGlobal: Bool) {
+                              isPrivate: Bool, isGlobal: Bool, admission: MemoryAdmission) {
         // A forgotten node stays forgotten: the user explicitly told the AI to
         // not see it, so passive re-access (warm-up, tab switch) must not
         // resurrect it. Undo with `unforgetNode(id:)`.
@@ -325,6 +344,9 @@ public actor HotMemoryStore {
             // Global classification is immutable after admission. A later
             // scoped access can enrich the entry but cannot widen its reach.
             entry.isGlobal = entry.isGlobal || isGlobal
+            // Admission is monotonic. Passive re-access cannot downgrade a
+            // durable entry or promote a candidate; promotion has its own
+            // explicit API below.
             entry.score = computeScore(entry, now: now)
             hotEntries[id] = entry
         } else {
@@ -333,7 +355,7 @@ public actor HotMemoryStore {
                                  lastAccessedAt: now, addedAt: now,
                                  sourceHint: sourceHint,                    label: label, content: content,
                     workspaceID: workspaceID, projectID: projectID, profileID: profileID,
-                    isPrivate: isPrivate, isGlobal: isGlobal)
+                    isPrivate: isPrivate, isGlobal: isGlobal, admission: admission)
             hotEntries[id] = entry
         }
         scheduleSave()
@@ -694,7 +716,10 @@ public actor HotMemoryStore {
     public func saveNow() {
         guard let url = persistenceURL else { return }
         let snapshot = Snapshot(
-            entries: Array(hotEntries.values),
+            // Candidate claims are intentionally session-only. They may be
+            // retrieved during this run, but must not survive a restart as if
+            // the user had admitted them to durable memory.
+            entries: hotEntries.values.filter { $0.admission == .durable },
             forgotten: forgottenNodeIDs.sorted(),
             activeProjectID: activeProjectID,
             activeWorkspaceID: activeWorkspaceID,

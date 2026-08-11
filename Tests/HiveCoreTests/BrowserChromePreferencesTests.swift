@@ -57,6 +57,18 @@ struct BrowserChromePreferencesTests {
         #expect(decoded.isMemorySaverEnabled == false)
     }
 
+    @Test func calendarInBriefDefaultsOffAndRoundTrips() throws {
+        // P2.6 calendar half is opt-in: fresh installs never request EventKit.
+        #expect(BrowserChromePreferences().includeCalendarInBrief == false)
+        let legacy = try JSONDecoder().decode(BrowserChromePreferences.self, from: Data("{}".utf8))
+        #expect(legacy.includeCalendarInBrief == false)
+        let original = BrowserChromePreferences(includeCalendarInBrief: true)
+        let data = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(BrowserChromePreferences.self, from: data)
+        #expect(decoded.includeCalendarInBrief)
+        #expect(decoded.normalized.includeCalendarInBrief)
+    }
+
     @Test func layoutNormalizationIsIdempotent() {
         let prefs = BrowserChromePreferences(layout: "Diagonal")
         let normalized = prefs.normalized

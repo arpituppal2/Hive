@@ -644,7 +644,8 @@ extension HoneycombStore {
             provenance: claim.provenance
         )
         guard let updated = try updateNode(id: claimID, label: corrected.text,
-                                           metadata: corrected.toNode().metadata) else {
+                                           metadata: corrected.toNode().metadata,
+                                           contentHash: HoneycombStore.sha256(corrected.text)) else {
             return nil
         }
         return Claim.from(updated)

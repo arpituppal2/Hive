@@ -31,6 +31,14 @@ extension BrowserState {
     }
 
 
+    /// Only durable, user-visible Honeycomb records belong in the Knowledge
+    /// lifecycle UI. Model-derived legacy records are rejected defensively even
+    /// if an older database or importer left one behind.
+    static func isInspectableKnowledgeNode(_ node: HoneycombStore.Node) -> Bool {
+        HoneycombStore.isInspectableNode(node)
+    }
+
+
     // MARK: - Knowledge memory actions (Knowledge panel + hot memory)
 
     /// Opens a knowledge node from the panel. Page-bearing rows (sources,

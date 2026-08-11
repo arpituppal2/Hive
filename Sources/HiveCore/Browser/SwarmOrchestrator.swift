@@ -6,12 +6,12 @@ import Foundation
 /// pipeline that feels like one smart system to the user:
 ///
 ///   1. User intent + page context enters
-///   2. `HotMemoryStore.assembleContext()` gathers relevant prior context
-///   3. `.retrievalRanker` Cell filters/re-ranks the assembled context
-///   4. `.orchestrator` (or specialist) Cell generates the primary response
-///   5. `.librarian` Cell extracts entities/claims from the response (async, non-blocking)
-///   6. Extracted entities stored back into `HotMemoryStore.didAccessNode`
-///   7. Every step logged to `EventLedger` for audit
+///   2. `HotMemoryStore.assembleContext()` gathers relevant prior context    ///   3. `.retrievalRanker` Cell filters/re-ranks the assembled context
+    ///   4. `.orchestrator` (or specialist) Cell generates the primary response
+    ///   5. `.librarian` Cell extracts candidate entities/claims from the response (async, non-blocking)
+    ///   6. Candidates stored back into session-scoped `HotMemoryStore.didAccessNode`; durable admission requires an explicit trusted path
+    ///   7. Every step logged to `EventLedger` for audit
+
 ///
 /// ## Why separate Cells, not one mega-agent
 /// - Each role uses the smallest possible model (0.5B retrieval ranker, 1.5B librarian)
@@ -22,7 +22,7 @@ import Foundation
 /// ## Trust model
 /// - Read-only context assembly (T0): auto
 /// - Response generation (T1): advisory, clearly marked
-/// - Librarian extraction (T0): writes to hot memory only (in-memory, session-scoped)
+/// - Librarian extraction (T0): writes candidate claims to hot memory only (in-memory, session-scoped); it never creates durable Honeycomb nodes
 /// - All orchestration decisions logged to EventLedger for audit
 public actor SwarmOrchestrator {
 
@@ -32,7 +32,9 @@ public actor SwarmOrchestrator {
     private let hotMemory: HotMemoryStore
     private let ledger: EventLedgerStore
     private let prompts: CellPromptLoader?
-    private let honeycomb: HoneycombStore?
+    /// Optional deterministic librarian seam for tests and future local
+    /// extraction implementations. Production callers leave this nil.
+    private let librarianResultProvider: (@Sendable (String) async -> String)?
 
     // MARK: - Init
 
@@ -41,13 +43,13 @@ public actor SwarmOrchestrator {
         hotMemory: HotMemoryStore,
         ledger: EventLedgerStore,
         prompts: CellPromptLoader? = nil,
-        honeycomb: HoneycombStore? = nil
+        librarianResultProvider: (@Sendable (String) async -> String)? = nil
     ) {
         self.dispatcher = dispatcher
         self.hotMemory = hotMemory
         self.ledger = ledger
         self.prompts = prompts
-        self.honeycomb = honeycomb
+        self.librarianResultProvider = librarianResultProvider
     }
 
     // MARK: - Primary Entry Point
@@ -276,13 +278,22 @@ public actor SwarmOrchestrator {
         )
 
         do {
-            let libResult = try await dispatcher.generate(libReq)
+            let librarianText: String
+            let librarianProvider: String
+            if let librarianResultProvider {
+                librarianText = await librarianResultProvider(response)
+                librarianProvider = "test-seam"
+            } else {
+                let libResult = try await dispatcher.generate(libReq)
+                librarianText = libResult.text
+                librarianProvider = libResult.provider.rawValue
+            }
 
             // Parse the librarian's output into real (label, claim) pairs instead
             // of discarding the text and minting phantom UUIDs. Accepts both
             // "- Entity: claim" bullet lines and bare lines. Capped at 12 so a
             // verbose extraction can't flood the hot set.
-            let entities: [(label: String, content: String)] = libResult.text
+            let entities: [(label: String, content: String)] = librarianText
                 .split(separator: "\n")
                 .map { $0.trimmingCharacters(in: .whitespaces) }
                 .filter { !$0.isEmpty && $0 != "-" }
@@ -302,41 +313,28 @@ public actor SwarmOrchestrator {
 
             for entity in entities {
                 guard isCurrent() else { return }
-                var nodeID = "librarian-\(UUID().uuidString)"
-                // Durable copy in Honeycomb (a note node) so the Knowledge Panel
-                // and FTS5 search can retrieve it later — not just session memory.
-                // Content-hashed so re-extracting the same claim collapses to
-                // the existing node (insertNode dedups on type + contentHash).
-                if let honeycomb {
-                    let node = HoneycombStore.Node(
-                        id: nodeID,
-                        type: .note,
-                        label: entity.label,
-                        metadata: .object([
-                            "claim": .string(String(entity.content.prefix(400))),
-                            "origin": .string(page?.title ?? "unknown")
-                        ]),
-                        contentHash: HoneycombStore.sha256("\(entity.label)\n\(entity.content)"),
-                        provenance: "librarian-extraction"
-                    )
-                    if let stored = try? await honeycomb.insertNode(node) {
-                        nodeID = stored.id
-                    }
-                }
-                // Hot memory carries label + claim inline — the AI can see the
-                // entity's substance in assembled context without a graph lookup.
-                await hotMemory.didAccessNode(id: nodeID, sourceHint: "captured",
+                // Model/page-derived output is a candidate, never durable memory.
+                // Keep it in the session-scoped hot set so the current turn can
+                // benefit from continuity, but do not write it to Honeycomb. A
+                // future inspect/promote action can re-enter through an explicit
+                // user-authored durable API.
+                guard MemoryAdmissionPolicy.modelExtraction(
+                    isPrivate: page?.privateBrowsing ?? false
+                ) != nil else { return }
+                let nodeID = "candidate-\(UUID().uuidString)"
+                await hotMemory.didAccessNode(id: nodeID, sourceHint: "candidate",
                                               label: entity.label,
                                               content: entity.content,
                                               workspaceID: scope.workspaceID,
-                                              profileID: scope.profileID)
+                                              profileID: scope.profileID,
+                                              admission: .candidate)
             }
 
             try? await ledger.logEvent(
                 actor: "librarian", action: .modelCall,
-                intent: "Extracted \(entities.count) entities",
+                intent: "Extracted \(entities.count) candidate entities",
                 trustLevel: .t0, policyDecision: .allowed, consentState: .auto,
-                provider: libResult.provider.rawValue,
+                provider: librarianProvider,
                 result: .success
             )
         } catch {

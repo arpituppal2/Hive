@@ -197,6 +197,18 @@ private struct HistoryRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            Button("Open in New Tab") {
+                state.newTab(url: item.url, activate: false)
+            }
+            Button("Copy URL") {
+                state.copyToPasteboard(item.url.absoluteString)
+            }
+            Divider()
+            Button("Delete Entry", role: .destructive) {
+                state.deleteHistoryItem(id: item.id)
+            }
+        }
         Divider().opacity(0.4).padding(.leading, 54)
     }
 }

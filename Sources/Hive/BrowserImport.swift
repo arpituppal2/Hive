@@ -4,11 +4,11 @@ import HiveCore
 // MARK: - BrowserImport
 ///
 /// Parses bookmarks from installed browsers so Hive can import them on first launch
-/// or when the user requests it. Supported: Chrome, Safari, Brave, Edge, Arc, Firefox.
+/// or when the user requests it. Supported: Chrome, Safari, Brave, Edge, Arc, Firefox, Zen.
 ///
 /// Chrome/Edge/Brave/Arc store bookmarks as JSON at a known path.
 /// Safari stores them in a binary plist.
-/// Firefox stores them in a SQLite places.sqlite database (future).
+/// Firefox/Zen store them in a SQLite places.sqlite database.
 
 enum BrowserImport {
 
@@ -36,7 +36,8 @@ enum BrowserImport {
             makeBrowser(id: "brave", name: "Brave", icon: "shield.fill"),
             makeBrowser(id: "edge", name: "Edge", icon: "e.square.fill"),
             makeBrowser(id: "arc", name: "Arc", icon: "arcade.stick.console.fill"),
-            makeBrowser(id: "firefox", name: "Firefox", icon: "flame.fill")
+            makeBrowser(id: "firefox", name: "Firefox", icon: "flame.fill"),
+            makeBrowser(id: "zen", name: "Zen", icon: "wind")
         ].compactMap { $0 }
     }
 

@@ -1,15 +1,17 @@
 # Hive Browser — Roadmap to $100M Valuation
 ## Target: January 1, 2027
 
+> **Planning document note (2026-08-09):** The roadmap and `/autoplan` review below preserve historical strategy assumptions and recommendations. Current implementation and release truth is maintained in `docs/RELEASE_PIPELINE.md`, `docs/PRELAUNCH.md`, and `.hive/mission/FINAL_VALIDATION.md`.
+
 **Branch:** `mission/recovery-and-ship`
 **Created:** 2026-08-07
-**Current State:** Working Chromium-based browser (CEF 148), 983 tests passing, ad-hoc signed, macOS only. Core browser fundamentals (tabs, workspaces, split view, navigation, bookmarks, history, downloads, AI/Swarm, web chrome) are functional. Not production-shipped.
+**Current State:** Working Chromium-based browser (CEF 148), 1,619 tests passing across 155 suites, locally validated with an ad-hoc bundle, macOS only. Core browser fundamentals, AI/Swarm, encrypted sync foundation, and web chrome are functional. Distribution remains credential-gated: Developer ID signing, notarization, APNs/CloudKit provisioning, and Sparkle feed signing are not yet complete.
 
 ---
 
 ## Executive Summary
 
-Hive is a Chromium-backed macOS browser with native SwiftUI chrome shell, AI-first architecture (Swarm multi-model system), and web-based UI rendering (`hive://` scheme). The browser fundamentals are solid — 983 passing tests, smoke-tested session recovery, split view, workspaces, compact mode, and a full AI pipeline with graceful degradation.
+Hive is a Chromium-backed macOS browser with native SwiftUI chrome shell, AI-first architecture (Swarm multi-model system), and web-based UI rendering (`hive://` scheme). The browser fundamentals are solid — 1,619 passing tests across 155 suites, smoke-tested session recovery, split view, workspaces, compact mode, encrypted sync foundation, and a full AI pipeline with graceful degradation.
 
 **The gap:** We're a v0.8 browser in a market where Dia (Atlassian/Arc successor) ships AI-first browsing, Comet (Perplexity) ships agentic browsing, and Zen (Firefox fork) owns the power-user vertical-tabs niche.
 
@@ -44,13 +46,13 @@ Tab management (complete), Workspaces with per-profile CEF isolation (complete),
 
 | Gap | Severity |
 |-----|----------|
-| Notarization pipeline | 🔴 Critical |
-| Cross-platform (Windows/Linux) | 🔴 Critical |
-| iOS/iPadOS app | 🔴 Critical |
-| Extension store integration | 🟠 High |
-| Sync (cross-device) | 🟠 High |
-| Brave-quality adblocking | 🟠 High |
-| AI agentic browsing (CDP actions) | 🟠 High |
+| Notarization pipeline | 🔴 External credential gate |
+| Cross-platform (Windows/Linux) | 🔴 Roadmap |
+| iOS/iPadOS app | 🔴 Roadmap |
+| Extension store integration | 🟠 Deferred / CEF re-vendor |
+| Sync (cross-device) | ✅ Encrypted macOS foundation; cross-platform later |
+| Brave-quality adblocking | ✅ Network + cosmetic paths shipped |
+| AI agentic browsing (CDP actions) | ✅ 16-tool bridge shipped |
 | Voice I/O polish, Tab grouping UX, Auto-update (Sparkle), Crash reporting | 🟡 Medium |
 | Payment/subscription, Internationalization | 🟢 Low |
 
@@ -82,7 +84,7 @@ Tab management (complete), Workspaces with per-profile CEF isolation (complete),
 
 ## 4. Feature Roadmap — 4 Phases
 
-### Phase 1: Foundation & Ship-Ready (Aug 11 — Sep 7, 2026)
+### Historical Phase Plan: Foundation & Ship-Ready (Aug 11 — Sep 7, 2026)
 
 **Ship Readiness (Week 1-2):**
 - P1.1 Apple Developer Program + notarization pipeline (3 days)
@@ -99,7 +101,7 @@ Tab management (complete), Workspaces with per-profile CEF isolation (complete),
 
 **Phase 1 Exit:** Notarized .dmg, Sparkle updates, Chrome Web Store extensions, 1,200+ tests ✅
 
-### Phase 2: AI Supremacy (Sep 8 — Oct 18, 2026)
+### Historical Phase Plan: AI Supremacy (Sep 8 — Oct 18, 2026)
 
 **Agentic Browsing (Week 5-6):**
 - P2.1 CDP Agent Tools — 16 CDP tools as Swift wrapper (2 weeks)
@@ -115,7 +117,7 @@ Tab management (complete), Workspaces with per-profile CEF isolation (complete),
 
 **Phase 2 Exit:** Agent navigates/clicks/types/fills forms on any page. Model council synthesizes perspectives. AI URL bar with citations. Deep research with cited briefs. All degrade gracefully to on-device MLX. ✅
 
-### Phase 3: Cross-Platform & Ecosystem (Oct 19 — Nov 29, 2026)
+### Historical Phase Plan: Cross-Platform & Ecosystem (Oct 19 — Nov 29, 2026)
 
 - P3.1 Windows build pipeline — WinUI3 + CEF (2 weeks spike)
 - P3.2 Windows feature parity (ongoing, 3 weeks)
@@ -124,7 +126,7 @@ Tab management (complete), Workspaces with per-profile CEF isolation (complete),
 
 **Phase 3 Exit:** Windows .msix + iOS TestFlight + sync working macOS↔iOS ✅
 
-### Phase 4: Growth, Monetization & Scale (Nov 30, 2026 — Jan 1, 2027)
+### Historical Phase Plan: Growth, Monetization & Scale (Nov 30, 2026 — Jan 1, 2027)
 
 **Growth (Week 17-18):**
 - P4.1 Referral program with leaderboard (1 week)
@@ -175,7 +177,7 @@ All tasks are mapped to specific files in Sources/Hive/ and Sources/HiveCore/ wi
 
 ---
 
-# PART 2: /AUTOPLAN REVIEW REPORT
+# PART 2: Historical /AUTOPLAN REVIEW REPORT
 
 <!-- /autoplan restore point: .hive/mission/ROADMAP_2027.md (in-place review) -->
 
@@ -220,7 +222,7 @@ Settings → SettingsView → Add Pro subscription, extension management
 
 ### 0C: Dream State Delta
 
-**Current:** macOS-only, ad-hoc signed, 1 dev, solid fundamentals, working AI (no agentic actions), 0 users, 0 revenue
+**Current:** macOS-only, ad-hoc signed, 1 dev, solid fundamentals, working AI with agentic CDP actions, encrypted sync foundation, 0 users, 0 revenue
 **Plan (Jan 2027):** macOS+Windows+iOS, notarized, 250K users, agentic+council+research, $60K MRR, $100M val
 **Ideal (Aug 2027):** $5M+ ARR, 50K+ Pro, Linux+Android, API platform, acquired/Series B $300M+, team of 15
 
@@ -366,7 +368,7 @@ Current #if DEBUG gating on port 9223 won't work in production.
 
 ### Test Review
 
-**Current:** 983 tests / 130 suites. **Gaps identified for:** CDP Agent Tools (16+ test files needed), AXTree Context (snapshot tests), Model Council v2 (eval framework), adblock-rust (use crate's own fixtures), AI URL Bar (intent detection tests), Deep Research (citation accuracy), Sync (encryption + conflict resolution), Subscription (Stripe test mode).
+**Historical review baseline:** 983 tests / 130 suites. Since then, CDP Agent Tools, AXTree context, Model Council, adblock, AI URL bar, deep research, and encrypted sync coverage have been added; the current suite is 1,619 tests / 155 suites. Remaining gaps are primarily human visual/interaction sign-off, production credential checks, and future cross-platform work.
 
 ### ENG CONSENSUS TABLE:
 

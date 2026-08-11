@@ -101,6 +101,7 @@ struct BrowserWindow: View {
         }
                 .overlay { if state.isCommandPaletteOpen { CommandPaletteOverlay() } }
                 .overlay { if state.isTabSearchOpen { TabSearchOverlay() } }
+                .overlay { if state.isTabGridOpen { TabGridOverlay() } }
                 .overlay { if state.isFloatingURLBarVisible { FloatingURLBarOverlay() } }
                 .overlay(alignment: .trailing) { if state.isGeminiPanelOpen { GeminiSidePanel() } }
                 .overlay(alignment: .trailing) { if state.isKnowledgePanelOpen { KnowledgePanel() } }
@@ -110,6 +111,7 @@ struct BrowserWindow: View {
         .overlay(alignment: .center) { if state.isBriefCaptureOpen { BriefCaptureView() } }
         .overlay(alignment: .center) { if state.isApprovalPanelOpen, let action = state.presentedApprovalAction { ActionApprovalView(action: action).id(action.id) } }
         .overlay(alignment: .top) { if let _ = state.translateBar { TranslateBar() } }
+        .overlay(alignment: .top) { if state.httpsOnlyNotice != nil { HTTPSOnlyBanner() } }
         .overlay { if state.isGoogleLensActive { GoogleLensOverlay() } }
         .overlay { if state.safeBrowsingWarning != nil { SafeBrowsingWarningView() } }
         .overlay { if state.isReaderMode { ReaderModeView().transition(.opacity) } }
@@ -125,15 +127,50 @@ struct BrowserWindow: View {
             if state.isCustomizePanelOpen { CustomizePanel().padding(.top, 48).padding(.trailing, 12) }
         }
         .sheet(isPresented: $state.isBookmarksManagerOpen) { BookmarksManagerSheet() }
+        .sheet(isPresented: $state.isCleanTabsPanelOpen) { CleanTabsSheet() }
         .sheet(isPresented: $state.isPasswordsManagerOpen) { PasswordManagerSheet() }
         .sheet(isPresented: $state.isExtensionsManagerOpen) { ExtensionsManagerSheet() }
+        .sheet(isPresented: $state.isBoostsPanelOpen) { BoostsSheet() }
         .sheet(isPresented: $state.isPrivacyReportOpen) { PrivacyReportSheet() }
         .sheet(isPresented: $state.isHistoryPanelOpen) { HistoryPanelSheet() }
+        .sheet(isPresented: $state.isReadingListPanelOpen) { ReadingListPanel() }
+        .sheet(isPresented: $state.isPinnedAppsPanelOpen) { PinnedAppsPanel() }
+        .sheet(isPresented: $state.isArchivePanelOpen) { ArchivePanel() }
+        .sheet(isPresented: $state.isClearDataPanelOpen) { ClearBrowsingDataSheet() }
+        .sheet(isPresented: $state.isSiteSettingsPanelOpen) { SiteSettingsSheet() }
+        .sheet(isPresented: $state.isTaskManagerOpen) { TaskManagerSheet() }
+        .sheet(isPresented: $state.isSafetyCheckPanelOpen) { SafetyCheckSheet() }
         .sheet(isPresented: $state.isDownloadsPanelOpen) { DownloadManagerSheet() }
+        .sheet(isPresented: $state.isWorkspaceManagerPanelOpen) { WorkspaceManagerPanel() }
+        .sheet(isPresented: $state.isProfileManagerPanelOpen) { ProfileManagerPanel() }
+        .sheet(isPresented: $state.isTabGroupManagerPanelOpen) { TabGroupManagerPanel() }
+        .sheet(isPresented: $state.isSearchEngineManagerPanelOpen) { SearchEngineManagerPanel() }
+        .sheet(isPresented: $state.isKeyboardShortcutsPanelOpen) { KeyboardShortcutsPanel() }
+        .sheet(isPresented: $state.isMemorySaverPanelOpen) { MemorySaverPanel() }
         .overlay(alignment: .topTrailing) {
             if state.isFindBarOpen { FindBar().padding(.top, 8).padding(.trailing, 12) }
         }
         .overlay(alignment: .bottomTrailing) { MiniPlayerView() }
+        // Chrome/Safari-style "Use saved password?" chip and the password
+        // save/update offer — bottom-center so they hug the form being
+        // filled, never covering the URL bar. Only rendered while their tab
+        // is active: a chip for a background tab could otherwise fill a page
+        // or persist a credential the user isn't looking at.
+        .overlay(alignment: .bottom) {
+            VStack(spacing: 8) {
+                if let offer = state.pendingPasswordCaptureOffer,
+                   offer.tabID == state.activeTabID {
+                    PasswordCaptureChipView(offer: offer)
+                        .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
+                }
+                if let suggestion = state.pendingAutofillSuggestion,
+                   suggestion.tabID == state.activeTabID {
+                    AutofillChipView(suggestion: suggestion)
+                        .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .padding(.bottom, 16)
+        }
         // Arc-style live tab peek — always in the hierarchy so pooled preview
         // browsers stay alive; fades in/out around the hovered tab pill.
         .overlay { TabPeekOverlay() }
@@ -146,6 +183,10 @@ struct BrowserWindow: View {
                     NavigationHealthBanner(notice: notice)
                         .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
                 }
+                if let notice = state.loadErrorNotice {
+                    NavigationErrorBanner(notice: notice)
+                        .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+                }
                 if let notice = state.sessionRecoveryNotice {
                     SessionRecoveryBanner(notice: notice)
                         .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
@@ -154,8 +195,24 @@ struct BrowserWindow: View {
                     NavigationBlockBanner(notice: notice)
                         .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
                 }
+                if let notice = state.tabGroupingNotice {
+                    HiveToast(message: notice, iconName: "square.stack.3d.up.fill")
+                        .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+                }
+                if let notice = state.appNotice {
+                    HiveToast(message: notice)
+                        .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+                }
                 if state.isPersistenceDegraded, !state.isPersistenceHealthNoticeDismissed {
                     PersistenceHealthBanner()
+                        .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+                }
+                // Chrome-style site-permission banner (camera/mic/location/…).
+                // The front of the queue renders; resolving pops it and the
+                // next queued request fades in.
+                if let prompt = state.pendingPermissionRequests.first {
+                    PermissionPromptView(prompt: prompt)
+                        .padding(.top, 6)
                         .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
                 }
             }
@@ -169,6 +226,16 @@ struct BrowserWindow: View {
                 TextField("Group name", text: $state.renameGroupText)
                 Button("Rename") { state.commitGroupRename() }
                 Button("Cancel", role: .cancel) { state.cancelGroupRename() }
+            }
+            // Window-level rename alert for tabs (Arc/Safari parity). Owned
+            // here so both chrome layouts and the palette share one prompt.
+            .alert("Rename Tab", isPresented: Binding(
+                get: { state.renameTabTargetID != nil },
+                set: { if !$0 { state.cancelTabRename() } }
+            )) {
+                TextField("Tab name", text: $state.renameTabText)
+                Button("Rename") { state.commitTabRename() }
+                Button("Cancel", role: .cancel) { state.cancelTabRename() }
             }
         }
     }

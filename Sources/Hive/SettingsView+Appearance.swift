@@ -74,6 +74,20 @@ extension SettingsView {
                     .font(HiveDesign.Typography.smallLabel)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+
+                Toggle("Proactive Briefing", isOn: $state.enableProactiveBriefing)
+                Text("Rebuild the brief from your Hive memory each morning and refresh open briefs at the day change.")
+                    .font(HiveDesign.Typography.smallLabel)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Toggle("Include Today's Calendar", isOn: $state.includeCalendarInBrief)
+                    .disabled(!state.enableProactiveBriefing)
+                Text("Adds today's events to the brief's looking-ahead line. Calendar access is requested only when enabled.")
+                    .opacity(state.enableProactiveBriefing ? 1 : 0.5)
+                    .font(HiveDesign.Typography.smallLabel)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             settingsGroup("Toolbar") {

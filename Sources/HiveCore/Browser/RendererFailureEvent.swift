@@ -69,7 +69,7 @@ public struct RendererFailureEvent: Sendable, Equatable, Codable {
         var value = String(flattened)
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        let sensitivePattern = #"(?i)\b(api[_-]?key|token|password|secret|authorization)\s*[=:]\s*[^\s,;]+"#
+        let sensitivePattern = #"(?i)\"?\b(api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|token|password|secret|authorization|auth)\b\"?\s*[=:]\s*(?:bearer\s+)?(?:\"(?:[^\"\\]|\\.)*\"|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*$|'(?:[^'\\]|\\.)*$|[^\s,;\"']+)"#
         if let regex = try? NSRegularExpression(pattern: sensitivePattern) {
             let range = NSRange(value.startIndex..<value.endIndex, in: value)
             value = regex.stringByReplacingMatches(

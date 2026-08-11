@@ -19,7 +19,7 @@ bash scripts/build-research-worker.sh
 # Build the browser
 swift build --product Hive
 
-# Run tests (1558 tests, 144 suites)
+# Run tests (1,805 tests, 172 suites)
 swift test
 
 # Create a local ad-hoc bundle
@@ -61,12 +61,13 @@ open dist/Hive.app
 - **Voice commands**: Local speech recognition + TTS output
 - **Command palette**: ⌘K with full browser command surface
 - **Tab search**: ⌘⇧A fuzzy search across all tabs
-- **Adblock**: Brave adblock-rust engine with cosmetic filtering (network-level blocking gated on a CefSwift request-handler extension — see docs/RELEASE_PIPELINE.md)
+- **Tab Overview**: ⌘K → "Tab Overview" — Arc-style visual grid of all tabs
+- **Adblock**: Brave adblock-rust engine with network-level request filtering, CDP URL blocking, and cosmetic filtering (see docs/RELEASE_PIPELINE.md)
 - **Auto-update**: Sparkle 2 with feed-gated activation (SUFeedURL injected on release builds)
 - **Safe Browsing**: 4-byte hash prefixes to Google
 - **Web Chrome**: Full browser UI rendered in `hive://` scheme
 - **CDP Agent**: 16-tool agentic browsing bridge (navigate, snapshot, click, fill)
-- **Extensions**: Install unpacked extensions from local folders
+- **Extensions**: Extension management UI is shipped; unpacked extension loading is deferred pending the CEF extension API re-vendor
 - **Bookmarks, History, Downloads, Reader Mode**
 - **Passwords**: Keychain-backed secure storage
 - **Crash Reporter**: Signal handlers + URLSession submission
@@ -77,7 +78,8 @@ open dist/Hive.app
 Sources/
 ├── Hive/                    # The browser app (CEF-backed, @main)
 │   ├── HiveApp.swift         # App entry point
-│   ├── BrowserState.swift    # Single source of truth (monolithic)
+│   ├── BrowserState.swift    # Core state model and shared browser lifecycle
+│   ├── BrowserState+*.swift  # Domain extensions for tabs, sync, navigation, and UI state
 │   ├── BrowserWindow.swift   # Main window with chrome shell
 │   ├── WebChromeHandler.swift # hive:// scheme + JS bridge
 │   ├── WebChrome/            # Web chrome HTML/CSS/JS assets
@@ -85,7 +87,7 @@ Sources/
 │   ├── CrashReporter.swift   # Signal handlers + crash submission
 │   ├── ExtensionsToolbar.swift # Extension icon + menu
 │   ├── ExtensionsManagerSheet.swift # Extension install/management
-│   ├── GeminiSidePanel.swift # AI chat UI (1921 lines)
+│   ├── GeminiSidePanel.swift # AI chat UI and domain extensions
 │   └── ...
 ├── HiveCore/                # Platform-agnostic core library
 │   ├── AI/                  # Model council, dispatcher, research
@@ -93,7 +95,7 @@ Sources/
 │   ├── Honeycomb/           # SQLite + FTS5 memory store
 │   └── ...
 Tests/
-├── HiveCoreTests/           # 1558 tests, 144 suites
+├── HiveCoreTests/           # 1,805 tests, 172 suites
 native/
 ├── hive-fetch-boundary/     # Rust research fetch worker
 └── adblock-ffi/             # Brave adblock-rust C FFI
@@ -109,9 +111,11 @@ Vendor/
 | `preflight-hive-app.sh` | Verify bundle structure + signatures |
 | `smoke-test-hive-app.sh` | Bootstrap + session recovery smoke test |
 | `build-research-worker.sh` | Build Rust research worker |
-| `verify-hivechromium-entitlements.sh` | Validate hardened runtime entitlements |
-| `test-hivechromium-entitlements.sh` | Entitlement fixture tests |
-| `verify-hivechromium-entitlement-application.sh` | Audit signed bundle entitlements |
+| `verify-hive-entitlements.sh` | Validate hardened runtime and optional iCloud entitlements |
+| `test-hive-entitlements.sh` | Validate entitlement fixtures (canonical entry point) |
+| `verify-hive-entitlement-application.sh` | Audit signed-bundle entitlement separation (canonical entry point) |
+| `test-hivechromium-entitlements.sh` | Compatibility implementation for legacy callers |
+| `verify-hivechromium-entitlement-application.sh` | Compatibility implementation for legacy callers |
 | `notarize-hive-app.sh` | Submit to Apple notarization |
 
 ## CI/CD
@@ -138,7 +142,7 @@ Architecture decisions are documented in:
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — Decision record (D-001 through D-007)
 - [`docs/RECOVERY_PLAN.md`](docs/RECOVERY_PLAN.md) — Recovery mission plan
 - [`.hive/mission/FINAL_VALIDATION.md`](.hive/mission/FINAL_VALIDATION.md) — Validation report
-- [`docs/RELEASE_PIPELINE.md`](docs/RELEASE_PIPELINE.md) — What's left to ship for real (notarization, Sparkle signing, adblock)
+- [`docs/RELEASE_PIPELINE.md`](docs/RELEASE_PIPELINE.md) — What's left to ship for real (notarization, Sparkle signing, and credential-gated distribution)
 
 ## License
 

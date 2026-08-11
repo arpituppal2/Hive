@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import HiveCore
 
 // MARK: - Knowledge Panel
@@ -46,6 +47,7 @@ struct KnowledgePanel: View {
     @State private var isSavingNote: Bool = false
     @State private var saveFlash: Bool = false
     @State private var captureError: String? = nil
+    @State private var selectedNode: HoneycombStore.Node?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -72,6 +74,12 @@ struct KnowledgePanel: View {
         // memory lists update immediately — no reopen required.
         .onChange(of: state.memoryRevision) { _, _ in
             _ = Task { await refresh() }
+        }
+        .sheet(item: $selectedNode) { node in
+            KnowledgeNodeInspector(node: node) {
+                selectedNode = nil
+                _ = Task { await refresh() }
+            }
         }
     }
 
@@ -271,9 +279,14 @@ struct KnowledgePanel: View {
     private var hotMemorySection: some View {
         Group {
             if !hotEntries.isEmpty {
-                sectionHeader("Hot Memory", icon: "flame.fill", count: hotEntries.count)
-                ForEach(hotEntries.prefix(10)) { entry in
-                    HotMemoryRow(entry: entry)
+                let visibleEntries = hotEntries.filter {
+                    $0.admission == .durable && !$0.isPrivate
+                }
+                if !visibleEntries.isEmpty {
+                    sectionHeader("Hot Memory", icon: "flame.fill", count: visibleEntries.count)
+                    ForEach(visibleEntries.prefix(10)) { entry in
+                        HotMemoryRow(entry: entry)
+                    }
                 }
                 Divider().padding(.horizontal, 14).padding(.vertical, 4)
             }
@@ -287,7 +300,7 @@ struct KnowledgePanel: View {
             if !recentNodes.isEmpty {
                 sectionHeader("Recent", icon: "clock", count: recentNodes.count)
                 ForEach(recentNodes.prefix(15)) { node in
-                    KnowledgeRow(node: node)
+                    KnowledgeRow(node: node) { selectedNode = node }
                 }
             }
         }
@@ -325,7 +338,7 @@ struct KnowledgePanel: View {
                         .padding(.vertical, 20)
                 } else {
                     ForEach(searchResults) { node in
-                        KnowledgeRow(node: node)
+                        KnowledgeRow(node: node) { selectedNode = node }
                     }
                 }
             }
@@ -371,14 +384,15 @@ struct KnowledgePanel: View {
         // just captured pages.
         var merged: [HoneycombStore.Node] = []
         for type in [HoneycombStore.NodeType.source, .capture, .note, .brief, .claim] {
-            if let nodes = try? await state.honeycomb.getNodesByType(type, limit: 10) {
-                merged.append(contentsOf: nodes)
+            if let nodes = try? await state.honeycomb.getNodesByType(type, limit: 20) {
+                merged.append(contentsOf: nodes.filter(BrowserState.isInspectableKnowledgeNode))
             }
         }
         recentNodes = Array(merged.sorted { $0.createdAt > $1.createdAt }.prefix(15))
 
-        // Node count
-        nodeCount = (try? await state.honeycomb.countNodes()) ?? 0
+        // Keep the panel count aligned with the durable rows it can actually
+        // inspect; candidate/session entries never become durable rows here.
+        nodeCount = merged.count
     }
 
     private func performSearch() async {
@@ -388,7 +402,7 @@ struct KnowledgePanel: View {
         }
         isSearching = true
         if let results = try? await state.honeycomb.search(query: searchQuery, limit: 30) {
-            searchResults = results
+            searchResults = results.filter(BrowserState.isInspectableKnowledgeNode)
         }
     }
 }
@@ -489,6 +503,7 @@ private struct HotMemoryRow: View {
 private struct KnowledgeRow: View {
     @Environment(BrowserState.self) private var state
     let node: HoneycombStore.Node
+    let onInspect: () -> Void
     @State private var isHovered = false
 
     /// Rows that point at a page (sources, captures) open that page in a new
@@ -545,6 +560,9 @@ private struct KnowledgeRow: View {
                 .padding(.horizontal, 8)
         )
         .onHover { isHovered = $0 }
+        .contextMenu {
+            Button("Inspect memory") { onInspect() }
+        }
     }
 
     private func openIfPossible() {
@@ -583,6 +601,257 @@ private struct KnowledgeRow: View {
         case .preference: return .gray
         case .note:       return .teal
         case .unknown:    return .gray
+        }
+    }
+}
+
+// MARK: - Durable Memory Inspector
+
+private struct KnowledgeNodeInspector: View {
+    @Environment(BrowserState.self) private var state
+    @Environment(\.dismiss) private var dismiss
+    let originalNode: HoneycombStore.Node
+    let onChanged: () -> Void
+
+    @State private var label: String
+    @State private var content: String
+    @State private var revisions: [HoneycombStore.Revision] = []
+    @State private var errorMessage: String?
+    @State private var showDeleteConfirmation = false
+    @State private var isSaving = false
+
+    init(node: HoneycombStore.Node, onChanged: @escaping () -> Void) {
+        self.originalNode = node
+        self.onChanged = onChanged
+        let extracted = BrowserState.knowledgeNodeContent(from: node) ?? ""
+        _label = State(initialValue: node.label)
+        _content = State(initialValue: extracted)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Image(systemName: "hexagon.fill")
+                    .foregroundStyle(HiveDesign.Accent.primary)
+                Text("Inspect memory")
+                    .font(HiveDesign.Typography.heading)
+                Spacer()
+                Button("Done") { dismiss() }
+                    .buttonStyle(.borderless)
+            }
+            .padding(16)
+            Divider()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    metadataBlock
+                    Text("Label")
+                        .font(HiveDesign.Typography.captionSemiBold)
+                        .foregroundStyle(HiveDesign.Text.secondary)
+                    TextField("Label", text: $label)
+                        .textFieldStyle(.roundedBorder)
+                    Text("Content")
+                        .font(HiveDesign.Typography.captionSemiBold)
+                        .foregroundStyle(HiveDesign.Text.secondary)
+                    TextEditor(text: $content)
+                        .font(HiveDesign.Typography.sidebarItem)
+                        .frame(minHeight: 130)
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(HiveDesign.Surface.level3))
+                    revisionsBlock
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .font(HiveDesign.Typography.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
+                .padding(16)
+            }
+            Divider()
+            HStack {
+                Button("Delete", role: .destructive) { showDeleteConfirmation = true }
+                Spacer()
+                Button("Export Markdown") { exportMarkdown() }
+                Button(isSaving ? "Saving…" : "Save correction") { saveCorrection() }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(isSaving || label.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            .padding(16)
+        }
+        .frame(width: 520, height: 620)
+        .background(HiveDesign.Material.panel)
+        .task { await loadRevisions() }
+        .confirmationDialog("Delete this durable memory?", isPresented: $showDeleteConfirmation,
+                            titleVisibility: .visible) {
+            Button("Delete", role: .destructive) { deleteNode() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes the node, search index, graph edges, and revision history. This cannot be undone.")
+        }
+    }
+
+    private var metadataBlock: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(originalNode.type.rawValue.capitalized)
+                .font(HiveDesign.Typography.subHeadingSemiBold)
+            Text("Provenance · \(originalNode.provenance)")
+            Text("Created · \(originalNode.createdAt, style: .date)")
+            Text("Updated · \(originalNode.updatedAt, style: .relative)")
+        }
+        .font(HiveDesign.Typography.caption)
+        .foregroundStyle(HiveDesign.Text.tertiary)
+    }
+
+    @ViewBuilder private var revisionsBlock: some View {
+        if !revisions.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Revision history")
+                    .font(HiveDesign.Typography.captionSemiBold)
+                ForEach(revisions) { revision in
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(revision.previousLabel)
+                            .font(HiveDesign.Typography.smallLabelMedium)
+                        Text(revision.revisedAt, style: .relative)
+                            .font(HiveDesign.Typography.microLabelSecondary)
+                            .foregroundStyle(HiveDesign.Text.tertiary)
+                    }
+                    .padding(8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(HiveDesign.Surface.level1)
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                }
+            }
+        }
+    }
+
+    private func loadRevisions() async {
+        revisions = (try? await state.honeycomb.getRevisions(nodeID: originalNode.id)) ?? []
+    }
+
+    private func saveCorrection() {
+        let trimmedLabel = label.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedLabel.isEmpty, !isSaving else { return }
+        isSaving = true
+        errorMessage = nil
+        Task {
+            do {
+                switch originalNode.type {
+                case .claim:
+                    _ = try await state.honeycomb.correctClaim(
+                        claimID: originalNode.id,
+                        text: content.isEmpty ? trimmedLabel : content
+                    )
+                case .brief:
+                    _ = try await state.honeycomb.updateBrief(
+                        briefID: originalNode.id,
+                        title: trimmedLabel,
+                        content: content
+                    )
+                default:
+                    var metadata = originalNode.metadata
+                    if case .object(var values) = metadata {
+                        switch originalNode.type {
+                        case .source:
+                            values["title"] = .string(trimmedLabel)
+                        case .capture, .note, .decision, .question, .preference:
+                            values["content"] = .string(content)
+                        default:
+                            break
+                        }
+                        metadata = .object(values)
+                    }
+                    _ = try await state.honeycomb.updateNode(id: originalNode.id,
+                                                              label: trimmedLabel,
+                                                              metadata: metadata)
+                }
+                await MainActor.run {
+                    onChanged()
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run { errorMessage = error.localizedDescription; isSaving = false }
+            }
+        }
+    }
+
+    private func exportMarkdown() {
+        Task {
+            guard let markdown = try? await state.honeycomb.exportMarkdown(originalNode) else {
+                await MainActor.run { errorMessage = "Export failed." }
+                return
+            }
+            await MainActor.run {
+                let panel = NSSavePanel()
+                panel.allowedContentTypes = [.plainText]
+                panel.nameFieldStringValue = "\(originalNode.label.isEmpty ? "memory" : originalNode.label).md"
+                guard panel.runModal() == .OK, let url = panel.url else { return }
+                do { try markdown.write(to: url, atomically: true, encoding: .utf8) }
+                catch { errorMessage = "Export failed: \(error.localizedDescription)" }
+            }
+        }
+    }
+
+    private func deleteNode() {
+        Task {
+            let event = EventLedgerStore.LedgerEvent(
+                    actor: "user",
+                    intent: "Delete durable memory",
+                    actionKind: .systemEvent,
+                    actionTarget: originalNode.id,
+                    actionPreview: "Delete \(originalNode.type.rawValue): \(originalNode.label)",
+                    trustLevel: .t2,
+                    policyDecision: .allowed,
+                    consentState: .approved,
+                    contextIDs: [originalNode.id],
+                    result: .partial,
+                    provenance: "knowledge-panel"
+                )
+            do {
+                guard await state.recordAuditEvent(event) else {
+                    await MainActor.run { errorMessage = "Delete blocked: audit storage is unavailable." }
+                    return
+                }
+                try await state.honeycomb.deleteNode(id: originalNode.id)
+                await state.hotMemory.removeNode(id: originalNode.id)
+                let completionRecorded = await state.recordAuditEvent(EventLedgerStore.LedgerEvent(
+                    actor: "user",
+                    parentEventID: event.id,
+                    intent: "Delete durable memory completed",
+                    actionKind: .systemEvent,
+                    actionTarget: originalNode.id,
+                    actionPreview: "Deleted \(originalNode.type.rawValue): \(originalNode.label)",
+                    trustLevel: .t2,
+                    policyDecision: .allowed,
+                    consentState: .approved,
+                    contextIDs: [originalNode.id],
+                    result: .success,
+                    provenance: "knowledge-panel"
+                ))
+                if !completionRecorded {
+                    await MainActor.run {
+                        state.lastPolicyDenial = "Memory deleted, but completion could not be recorded because audit storage is unavailable."
+                    }
+                }
+                await MainActor.run {
+                    onChanged()
+                    dismiss()
+                }
+            } catch {
+                _ = await state.recordAuditEvent(EventLedgerStore.LedgerEvent(
+                    actor: "user",
+                    parentEventID: event.id,
+                    intent: "Delete durable memory failed",
+                    actionKind: .systemEvent,
+                    actionTarget: originalNode.id,
+                    actionPreview: "Could not delete \(originalNode.type.rawValue): \(originalNode.label)",
+                    trustLevel: .t2,
+                    policyDecision: .allowed,
+                    consentState: .approved,
+                    contextIDs: [originalNode.id],
+                    result: .failure,
+                    errorDescription: error.localizedDescription,
+                    provenance: "knowledge-panel"
+                ))
+                await MainActor.run { errorMessage = error.localizedDescription }
+            }
         }
     }
 }

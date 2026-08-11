@@ -455,7 +455,7 @@ extension BrowserState {
               let model = activeModel,
               let url = model.url,
               url.absoluteString != "about:blank",
-              url.absoluteString != Self.webChromeStartURL.absoluteString,
+              !Self.isInternalWebChromeURL(url),
               model.browser != nil
         else { return nil }
 

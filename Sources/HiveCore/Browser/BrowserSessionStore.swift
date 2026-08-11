@@ -211,7 +211,7 @@ public actor BrowserSessionStore {
         let dir = url.deletingLastPathComponent()
         let stem = url.deletingPathExtension().lastPathComponent
         let stamp = Int(Date().timeIntervalSince1970)
-        let dest = dir.appendingPathComponent("\(stem).corrupt-\(stamp).json")
+        let dest = dir.appendingPathComponent("\(stem).corrupt-\(stamp)-\(UUID().uuidString).json")
         do { try FileManager.default.moveItem(at: url, to: dest); return dest }
         catch { return nil }   // best-effort; corrupt file left in place is acceptable
     }

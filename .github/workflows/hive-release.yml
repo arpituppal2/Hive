@@ -110,9 +110,9 @@ jobs:
             exit 1
           fi
           for script in \
-            scripts/test-hivechromium-entitlements.sh \
-            scripts/verify-hivechromium-entitlements.sh \
-            scripts/verify-hivechromium-entitlement-application.sh \
+            scripts/test-hive-entitlements.sh \
+            scripts/verify-hive-entitlements.sh \
+            scripts/verify-hive-entitlement-application.sh \
             scripts/build-hive-app.sh \
             scripts/preflight-hive-app.sh \
             scripts/build-research-worker.sh \
@@ -120,7 +120,7 @@ jobs:
             [[ -x "$script" ]] || { echo "::error::Release helper is not executable: $script"; exit 1; }
           done
           scripts/test-hivechromium-entitlements.sh
-          scripts/verify-hivechromium-entitlements.sh "$ENTITLEMENTS"
+          scripts/verify-hive-entitlements.sh "$ENTITLEMENTS"
 
       - name: Import Developer ID certificate into an ephemeral keychain
         shell: bash
@@ -184,7 +184,7 @@ jobs:
               --app "$HIVE_APP_PATH" \
               --team-id "$APPLE_TEAM_ID"
           codesign --verify --deep --strict --verbose=2 "$HIVE_APP_PATH"
-          scripts/verify-hivechromium-entitlement-application.sh --app "$HIVE_APP_PATH"
+          scripts/verify-hive-entitlement-application.sh --app "$HIVE_APP_PATH"
 
       - name: Create notarization archive
         shell: bash

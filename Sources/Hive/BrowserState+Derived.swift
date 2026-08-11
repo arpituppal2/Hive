@@ -74,7 +74,7 @@ extension BrowserState {
 
     var isCurrentPageBookmarked: Bool {
         guard let urlString = activeModel?.url?.absoluteString, !urlString.isEmpty, urlString != "about:blank" else { return false }
-        if urlString == BrowserState.webChromeStartURL.absoluteString { return false }
+        if BrowserState.isInternalWebChromeURL(activeModel?.url) { return false }
         return bookmarks.contains(where: { $0.urlString == urlString })
     }
 
