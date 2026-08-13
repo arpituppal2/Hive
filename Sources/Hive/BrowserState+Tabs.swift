@@ -97,6 +97,10 @@ extension BrowserState {
     /// Idempotent — subsequent calls are no-ops.
     func setupAI() {
         guard swarmOrchestrator == nil else { return }
+        // Wire the user's BYOK gateway (if configured) into the shared
+        // Dispatcher so the "Remote (BYOK)" assistant toggle routes to a real
+        // model instead of falling through to the honest mock.
+        configureBYOK()
         // Load the Swarm Cell system prompts from the resource bundle. When
         // present this wires the retrieval-ranker and librarian steps (both
         // no-op when `prompts` is nil); when absent the orchestrator degrades

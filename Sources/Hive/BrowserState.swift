@@ -1643,6 +1643,10 @@ final class BrowserState {
     /// in Keychain, never in UserDefaults or plaintext config (AGENTS.md §9.2).
     static let tavilyAPIKeyAccount = "hive.tavily.apiKey"
 
+    /// Keychain account for the BYOK (Bring Your Own Key) model-gateway API key.
+    /// Same policy as Tavily: the key is a credential, so it lives in Keychain.
+    static let byokAPIKeyAccount = "hive.byok.apiKey"
+
     // MARK: - Deep Research (multi-step research engine)
 
     /// Deep research planner instance. Initialized lazily — only allocated

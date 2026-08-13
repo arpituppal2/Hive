@@ -59,6 +59,28 @@ extension SettingsView {
     }
 
 
+    /// Whether the BYOK gateway is fully configured (URL + model + key) and can
+    /// serve the assistant right now.
+    var byokReady: Bool {
+        !state.byokBaseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !state.byokModelID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !byokKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+
+    /// Loads the BYOK key from Keychain into the local field.
+    func loadByokKey() {
+        byokKeyInput = state.byokAPIKey
+    }
+
+
+    /// Commits the current field value to Keychain and reconfigures the
+    /// Dispatcher. Debounced via onChange so typing doesn't hammer Keychain.
+    func commitByokKey() {
+        state.setByokAPIKey(byokKeyInput)
+    }
+
+
     var performanceTab: some View {
         VStack(alignment: .leading, spacing: 24) {
             Color.clear.task { await modelDownloader.refreshPresentCount() }
@@ -177,6 +199,59 @@ extension SettingsView {
                                 .font(HiveDesign.Typography.smallLabel)
                                 .foregroundStyle(.secondary)
                             Text("Research status: \(state.researchProvider == .off ? "off" : "not configured").")
+                                .font(HiveDesign.Typography.smallLabel)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+
+            settingsGroup("Remote AI (BYOK)") {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Route the assistant through your own LiteLLM/OpenAI-compatible gateway. You pay the provider — Hive pays nothing. Pick \"Remote (BYOK)\" in the assistant panel to use it.")
+                        .font(HiveDesign.Typography.smallLabel)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    TextField("https://integrate.api.nvidia.com/v1", text: $state.byokBaseURL)
+                        .textFieldStyle(.roundedBorder)
+                        .font(HiveDesign.Typography.monoMedium)
+
+                    TextField("model id (e.g. deepseek-v4-pro)", text: $state.byokModelID)
+                        .textFieldStyle(.roundedBorder)
+                        .font(HiveDesign.Typography.monoMedium)
+
+                    SecureField("API key", text: $byokKeyInput)
+                        .textFieldStyle(.roundedBorder)
+                        .font(HiveDesign.Typography.monoMedium)
+                        .onSubmit { commitByokKey() }
+                        .onChange(of: byokKeyInput) { _, _ in
+                            guard hasLoadedByokKey else { return }
+                            byokKeyCommitTask?.cancel()
+                            byokKeyCommitTask = Task { @MainActor in
+                                try? await Task.sleep(for: .seconds(0.6))
+                                guard !Task.isCancelled else { return }
+                                commitByokKey()
+                            }
+                        }
+                        .onAppear {
+                            loadByokKey()
+                            hasLoadedByokKey = true
+                        }
+
+                    HStack(spacing: 6) {
+                        if byokReady {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(HiveDesign.Typography.smallLabel)
+                                .foregroundStyle(.green)
+                            Text("BYOK is ready — the assistant can route to your gateway.")
+                                .font(HiveDesign.Typography.smallLabel)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Image(systemName: "circle.dashed")
+                                .font(HiveDesign.Typography.smallLabel)
+                                .foregroundStyle(.secondary)
+                            Text("Not configured — the assistant falls back to on-device AI.")
                                 .font(HiveDesign.Typography.smallLabel)
                                 .foregroundStyle(.secondary)
                         }

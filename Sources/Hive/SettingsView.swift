@@ -23,6 +23,9 @@ struct SettingsView: View {
     @State var tavilyKeyInput: String = ""
     @State var tavilyKeyCommitTask: Task<Void, Never>?
     @State var hasLoadedTavilyKey: Bool = false
+    @State var byokKeyInput: String = ""
+    @State var byokKeyCommitTask: Task<Void, Never>?
+    @State var hasLoadedByokKey: Bool = false
 
     enum SettingsTab: String, CaseIterable, Identifiable {
         case appearance = "Appearance"

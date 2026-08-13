@@ -188,6 +188,66 @@ extension BrowserState {
     }
 
 
+    /// Base URL of the user's BYOK (LiteLLM/OpenAI-compatible) gateway, e.g.
+    /// `https://integrate.api.nvidia.com/v1`. Stored in UserDefaults — a
+    /// server address, not a credential.
+    var byokBaseURL: String {
+        get { UserDefaults.standard.string(forKey: "HiveBYOKBaseURL") ?? "" }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "HiveBYOKBaseURL")
+            configureBYOK()
+        }
+    }
+
+
+    /// Model ID to request from the BYOK gateway (e.g. `deepseek-v4-pro`).
+    var byokModelID: String {
+        get { UserDefaults.standard.string(forKey: "HiveBYOKModelID") ?? "" }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "HiveBYOKModelID")
+            configureBYOK()
+        }
+    }
+
+
+    /// The user's BYOK API key, read from Keychain ("" when unset).
+    var byokAPIKey: String {
+        KeychainSecretStore.read(key: Self.byokAPIKeyAccount) ?? ""
+    }
+
+
+    /// Commits the BYOK key to Keychain; an empty value removes it.
+    func setByokAPIKey(_ key: String) {
+        let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            KeychainSecretStore.delete(key: Self.byokAPIKeyAccount)
+        } else {
+            KeychainSecretStore.save(key: Self.byokAPIKeyAccount, value: trimmed)
+        }
+        configureBYOK()
+    }
+
+
+    /// Builds the BYOK runtime from the user's configured gateway and installs
+    /// it on the shared Dispatcher (or clears it when unconfigured, so routing
+    /// falls back honestly to local MLX / Apple FMF / Mock). This is what makes
+    /// the "Remote (BYOK)" assistant toggle actually route instead of no-oping.
+    func configureBYOK() {
+        let base = byokBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        let model = byokModelID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !base.isEmpty, !model.isEmpty, let baseURL = URL(string: base),
+              baseURL.scheme != nil, !byokAPIKey.isEmpty else {
+            Task { await Dispatcher.shared.setBYOK(nil) }
+            return
+        }
+        let runtime = BYOKRuntime(
+            config: .init(baseURL: baseURL, apiKeyAlias: Self.byokAPIKeyAccount, modelID: model),
+            keyResolver: { alias in KeychainSecretStore.read(key: alias) }
+        )
+        Task { await Dispatcher.shared.setBYOK(runtime) }
+    }
+
+
     /// The provider `/research` will actually use, or nil when the selected
     /// provider is off or missing its configuration. One resolution point for
     /// chat, voice, settings, and diagnostics — the UI never diverges from
