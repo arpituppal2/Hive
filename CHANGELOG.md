@@ -262,7 +262,7 @@ Hive adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Honeycomb revisions, node writes, and FTS replacement now commit transactionally with explicit rollback errors.
 
 ### Validation
-- 1,805 tests / 172 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
+- 1,912 tests / 184 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
 
 
 ## [v1.0.0] — 2026-08-09 (build 100)
