@@ -97,8 +97,14 @@ extension BrowserState {
     /// Idempotent — subsequent calls are no-ops.
     func setupAI() {
         guard swarmOrchestrator == nil else { return }
+        // Load the Swarm Cell system prompts from the resource bundle. When
+        // present this wires the retrieval-ranker and librarian steps (both
+        // no-op when `prompts` is nil); when absent the orchestrator degrades
+        // gracefully to bare role-based generation.
+        let promptLoader = Bundle.module.resourceURL.map { CellPromptLoader(promptsDir: $0) }
         swarmOrchestrator = SwarmOrchestrator(
-            dispatcher: .shared, hotMemory: hotMemory, ledger: eventLedger
+            dispatcher: .shared, hotMemory: hotMemory, ledger: eventLedger,
+            prompts: promptLoader
         )
         let tavilyKey = self.tavilyAPIKey
         let searchProvider: WebSearchProvider? = tavilyKey.isEmpty ? nil : TavilySearchProvider(apiKey: tavilyKey)

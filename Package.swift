@@ -58,16 +58,24 @@ let package = Package(
             // assets; Bundle.module can then address only this helper.
             resources: [
                 .copy("Resources/AppIcon.icns"),
-                .copy("Resources/ResearchWorker")
-                // NOTE: Swarm_System_Prompts is intentionally NOT bundled. Its
-                // only loader (CellPromptLoader) is never instantiated with the
-                // real directory at runtime (SwarmOrchestrator/ScribeCoordinator
-                // take `prompts: CellPromptLoader? = nil` and no caller passes
-                // one), so the 1.6 MB of Cell prompt/spec/progress files —
-                // including a 125 KB AI progress log and competitor dossiers —
-                // would ship as dead weight. The files stay in the repo (tests
-                // read them from Sources/Hive/Resources by path) so they can be
-                // wired up later without re-adding them to source control.
+                .copy("Resources/ResearchWorker"),
+                // Swarm Cell system prompts — only the loader-referenced role
+                // subdirectories ship (~492 KB total). The top-level spec/
+                // progress files and RESEARCH/ competitor dossiers stay in the
+                // repo and out of the bundle. `CellPromptLoader(promptsDir:
+                // Bundle.module.resourceURL)` resolves these subdirectories at
+                // runtime (see BrowserState.setupAI()).
+                .copy("Resources/Swarm_System_Prompts/guard"),
+                .copy("Resources/Swarm_System_Prompts/router"),
+                .copy("Resources/Swarm_System_Prompts/scribe"),
+                .copy("Resources/Swarm_System_Prompts/orchestrator"),
+                .copy("Resources/Swarm_System_Prompts/librarian"),
+                .copy("Resources/Swarm_System_Prompts/summarizer"),
+                .copy("Resources/Swarm_System_Prompts/auditor"),
+                .copy("Resources/Swarm_System_Prompts/planner"),
+                .copy("Resources/Swarm_System_Prompts/reasoner"),
+                .copy("Resources/Swarm_System_Prompts/coder"),
+                .copy("Resources/Swarm_System_Prompts/researcher"),
             ]
         ),
 

@@ -8,7 +8,8 @@
 - **Removed particle/confetti/ambient slop** from the web chrome (dead canvas + inert `.ambient`/`.glow` atmosphere) and the native particle field behind every page; replaced the emoji restore icon with an SVG glyph.
 - **MLX no longer hard-kills the process.** mlx-c's default error handler calls `exit(-1)`; a process-wide non-exiting handler (`MLXErrorSafety.swift`) now logs instead, and `build-hive-app.sh` ships `mlx-swift_Cmlx.bundle` (with `default.metallib`) so on-device inference actually loads in the packaged app.
 - **Landing page is honest** — no fake waitlist counter, no fake arch-split download links, no "Windows/iOS coming soon" (macOS only). MIT `LICENSE` added (README/terms already claimed it).
-- **Stopped shipping 1.6 MB of AI scaffolding** — `Swarm_System_Prompts/` (progress logs + competitor dossiers) is no longer `.copy()`'d into the bundle.
+- **Stopped shipping ~1 MB of AI scaffolding** — the `Swarm_System_Prompts/` progress logs, spec files, and competitor dossiers stay out of the bundle; only the 11 loader-referenced role subdirectories (~492 KB) ship.
+- **Swarm AI is now wired to its prompts.** `SwarmOrchestrator` was constructed with `prompts: nil`, so the retrieval-ranker and librarian steps were dead and every Cell ran with an empty system prompt. `setupAI()` now builds a `CellPromptLoader` over `Bundle.module.resourceURL` and passes it in, lighting up ranking, librarian extraction, and per-role system prompts.
 
 ### Certificate-error surfacing + command-palette empty state
 - **Hive now knows when a site's certificate fails validation.** CefKit already fired `didEncounterCertificateError` but CefWebViewModel never forwarded it — the site-security popover unconditionally claimed "certificate verified by a trusted authority." A new `onCertificateError` closure (returning whether the load is overridden) forwards the failure to the browser state.
