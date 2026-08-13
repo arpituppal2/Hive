@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Hive Brief</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Loaded only when the cliaMorningBriefLookingAheadEnabled flag is on; missing-file 404 is harmless. -->
+  <link rel="stylesheet" href="looking-ahead.css">
+  <!-- Loaded only when the contextBuilderMorningBriefFeedbackEnabled flag is on; missing-file 404 is harmless. -->
+  <link rel="stylesheet" href="feedback.css">
+
+</head>
+<body>
+
+  <div class="page">
+
+    <div class="brief-scale">
+
+    <!-- Hive hexagon mark -->
+    <div class="greeting">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 16" fill="none">
+        <path d="M8.5 1 15.5 4.75V11.25L8.5 15 1.5 11.25V4.75L8.5 1Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M8.5 1v14M1.5 4.75l14 6.5M15.5 4.75l-14 6.5" stroke="currentColor" stroke-width="0.6" stroke-linejoin="round" opacity="0.5"/>
+      </svg>
+    </div>
+
+    <!-- Hero: painting frame with "The [Day] Brief" -->
+    <header class="hero">
+      <div class="hero-edge hero-date" id="heroDate"></div>
+      <div class="hero-edge hero-time" id="heroTime"></div>
+
+      <div class="painting-frame" id="paintingFrame">
+        <img class="painting-img" id="paintingImg" alt="">
+        <div class="painting-overlay">
+          <span class="hero-the">The</span>
+          <h1 class="hero-day" id="heroDay">Monday Brief</h1>
+        </div>
+      </div>
+
+      <div class="hero-sub">
+        <p class="brief-blurb" id="briefBlurb"></p>
+        <p class="painting-caption" id="paintingCaption"></p>
+      </div>
+    </header>
+
+    <!-- Content: sections rendered from JSON by app.js -->
+    <main class="content" id="briefContent"></main>
+
+    <!-- Footer. The credit prose's source list is appended by app.js when
+         `data.footer.sources` is present (gated by `clia-morning-brief-footer-sources`).
+         The "Made for you by Hive" prefix, "With love from HIVE" line, halftone,
+         and scroll-reveal are always present. -->
+    <footer class="brief-footer" aria-label="Page footer">
+      <div class="brief-footer__fade" aria-hidden="true"></div>
+      <div class="brief-footer__halftone" aria-hidden="true"></div>
+      <div class="brief-footer__inner">
+        <p class="brief-footer__credit" id="briefFooterCredit" hidden>
+          <span class="brief-footer__muted">Made for you by</span>
+          <span class="brief-footer__brand">
+            <svg class="brief-footer__icon brief-footer__icon--hive" width="19" height="18" viewBox="0 0 17 16" fill="none" aria-hidden="true">
+              <path d="M8.5 1 15.5 4.75V11.25L8.5 15 1.5 11.25V4.75L8.5 1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+              <path d="M8.5 1v14M1.5 4.75l14 6.5M15.5 4.75l-14 6.5" stroke="currentColor" stroke-width="0.6" stroke-linejoin="round" opacity="0.5"/>
+            </svg>
+            <span>Hive</span>
+          </span>
+          <span class="brief-footer__credit-trailing" id="briefFooterCreditTrailing">.</span>
+        </p>
+        <p class="brief-footer__love">
+          <span>With love from</span>
+          <span class="brief-footer__circles" aria-label="Hive">
+            <span class="brief-footer__circle">H</span>
+            <span class="brief-footer__circle">I</span>
+            <span class="brief-footer__circle">V</span>
+            <span class="brief-footer__circle">E</span>
+          </span>
+        </p>
+      </div>
+    </footer>
+
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       HTML Templates (cloned by app.js — not rendered directly)
+       ============================================================ -->
+
+  <template id="section-template">
+    <section class="brief-section">
+      <h2 class="section-title"></h2>
+      <div class="section-body"></div>
+    </section>
+  </template>
+
+  <template id="push-forward-template">
+    <div class="push-shell">
+      <div class="push-body">
+        <h3 class="push-topic"></h3>
+        <p class="push-text"></p>
+      </div>
+      <a class="push-badge" href="#">
+        <div class="push-star">
+          <span class="push-star-text">Let's<br>do it <span class="star-arrow">&rarr;</span></span>
+        </div>
+      </a>
+    </div>
+  </template>
+
+  <template id="proactive-work-template">
+    <div class="proactive-shell">
+      <div class="proactive-body">
+        <h3 class="proactive-title"></h3>
+        <p class="proactive-reasoning"></p>
+      </div>
+    </div>
+  </template>
+
+  <template id="todo-item-template">
+    <article class="todo-item">
+      <span class="todo-rank rank-number" aria-hidden="true"></span>
+      <div class="todo-item-surface">
+        <label class="todo-checkbox">
+          <input type="checkbox">
+          <span class="todo-check"></span>
+        </label>
+        <div class="todo-content">
+          <div class="todo-head">
+            <h3 class="todo-label"></h3>
+          </div>
+          <div class="todo-meta">
+            <span class="todo-flag" hidden>Time-sensitive</span>
+          </div>
+          <p class="todo-context"></p>
+          <div class="todo-actions">
+            <a class="todo-dia-btn todo-chat-prompt" href="#" hidden>
+              <span class="todo-dia-btn-expand">
+                <svg class="todo-dia-btn-icon" width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="currentColor" d="M0.823639 6.625H0.198639H0.823639ZM14.8236 6.625H15.4486V6.625H14.8236ZM5.31583 12.292L5.48822 11.6912C5.39879 11.6656 5.30476 11.6602 5.21299 11.6755L5.31583 12.292ZM0.919342 13.0254L1.02209 13.6419L1.02218 13.6419L0.919342 13.0254ZM0.674225 12.6338L0.165564 12.2706L0.165373 12.2709L0.674225 12.6338ZM2.23184 10.4521L2.7405 10.8153C2.9114 10.576 2.89229 10.2498 2.69462 10.0321L2.23184 10.4521ZM0.823639 6.625H1.44864C1.44864 4.79108 2.22642 3.46361 3.38879 2.58212C4.56963 1.68664 6.17648 1.23328 7.81709 1.25047C9.45743 1.26766 11.0696 1.75475 12.2563 2.66295C13.4267 3.55874 14.1986 4.87161 14.1986 6.625H14.8236H15.4486C15.4486 4.45206 14.4705 2.78352 13.016 1.67031C11.5777 0.569508 9.68984 0.0200216 7.83019 0.000538468C5.9708 -0.0189418 4.07764 0.490951 2.63348 1.58613C1.17085 2.69531 0.198639 4.38592 0.198639 6.625H0.823639ZM14.8236 6.625H14.1986C14.1986 8.79258 13.0143 10.3083 11.3207 11.1738C9.60408 12.0511 7.39119 12.2373 5.48822 11.6912L5.31583 12.292L5.14344 12.8927C7.33493 13.5216 9.87594 13.316 11.8896 12.2869C13.9263 11.246 15.4486 9.3407 15.4486 6.625H14.8236ZM5.31583 12.292L5.21299 11.6755L0.816504 12.4089L0.919342 13.0254L1.02218 13.6419L5.41866 12.9085L5.31583 12.292ZM0.919342 13.0254L0.816592 12.4089C1.14339 12.3544 1.37854 12.7226 1.18308 12.9967L0.674225 12.6338L0.165373 12.2709C-0.288578 12.9074 0.25604 13.7696 1.02209 13.6419L0.919342 13.0254ZM0.674225 12.6338L1.18289 12.997L2.7405 10.8153L2.23184 10.4521L1.72318 10.089L0.165565 12.2706L0.674225 12.6338ZM2.23184 10.4521L2.69462 10.0321C1.9339 9.19403 1.44864 8.07188 1.44864 6.625H0.823639H0.198639C0.198639 8.37631 0.795428 9.79962 1.76907 10.8722L2.23184 10.4521Z"/></svg>
+                <span class="todo-dia-btn-label-wrap"><span class="todo-dia-btn-label"></span></span>
+              </span>
+              <svg class="todo-dia-btn-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <template id="todo-all-done-template">
+    <div class="todo-all-done" aria-live="polite" hidden>
+      <article class="todo-item todo-item--completion">
+        <div class="todo-item-surface todo-all-done-surface">
+          <div class="todo-all-done__card">
+            <button type="button" class="todo-all-done__close" aria-label="Back to to-dos">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <div class="todo-all-done__stage">
+              <div class="todo-confetti" aria-hidden="true"></div>
+              <div class="todo-all-done__badge" aria-hidden="true">
+                <span class="todo-all-done__star"></span>
+                <svg class="todo-all-done__check" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M5 10.5L8.25 13.75L15 6.75" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="todo-all-done__content">
+              <h3 class="todo-all-done__title">You completed all your to-dos!</h3>
+              <p class="todo-all-done__desc">Nice work. The day is yours.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </template>
+
+  <template id="item-template">
+    <article class="item">
+      <span class="item-num"></span>
+      <div class="item-body">
+        <div class="item-head">
+          <h3 class="item-title"><span class="item-tag tag-outline"></span></h3>
+        </div>
+        <div class="item-text">
+          <p></p>
+        </div>
+        <ul class="item-bullets"></ul>
+      </div>
+    </article>
+  </template>
+
+  <template id="task-item-template">
+    <article class="item task-item">
+      <div class="item-body task-body">
+        <div class="item-head">
+          <h3 class="item-title task-title"></h3>
+        </div>
+        <div class="item-text">
+          <p class="task-desc"></p>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <template id="schedule-item-template">
+    <div class="schedule-item">
+      <span class="schedule-time"></span>
+      <span class="schedule-event"></span>
+    </div>
+  </template>
+
+  <template id="schedule-card-template">
+    <div class="schedule-card">
+      <div class="schedule-list"></div>
+      <div class="schedule-divider"></div>
+      <div class="schedule-right">
+        <div class="schedule-summary">
+          <div class="summary-panel summary-panel--detail summary-panel--visible" data-role="detail">
+            <div class="detail-content" data-role="detail-content"></div>
+            <button class="prep-badge" type="button">
+              <div class="prep-star">
+                <span class="prep-text">Prep me <span class="star-arrow">&rarr;</span></span>
+              </div>
+            </button>
+          </div>
+          <div class="summary-panel summary-panel--people" data-role="people"></div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="people-entry-template">
+    <div class="people-entry">
+      <div class="people-entry-avatar-wrap"></div>
+      <div class="people-entry-content">
+        <div class="people-entry-name"></div>
+        <div class="people-entry-blurb"></div>
+        <div class="people-entry-social"></div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ============================================================
+       Source Icons (cloned into source-ref citations by app.js)
+       ============================================================ -->
+
+  <template id="source-icon-template">
+    <a class="source-icon" target="_blank" rel="noopener">
+      <span class="source-tip"></span>
+    </a>
+  </template>
+
+  <template id="slack-icon">
+    <svg viewBox="0 0 127 127" xmlns="http://www.w3.org/2000/svg">
+      <path d="M27.2 80c0 7.3-5.9 13.2-13.2 13.2C6.7 93.2.8 87.3.8 80c0-7.3 5.9-13.2 13.2-13.2h13.2V80zm6.6 0c0-7.3 5.9-13.2 13.2-13.2 7.3 0 13.2 5.9 13.2 13.2v33c0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V80z" fill="#E01E5A"/>
+      <path d="M47 27c-7.3 0-13.2-5.9-13.2-13.2C33.8 6.5 39.7.6 47 .6c7.3 0 13.2 5.9 13.2 13.2V27H47zm0 6.7c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H13.9C6.6 60.1.7 54.2.7 46.9c0-7.3 5.9-13.2 13.2-13.2H47z" fill="#36C5F0"/>
+      <path d="M99.9 46.9c0-7.3 5.9-13.2 13.2-13.2 7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H99.9V46.9zm-6.6 0c0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V13.8C66.9 6.5 72.8.6 80.1.6c7.3 0 13.2 5.9 13.2 13.2v33.1z" fill="#2EB67D"/>
+      <path d="M80.1 99.8c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V99.8h13.2zm0-6.6c-7.3 0-13.2-5.9-13.2-13.2 0-7.3 5.9-13.2 13.2-13.2h33.1c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H80.1z" fill="#ECB22E"/>
+    </svg>
+  </template>
+
+  <template id="confluence-icon">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0.870217 17.6049C0.621998 18.0097 0.343228 18.4794 0.106465 18.8537C0.00459268 19.0258 -0.0256744 19.2311 0.0221688 19.4253C0.0700121 19.6195 0.192147 19.7872 0.362322 19.8924L5.32671 22.9474C5.41298 23.0006 5.50899 23.0362 5.60914 23.052C5.70929 23.0677 5.81158 23.0634 5.91004 23.0393C6.0085 23.0151 6.10116 22.9715 6.18262 22.9112C6.26408 22.8508 6.33271 22.7749 6.38451 22.6877C6.58309 22.3555 6.83894 21.924 7.11771 21.4619C9.08437 18.2159 11.0625 18.6131 14.6292 20.3163L19.5516 22.6572C19.6439 22.7011 19.744 22.726 19.8461 22.7305C19.9482 22.7351 20.0502 22.719 20.146 22.6834C20.2418 22.6478 20.3294 22.5933 20.4038 22.5232C20.4781 22.4531 20.5377 22.3688 20.5788 22.2753L22.9427 16.929C23.0229 16.7455 23.0279 16.5378 22.9565 16.3506C22.885 16.1635 22.7429 16.0119 22.5608 15.9285C21.5221 15.4397 19.4561 14.4659 17.5964 13.5685C10.9059 10.3187 5.21979 10.5288 0.870217 17.6049Z" fill="url(#paint0_linear_confluence)"/>
+      <path d="M23.1298 5.47273C23.378 5.06795 23.6568 4.59824 23.8935 4.224C23.9954 4.05185 24.0257 3.8466 23.9778 3.65237C23.93 3.45814 23.8079 3.29044 23.6377 3.1853L18.6733 0.130286C18.5864 0.0717489 18.4884 0.031722 18.3853 0.0126956C18.2823 -0.00633083 18.1764 -0.00394961 18.0743 0.019691C17.9722 0.0433317 17.8761 0.087726 17.7919 0.150112C17.7077 0.212498 17.6373 0.291542 17.5849 0.382324C17.3864 0.714557 17.1305 1.14608 16.8517 1.60815C14.8851 4.8541 12.907 4.45694 9.34023 2.75378L4.43312 0.424331C4.34085 0.380411 4.2407 0.355455 4.1386 0.350944C4.03651 0.346432 3.93454 0.362456 3.83875 0.398065C3.74296 0.433675 3.6553 0.488146 3.58094 0.558253C3.50658 0.62836 3.44705 0.712676 3.40588 0.806207L1.04206 6.15247C0.961789 6.33601 0.956835 6.54373 1.02827 6.73088C1.0997 6.91802 1.24179 7.06962 1.42394 7.15299C2.46264 7.64179 4.52859 8.61558 6.38833 9.51299C13.0941 12.7589 18.7802 12.5413 23.1298 5.47273Z" fill="url(#paint1_linear_confluence)"/>
+      <defs>
+        <linearGradient id="paint0_linear_confluence" x1="22.809" y1="24.5245" x2="7.78981" y2="15.8941" gradientUnits="userSpaceOnUse">
+          <stop offset="0.18" stop-color="#0052CC"/>
+          <stop offset="1" stop-color="#2684FF"/>
+        </linearGradient>
+        <linearGradient id="paint1_linear_confluence" x1="1.19099" y1="-1.45068" x2="16.214" y2="7.18354" gradientUnits="userSpaceOnUse">
+          <stop offset="0.18" stop-color="#0052CC"/>
+          <stop offset="1" stop-color="#2684FF"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </template>
+
+  <template id="jira-icon">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22.9972 0H11.4318C11.4318 2.79206 13.7716 5.06468 16.6462 5.06468H18.7855V7.04508C18.7855 9.83711 21.1254 12.1098 24 12.1098V0.973977C24 0.422059 23.5655 0 22.9972 0Z" fill="#2684FF"/>
+      <path d="M17.2814 5.58398H5.71585C5.71585 8.37605 8.05569 10.6486 10.9304 10.6486H13.0696V12.6615C13.0696 15.4536 15.4095 17.7263 18.2842 17.7263V6.55792C18.2842 6.0385 17.8496 5.58398 17.2814 5.58398Z" fill="url(#paint0_linear_jira)"/>
+      <path d="M11.5655 11.2012H0C0 13.9932 2.33984 16.2658 5.21451 16.2658H7.35379V18.2462C7.35379 21.0383 9.69362 23.3109 12.5683 23.3109V12.1751C12.5683 11.6232 12.1004 11.2012 11.5655 11.2012Z" fill="url(#paint1_linear_jira)"/>
+      <defs>
+        <linearGradient id="paint0_linear_jira" x1="18.0381" y1="5.612" x2="13.2685" y2="10.6761" gradientUnits="userSpaceOnUse">
+          <stop offset="0.176" stop-color="#0052CC"/>
+          <stop offset="1" stop-color="#2684FF"/>
+        </linearGradient>
+        <linearGradient id="paint1_linear_jira" x1="12.6437" y1="11.2385" x2="7.1196" y2="16.7723" gradientUnits="userSpaceOnUse">
+          <stop offset="0.176" stop-color="#0052CC"/>
+          <stop offset="1" stop-color="#2684FF"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </template>
+
+  <template id="loom-icon">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#625DF5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <polygon points="10,8 16,12 10,16" fill="#625DF5" stroke="none"></polygon>
+    </svg>
+  </template>
+
+  <template id="notion-icon">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M61.35 0.227l-55.333 4.087C1.553 4.7 0 7.617 0 11.113v60.66c0 2.723 0.967 5.053 3.3 8.167l13.007 16.913c2.137 2.723 4.08 3.307 8.16 3.113l64.257 -3.89c5.433 -0.387 6.99 -2.917 6.99 -7.193V20.64c0 -2.21 -0.873 -2.847 -3.443 -4.733L74.167 3.143c-4.273 -3.107 -6.02 -3.5 -12.817 -2.917zM25.92 19.523c-5.247 0.353 -6.437 0.433 -9.417 -1.99L8.927 11.507c-0.77 -0.78 -0.383 -1.753 1.557 -1.947l53.193 -3.887c4.467 -0.39 6.793 1.167 8.54 2.527l9.123 6.61c0.39 0.197 1.36 1.36 0.193 1.36l-54.933 3.307 -0.68 0.047zM19.803 88.3V30.367c0 -2.53 0.777 -3.697 3.103 -3.893L86 22.78c2.14 -0.193 3.107 1.167 3.107 3.693v57.547c0 2.53 -0.39 4.67 -3.883 4.863l-60.377 3.5c-3.493 0.193 -5.043 -0.97 -5.043 -4.083zm59.6 -54.827c0.387 1.75 0 3.5 -1.75 3.7l-2.91 0.577v42.773c-2.527 1.36 -4.853 2.137 -6.797 2.137 -3.107 0 -3.883 -0.973 -6.21 -3.887l-19.03 -29.94v28.967l6.02 1.363s0 3.5 -4.857 3.5l-13.39 0.777c-0.39 -0.78 0 -2.723 1.357 -3.11l3.497 -0.97v-38.3L30.48 40.667c-0.39 -1.75 0.58 -4.277 3.3 -4.473l14.367 -0.967 19.8 30.327v-26.83l-5.047 -0.58c-0.39 -2.143 1.163 -3.7 3.103 -3.89l13.4 -0.78z" fill="currentColor"/>
+    </svg>
+  </template>
+
+  <template id="gmail-icon">
+    <svg viewBox="52 42 88 66" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#4285f4" d="M58 108h14V74L52 59v43c0 3.32 2.69 6 6 6"/>
+      <path fill="#34a853" d="M120 108h14c3.32 0 6-2.69 6-6V59l-20 15"/>
+      <path fill="#fbbc04" d="M120 48v26l20-15v-8c0-7.42-8.47-11.65-14.4-7.2"/>
+      <path fill="#ea4335" d="M72 74V48l24 18 24-18v26L96 92"/>
+      <path fill="#c5221f" d="M52 51v8l20 15V48l-5.6-4.2c-5.94-4.45-14.4-.22-14.4 7.2"/>
+    </svg>
+  </template>
+
+  <template id="gcal-icon">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(3.75 3.75)">
+        <path fill="#FFFFFF" d="M148.882,43.618l-47.368-5.263l-57.895,5.263L38.355,96.25l5.263,52.632l52.632,6.579l52.632-6.579l5.263-53.947L148.882,43.618z"/>
+        <path fill="#1A73E8" d="M65.211,125.276c-3.934-2.658-6.658-6.539-8.145-11.671l9.132-3.763c0.829,3.158,2.276,5.605,4.342,7.342c2.053,1.737,4.553,2.592,7.474,2.592c2.987,0,5.553-0.908,7.697-2.724s3.224-4.132,3.224-6.934c0-2.868-1.132-5.211-3.395-7.026s-5.105-2.724-8.5-2.724h-5.276v-9.039H76.5c2.921,0,5.382-0.789,7.382-2.368c2-1.579,3-3.737,3-6.487c0-2.447-0.895-4.395-2.684-5.855s-4.053-2.197-6.803-2.197c-2.684,0-4.816,0.711-6.395,2.145s-2.724,3.197-3.447,5.276l-9.039-3.763c1.197-3.395,3.395-6.395,6.618-8.987c3.224-2.592,7.342-3.895,12.342-3.895c3.697,0,7.026,0.711,9.974,2.145c2.947,1.434,5.263,3.421,6.934,5.947c1.671,2.539,2.5,5.382,2.5,8.539c0,3.224-0.776,5.947-2.329,8.184c-1.553,2.237-3.461,3.947-5.724,5.145v0.539c2.987,1.25,5.421,3.158,7.342,5.724c1.908,2.566,2.868,5.632,2.868,9.211s-0.908,6.776-2.724,9.579c-1.816,2.803-4.329,5.013-7.513,6.618c-3.197,1.605-6.789,2.421-10.776,2.421C73.408,129.263,69.145,127.934,65.211,125.276z"/>
+        <path fill="#1A73E8" d="M121.25,79.961l-9.974,7.25l-5.013-7.605l17.987-12.974h6.895v61.197h-9.895L121.25,79.961z"/>
+        <path fill="#EA4335" d="M148.882,196.25l47.368-47.368l-23.684-10.526l-23.684,10.526l-10.526,23.684L148.882,196.25z"/>
+        <path fill="#34A853" d="M33.092,172.566l10.526,23.684h105.263v-47.368H43.618L33.092,172.566z"/>
+        <path fill="#4285F4" d="M12.039-3.75C3.316-3.75-3.75,3.316-3.75,12.039v136.842l23.684,10.526l23.684-10.526V43.618h105.263l10.526-23.684L148.882-3.75H12.039z"/>
+        <path fill="#188038" d="M-3.75,148.882v31.579c0,8.724,7.066,15.789,15.789,15.789h31.579v-47.368H-3.75z"/>
+        <path fill="#FBBC04" d="M148.882,43.618v105.263h47.368V43.618l-23.684-10.526L148.882,43.618z"/>
+        <path fill="#1967D2" d="M196.25,43.618V12.039c0-8.724-7.066-15.789-15.789-15.789h-31.579v47.368H196.25z"/>
+      </g>
+    </svg>
+  </template>
+
+  <template id="gdrive-icon">
+    <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg">
+      <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+      <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
+      <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
+      <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+      <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+      <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+    </svg>
+  </template>
+
+  <template id="linkedin-icon">
+    <svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" fill-rule="evenodd">
+        <path fill="#007EBB" d="M8,72 L64,72 C68.418278,72 72,68.418278 72,64 L72,8 C72,3.581722 68.418278,-8.11624501e-16 64,0 L8,0 C3.581722,8.11624501e-16 -5.41083001e-16,3.581722 0,8 L0,64 C5.41083001e-16,68.418278 3.581722,72 8,72 Z"/>
+        <path fill="#FFF" d="M62,62 L51.315625,62 L51.315625,43.8021149 C51.315625,38.8127542 49.4197917,36.0245323 45.4707031,36.0245323 C41.1746094,36.0245323 38.9300781,38.9261103 38.9300781,43.8021149 L38.9300781,62 L28.6333333,62 L28.6333333,27.3333333 L38.9300781,27.3333333 L38.9300781,32.0029283 C38.9300781,32.0029283 42.0260417,26.2742151 49.3825521,26.2742151 C56.7356771,26.2742151 62,30.7644705 62,40.051212 L62,62 Z M16.349349,22.7940133 C12.8420573,22.7940133 10,19.9296567 10,16.3970067 C10,12.8643566 12.8420573,10 16.349349,10 C19.8566406,10 22.6970052,12.8643566 22.6970052,16.3970067 C22.6970052,19.9296567 19.8566406,22.7940133 16.349349,22.7940133 Z M11.0325521,62 L21.769401,62 L21.769401,27.3333333 L11.0325521,27.3333333 L11.0325521,62 Z"/>
+      </g>
+    </svg>
+  </template>
+
+  <template id="github-icon">
+    <svg viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z" transform="scale(64)" fill="currentColor"/>
+    </svg>
+  </template>
+
+  <template id="linear-icon">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="M1.22541 61.5228c-.2225-.9485.90748-1.5459 1.59638-.857L39.3342 97.1782c.6889.6889.0915 1.8189-.857 1.5964C20.0515 94.4522 5.54779 79.9485 1.22541 61.5228ZM.00189135 46.8891c-.01764375.2833.08887215.5599.28957165.7606L52.3503 99.7085c.2007.2007.4773.3075.7606.2896 2.3692-.1476 4.6938-.46 6.9624-.9259.7645-.157 1.0301-1.0963.4782-1.6481L2.57595 39.4485c-.55186-.5519-1.49117-.2863-1.648174.4782-.465915 2.2686-.77832 4.5932-.92588465 6.9624ZM4.21093 29.7054c-.16649.3738-.08169.8106.20765 1.1l64.77602 64.776c.2894.2894.7262.3742 1.1.2077 1.7861-.7956 3.5171-1.6927 5.1855-2.684.5521-.328.6373-1.0867.1832-1.5407L8.43566 24.3367c-.45409-.4541-1.21271-.3689-1.54074.1832-.99132 1.6684-1.88843 3.3994-2.68399 5.1855ZM12.6587 18.074c-.3701-.3701-.393-.9637-.0443-1.3541C21.7795 6.45931 35.1114 0 49.9519 0 77.5927 0 100 22.4073 100 50.0481c0 14.8405-6.4593 28.1724-16.7199 37.3375-.3903.3487-.984.3258-1.3542-.0443L12.6587 18.074Z"/>
+    </svg>
+  </template>
+
+  <template id="amplitude-icon">
+    <svg viewBox="0 0 1518 1580" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#1e61f0" d="m685.5 389.6q8 17.2 15 34.8q7 17.6 13 35.6q6 18 10.9 36.3c18.7 58.4 38.6 130.8 60 215.3c-80.9-1.3-162.6-2.3-241.9-3.1l-40.1-0.6c45.3-184.4 100.6-324.3 141-357.3q1.2-0.9 2.5-1.6q1.3-0.6 2.7-1.1q1.4-0.5 2.9-0.8q1.4-0.3 2.9-0.3q2.2 0.1 4.2 0.8q2.1 0.7 4 1.8q1.9 1.2 3.4 2.8q1.5 1.5 2.7 3.4q8.9 16.8 16.8 34z"/>
+      <path fill="#1e61f0" fill-rule="evenodd" d="m1517.3 789.8c0 436.1-339.7 789.7-758.7 789.7c-418.9 0-758.6-353.5-758.6-789.7c0-436.2 339.7-789.8 758.6-789.8c419 0 758.7 353.6 758.7 789.8zm-205.5 5.6c2.2-3.3 4-6.8 5.2-10.6c1.2-3.7 2-7.6 2.1-11.5c0.2-3.9-0.1-7.9-1-11.7c-0.9-3.8-2.2-7.5-4.1-10.9c-1.9-3.4-4.2-6.5-7-9.2c-2.7-2.8-5.9-5.1-9.3-7c-3.4-1.9-7-3.3-10.8-4.1h-1.7q-0.8-0.1-1.6-0.2q-0.7-0.1-1.5-0.2q-0.7 0-1.5-0.1q-0.8 0-1.5 0l-5.4-0.5c-127-9.6-257.7-13.4-380.4-16l-0.2-0.9c-59.7-233.1-134.2-471.4-234.7-471.4c-93.7 0.3-178.3 157.1-251.1 465.4c-51.4-0.6-98.5-1.3-142.8-2.1h-6.8q-2-0.1-4.1-0.1q-2 0.1-4 0.2q-2.1 0-4.1 0.2q-2.1 0.2-4.1 0.4c-12.4 2.8-23.4 9.8-31.2 19.7c-7.9 10-12 22.4-11.8 35.1c0.2 12.7 4.8 24.9 12.9 34.6c8.2 9.7 19.4 16.3 31.9 18.7l0.5 0.6h139.4c-13 61.7-24.3 122.7-33.8 181.5l-4.2 25.8v1.3c0 3.8 0.6 7.7 1.8 11.3c1.1 3.7 2.9 7.1 5.2 10.2c2.2 3.1 5 5.9 8.1 8.1c3.1 2.3 6.5 4 10.2 5.2c3.6 1 7.4 1.5 11.2 1.3c3.8-0.2 7.5-1 11-2.4c3.5-1.3 6.8-3.3 9.6-5.8c2.9-2.4 5.4-5.3 7.3-8.6l1.1 0.9l68.6-228.7h330.7c25.2 99.4 51.5 202.1 86.1 298.4c18.6 51.5 61.9 172.1 134.4 172.7h0.8c112.2 0 155.9-188.6 184.8-313.5c6.3-26.9 11.6-50.1 16.7-67.1l2-7.1q0.2-0.6 0.4-1.2q0.1-0.7 0.2-1.3q0.1-0.7 0.1-1.3q0.1-0.7 0.1-1.3c0-2.1-0.4-4.1-1.1-6c-0.7-2-1.7-3.7-3-5.3c-1.3-1.6-2.8-3-4.6-4c-1.7-1.1-3.6-1.8-5.6-2.2c-2-0.4-4-0.4-6 0c-1.9 0.4-3.8 1.1-5.6 2.1c-1.7 1-3.2 2.3-4.5 3.8c-1.3 1.6-2.3 3.3-3 5.2l-2.4 7c-9.6 27.4-18.3 53.4-26.2 76.4l-0.6 1.8c-48.5 143.1-70.6 208.4-114.1 208.4h-2.9c-55.5 0-107.8-235.3-127.5-323.9c-3.5-15.3-6.6-29.4-9.6-41.8h359.6q2.4 0 4.8-0.3q2.4-0.3 4.8-0.9q2.3-0.6 4.6-1.5q2.3-0.9 4.4-2.1q0.2-0.1 0.4-0.2q0.2-0.1 0.4-0.3q0.3-0.1 0.5-0.2q0.2-0.1 0.4-0.3l1.8-1.1l0.8-0.6c0.9-0.6 1.7-1.3 2.5-1.9l0.2-0.2c3-2.6 5.6-5.5 7.8-8.7z"/>
+    </svg>
+  </template>
+
+  <!-- ============================================================
+       BRIEF DATA
+       This JSON blob is the ONLY thing the LLM produces.
+       Everything else (HTML, CSS, JS, fonts, paintings) is static.
+       ============================================================ -->
+  <script id="brief-data" type="application/json">
+  __HIVE_BRIEF_JSON__
+  </script>
+
+
+
+  <!-- Loaded before app.js so renderBrief() can call window.renderLookingAhead.
+       File only present when the cliaMorningBriefLookingAheadEnabled flag is on. -->
+  <script src="looking-ahead.js"></script>
+  <!-- Loaded before app.js so init() can call window.renderBriefFeedback.
+       File only present when the contextBuilderMorningBriefFeedbackEnabled flag is on. -->
+  <script src="feedback.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

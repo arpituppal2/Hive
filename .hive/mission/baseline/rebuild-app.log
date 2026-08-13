@@ -1,0 +1,143 @@
+WARNING: --allow-adhoc is local development only; this artifact is not a release.
+==> Staging signed-worker release inputs
+    Finished `release` profile [optimized] target(s) in 0.17s
+Staged /Users/arpituppal/Downloads/Hive/Sources/HiveChromium/Resources/ResearchWorker/hive-fetch-worker
+Staged /Users/arpituppal/Downloads/Hive/Sources/HiveChromium/Resources/ResearchWorker/hive-worker-requirement.txt
+Staged local ad-hoc helper; this artifact is not for distribution.
+==> Building HiveChromium SwiftPM resources
+Building for production...
+[Computing dependencies]
+[Pre-planning 1 / 861]
+[Planning deferred tasks]
+[11 / 192] HiveCore
+[39 / 186]
+[47 / 183] CCefAppKit
+[49 / 185]
+[57 / 189] ComplexModule
+[67 / 185] Numerics
+[70 / 182] MLX
+[72 / 183] OrderedCollections
+[77 / 181] CefKit
+[80 / 178] CefSwiftUI
+[82 / 179] CefSwiftUI
+[84 / 175] MLX
+[89 / 174] MLXLinalg
+[95 / 177] MLXFast
+[102 / 166] MLXNN
+[104 / 167] MLXNN
+[109 / 165] MLXOptimizers
+[111 / 161] Jinja
+[116 / 159] Hub
+[121 / 157] Tokenizers
+[124 / 159] Generation
+[126 / 160] Generation
+[129 / 162] Models
+[131 / 163] Models
+[134 / 160] MLXLMCommon
+[136 / 161] MLXLMCommon
+[139 / 158] MLXLLM
+[141 / 159] MLXLLM
+[144 / 156] HiveCore
+[146 / 157] HiveCore
+/Users/arpituppal/Downloads/Hive/Sources/HiveCore/AI/Search/ResearchWorkerClient.swift:489:50: [1;33mwarning: [1;39mtrailing closure in this context is confusable with the body of the statement; pass as a parenthesized argument to silence this warning[0;0m
+[0;36m487 |[0;0m                       parsedURL.password == nil,
+[0;36m488 |[0;0m                       !finalURL.unicodeScalars.contains(where: { CharacterSet.controlCharacters.contains($0) }),
+[0;36m489 |[0;0m                       response.redirectCount.map { $0 >= 0 } ?? true,
+    [0;36m|[0;0m                                                  `- [1;33mwarning: [1;39mtrailing closure in this context is confusable with the body of the statement; pass as a parenthesized argument to silence this warning[0;0m
+[0;36m490 |[0;0m                       body.count <= maximumBodyBytes else {
+[0;36m491 |[0;0m                     throw ResearchWorkerError.protocolError("worker returned invalid fetch metadata")
+
+/Users/arpituppal/Downloads/Hive/Sources/HiveCore/Honeycomb/HoneycombStore.swift:554:9: [1;33mwarning: [1;39mno calls to throwing functions occur within 'try' expression[0;0m
+[0;36m552 |[0;0m         // (SQL standard). Provenance values are code constants, never user input.
+[0;36m553 |[0;0m         let safe = provenance.replacingOccurrences(of: "'", with: "''")
+[0;36m554 |[0;0m         try executeRaw("DELETE FROM honeycomb_fts WHERE node_id IN (SELECT id FROM honeycomb_nodes WHERE provenance = '\(safe)')")
+    [0;36m|[0;0m         `- [1;33mwarning: [1;39mno calls to throwing functions occur within 'try' expression[0;0m
+[0;36m555 |[0;0m         try execute("DELETE FROM honeycomb_nodes WHERE provenance = ?",
+[0;36m556 |[0;0m                     args: [.text(provenance)])
+
+/Users/arpituppal/Downloads/Hive/Sources/HiveCore/Honeycomb/HoneycombStore.swift:571:9: [1;33mwarning: [1;39mno calls to throwing functions occur within 'try' expression[0;0m
+[0;36m569 |[0;0m         let count = countRows.first?[0].intValue ?? 0
+[0;36m570 |[0;0m         // ISO 8601 strings have no characters requiring SQL escaping.
+[0;36m571 |[0;0m         try executeRaw("DELETE FROM honeycomb_fts WHERE node_id IN (SELECT id FROM honeycomb_nodes WHERE created_at < '\(dateStr)')")
+    [0;36m|[0;0m         `- [1;33mwarning: [1;39mno calls to throwing functions occur within 'try' expression[0;0m
+[0;36m572 |[0;0m         try execute("DELETE FROM honeycomb_nodes WHERE created_at < ?",
+[0;36m573 |[0;0m                     args: [.text(dateStr)])
+
+/Users/arpituppal/Downloads/Hive/Sources/HiveCore/Tools/ToolInvocation.swift:110:13: [1;33mwarning: [1;39mvariable 'encoder' was never mutated; consider changing to 'let' constant[0;0m
+[0;36m108 |[0;0m 
+[0;36m109 |[0;0m     private var encodedApprovalScopeKey: String? {
+[0;36m110 |[0;0m         var encoder = JSONEncoder()
+    [0;36m|[0;0m             `- [1;33mwarning: [1;39mvariable 'encoder' was never mutated; consider changing to 'let' constant[0;0m
+[0;36m111 |[0;0m         encoder.outputFormatting = [.sortedKeys]
+[0;36m112 |[0;0m         encoder.nonConformingFloatEncodingStrategy = .convertToString(
+[149 / 154] HiveChromium-product
+[151 / 155] HiveChromium-product
+[153 / 155] HiveChromium-product
+[154 / 155] HiveChromium-product
+Build complete! (99.83 sec)
+==> Bundling CEF framework and Chromium helper apps
+Another instance of SwiftPM (PID: 62933) is already running using '/Users/arpituppal/Downloads/Hive/.build', waiting until that process has finished execution...Building for production...
+[Computing dependencies]
+[Constructing description]
+[Pre-planning 1 / 861]
+[Planning deferred tasks]
+warning: missing creator for mutated node: ('/Users/arpituppal/Downloads/Hive/.build/out/Products/Release/mlx-swift_Cmlx.bundle/Contents/MacOS')
+[26 / 193]
+[50 / 53] HiveChromium-product
+[51 / 53] HiveChromium-product
+Build complete! (6.30 sec)
+Building for production...
+[Planning deferred tasks]
+[2 / 6] cef-helper-product
+[5 / 8] cef-helper-product
+[7 / 8] cef-helper-product
+[8 / 9] cef-helper-product
+Build complete! (1.35 sec)
+[cef] Distribution already prepared: /Users/arpituppal/Downloads/Hive/.cef/dist/148.0.10+g7ee53f5+chromium-148.0.7778.218_macosarm64_minimal
+[cef] Building product 'HiveChromium' (release)…
+[cef] Building product 'cef-helper' (release)…
+[cef] Signing: ad-hoc (--sign -)
+
+[cef] Created /Users/arpituppal/Downloads/Hive/dist/HiveChromium.app
+[cef] Run it with: open "/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app"
+==> Embedding SwiftPM resources and Hive icon
+==> Signing embedded worker, CEF nested code, SwiftPM resources, and outer app
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework: replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/Chromium Embedded Framework.framework: replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper.app/Contents/MacOS/HiveChromium Helper: replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper.app: replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Alerts).app/Contents/MacOS/HiveChromium Helper (Alerts): replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Alerts).app: replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (GPU).app/Contents/MacOS/HiveChromium Helper (GPU): replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (GPU).app: replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Plugin).app/Contents/MacOS/HiveChromium Helper (Plugin): replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Plugin).app: replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Renderer).app/Contents/MacOS/HiveChromium Helper (Renderer): replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Renderer).app: replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Resources/Hive_HiveChromium.bundle/Contents/Resources/ResearchWorker/hive-fetch-worker: replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Resources/Hive_HiveChromium.bundle: replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/MacOS/HiveChromium: replacing existing signature
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app: replacing existing signature
+==> Running HiveChromium structural release preflight
+Signature state: ad-hoc (allowed only for local development)
+Preflight passed: /Users/arpituppal/Downloads/Hive/dist/HiveChromium.app
+CEF helpers: 5
+SwiftPM resource bundle: Hive_HiveChromium.bundle
+Notarization: not checked
+==> Skipping release-only worker requirement verification (local ad-hoc mode)
+--prepared:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper.app
+--prepared:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Plugin).app
+--prepared:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Alerts).app
+--prepared:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Renderer).app
+--validated:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper.app
+--validated:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Alerts).app
+--validated:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Renderer).app
+--validated:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (Plugin).app
+--prepared:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (GPU).app
+--validated:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/HiveChromium Helper (GPU).app
+--prepared:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/Current/.
+--validated:/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/Current/.
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app: valid on disk
+/Users/arpituppal/Downloads/Hive/dist/HiveChromium.app: satisfies its Designated Requirement
+Built local ad-hoc HiveChromium app: /Users/arpituppal/Downloads/Hive/dist/HiveChromium.app
+This artifact is not signed for distribution, cannot satisfy the release worker requirement, and must not be notarized.

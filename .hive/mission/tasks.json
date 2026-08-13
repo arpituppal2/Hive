@@ -1,0 +1,175 @@
+{
+  "tasks": [
+    {
+      "id": "T001",
+      "name": "Repository census and baseline",
+      "subsystem": "build",
+      "owner": "coordinator",
+      "status": "completed",
+      "dependencies": [],
+      "files_claimed": [
+        ".hive/mission/baseline/census.json"
+      ],
+      "test_evidence": "Baseline: swift build 0 errors; swift test 983/130 pass; smoke readiness PASS; two-launch session recovery PASS",
+      "commit_ref": "78d20f7 (baseline)",
+      "remaining_risks": ""
+    },
+    {
+      "id": "T002",
+      "name": "Delete legacy Hive target",
+      "subsystem": "build",
+      "owner": "build-specialist",
+      "status": "completed",
+      "dependencies": [
+        "T001"
+      ],
+      "files_claimed": [
+        "Package.swift",
+        "Sources/Hive/"
+      ],
+      "test_evidence": "Legacy WKWebView Sources/Hive/ removed; single CEF-backed Hive executable target remains; swift build + swift test green",
+      "commit_ref": "recovery restructure (T09)",
+      "remaining_risks": ""
+    },
+    {
+      "id": "T003",
+      "name": "Make HiveChromium the primary Hive target",
+      "subsystem": "build",
+      "owner": "build-specialist",
+      "status": "completed",
+      "dependencies": [
+        "T002"
+      ],
+      "files_claimed": [
+        "Package.swift",
+        "Sources/HiveChromium/"
+      ],
+      "test_evidence": "Sources/HiveChromium/ moved to Sources/Hive/; all internal references renamed (ChromiumBrowserState->BrowserState etc.); build-hive-app.sh + preflight + smoke scripts renamed and passing",
+      "commit_ref": "recovery restructure (T09)",
+      "remaining_risks": ""
+    },
+    {
+      "id": "T004",
+      "name": "Complete HiveChromium browser fundamentals",
+      "subsystem": "browser",
+      "owner": "browser-lifecycle-specialist",
+      "status": "completed",
+      "dependencies": [
+        "T003"
+      ],
+      "files_claimed": [
+        "Sources/Hive/"
+      ],
+      "test_evidence": "Tabs, spaces, split view, navigation, keyboard parity, private browsing, session persistence (crash-only contract), hibernation, bookmarks/history/downloads/reader mode all shipped; CDP-verified tab lifecycle",
+      "commit_ref": "58af561..5ef6667 (UI/UX plan)",
+      "remaining_risks": "Renderer count verified linear tabs+2 (design-capped pool); devtools /json stall closed as harness artifact (clean probe: newTab 39ms)"
+    },
+    {
+      "id": "T005",
+      "name": "Fix HiveCore for HiveChromium integration",
+      "subsystem": "core",
+      "owner": "core-specialist",
+      "status": "completed",
+      "dependencies": [
+        "T003"
+      ],
+      "files_claimed": [
+        "Sources/HiveCore/"
+      ],
+      "test_evidence": "HiveCore integrated with CEF-backed shell; latest full suite is 1,635 tests / 157 suites, including AI, persistence, policy, sync, and privacy suites",
+      "commit_ref": "707e773..58af561",
+      "remaining_risks": ""
+    },
+    {
+      "id": "T006",
+      "name": "UI/HIG/accessibility review and polish",
+      "subsystem": "ui",
+      "owner": "ui-reviewer",
+      "status": "completed",
+      "dependencies": [
+        "T004"
+      ],
+      "files_claimed": [
+        "Sources/Hive/"
+      ],
+      "test_evidence": "UI/UX plan U1-U9 shipped: design tokens, Morning Brief new-tab default, agent dock, AI side panel, bridge inventory tests, bridge docs; a11y labels + keyboard paths functional",
+      "commit_ref": "7510f8e..5ef6667",
+      "remaining_risks": "Human visual pass on the shipping app still recommended (known non-blocking risk)"
+    },
+    {
+      "id": "T007",
+      "name": "Security and privacy review",
+      "subsystem": "security",
+      "owner": "security-reviewer",
+      "status": "completed",
+      "dependencies": [
+        "T004"
+      ],
+      "files_claimed": [
+        "Sources/Hive/",
+        "Sources/HiveCore/"
+      ],
+      "test_evidence": "Entitlement fixtures pass; devtools port 9223 now gated behind #if DEBUG AND HIVE_DEBUG_CDP=1 (verified live closed-by-default); buildBriefJSON skips isPrivate tabs; no secrets in repo/logs",
+      "commit_ref": "58af561 (devtools gate)",
+      "remaining_risks": ""
+    },
+    {
+      "id": "T008",
+      "name": "Swarm/AI graceful degradation",
+      "subsystem": "ai",
+      "owner": "ai-specialist",
+      "status": "completed",
+      "dependencies": [
+        "T005"
+      ],
+      "files_claimed": [
+        "Sources/HiveCore/AI/",
+        "Sources/Hive/"
+      ],
+      "test_evidence": "ModelCouncilV2 + DeepResearch streaming + agent pipeline (council -> research -> browser actions) shipped; honest mock degradation; CDPClient envelope-unwrap bug fixed with regression tests (12 CDP tests pass)",
+      "commit_ref": "707e773..latest",
+      "remaining_risks": "Agent CDP live round-trip verified via shell bridge (evaluate/snapshot/read)"
+    },
+    {
+      "id": "T009",
+      "name": "Full test suite and validation",
+      "subsystem": "test",
+      "owner": "qa-engineer",
+      "status": "completed",
+      "dependencies": [
+        "T004",
+        "T005",
+        "T006",
+        "T007",
+        "T008"
+      ],
+      "files_claimed": [],
+      "test_evidence": "Latest validation: swift test 1,635 tests / 157 suites pass; HiveCore/Hive product builds pass; current ad-hoc bundle, preflight, and 60s smoke readiness remain green; encrypted sync outbox latest-ledger regression coverage included",
+      "commit_ref": "latest",
+      "remaining_risks": ""
+    },
+    {
+      "id": "T010",
+      "name": "Documentation and final validation",
+      "subsystem": "docs",
+      "owner": "release-engineer",
+      "status": "completed",
+      "dependencies": [
+        "T009"
+      ],
+      "files_claimed": [
+        "docs/",
+        "THIRD_PARTY_NOTICES.md",
+        ".hive/mission/FINAL_VALIDATION.md"
+      ],
+      "test_evidence": "ARCHITECTURE.md, RECOVERY_PLAN.md, DECISIONS.md, THIRD_PARTY_NOTICES.md, FINAL_VALIDATION.md, RELEASE_PIPELINE.md, WEB_CHROME_BRIDGE.md, and UI_UX_PLAN.md are current; latest local validation is 1,635 tests / 157 suites with HiveCore/Hive builds passing; current ad-hoc bundle, preflight, and 60s smoke readiness remain green; sync outbox race coverage included",
+      "commit_ref": "eafded4..58af561",
+      "remaining_risks": ""
+    }
+  ],
+  "mission": "Hive Browser one-shot autonomous recovery and ship",
+  "started": "2026-08-07T00:00:00Z",
+  "status": "ALL_COMPLETED",
+  "completed": "2026-08-08",
+  "branch": "mission/recovery-and-ship"
+}

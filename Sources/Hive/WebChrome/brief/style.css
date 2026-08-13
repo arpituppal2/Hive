@@ -1,0 +1,3069 @@
+/* ============================================================
+   Morning Brief Template — v2 base with latest visual refresh.
+   Sections remain aligned with clia-brief spec.yaml structure.
+   ============================================================ */
+
+/* ── Exposure Font ────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Exposure VAR';
+  src: url('fonts/Exposure-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Exposure VAR';
+  src: url('fonts/Exposure-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Exposure VAR';
+  src: url('fonts/Exposure-550.woff2') format('woff2');
+  font-weight: 550;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Exposure VAR';
+  src: url('fonts/Exposure-550-Italic.woff2') format('woff2');
+  font-weight: 550;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Exposure VAR';
+  src: url('fonts/Exposure-600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+/* ── Custom Properties ─────────────────────────────────── */
+
+:root {
+  --page-bg: #F7F7F7;
+  --yellow: #FFE500;
+  --text: #000;
+  --text-body: rgba(60, 60, 67, 0.6);
+  --text-muted: rgba(0, 0, 0, 0.3);
+  --content-max: 1160px;
+  --page-pad: clamp(16px, 6vw, 90px);
+  --content-pad: clamp(20px, 5vw, 60px);
+  --font-display: 'Exposure VAR', Georgia, 'Times New Roman', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Courier New', monospace;
+
+  /* One column width for hero + body. Default painting = 1160×600; wide+short eases display
+     aspect only — rail width always uses 1160/600 so column width stays stable. */
+  --painting-aspect-w: 1160;
+  --painting-aspect-h: 600;
+  --painting-aspect-h-rail: 600;
+  --available-by-width: calc(100vw - 2 * var(--page-pad));
+  /* Primary line from 1000vh; floor line matches at 800vh and eases more gently 800→600. */
+  --painting-max-height: clamp(
+    300px,
+    max(
+      min(600px, calc(600px + (100vh - 1000px) * 6 / 11)),
+      calc(440px + (100vh - 600px) * 14 / 55)
+    ),
+    600px
+  );
+  --painting-inner-width: min(
+    var(--content-max),
+    calc(
+      var(--painting-max-height) * var(--painting-aspect-w) / var(--painting-aspect-h-rail)
+    ),
+    max(0px, calc(var(--available-by-width) - 2 * var(--content-pad)))
+  );
+  --brief-rail-width: calc(var(--painting-inner-width) + 2 * var(--content-pad));
+
+  /* Space from hero subcopy (blurb + caption) to first body section: full 48px until 720px
+     height, then eases down toward 600px. */
+  --content-pad-after-hero: clamp(
+    24px,
+    calc(48px + (100vh - 720px) * 0.15),
+    48px
+  );
+
+  /* Dia mark: 25.5×24 at 800px+ viewport height → 16×16 at 600px (linear in between). */
+  --greeting-logo-w: clamp(
+    16px,
+    calc(25.5px + (100vh - 800px) * 0.0475),
+    25.5px
+  );
+  --greeting-logo-h: clamp(
+    16px,
+    calc(24px + (100vh - 800px) * 0.04),
+    24px
+  );
+}
+
+@supports (height: 1dvh) {
+  :root {
+    --painting-max-height: clamp(
+      300px,
+      max(
+        min(600px, calc(600px + (100dvh - 1000px) * 6 / 11)),
+        calc(440px + (100dvh - 600px) * 14 / 55)
+      ),
+      600px
+    );
+    --content-pad-after-hero: clamp(
+      24px,
+      calc(48px + (100dvh - 720px) * 0.15),
+      48px
+    );
+    --greeting-logo-w: clamp(
+      16px,
+      calc(25.5px + (100dvh - 800px) * 0.0475),
+      25.5px
+    );
+    --greeting-logo-h: clamp(
+      16px,
+      calc(24px + (100dvh - 800px) * 0.04),
+      24px
+    );
+  }
+}
+
+
+/* ── Reset & Base ─────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--page-bg);
+  overflow-x: hidden;
+  text-wrap: pretty;
+}
+
+u {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+strong {
+  font-weight: 600;
+}
+
+
+/* ── Page Container ───────────────────────────────────── */
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  padding-left: var(--page-pad);
+  padding-right: var(--page-pad);
+}
+
+
+/* ── Brief column (hero + main share one width = painting inner + pads) ── */
+
+.brief-scale {
+  width: min(100%, var(--brief-rail-width));
+  max-width: 100%;
+  margin-inline: auto;
+  container-type: inline-size;
+  container-name: brief;
+}
+
+
+/* ── Greeting ─────────────────────────────────────────── */
+
+.greeting {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.35em;
+  color: var(--text);
+  padding: 28px 24px 0;
+}
+
+.greeting svg {
+  display: inline-block;
+  vertical-align: middle;
+  width: var(--greeting-logo-w, 25.5px);
+  height: var(--greeting-logo-h, 24px);
+}
+
+
+/* ── Hero ─────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 24px var(--content-pad) 0;
+}
+
+
+/* ── Hero Edge Labels (Date + Time) ───────────────────── */
+
+.hero-edge {
+  position: absolute;
+  z-index: 3;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.25rem, 5cqw, 4.5rem);
+  color: var(--text);
+  line-height: 1;
+  white-space: nowrap;
+  writing-mode: vertical-lr;
+}
+
+.hero-date {
+  left: clamp(-3.75rem, -5cqw, 0px);
+  top: 50%;
+  transform: rotate(180deg) translateY(50%);
+}
+
+.hero-time {
+  right: clamp(-3.75rem, -5cqw, 0px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-feature-settings: "onum", "tnum", "zero";
+}
+
+
+/* ── Painting Frame ───────────────────────────────────── */
+
+.painting-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--painting-aspect-w) / var(--painting-aspect-h);
+  overflow: hidden;
+  background: #e0ddd8;
+}
+
+.painting-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.painting-img.loaded {
+  opacity: 1;
+}
+
+.painting-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.hero-the {
+  display: block;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  /* Tracks .brief-scale width (cqw) so it shrinks/grows with the rail. */
+  font-size: clamp(1.65rem, 6cqw, 4.85rem);
+  color: var(--yellow);
+  line-height: 1;
+  text-shadow:
+    0 2px 20px rgba(0, 0, 0, 0.3),
+    0 0 60px rgba(0, 0, 0, 0.15);
+  margin-bottom: 0em;
+}
+
+.hero-day {
+  font-family: var(--font-display);
+  font-weight: 550;
+  font-size: clamp(2.1rem, 10.5cqw, 8.25rem);
+  color: var(--yellow);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-shadow:
+    0 2px 30px rgba(0, 0, 0, 0.35),
+    0 0 80px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+}
+
+
+/* ── Painting Caption ─────────────────────────────────── */
+
+.painting-caption {
+  font-family: var(--font-mono);
+  font-size: clamp(8px, calc(6px + 0.45cqw), 10px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: rgba(0, 0, 0, 0.5);
+  text-align: right;
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease 0.3s;
+}
+
+.painting-caption.visible {
+  opacity: 1;
+}
+
+
+/* ── Hero Sub (blurb + caption row) ──────────────────── */
+
+.hero-sub {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  align-items: baseline;
+  padding-top: 10px;
+}
+
+.brief-blurb {
+  grid-column: 1 / 8;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(0.8rem, calc(0.6rem + 0.65cqw), 1rem);
+  line-height: 1.5;
+  text-wrap: pretty;
+  color: var(--text-body);
+  margin: 0;
+}
+
+.hero-sub .painting-caption {
+  grid-column: 8 / -1;
+}
+
+
+/* ── Content Area ─────────────────────────────────────── */
+
+.content {
+  width: 100%;
+  max-width: calc(var(--content-max) + var(--content-pad) * 2);
+  margin: 0 auto;
+  padding: var(--content-pad-after-hero) var(--content-pad) clamp(48px, 12cqw, 120px);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: clamp(32px, 7cqw, 64px);
+  font-size: clamp(14px, calc(8px + 0.95cqw), 18px);
+}
+
+
+/* ── Brief Sections ───────────────────────────────────── */
+
+/* Each container at `grid-column: 1 / -1` re-declares the outer 12-column
+   track + gap so child `grid-column` placements resolve to identical
+   x-positions across all nested containers. */
+.brief-section {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 20px;
+}
+
+
+/* ── Boxed Section ───────────────────────────────────── */
+
+.brief-section--boxed {
+  background: rgba(0, 0, 0, 0.025);
+  border-radius: 12px;
+  padding: clamp(20px, 3vw, 32px);
+}
+
+.push-section.brief-section--boxed,
+.proactive-section.brief-section--boxed {
+  position: relative;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+
+/* ── Push Section ────────────────────────────────────── */
+
+.push-section {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 0;
+}
+
+.push-section .push-title {
+  grid-column: 1 / 6;
+  grid-row: 1;
+  align-self: start;
+  padding-top: 0.05em;
+  padding-left: clamp(20px, 3vw, 32px);
+}
+
+.push-section .section-body {
+  grid-column: 1 / -1;
+  display: contents;
+}
+
+.push-shell {
+  display: contents;
+}
+
+.push-body {
+  grid-column: 6 / -1;
+  grid-row: 1;
+  padding-right: clamp(20px, 3vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.push-topic {
+  font-size: 1.1em;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.push-text {
+  font-size: 0.95em;
+  line-height: 1.7;
+  color: var(--text-body);
+  min-height: calc(3 * 1.7em);
+  min-height: calc(3lh);
+}
+
+.push-badge {
+  position: absolute;
+  bottom: -20px;
+  left: 24px;
+  display: block;
+  transform: rotate(-5deg);
+  transition: transform 0.3s ease 0.15s, filter 0.3s ease 0.15s;
+  text-decoration: none;
+  z-index: 1;
+}
+
+.push-badge:hover {
+  transform: rotate(-12deg);
+  transition: transform 0.2s ease, filter 0.2s ease;
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.10));
+}
+
+.push-star,
+.prep-star {
+  position: relative;
+  overflow: hidden;
+}
+
+.push-star {
+  width: 7.5rem;
+  height: 7.5rem;
+  background: var(--yellow);
+  clip-path: polygon(
+    50% 0%, 60.9% 9.4%, 75% 6.7%, 79.7% 20.3%,
+    93.3% 25%, 90.6% 39.1%, 100% 50%, 90.6% 60.9%,
+    93.3% 75%, 79.7% 79.7%, 75% 93.3%, 60.9% 90.6%,
+    50% 100%, 39.1% 90.6%, 25% 93.3%, 20.3% 79.7%,
+    6.7% 75%, 9.4% 60.9%, 0% 50%, 9.4% 39.1%,
+    6.7% 25%, 20.3% 20.3%, 25% 6.7%, 39.1% 9.4%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.push-star::before,
+.prep-star::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -120%;
+  width: 110%;
+  height: 140%;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.1) 30%,
+    rgba(255, 200, 220, 0.2) 38%,
+    rgba(200, 220, 255, 0.25) 46%,
+    rgba(220, 255, 220, 0.2) 54%,
+    rgba(255, 240, 200, 0.15) 62%,
+    rgba(255, 255, 255, 0.1) 70%,
+    transparent 80%
+  );
+  transform: skewX(-15deg);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.push-badge:hover .push-star::before,
+.prep-badge:hover .prep-star::before {
+  opacity: 1;
+  animation: prismatic-shine 0.6s ease-out forwards;
+}
+
+@keyframes prismatic-shine {
+  0% { left: -120%; }
+  100% { left: 140%; }
+}
+
+.push-star-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.3em;
+  color: #000;
+  transform: rotate(-5deg);
+  text-align: center;
+  line-height: 1.2;
+  margin-top: -0.125rem;
+}
+
+.star-arrow {
+  font-family: "SF Pro", -apple-system, system-ui, sans-serif;
+  font-style: normal;
+  font-size: 0.8em;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.push-badge:hover .star-arrow,
+.prep-badge:hover .star-arrow {
+  opacity: 1;
+}
+
+/* Floating tooltips for push / prep starbursts (positioned in app.js) */
+.star-tooltip-popover {
+  position: fixed;
+  z-index: 10000;
+  max-width: min(300px, calc(100vw - 24px));
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  text-align: left;
+  background: #fffefb;
+  color: var(--text);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.07),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px) scale(0.9);
+  transform-origin: center bottom;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.star-tooltip-popover--visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.star-tooltip-popover--below {
+  transform-origin: center top;
+}
+
+.star-tooltip-popover__head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 6px;
+}
+
+.star-tooltip-popover__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.star-tooltip-popover__icon svg {
+  display: block;
+  width: 16px;
+  height: 14px;
+  opacity: 0.88;
+}
+
+.star-tooltip-popover__head-text {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 550;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.star-tooltip-popover__body {
+  margin: 0;
+}
+
+.star-tooltip-popover__body-msg {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.45;
+  word-wrap: break-word;
+  color: var(--text-body);
+}
+
+.star-tooltip-popover__body--prompt .star-tooltip-popover__body-msg {
+  font-style: italic;
+  padding-left: 0.35em;
+}
+
+.star-tooltip-popover__body--prompt .star-tooltip-popover__body-msg::before {
+  content: "\201C";
+  float: left;
+  font-style: normal;
+  margin-left: -0.42em;
+  margin-right: 0.1em;
+  line-height: 1.45;
+}
+
+.star-tooltip-popover__body--prompt .star-tooltip-popover__body-msg::after {
+  content: "\201D";
+  font-style: normal;
+}
+
+.star-tooltip-popover__body[hidden] {
+  display: none;
+}
+
+
+/* ── Proactive Work Section ──────────────────────────── */
+
+.proactive-section {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 0;
+}
+
+.proactive-section .section-title {
+  grid-column: 1 / 6;
+  grid-row: 1;
+  align-self: start;
+  padding-top: 0.05em;
+  padding-left: clamp(20px, 3vw, 32px);
+}
+
+.proactive-section .section-body {
+  grid-column: 1 / -1;
+  display: contents;
+}
+
+.proactive-shell {
+  display: contents;
+}
+
+.proactive-body {
+  grid-column: 6 / -1;
+  grid-row: 1;
+  padding-right: clamp(20px, 3vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.proactive-title {
+  font-size: 1.1em;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.proactive-reasoning {
+  font-size: 0.95em;
+  line-height: 1.7;
+  color: var(--text-body);
+}
+
+/* ── Inline Section (title in left column) ────────────── */
+
+.brief-section--inline {
+  row-gap: 0;
+}
+
+/* Title sits on its own row above the list (consistent with the Projects
+   section), so the left-rail ranked numbers never overlap the heading. */
+.brief-section--inline .section-title {
+  grid-column: 1 / -1;
+  align-self: start;
+}
+
+.brief-section--inline .section-body {
+  grid-column: 1 / -1;
+  margin-top: 0.4em;
+}
+
+
+/* ── Section Title ────────────────────────────────────── */
+
+.section-title {
+  grid-column: 1 / -1;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.47em;
+  color: var(--text);
+  opacity: 0.85;
+  /* Align with the content column's left indent (`.item-num`, `.schedule-list`,
+     `.push-title`). Reset to 0 in the single-column mobile layout. */
+  padding-left: clamp(20px, 3vw, 32px);
+}
+
+
+/* ── Schedule Card ────────────────────────────────────── */
+
+.schedule-card {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  align-items: start;
+}
+
+.schedule-list {
+  grid-column: 1 / 6;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: clamp(20px, 3vw, 32px);
+}
+
+.schedule-item {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 1.07em;
+  line-height: 2.4;
+  padding: 0 8px;
+  margin: 0 -8px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.schedule-item[data-index] {
+  cursor: default;
+}
+
+.schedule-item[data-index]:hover,
+.schedule-item--active {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.schedule-item[data-index]:hover .schedule-time,
+.schedule-item--active .schedule-time {
+  color: var(--text-body);
+}
+
+.schedule-item--break {
+  opacity: 0.5;
+}
+
+.schedule-item--break:hover {
+  opacity: 0.75;
+}
+
+.schedule-time {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 0.9em;
+  color: var(--text-muted);
+  min-width: 4em;
+  letter-spacing: -0.01em;
+}
+
+.schedule-event {
+  font-weight: 600;
+}
+
+.schedule-divider {
+  display: none;
+}
+
+.schedule-right {
+  grid-column: 6 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.schedule-summary {
+  position: relative;
+  font-size: 1em;
+  line-height: 1.8;
+  min-height: 170px;
+  display: grid;
+}
+
+.schedule-summary strong {
+  display: block;
+  font-size: 1.15em;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.schedule-summary p:not(:first-child) {
+  color: var(--text-body);
+}
+
+.summary-panel {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Detail panel pins to the top of the grid cell so the prep-me button hangs
+   off the meeting card rather than the (much taller) lineup. */
+.summary-panel--detail {
+  align-self: start;
+}
+
+.summary-panel--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.summary-panel:not(.summary-panel--visible) {
+  pointer-events: none;
+}
+
+.brief-section--schedule > .section-title:not(.lineup-title) {
+  grid-column: 1 / 6;
+}
+
+.lineup-title {
+  grid-column: 6 / -1;
+  grid-row: 1;
+  padding-left: 0;
+  margin: 0;
+  transition: opacity 0.2s ease;
+}
+
+.lineup-title--faded {
+  opacity: 0;
+}
+
+.people-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.people-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.people-entry-avatar-wrap {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.people-entry-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.people-entry-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75em;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.people-entry-content {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.92em;
+  line-height: 1.45;
+}
+
+.people-entry-name {
+  font-weight: 700;
+  color: var(--text-body);
+  margin-bottom: 2px;
+}
+
+.people-entry-blurb {
+  color: var(--text-muted);
+}
+
+.people-entry-social {
+  margin-top: 4px;
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+
+.people-entry-social-link {
+  color: var(--text-body);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(0, 0, 0, 0.25);
+  transition: opacity 0.15s ease;
+}
+
+.people-entry-social-link:hover {
+  opacity: 0.7;
+}
+
+.people-entry-social-sep {
+  opacity: 0.4;
+}
+
+
+/* ── Prep Badge ───────────────────────────────────────── */
+
+.prep-badge {
+  position: relative;
+  align-self: flex-end;
+  transform: rotate(5deg);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease 0.15s, opacity 0.2s ease, filter 0.3s ease 0.15s;
+  cursor: pointer;
+}
+
+.prep-badge.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.prep-badge:hover {
+  transform: rotate(12deg);
+  transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
+  filter: drop-shadow(0 2px 1.5px rgba(0, 0, 0, 0.10));
+}
+
+.prep-star {
+  width: 120px;
+  height: 120px;
+  background: var(--yellow);
+  clip-path: polygon(
+    50% 0%, 60.9% 9.4%, 75% 6.7%, 79.7% 20.3%,
+    93.3% 25%, 90.6% 39.1%, 100% 50%, 90.6% 60.9%,
+    93.3% 75%, 79.7% 79.7%, 75% 93.3%, 60.9% 90.6%,
+    50% 100%, 39.1% 90.6%, 25% 93.3%, 20.3% 79.7%,
+    6.7% 75%, 9.4% 60.9%, 0% 50%, 9.4% 39.1%,
+    6.7% 25%, 20.3% 20.3%, 25% 6.7%, 39.1% 9.4%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prep-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.2em;
+  color: var(--text);
+  transform: rotate(5deg);
+  margin-top: -2px;
+}
+
+
+/* ── To-Do Items ──────────────────────────────────────── */
+
+.todo-item {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  align-items: start;
+}
+
+.todo-checkbox {
+  grid-column: 5 / 6;
+  justify-self: end;
+  position: relative;
+  cursor: pointer;
+  padding-top: 4px;
+  overflow: visible;
+}
+
+.todo-checkbox input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.todo-check {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 0, 0, 0.25);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+  position: relative;
+}
+
+.todo-check::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.15) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.todo-checkbox:active .todo-check {
+  transform: scale(1.3);
+  transition: transform 0.1s ease;
+}
+
+.todo-checkbox input:checked ~ .todo-check {
+  border-color: var(--text);
+  background: var(--text);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 7.5L6 10L10.5 4.5' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: 14px;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: check-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.todo-checkbox input:checked ~ .todo-check::after {
+  animation: check-glow 0.6s ease-out forwards;
+}
+
+@keyframes check-bounce {
+  0% { transform: scale(1.3); }
+  40% { transform: scale(0.85); }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes check-glow {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(3.5); }
+}
+
+.todo-checkbox input:checked ~ .todo-check + .todo-content,
+.todo-checkbox input:checked ~ .todo-check {
+  opacity: 0.4;
+}
+
+.todo-item:has(input:checked) .todo-content {
+  opacity: 0.4;
+  transition: opacity 0.3s ease 0.05s;
+}
+
+.todo-item:has(input:checked) .todo-label {
+  text-decoration: line-through;
+}
+
+.todo-checkbox:hover .todo-check {
+  border-color: rgba(0, 0, 0, 0.5);
+}
+
+.todo-content {
+  grid-column: 6 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: opacity 0.3s ease;
+}
+
+.todo-label {
+  font-size: 1.1em;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.todo-label a {
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.todo-label a:hover {
+  border-bottom-color: var(--text-muted);
+}
+
+
+.todo-context {
+  font-size: 1em;
+  line-height: 1.8;
+  color: var(--text-body);
+}
+
+
+/* ── Source Icons ─────────────────────────────────────── */
+
+.source-icon {
+  display: inline-flex;
+  position: relative;
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+  margin: 0 2px;
+  cursor: pointer;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.source-icon img,
+.source-icon svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.4s ease, opacity 0.3s ease;
+}
+
+.source-icon:hover img,
+.source-icon:hover svg {
+  transform: rotate(var(--hover-tilt, 8deg));
+  opacity: 0.7;
+}
+
+.source-icon:active img,
+.source-icon:active svg {
+  transform: rotate(var(--hover-tilt, 4deg));
+  opacity: 0.5;
+}
+
+.source-icon .source-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  font-style: normal;
+  color: #fff;
+  background: var(--text);
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.source-icon:hover .source-tip {
+  opacity: 1;
+}
+
+
+/* ── Avatars ─────────────────────────────────────────── */
+
+.avatar-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: middle;
+  margin-left: -6px;
+  border: 1.5px solid var(--page-bg);
+}
+
+.avatar-img:first-of-type {
+  margin-left: 4px;
+}
+
+
+/* ── Source References ────────────────────────────────── */
+
+.source-ref {
+  display: inline;
+  padding: 4px 5px;
+  margin: -4px -5px;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.source-ref:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.source-ref:hover .source-icon img,
+.source-ref:hover .source-icon svg {
+  transform: rotate(var(--hover-tilt, 8deg));
+}
+
+.source-ref:hover .source-icon .source-tip {
+  opacity: 1;
+  transition-delay: 1s;
+}
+
+.source-ref .source-icon {
+  margin-left: 2px;
+}
+
+.source-ref .source-tail {
+  white-space: nowrap;
+}
+
+
+/* ── Section Body ─────────────────────────────────────── */
+
+.section-body {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: clamp(28px, 4cqw, 40px);
+}
+
+
+/* ── Items ────────────────────────────────────────────── */
+
+.item {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  align-items: baseline;
+}
+
+.item-num {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  font-weight: 400;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  letter-spacing: -0.01em;
+  padding-left: clamp(20px, 3vw, 32px);
+}
+
+.item-body {
+  grid-column: 6 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.item-title {
+  font-size: 1.1em;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.item-title a {
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.item-title a:hover {
+  border-bottom-color: var(--text-muted);
+}
+
+
+/* ── Item Tags ─────────────────────────────────────────── */
+
+.item-tag {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.85em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  margin-left: 8px;
+  line-height: 1;
+}
+
+
+/* ── Item Text ────────────────────────────────────────── */
+
+.item-text {
+  padding-top: 4px;
+}
+
+.item-text p {
+  font-size: 1em;
+  line-height: 1.8;
+  color: var(--text-body);
+}
+
+
+/* ── Item Action ──────────────────────────────────────── */
+
+.item-action {
+  display: flex;
+  gap: 14px;
+  padding-left: clamp(0px, calc(3vw - 3px), 20px);
+  padding-top: 0;
+}
+
+.action-arrow {
+  font-size: 1.47em;
+  line-height: 1.5;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  font-weight: 300;
+}
+
+.item-action p {
+  font-size: 1em;
+  line-height: 1.8;
+  color: var(--text-body);
+}
+
+.item-action--dark p {
+  color: var(--text);
+}
+
+
+/* ── Item Bullets ─────────────────────────────────────── */
+
+.item-bullets {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+}
+
+.item-bullets li {
+  position: relative;
+  font-size: 1em;
+  line-height: 1.8;
+  color: var(--text);
+  padding-left: 1.6rem;
+}
+
+.item-bullets li::before {
+  content: '\2022';
+  position: absolute;
+  left: 0;
+  color: var(--text);
+  font-size: 1.4em;
+  line-height: 1.3;
+}
+
+/* ── Brief intro (purpose + privacy) ─────────────────────
+   Quiet training-data framing header; the full privacy detail hides behind a <details> disclosure. */
+
+.brief-intro {
+  /* Full-row span in the 12-col content grid. Required because the intro is a direct grid child —
+     a grid child with no column span auto-places into a single 1/12 track. */
+  grid-column: 1 / -1;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.brief-intro-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+/* The lines under the eyebrow share ONE body style — a body-sized line with a bold lead — so the
+   block reads as a calm paragraph group. The "especially need" line adds a yellow spine to mark the
+   single actionable ask; otherwise differentiation comes from the bold lead phrase alone. */
+.brief-intro-mission,
+.brief-intro-need,
+.brief-intro-privacy {
+  font-size: 0.95em;
+  line-height: 1.6;
+  color: var(--text-body);
+  margin: 0 0 0.6rem;
+}
+
+.brief-intro-need {
+  border-left: 2px solid var(--yellow);
+  padding-left: 0.7rem;
+}
+
+.brief-intro-mission strong,
+.brief-intro-need strong,
+.brief-intro-privacy strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.brief-intro-privacy summary {
+  cursor: pointer;
+  list-style: none;
+  /* Darkens the whole line to --text on hover so the disclosure reads as clickable. */
+  transition: color 0.15s ease;
+}
+
+.brief-intro-privacy summary:hover {
+  color: var(--text);
+}
+
+.brief-intro-privacy summary::-webkit-details-marker {
+  display: none;
+}
+
+/* No explicit color: the caret inherits the summary's color, so the hover darken above applies to
+   it too. Sized well above the body text so it clearly reads as a disclosure caret. */
+.brief-intro-privacy summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 0.45rem;
+  font-size: 1.5em;
+  line-height: 1;
+  vertical-align: -0.06em;
+  transition: transform 0.15s ease;
+}
+
+.brief-intro-privacy[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.brief-intro-privacy-detail {
+  margin: 0.5rem 0 0 1.1rem;
+  color: var(--text-body);
+}
+
+
+/* ── Section note ────────────────────────────────────────
+   A prominent instruction callout under a section header: what the section is + how we want the
+   reader to rate it. Boxed with a yellow accent spine so it reads as an actionable ask, not a
+   footnote — this is where we tell people how to give the training-data feedback we need. */
+
+.section-note {
+  /* Full-row span in the enclosing `.brief-section` 12-col grid, matching its title/body. Required
+     because a grid child with no column span auto-places into a single 1/12 column. */
+  grid-column: 1 / -1;
+  margin: 0.3rem 0 1.4rem;
+  padding: 0.9rem 1.15rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-left: 3px solid var(--yellow);
+  border-radius: 8px;
+}
+
+.section-note-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-body);
+  margin-bottom: 0.4rem;
+}
+
+.section-note-body {
+  font-size: 0.92em;
+  line-height: 1.6;
+  color: var(--text-body);
+}
+
+.section-note-body strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+
+/* ── Item Source ──────────────────────────────────────── */
+
+.item-source {
+  padding-top: 2px;
+  font-size: 0.75em;
+  color: var(--text-muted);
+}
+
+.item-source a {
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0,0,0,0.12);
+  transition: color 0.15s ease;
+}
+
+.item-source a:hover {
+  color: var(--text-body);
+}
+
+
+/* ── Refresh Button ───────────────────────────────────── */
+
+.refresh-wrap {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.refresh-tooltip {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  padding: 8px 14px;
+  border-radius: 10px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.refresh-tooltip.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.refresh-btn {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease, box-shadow 0.2s ease;
+}
+
+.refresh-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+}
+
+.refresh-btn:active {
+  transform: scale(0.95);
+}
+
+.refresh-btn.spinning svg {
+  animation: spin 0.6s ease;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+
+/* ── Responsive: Tablet ──────────────────────────────── */
+
+@media (max-width: 1160px) {
+  html {
+    font-size: clamp(13px, 1.5vw, 16px);
+  }
+
+  .item-body,
+  .todo-content,
+  .schedule-right {
+    grid-column: 5 / -1;
+  }
+
+  .todo-checkbox {
+    grid-column: 4 / 5;
+  }
+
+  .schedule-list {
+    grid-column: 1 / 5;
+    padding-left: 0;
+  }
+
+  .brief-section--schedule > .section-title:not(.lineup-title) {
+    grid-column: 1 / 5;
+  }
+
+  .lineup-title {
+    grid-column: 5 / -1;
+  }
+
+  .brief-section--inline .section-title {
+    grid-column: 1 / 5;
+  }
+
+  .push-section .push-title {
+    grid-column: 1 / 5;
+  }
+
+  .push-body {
+    grid-column: 5 / -1;
+  }
+
+  .proactive-section .section-title {
+    grid-column: 1 / 5;
+  }
+
+  .proactive-body {
+    grid-column: 5 / -1;
+  }
+}
+
+/* Tablet range only (not mobile): sit the push starburst slightly lower under the card. */
+@media (min-width: 769px) and (max-width: 1160px) {
+  .push-badge {
+    bottom: calc(-1.25rem - 1.25rem);
+  }
+}
+
+/* Wide but not tall: slightly smaller root rem; painting display eases toward ~2.5:1. */
+@media (min-width: 1161px) and (max-height: 920px) {
+  html {
+    font-size: clamp(14px, calc(13px + 0.0035 * 100vh), 16px);
+  }
+
+  :root {
+    /* 1160/600 (~1.93:1) at 920px height → 1160/(1160/2.5) (= 2.5:1) by 600px height. */
+    --painting-aspect-h: clamp(
+      calc(1160 / 2.5),
+      calc(
+        600 + (920px - 100vh) * (1160 / 2.5 - 600) / 320 / 1px
+      ),
+      600
+    );
+  }
+}
+
+@supports (height: 1dvh) {
+  @media (min-width: 1161px) and (max-height: 920px) {
+    html {
+      font-size: clamp(14px, calc(13px + 0.0035 * 100dvh), 16px);
+    }
+
+    :root {
+      --painting-aspect-h: clamp(
+        calc(1160 / 2.5),
+        calc(
+          600 + (920px - 100dvh) * (1160 / 2.5 - 600) / 320 / 1px
+        ),
+        600
+      );
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .hero-sub {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+    padding-top: 8px;
+  }
+
+  .hero-sub .painting-caption {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+
+  .brief-blurb {
+    grid-column: 1 / -1;
+    font-size: 1.35em;
+    margin-top: 1em;
+  }
+}
+
+
+/* ── Responsive: Small Tablet / Large Phone ───────────── */
+
+@media (max-width: 768px) {
+  :root {
+    --painting-aspect-w: 6;
+    --painting-aspect-h: 4;
+    --painting-aspect-h-rail: 4;
+  }
+
+  .greeting {
+    padding-top: 32px;
+  }
+
+  .hero {
+    padding-top: 24px;
+  }
+
+  .hero-edge {
+    font-size: 2rem;
+  }
+
+  .item-body,
+  .todo-content {
+    grid-column: 2 / -1;
+  }
+
+  .todo-checkbox {
+    grid-column: 1 / 2;
+    justify-self: start;
+  }
+
+  /* Flatten the schedule's wrappers into the section grid so we can use
+     `order` to interleave each heading with its content — without this,
+     "Your day" and "The lineup" would both render above the schedule-card
+     and look detached from the meetings/people they label. */
+  .brief-section--schedule .section-body,
+  .brief-section--schedule .schedule-card {
+    display: contents;
+  }
+
+  .brief-section--schedule > .section-title:not(.lineup-title) { order: 1; }
+  .brief-section--schedule .schedule-list { order: 2; }
+  .brief-section--schedule .schedule-divider { order: 3; }
+  .brief-section--schedule .lineup-title { order: 4; }
+  .brief-section--schedule .schedule-right { order: 5; }
+
+  .schedule-list,
+  .schedule-right {
+    grid-column: 1 / -1;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+  }
+
+  .schedule-list {
+    min-width: unset;
+    padding-left: 0;
+  }
+
+  .brief-section--schedule > .section-title:not(.lineup-title),
+  .lineup-title {
+    grid-column: 1 / -1;
+  }
+
+  .lineup-title {
+    grid-row: auto;
+  }
+
+  .schedule-divider {
+    display: block;
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 1px;
+    /* Section row-gap already provides spacing on each side of the divider
+       in the flattened layout, so keep the divider's own margins at 0. */
+    margin: 0;
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  .prep-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+  }
+
+  .prep-star {
+    width: 90px;
+    height: 90px;
+  }
+
+  .prep-text {
+    font-size: 1em;
+  }
+
+  .brief-section--boxed {
+    padding: clamp(20px, 3vw, 32px);
+  }
+
+  .push-section.brief-section--boxed,
+  .proactive-section.brief-section--boxed {
+    padding: clamp(20px, 3vw, 32px);
+  }
+
+  .brief-section--inline {
+    row-gap: 20px;
+  }
+
+  .section-title {
+    padding-left: 0;
+  }
+
+  .brief-section--inline .section-title {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .brief-section--inline .section-body {
+    grid-row: auto;
+  }
+
+  .item-num {
+    padding-left: 0;
+  }
+
+  .push-section {
+    grid-template-columns: 1fr;
+    row-gap: 12px;
+    padding-left: clamp(20px, 3vw, 32px);
+    padding-right: clamp(20px, 3vw, 32px);
+  }
+
+  .push-section .push-title {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    padding-left: 0;
+  }
+
+  .push-body {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    padding-right: 0;
+  }
+
+  .push-badge {
+    bottom: auto;
+    top: -16px;
+    right: 16px;
+    left: auto;
+  }
+
+  .proactive-section {
+    grid-template-columns: 1fr;
+    row-gap: 12px;
+    padding-left: clamp(20px, 3vw, 32px);
+    padding-right: clamp(20px, 3vw, 32px);
+  }
+
+  .proactive-section .section-title {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    padding-left: 0;
+  }
+
+  .proactive-body {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    padding-right: 0;
+  }
+
+  .item-head {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+
+/* Short viewports: less vertical space above/below the Dia mark and before the hero */
+@media (max-height: 899px) {
+  .greeting {
+    padding-top: clamp(14px, 3vh, 26px);
+    padding-bottom: clamp(0px, 0.35vh, 4px);
+    padding-left: clamp(16px, 5vw, 24px);
+    padding-right: clamp(16px, 5vw, 24px);
+  }
+
+  .hero {
+    padding-top: clamp(6px, 1.25vh, 14px);
+  }
+}
+
+@supports (height: 1dvh) {
+  @media (max-height: 899px) {
+    .greeting {
+      padding-top: clamp(14px, 3dvh, 26px);
+      padding-bottom: clamp(0px, 0.35dvh, 4px);
+    }
+
+    .hero {
+      padding-top: clamp(6px, 1.25dvh, 14px);
+    }
+  }
+}
+
+
+/* ── Responsive: Phone ────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .hero-the {
+    font-size: 2rem;
+  }
+
+  .hero-day {
+    font-size: 2.8rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .hero-edge {
+    font-size: 1.5rem;
+  }
+
+  .hero-sub {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .brief-blurb,
+  .hero-sub .painting-caption {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+}
+
+
+/* ── Dark Mode ───────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-bg: #111111;
+    --yellow: #FFE500;
+    --text: #F0F0F0;
+    --text-body: rgba(235, 225, 210, 0.6);
+    --text-muted: rgba(255, 255, 255, 0.3);
+  }
+
+  .painting-frame {
+    background: #2a2826;
+  }
+
+  .painting-caption {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .hero-the {
+    text-shadow:
+      0 2px 20px rgba(0, 0, 0, 0.6),
+      0 0 60px rgba(0, 0, 0, 0.35);
+  }
+
+  .hero-day {
+    text-shadow:
+      0 2px 30px rgba(0, 0, 0, 0.6),
+      0 0 80px rgba(0, 0, 0, 0.4);
+  }
+
+  .schedule-item[data-index]:hover,
+  .schedule-item--active {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .todo-check {
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  .todo-check::after {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  }
+
+  .todo-checkbox input:checked ~ .todo-check {
+    border-color: var(--text);
+    background: var(--text);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 7.5L6 10L10.5 4.5' stroke='%23111111' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+  .todo-checkbox:hover .todo-check {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .source-ref:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .source-icon .source-tip {
+    color: #111;
+    background: var(--text);
+  }
+
+  .star-tooltip-popover {
+    background: #2a2826;
+    color: #f8f6f3;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 14px 48px rgba(0, 0, 0, 0.45),
+      0 2px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  .star-tooltip-popover__head-text {
+    color: #faf8f5;
+  }
+
+  .star-tooltip-popover__body-msg {
+    color: rgba(248, 246, 243, 0.72);
+  }
+
+  .star-tooltip-popover__icon svg {
+    filter: brightness(0) invert(1);
+    opacity: 0.88;
+  }
+
+  .schedule-divider {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .people-entry-social-link {
+    border-bottom-color: rgba(255, 255, 255, 0.25);
+  }
+
+  .prep-text,
+  .push-star-text {
+    color: #000;
+  }
+
+  .brief-section--boxed {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .section-note {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Short viewports: image attribution over the painting, bottom-right, solid white. */
+@media (max-height: 799px) {
+  .hero {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 1.5rem;
+    row-gap: clamp(9px, 1.625vh, 16px);
+    align-items: start;
+  }
+
+  .hero-sub {
+    display: contents;
+  }
+
+  .painting-frame {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    z-index: 1;
+  }
+
+  .brief-blurb {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 0;
+    order: 0;
+  }
+
+  .hero-sub .painting-caption,
+  .painting-caption {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    align-self: end;
+    justify-self: end;
+    z-index: 4;
+    /* Up to ~45% of hero width — % resolves against the full-width grid area, not the blurb below. */
+    width: 45%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin: 0 0 clamp(6px, 1.2vh, 14px);
+    padding-right: clamp(4px, 1.2cqw, 10px);
+    text-align: right;
+    overflow-wrap: break-word;
+    color: #fff;
+    text-shadow:
+      0 0.5px 1px rgba(0, 0, 0, 0.28),
+      0 1px 5px rgba(0, 0, 0, 0.18);
+    transition: opacity 0.22s ease, text-shadow 0.22s ease;
+    order: 0;
+  }
+
+  .hero-sub .painting-caption.visible,
+  .painting-caption.visible {
+    opacity: 0.55;
+  }
+
+  .hero-sub .painting-caption.visible:hover,
+  .painting-caption.visible:hover {
+    opacity: 1;
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.55),
+      0 0 12px rgba(0, 0, 0, 0.28);
+  }
+}
+
+/* ============================================================
+   Ported from christine-sandbox/morningbrief/daily-brief-style.css (commit
+   ce33f21). Three groups:
+     1. To-do sticky-hover + Dia CTA pill
+     2. All-done popover + confetti + multi-stage sequence
+     3. Page footer (halftone fade-mask + prose credit + HIVE circles)
+   ============================================================ */
+
+:root {
+  --text-on-yellow: #000;
+}
+
+/* ── 1. To-do sticky-hover surface + CTA pill ───────────── */
+
+/* Anchors the absolutely-positioned `.todo-all-done` overlay so it covers the
+   list of to-dos when all are checked. */
+.brief-section--inline .section-body {
+  position: relative;
+}
+
+/* Wraps the checkbox + content with the hover/active highlight (::before).
+   The 8-track grid mirrors outer cols 5–12 so .todo-content's text edge
+   lands on outer col 6, aligning with .item-body. The checkbox sits at
+   the left of its track (with a small padding-left) so it stays close to
+   the highlight's left edge — matching the tight original look. */
+.todo-item-surface {
+  grid-column: 5 / -1;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  align-items: start;
+  position: relative;
+  isolation: isolate;
+}
+
+.todo-item-surface::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.024);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.todo-item.is-active:not(:has(input:checked)) .todo-item-surface::before {
+  opacity: 1;
+}
+
+.todo-item:has(input:checked) .todo-item-surface::before {
+  opacity: 0;
+}
+
+.todo-item-surface > .todo-checkbox,
+.todo-item-surface > .todo-content {
+  position: relative;
+  z-index: 1;
+}
+
+.todo-item-surface > .todo-checkbox {
+  grid-column: 1;
+  justify-self: start;
+  padding-left: 12px;
+}
+
+.todo-item-surface > .todo-content {
+  grid-column: 2 / -1;
+  min-width: 0;
+}
+
+/* Track the .item-body breakpoint shifts so .todo-content stays aligned
+   with it: each breakpoint widens the surface by one outer column and
+   grows the internal track count to match. */
+@media (max-width: 1160px) {
+  .todo-item-surface {
+    grid-column: 4 / -1;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .todo-item-surface {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  /* Surface now spans the full content area, so align the checkbox flush
+     with col 1 (matching .item-num in the updates section, which drops its
+     padding at this breakpoint). */
+  .todo-item-surface > .todo-checkbox {
+    padding-left: 0;
+  }
+}
+
+.todo-head {
+  position: relative;
+}
+
+.todo-head .todo-label {
+  display: block;
+  min-width: 0;
+  padding-right: 2.25rem;
+  position: relative;
+  z-index: 0;
+}
+
+.todo-actions {
+  z-index: 1;
+  position: absolute;
+  bottom: 0;
+  right: 8px;
+  height: 2.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: none;
+  max-width: calc(100% - 8px);
+}
+
+.todo-dia-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  gap: 0;
+  box-sizing: border-box;
+  width: fit-content;
+  max-width: 100%;
+  height: 2.375rem;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+  background: transparent;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: none;
+  pointer-events: none;
+  transition:
+    gap 0.24s ease-out,
+    padding 0.24s ease-out,
+    background 0.22s ease-out,
+    box-shadow 0.22s ease-out;
+}
+
+.todo-item.is-active .todo-dia-btn {
+  gap: 7px;
+  padding: 0 0.6rem 0 calc(0.65rem + 4px);
+  background: var(--yellow);
+  color: var(--text-on-yellow);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  pointer-events: auto;
+}
+
+.todo-dia-btn-expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  max-width: 0;
+  overflow: hidden;
+  transition: max-width 0.24s ease-out;
+}
+
+.todo-item.is-active .todo-dia-btn-expand {
+  max-width: 24rem;
+}
+
+.todo-dia-btn-label-wrap {
+  display: block;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-right: -2em;
+}
+
+.todo-item.is-active .todo-dia-btn-label-wrap {
+  margin-right: 0;
+}
+
+.todo-dia-btn-label {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.todo-dia-btn-icon,
+.todo-dia-btn-label {
+  color: var(--text-on-yellow);
+  opacity: 0;
+  transition: opacity 0.08s ease-out;
+}
+
+.todo-item.is-active .todo-dia-btn-icon,
+.todo-item.is-active .todo-dia-btn-label {
+  opacity: 1;
+  transition: opacity 0.16s ease-out 0.1s;
+}
+
+.todo-dia-btn-arrow {
+  flex-shrink: 0;
+  display: block;
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  transition: color 0.06s ease-out;
+}
+
+.todo-item.is-active .todo-dia-btn-arrow {
+  color: var(--text-on-yellow);
+  transition: color 0.16s ease-out;
+}
+
+.todo-dia-btn::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -120%;
+  width: 110%;
+  height: 140%;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.1) 30%,
+    rgba(255, 200, 220, 0.2) 38%,
+    rgba(200, 220, 255, 0.25) 46%,
+    rgba(220, 255, 220, 0.2) 54%,
+    rgba(255, 240, 200, 0.15) 62%,
+    rgba(255, 255, 255, 0.1) 70%,
+    transparent 80%
+  );
+  transform: skewX(-15deg);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 0;
+}
+
+.todo-dia-btn-expand,
+.todo-dia-btn-arrow {
+  position: relative;
+  z-index: 1;
+}
+
+.todo-item.is-active .todo-dia-btn:hover {
+  background: color-mix(in srgb, var(--yellow) 94%, #000);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.todo-dia-btn:hover::before {
+  opacity: 1;
+  animation: prismatic-shine 0.6s ease-out forwards;
+}
+
+.todo-dia-btn:not(:hover)::before {
+  animation: none;
+  left: -120%;
+  opacity: 0;
+}
+
+.todo-item.is-active .todo-dia-btn:active {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.todo-dia-btn-icon {
+  flex-shrink: 0;
+  display: block;
+  width: 16px;
+  height: 14px;
+  shape-rendering: geometricPrecision;
+}
+
+.todo-dia-btn:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.35);
+  outline-offset: 2px;
+}
+
+@keyframes prismatic-shine {
+  0%   { left: -120%; }
+  100% { left: 140%; }
+}
+
+@media screen and (max-width: 540px) {
+  .todo-head .todo-label {
+    padding-right: 2.25rem;
+  }
+  .todo-dia-btn-label-wrap,
+  .todo-dia-btn-label {
+    display: none;
+  }
+  .todo-item.is-active .todo-dia-btn {
+    padding: 0 0.35rem 0 calc(0.4rem + 4px);
+    gap: 7px;
+  }
+  .todo-item.is-active .todo-dia-btn-expand {
+    max-width: 2.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todo-item-surface::before,
+  .todo-dia-btn,
+  .todo-dia-btn-expand,
+  .todo-dia-btn-icon,
+  .todo-dia-btn-label,
+  .todo-dia-btn-label-wrap,
+  .todo-dia-btn-arrow {
+    transition: none;
+  }
+}
+
+/* ── 2. All-done popover + confetti + multi-stage sequence ── */
+
+/* To-dos can span two sections ("Top to-dos" + "For later"). When everything is
+   checked off, the celebration overlays the first section and the rest collapse
+   away, so the all-done state reads as one celebration like the standard brief. */
+.brief-section--inline.is-todos-done-collapsed {
+  display: none;
+}
+
+/* When the popover takes over, blur each to-do directly (no `.todo-list`
+   wrapper to target, by design — we kept the section-body flat). */
+.brief-section--inline.is-all-done .todo-item:not(.todo-item--completion) {
+  pointer-events: none;
+  filter: blur(6px);
+  opacity: 0.3;
+  transition: filter 0.28s ease, opacity 0.28s ease;
+}
+
+.todo-all-done.is-popover-visible > .todo-item {
+  animation: todo-popover-scale-in 0.2s cubic-bezier(0.34, 1.28, 0.64, 1) both;
+}
+
+@keyframes todo-popover-scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* The popover is appended as a sibling of the `.todo-item`s in
+   `.section-body`. While hidden it's `display: none` so it takes no space.
+   When visible it absolutely overlays the section-body — the blurred items
+   underneath provide the height; the card centers over them. */
+.todo-all-done {
+  display: none;
+  pointer-events: none;
+}
+
+.brief-section--inline.is-all-done .todo-all-done.is-popover-visible {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.todo-all-done > .todo-item {
+  width: min(100%, 38rem);
+  max-width: 100%;
+  pointer-events: auto;
+}
+
+/* The completion card doesn't have the checkbox + content split — override
+   the surface's grid tracks so the card fills the full width instead of
+   being squeezed into col 2. */
+.todo-all-done-surface.todo-item-surface {
+  display: block;
+  width: 100%;
+  z-index: 1;
+}
+
+.todo-all-done-surface.todo-item-surface::before {
+  top: 0;
+  opacity: 1;
+  background: #f1f1f1;
+  transition: opacity 0.35s ease;
+}
+
+.todo-all-done.is-sequence-active .todo-all-done__close {
+  opacity: 0;
+  animation: todo-fade-in 0.35s ease forwards;
+  animation-delay: 0.15s;
+}
+
+.todo-all-done-surface .todo-all-done__card {
+  grid-column: 1 / -1;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 2rem 2.25rem;
+  border-radius: 12px;
+  background: #f1f1f1;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.todo-all-done__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(60, 60, 67, 0.55);
+  cursor: pointer;
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+
+.todo-all-done__close:hover {
+  color: rgba(60, 60, 67, 0.85);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.todo-all-done__close:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.35);
+  outline-offset: 2px;
+}
+
+.todo-all-done__stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.todo-all-done__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.todo-all-done__badge {
+  position: relative;
+  z-index: 1;
+  width: 3.325rem;
+  height: 3.325rem;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.todo-all-done__star {
+  position: absolute;
+  inset: 0;
+  background: var(--yellow);
+  border: 2px solid #f1f1f1;
+  box-sizing: border-box;
+  clip-path: polygon(
+    50% 0%, 60.9% 9.4%, 75% 6.7%, 79.7% 20.3%,
+    93.3% 25%, 90.6% 39.1%, 100% 50%, 90.6% 60.9%,
+    93.3% 75%, 79.7% 79.7%, 75% 93.3%, 60.9% 90.6%,
+    50% 100%, 39.1% 90.6%, 25% 93.3%, 20.3% 79.7%,
+    6.7% 75%, 9.4% 60.9%, 0% 50%, 9.4% 39.1%,
+    6.7% 25%, 20.3% 20.3%, 25% 6.7%, 39.1% 9.4%
+  );
+}
+
+.todo-all-done__check {
+  position: relative;
+  z-index: 1;
+  color: var(--text-on-yellow);
+}
+
+.todo-all-done__title {
+  margin: 0;
+  width: 100%;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.47em;
+  line-height: 1.2;
+  color: var(--text);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.todo-all-done__desc {
+  margin: 0;
+  width: 100%;
+  max-width: 38.75rem;
+  font-family: var(--font-body);
+  font-size: 1em;
+  line-height: 1.7;
+  color: var(--text-body);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+@keyframes todo-fade-in {
+  to { opacity: 1; }
+}
+
+.todo-all-done.is-popover-visible:not(.is-sequence-active) .todo-all-done__badge,
+.todo-all-done.is-sequence-done .todo-all-done__badge {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.todo-all-done.is-sequence-active .todo-all-done__badge {
+  opacity: 0;
+  transform: scale(0.72) rotate(-10deg);
+  animation: todo-badge-pop 0.32s cubic-bezier(0.34, 1.28, 0.64, 1) forwards;
+  animation-delay: 0.2s;
+}
+
+.todo-all-done.is-sequence-active .todo-all-done__title,
+.todo-all-done.is-sequence-active .todo-all-done__desc {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.todo-all-done.is-sequence-active .todo-all-done__title {
+  animation: todo-content-in 0.48s ease forwards;
+  animation-delay: 0.5s;
+}
+
+.todo-all-done.is-sequence-active .todo-all-done__desc {
+  animation: todo-content-in 0.48s ease forwards;
+  animation-delay: 0.62s;
+}
+
+@keyframes todo-badge-pop {
+  0%   { opacity: 0; transform: scale(0.72) rotate(-10deg); }
+  72%  { opacity: 1; transform: scale(1.05) rotate(2deg);  }
+  100% { opacity: 1; transform: scale(1)    rotate(0deg);  }
+}
+
+@keyframes todo-content-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.todo-all-done__stage .todo-confetti {
+  position: absolute;
+  inset: -40% -20%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.todo-confetti-piece {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--size, 7px);
+  height: var(--size, 7px);
+  margin-left: calc(var(--size, 7px) / -2);
+  margin-top: calc(var(--size, 7px) / -2);
+  background: var(--color, var(--yellow));
+  border-radius: 1px;
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  animation: todo-confetti-burst 1.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+.todo-confetti-piece--rect {
+  border-radius: 0;
+  width: calc(var(--size, 7px) * 0.55);
+}
+
+.todo-confetti-piece--dot {
+  border-radius: 50%;
+}
+
+@keyframes todo-confetti-burst {
+  0%   { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot)) scale(0.65); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brief-section--inline.is-all-done .todo-list {
+    transition: none;
+  }
+  .todo-all-done.is-popover-visible > .todo-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .todo-all-done.is-sequence-active .todo-all-done__close,
+  .todo-all-done.is-sequence-active .todo-all-done__badge,
+  .todo-all-done.is-sequence-active .todo-all-done__title,
+  .todo-all-done.is-sequence-active .todo-all-done__desc {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .todo-confetti-piece {
+    animation: none;
+    display: none;
+  }
+}
+
+/* ── 3. Page footer (halftone, prose credit, HIVE circles) ── */
+
+.brief-footer {
+  position: relative;
+  width: 100%;
+  min-height: 315px;
+  margin-top: clamp(12px, 2vw, 24px);
+  /* The halftone's densest point is masked to the footer's bottom edge, so the
+     footer must reach the very bottom of the page — no bottom margin. Bottom
+     breathing room lives in padding-bottom instead, which the halftone fills. */
+  margin-bottom: 0;
+  padding: clamp(72px, 12vw, 120px) var(--content-pad) clamp(108px, 15vw, 160px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+  isolation: isolate;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.brief-footer.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.brief-footer:not(.is-visible) {
+  pointer-events: none;
+}
+
+.brief-footer__fade {
+  position: absolute;
+  top: clamp(48px, 8vw, 96px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(938px, 82%);
+  height: 168px;
+  background: var(--page-bg);
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.brief-footer__halftone {
+  position: absolute;
+  inset: 0;
+  background-color: var(--page-bg);
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.14) 0.65px, transparent 0.65px);
+  background-size: 5px 5px;
+  mask-image:
+    radial-gradient(ellipse 90% 70% at 50% 100%, #000 15%, transparent 72%),
+    linear-gradient(to top, #000 0%, transparent 55%);
+  -webkit-mask-image:
+    radial-gradient(ellipse 90% 70% at 50% 100%, #000 15%, transparent 72%),
+    linear-gradient(to top, #000 0%, transparent 55%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.brief-footer__inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  max-width: var(--content-max);
+  width: 100%;
+  text-align: center;
+}
+
+.brief-footer__credit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4.5px;
+  font-family: var(--font-display);
+  font-size: clamp(1.125rem, 1.6vw, 1.5rem);
+  font-weight: 550;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+}
+
+.brief-footer__muted {
+  color: rgba(0, 0, 0, 0.5);
+  font-weight: 550;
+}
+
+.brief-footer__emph {
+  font-style: italic;
+}
+
+.brief-footer__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 4.5px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.brief-footer__icon--dia {
+  width: 19px;
+  height: 18px;
+  flex-shrink: 0;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.brief-footer__source.source-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 4.5px;
+  color: rgba(0, 0, 0, 0.85);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 0;
+  margin: 0 0 0 3px;
+  transition: opacity 0.2s ease;
+}
+
+.brief-footer__source.source-ref:hover {
+  background: transparent;
+  opacity: 0.6;
+}
+
+.brief-footer__source .source-icon {
+  width: 21px;
+  height: 21px;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.brief-footer__source .source-icon svg,
+.brief-footer__source .source-icon img {
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+}
+
+.brief-footer__love {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 19px;
+  color: #8c8c8c;
+}
+
+.brief-footer__circles {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+}
+
+.brief-footer__circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  border: 0.5px solid #8c8c8c;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 1;
+  color: #8c8c8c;
+  transform: translateY(0);
+}
+
+@keyframes brief-footer-circle-wave {
+  0%   { transform: translateY(0); }
+  38%  { transform: translateY(-7px); }
+  58%  { transform: translateY(1px); }
+  78%  { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
+}
+
+.brief-footer__circles:hover .brief-footer__circle {
+  animation-name: brief-footer-circle-wave;
+  animation-duration: 0.82s;
+  animation-timing-function: cubic-bezier(0.34, 1.45, 0.56, 1);
+  animation-iteration-count: 1;
+  animation-fill-mode: backwards;
+}
+
+.brief-footer__circles:hover .brief-footer__circle:nth-child(1) { animation-delay: 0s; }
+.brief-footer__circles:hover .brief-footer__circle:nth-child(2) { animation-delay: 0.11s; }
+.brief-footer__circles:hover .brief-footer__circle:nth-child(3) { animation-delay: 0.22s; }
+.brief-footer__circles:hover .brief-footer__circle:nth-child(4) { animation-delay: 0.33s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .brief-footer {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .brief-footer__circles:hover .brief-footer__circle {
+    animation: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Sticky-hover surface highlight: invert the black-overlay tint to a
+     white-overlay tint so it reads on the dark page bg. */
+  .todo-item-surface::before {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Focus ring on the active Dia CTA pill — the yellow stays bright in dark
+     mode, but the outline ring needs to flip from black to white to be visible
+     against the dark page surround. */
+  .todo-dia-btn:focus-visible {
+    outline-color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* Completion popover card. The card/star/surface::before all share the
+     same neutral surface color in light mode (#f1f1f1) — they have to keep
+     sharing in dark mode so the star outline still "carves out" against the
+     card behind it. */
+  .todo-all-done-surface.todo-item-surface::before,
+  .todo-all-done-surface .todo-all-done__card {
+    background: #1a1a1a;
+  }
+
+  .todo-all-done__star {
+    border-color: #1a1a1a;
+  }
+
+  .todo-all-done__close {
+    color: rgba(235, 225, 210, 0.55);
+  }
+
+  .todo-all-done__close:hover {
+    color: rgba(235, 225, 210, 0.9);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .todo-all-done__close:focus-visible {
+    outline-color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* Footer: halftone dots invert (dark dots on a light page → light dots on
+     a dark page). The fade and the dot color must both swap; mid-gray love /
+     circles stay legible on both. */
+  .brief-footer__halftone {
+    background-color: var(--page-bg);
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0.65px, transparent 0.65px);
+  }
+
+  .brief-footer__muted {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .brief-footer__brand,
+  .brief-footer__source.source-ref,
+  .brief-footer__icon--dia {
+    color: rgba(255, 255, 255, 0.85);
+  }
+}
+
+@media print {
+  .todo-actions {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Context Builder additions: ranked to-dos + Tasks section
+   ============================================================ */
+
+:root {
+  /* Time cue for to-do flags (DUE TODAY / TIME-SENSITIVE). Deliberately a calm,
+     muted slate rather than alarm-red — the uppercase label already carries the
+     emphasis, so the color stays informational, not urgent. */
+  --urgent: #6B6B76;
+}
+
+/* ── Shared ranked number ─────────────────────────────── */
+
+.todo-item,
+.item.task-item {
+  position: relative;
+}
+
+.rank-number {
+  position: absolute;
+  left: clamp(20px, 3vw, 32px);
+  top: 0;
+  font-family: var(--font-mono);
+  font-size: 1.5em;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text-muted);
+  letter-spacing: -0.02em;
+  z-index: 1;
+}
+
+/* ── To-do meta row ───────────────────────────────────── */
+
+.todo-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 1px;
+}
+
+.todo-flag {
+  font-family: var(--font-body);
+  font-size: 0.68em;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--urgent);
+}
+
+/* ── Tasks section ────────────────────────────────────── */
+
+.task-title {
+  font-family: var(--font-display);
+  font-size: 1.55em;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.task-desc {
+  margin-top: 2px;
+}

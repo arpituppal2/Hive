@@ -1,0 +1,14 @@
+Building for debugging...
+[Computing dependencies]
+[Constructing description]
+[Pre-planning 1 / 861]
+[Planning deferred tasks]
+warning: missing creator for mutated node: ('/Users/arpituppal/Downloads/Hive/.build/out/Products/Debug/mlx-swift_Cmlx.bundle/Contents/MacOS')
+[4 / 65]
+[5 / 8] HiveChromium-product
+[6 / 11]
+[8 / 11] HiveChromium-product
+[9 / 13] HiveChromium-product
+[11 / 13] HiveChromium-product
+[13 / 13] HiveChromium-product
+Build complete! (10.99 sec)

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hive Sparkle appcast.
+
+  Publishing rules (Sparkle 2):
+  1. sparkle:version  MUST equal the CFBundleVersion stamped into the
+     release build (build-hive-app.sh with HIVE_VERSION/HIVE_BUILD).
+  2. sparkle:edSignature MUST be a non-empty EdDSA signature over the .dmg.
+     Generate it with Sparkle's tool on the SIGNED release archive:
+       generate_appcast --download-url-prefix \
+         https://github.com/arpituppal2/Hive/releases/download \
+         <dir-containing-Hive.dmg>
+     (Signs with the Sparkle EdDSA key from the keychain; empty signature
+     makes Sparkle 2 refuse the feed — the update check never fires.)
+  3. Deploy this file to the URL baked in SUFeedURL
+     (release builds default to https://arpituppal2.github.io/Hive/appcast.xml).
+-->
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Hive Browser Releases</title>
+    <link>https://github.com/arpituppal2/Hive/releases</link>
+    <description>Release updates for Hive — the browser that thinks with you.</description>
+    <language>en</language>
+
+    <item>
+      <title>Hive 1.0</title>
+      <sparkle:releaseNotesLink>https://github.com/arpituppal2/Hive/releases/tag/v1.0.0</sparkle:releaseNotesLink>
+      <pubDate>Fri, 08 Aug 2026 18:30:00 +0000</pubDate>
+      <enclosure
+        url="https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg"
+        sparkle:version="1"
+        sparkle:shortVersionString="1.0"
+        sparkle:os="macos"
+        length="179607822"
+        sparkle:edSignature="FILL-ME-WITH-GENERATE_APPCAST-OUTPUT"
+        type="application/octet-stream"/>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+    </item>
+  </channel>
+</rss>

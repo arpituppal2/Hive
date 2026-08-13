@@ -1,0 +1,37 @@
+# Build artifacts
+.build/
+.swiftpm/
+*.xcodeproj/
+DerivedData/
+
+# Local Claude Code tooling — not product content
+.claude/
+
+# Local runtime config — secrets live in Keychain, never here
+config.yaml
+
+# macOS
+.DS_Store
+.gstack/
+
+# Generated Rust research worker; release packaging must build and sign it.
+Sources/HiveChromium/Resources/ResearchWorker/hive-fetch-worker
+Sources/HiveChromium/Resources/ResearchWorker/hive-worker-requirement.txt
+Sources/HiveChromium/Resources/ResearchWorker/hive-worker-requirement.txt.*
+
+# CEF download cache (SwiftPM plugin-managed)
+.cef/
+
+# Recovered disk contents — not product source
+RECOVERED:USABLE:COPYABLE CONTENTS/
+
+# Packaged app bundles (adhoc/dev builds)
+dist/
+dist-debug/
+
+# Rust build artifacts (native/hive-fetch-boundary)
+**/target/
+
+# ML training pipeline: weights, caches, scratch (hive-train/)
+hive-train/
+__pycache__/

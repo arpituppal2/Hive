@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join the Hive — Early Access</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/png" href="favicon.png">
+
+<meta property="og:title" content="Join the Hive — Early Access">
+<meta property="og:description" content="Be first to try Hive: a Chromium browser with on-device AI, multi-model council, and agentic browsing. Zero telemetry.">
+<meta property="og:image" content="https://arpituppal2.github.io/Hive/favicon.png">
+<meta property="og:url" content="https://arpituppal2.github.io/Hive/waitlist.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Join the Hive — Early Access">
+<meta name="twitter:description" content="Be first to try Hive: on-device AI, multi-model council, agentic browsing. Zero telemetry.">
+<meta name="twitter:image" content="https://arpituppal2.github.io/Hive/favicon.png">
+<style>
+  .waitlist-hero { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 24px; position: relative; overflow: hidden; }
+  .waitlist-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(249,115,22,0.12), transparent 70%); pointer-events: none; }
+  .waitlist-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.25); border-radius: 100px; padding: 6px 16px; font-size: 13px; font-weight: 500; color: #f97316; margin-bottom: 24px; }
+  .waitlist-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: #f97316; animation: pulse-dot 2s infinite; }
+  @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.6); } }
+  .waitlist-h1 { font-size: clamp(36px, 7vw, 64px); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; margin: 0 0 16px; max-width: 700px; }
+  .waitlist-h1 span { background: linear-gradient(135deg, #f97316 0%, #fb923c 40%, #fbbf24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .waitlist-sub { font-size: 18px; color: var(--text-secondary); max-width: 520px; margin: 0 0 36px; line-height: 1.6; }
+  .waitlist-form { display: flex; gap: 10px; max-width: 440px; width: 100%; flex-wrap: wrap; justify-content: center; }
+  .waitlist-input { flex: 1; min-width: 240px; padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #fff; font-size: 15px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+  .waitlist-input:focus { border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.2); }
+  .waitlist-input::placeholder { color: rgba(255,255,255,0.28); }
+  .waitlist-btn { padding: 14px 28px; border-radius: 12px; background: #f97316; color: #fff; font-size: 15px; font-weight: 600; border: none; cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap; }
+  .waitlist-btn:hover { background: #ea580c; transform: translateY(-1px); }
+  .waitlist-btn:active { transform: translateY(0); }
+  .waitlist-btn:disabled { background: rgba(249,115,22,0.3); cursor: not-allowed; transform: none; }
+  .waitlist-success { display: none; flex-direction: column; align-items: center; gap: 16px; padding: 24px; }
+  .waitlist-success.visible { display: flex; }
+  .waitlist-check { width: 56px; height: 56px; border-radius: 50%; background: rgba(34,197,94,0.15); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .waitlist-count { font-size: 15px; color: var(--text-tertiary); margin-top: 8px; }
+  .waitlist-count strong { color: #f97316; }
+  .waitlist-features { max-width: 800px; margin: 80px auto; padding: 0 24px; }
+  .waitlist-features h2 { font-size: 28px; font-weight: 700; margin-bottom: 32px; text-align: center; }
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .feature-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; transition: border-color 0.2s; }
+  .feature-card:hover { border-color: rgba(249,115,22,0.25); }
+  .feature-icon { font-size: 24px; margin-bottom: 12px; }
+  .feature-card h3 { font-size: 16px; font-weight: 600; margin: 0 0 6px; }
+  .feature-card p { font-size: 14px; color: var(--text-secondary); margin: 0; line-height: 1.5; }
+  .social-proof { text-align: center; padding: 60px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .social-proof h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .social-proof p { color: var(--text-secondary); margin-bottom: 24px; }
+  .social-links { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .social-link { padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); text-decoration: none; font-size: 14px; transition: border-color 0.2s, color 0.2s; }
+  .social-link:hover { border-color: #f97316; color: #f97316; }
+  footer { text-align: center; padding: 40px 24px; color: var(--text-tertiary); font-size: 13px; }
+  footer a { color: var(--text-secondary); text-decoration: none; }
+  footer a:hover { color: #f97316; }
+</style>
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a href="/" class="logo"><span class="logo-text">Hive</span></a>
+  <div class="nav-links"><a href="/" class="btn-sm">Home</a></div>
+</div></nav>
+
+<section class="waitlist-hero">
+  <div class="waitlist-badge"><span class="dot"></span> Early Access — Limited Spots</div>
+  <h1 class="waitlist-h1">The browser that <span>thinks with you</span></h1>
+  <p class="waitlist-sub">Hive combines Chromium-grade browsing with on-device AI, a multi-model council, and agentic browsing. Join the waitlist to be first in line.</p>
+  <form class="waitlist-form" id="waitlistForm" onsubmit="submitWaitlist(event)">
+    <input type="email" class="waitlist-input" id="emailInput" placeholder="you@example.com" required autocomplete="email">
+    <button type="submit" class="waitlist-btn" id="submitBtn">Get Early Access</button>
+  </form>
+  <div class="waitlist-success" id="successMsg">
+    <div class="waitlist-check">✅</div>
+    <p style="font-size:18px;font-weight:600;margin:0;">You're on the list!</p>
+    <p style="color:var(--text-secondary);margin:0;">We'll send you a download link when Hive launches.</p>
+    <p class="waitlist-count" id="countDisplay"></p>
+  </div>
+</section>
+
+<section class="waitlist-features">
+  <h2>What early members get</h2>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <h3>Model Council</h3>
+      <p>Multiple AI models deliberate on your questions in parallel — MLX on-device, Tavily cloud, and your own BYOK endpoint.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>Agentic Browsing</h3>
+      <p>Let Hive navigate the web for you. Research, fill forms, extract data — all with CDP-powered browser automation.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Deep Research</h3>
+      <p>Multi-step research with inline citations. Plan → search → read → synthesize — all inside your browser.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>Rust Adblocking</h3>
+      <p>Brave-level tracker and ad blocking via a native Rust engine. CNAME uncloaking, cosmetic filtering, EasyList.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">☁️</div>
+      <h3>E2E Encrypted Sync</h3>
+      <p>Cross-device sync via CloudKit. Your data is end-to-end encrypted. Zero telemetry, zero tracking.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎨</div>
+      <h3>Workspaces & Themes</h3>
+      <p>Per-workspace cookie isolation, dark/light themes, vertical and horizontal layouts — your browser, your rules.</p>
+    </div>
+  </div>
+</section>
+
+<div class="social-proof">
+  <h2>Join the conversation</h2>
+  <p>Follow along as we build in public. Feature requests, bug reports, and design feedback — you shape Hive.</p>
+  <div class="social-links">
+    <a href="https://github.com/arpituppal2/Hive" class="social-link" target="_blank">⭐ GitHub</a>
+    <a href="https://github.com/arpituppal2/Hive/discussions" class="social-link" target="_blank">💬 Discussions</a>
+    <a href="https://github.com/arpituppal2/Hive/releases" class="social-link" target="_blank">📦 Releases</a>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 Hive Browser. <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
+</footer>
+
+<script>
+(function(){
+  var STORAGE_KEY = 'hive-waitlist-email';
+  var COUNT_KEY = 'hive-waitlist-count';
+  var form = document.getElementById('waitlistForm');
+  var input = document.getElementById('emailInput');
+  var btn = document.getElementById('submitBtn');
+  var success = document.getElementById('successMsg');
+  var countDisplay = document.getElementById('countDisplay');
+
+  // If already joined, show success
+  if (localStorage.getItem(STORAGE_KEY)) {
+    form.style.display = 'none';
+    success.classList.add('visible');
+    updateCount();
+  }
+
+  function updateCount() {
+    var count = parseInt(localStorage.getItem(COUNT_KEY) || '0', 10);
+    if (count > 0) {
+      countDisplay.innerHTML = '<strong>' + count.toLocaleString() + '</strong> people have joined the waitlist.';
+    }
+  }
+
+  window.submitWaitlist = function(e) {
+    e.preventDefault();
+    var email = input.value.trim();
+    if (!email || !email.includes('@')) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Joining...';
+
+    // Store locally
+    localStorage.setItem(STORAGE_KEY, email);
+    var count = (parseInt(localStorage.getItem(COUNT_KEY) || '0', 10)) + 1;
+    localStorage.setItem(COUNT_KEY, count.toString());
+
+    // Show success after a brief animation delay
+    setTimeout(function(){
+      form.style.display = 'none';
+      success.classList.add('visible');
+      updateCount();
+    }, 600);
+  };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,384 @@
+/* ============================================================
+   Hive Design Tokens — tokens.css v2
+   ------------------------------------------------------------
+   ONE token contract, TWO presentations (spec: 2026-08-11-ux-overhaul).
+   Mirrors Sources/Hive/Design/HiveDesign.swift 1:1.
+
+   · Neutral ramp   = exact hex equivalents of .hiveCanvas/.hiveSurface1/2/3
+     (dark: #1A1512/#241E18/#2D251E/#372D23, light flip below)
+   · Depth          = Brave Leo two-layer recipe (elevated) + Polar overlay
+   · Geometry       = Chromium layout_constants.cc (chrome-mode) and
+     Chromium vertical-tab constants + Zen source (zen-mode)
+   · Motion         = one spring table shared with native (--spring-*)
+   · Icon stroke    = 1.8px everywhere
+
+   Hive signature: honey-orange accent (#F97316). Amber is reserved for
+   AI affordances only; honey is the brand accent.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* ---------- Neutral scale — HIVE hex ramp (matches .hive*) ---------- */
+  /* Warm-tinted: canvas #1A1512, surface1 #241E18, surface2 #2D251E,
+     surface3 #372D23. RGB triplets so consumers can alpha-composite:
+     rgb(var(--hive-surface1) / .5). */
+  --hive-canvas:   26 21 18;   /* #1A1512 — window base, deepest well */
+  --hive-surface1: 36 30 24;   /* #241E18 — cards, panels, sidebar items */
+  --hive-surface2: 45 37 30;   /* #2D251E — hovered surfaces, featured */
+  --hive-surface3: 55 45 35;   /* #372D23 — active/pressed, selection */
+  --hive-hairline: 255 255 255; /* alpha-composited via --color-hairline */
+
+  /* Aliased ramp (compatibility with legacy cn-* consumers) */
+  --cn-50:   244 241 238;   /* brightest text on dark */
+  --cn-75:   214 208 201;
+  --cn-100:  180 172 164;
+  --cn-150:  150 142 134;
+  --cn-200:  118 111 104;
+  --cn-300:  88 81 75;
+  --cn-400:  66 60 54;
+  --cn-500:  54 48 42;
+  --cn-600:  46 40 34;      /* card / field */
+  --cn-700:  40 34 29;      /* raised surface */
+  --cn-800:  33 28 24;      /* canvas */
+  --cn-900:  28 23 20;      /* app background */
+  --cn-1000: 23 19 16;      /* deepest wells */
+
+  /* ---------- Semantic colors ---------- */
+  --color-app: rgb(var(--hive-canvas));
+  --color-canvas: rgb(var(--hive-canvas));
+  --color-canvas-raised: rgb(var(--hive-surface1));
+  --color-card: rgb(var(--hive-surface1));
+  --color-field: rgb(var(--hive-surface1));
+  --color-input: rgb(var(--hive-surface1));
+  --color-input-border: rgb(var(--cn-300));
+
+  --color-text-primary: rgb(var(--cn-50));
+  --color-text-secondary: rgb(var(--cn-100));
+  --color-text-tertiary: rgb(var(--cn-150));
+  --color-text-muted: rgb(var(--cn-200));
+  --color-text-disabled: rgb(var(--cn-300));
+  --color-placeholder: rgb(var(--cn-200));
+
+  --color-border-subtle: rgb(var(--cn-400));
+  --color-border-strong: rgb(var(--cn-300));
+  --color-border-active: rgb(249 115 22);           /* honey */
+  --color-hairline: rgba(255, 255, 255, 0.07);
+  --color-hairline-strong: rgba(255, 255, 255, 0.13);
+
+  /* Hover weights are MODE-SENSITIVE (spec §3/§4):
+     chrome-mode = 8% white (Chromium), zen-mode = 10% white (Zen). */
+  --color-surface-hover: rgba(255, 255, 255, 0.08);
+  --color-surface-hover-zen: rgba(255, 255, 255, 0.10);
+  --color-surface-hover-subtle: rgba(255, 255, 255, 0.04);
+
+  /* ---------- Accent (Hive signature: honey) ---------- */
+  --color-accent: 249 115 22;       /* #F97316 */
+  --color-accent-hover: 251 146 60; /* #FB923C */
+  --color-accent-soft: rgb(249 115 22 / 0.16);
+  --color-accent-ink: 255 255 255;
+
+  /* AI-only semantics — amber stays in the AI lane */
+  --color-ai: 245 158 11;           /* #F59E0B */
+
+  /* ---------- Status ---------- */
+  --color-error: 248 113 113;
+  --color-error-bg: rgba(239, 68, 68, 0.15);
+  --color-error-border: rgba(248, 113, 113, 0.3);
+  --color-success: 52 211 153;
+  --color-success-bg: rgba(16, 185, 129, 0.15);
+  --color-info: 34 211 238;
+  --color-info-bg: rgba(8, 145, 178, 0.12);
+  --color-warning: 251 191 36;
+  --color-warning-bg: rgba(245, 158, 11, 0.15);
+
+  /* ---------- Type ---------- */
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+             "Inter", system-ui, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono",
+               "Berkeley Mono", Menlo, monospace;
+  --font-display: "SF Pro Display", var(--font-ui);
+
+  /* Sizes: 11px tab titles → 34px display */
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 26px;
+  --text-display: 34px;
+
+  --tracking-tight: -0.01em;
+  --tracking-display: -0.02em;
+
+  /* ---------- Spacing (4px base, spec §2) ---------- */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+  --s5: 20px; --s6: 24px; --s8: 32px; --s10: 40px; --s12: 48px;
+
+  /* ---------- Radii (spec §2 — shared scale) ---------- */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 8px;       /* tabs, toolbar controls */
+  --r-lg: 10px;      /* address bar, cards */
+  --r-xl: 12px;      /* panels, sheets, popovers */
+  --r-tab: 8px;
+  --r-card: 16px;
+  --r-pill: 9999px;
+
+  /* ---------- Elevation (Brave Leo + Polar, spec §Depth) ---------- */
+  /* Cards/panels: NO drop shadow — the surface ladder does the work. */
+  --shadow-card: none;
+  /* Elevated (menus, popovers): Brave Leo two-layer + top inner highlight */
+  --shadow-raised: 0 4px 8px rgba(0, 0, 0, 0.10),
+                   0 1px 2px rgba(0, 0, 0, 0.10),
+                   inset 0 1px 0.5px rgba(255, 255, 255, 0.32);
+  --shadow-elevated: var(--shadow-raised);
+  /* Overlay (sheets): Polar --shadow-overlay */
+  --shadow-overlay: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --shadow-accent: 0 0 0 1px rgb(var(--color-accent) / 0.35),
+                   0 4px 20px rgb(var(--color-accent) / 0.25);
+
+  /* ---------- Motion (ONE spring table, spec §5) ---------- */
+  /* Mirrors HiveDesign.Animation: snap (0.22/0.95), spring (0.30/0.85),
+     bouncy (0.45/0.65), smooth (0.35/0.90), quick (0.18/0.80). */
+  --spring-snap: cubic-bezier(0.22, 1, 0.36, 1);
+  --spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --spring-soft: cubic-bezier(0.3, 0.8, 0.4, 1);
+  --dur-fast: 100ms;       /* hover feedback (spec: 50-100ms) */
+  --dur: 180ms;            /* selection, highlight shift */
+  --dur-slow: 260ms;       /* panel open, overlay appear */
+  --dur-enter: 240ms;      /* panels, docks: settle into place */
+  --dur-exit: 140ms;       /* dismissals snappier than arrivals */
+
+  /* ---------- Icon system (spec §2) ---------- */
+  --icon-stroke: 1.8;          /* one stroke width everywhere */
+  --icon-xs: 11px; --icon-sm: 13px; --icon-md: 16px; --icon-lg: 24px;
+
+  /* ══════════════════════════════════════════════════════════════
+     CHROME-MODE GEOMETRY — Chromium layout_constants.cc (spec §3)
+     ══════════════════════════════════════════════════════════════ */
+  --chrome-tab-h: 34px;            /* kTabHeight */
+  --chrome-strip-pad: 6px;         /* kTabStripPadding */
+  --chrome-tab-gap: 2px;           /* Hive spec — visible separation */
+  --chrome-close: 14px;            /* kTabCloseButtonSize */
+  --chrome-title-pre: 8px;         /* kTabPreTitlePadding */
+  --chrome-title-post: 4px;        /* kTabAfterTitlePadding */
+  --chrome-omnibox-h: 34px;        /* kLocationBarHeight */
+  --chrome-omnibox-radius: 12px;   /* kLocationBarChildCornerRadius */
+  --chrome-omnibox-icon: 16px;     /* kLocationBarIconSize */
+  --chrome-omnibox-spacing: 4px;   /* kLocationBarChildInternalSpacing */
+  --chrome-toolbar-el-pad: 4px;    /* kToolbarElementPadding */
+  --chrome-toolbar-icon-margin: 2px; /* kToolbarIconDefaultMargin */
+  --chrome-location-margin: 9px;   /* kLocationBarMargin */
+  --chrome-toolbar-radius: 8px;    /* kToolbarCornerRadius */
+  --chrome-divider-w: 2px;         /* kToolbarDividerWidth */
+  --chrome-divider-spacing: 9px;   /* kToolbarDividerSpacing */
+  --chrome-hover: 0.08;            /* hover fill 8% white */
+  --chrome-tint-alpha: 0.04;       /* M3 surface tint ~4% of page theme */
+
+  /* ══════════════════════════════════════════════════════════════
+     ZEN-MODE GEOMETRY — Chromium vertical-tabs + Zen source (spec §4)
+     ══════════════════════════════════════════════════════════════ */
+  --zen-sidebar-w: 240px;          /* existing Hive */
+  --zen-sidebar-max: 360px;        /* existing Hive */
+  --zen-rail-w: 74px;              /* --zen-toolbox-max-width */
+  --zen-tab-h: 30px;               /* kVerticalTabHeight */
+  --zen-pinned-h: 32px;            /* kVerticalTabPinnedHeight */
+  --zen-tab-min-w: 32px;           /* kVerticalTabMinWidth */
+  --zen-strip-pad-h: 12px;         /* kVerticalTabStripHorizontalPadding */
+  --zen-strip-pad-v: 12px;         /* kVerticalTabStripUncollapsedVerticalPadding */
+  --zen-tab-radius: 8px;           /* kVerticalTabCornerRadius */
+  --zen-newtab-btn: 32px;          /* kVerticalTabStripNewTabButtonSize */
+  --zen-collapse-btn: 32px;        /* kVerticalTabStripCollapseButtonSize */
+  --zen-toolbar-h: 37px;           /* --zen-toolbar-height */
+  --zen-float-gap: 10px;           /* --zen-compact-float */
+  --zen-float-dur: 0.25s;          /* --zen-compact-mode-time */
+  --zen-omnibox-radius: 50px;      /* zen-omnibox.css (pill) */
+  --zen-omnibox-h: 28px;           /* zen-omnibox.css */
+  --zen-hover: 0.10;               /* --zen-toolbar-element-bg-hover */
+  --zen-active-scale: 0.985;       /* --zen-active-tab-scale */
+  --zen-content-radius: 8px;       /* kToolbarCornerRadius */
+  --zen-content-border: 1px;       /* --zen-appcontent-border */
+  --zen-canvas: #1b1b1b;           /* --zen-main-browser-background */
+  --zen-essentials-tile: 64px;     /* Arc essentials */
+  --zen-space-rail-h: 48px;        /* Arc space switcher */
+
+  /* ---------- Ambient bloom (Arc-style atmosphere) ---------- */
+  --bloom-a: rgb(var(--color-accent) / 0.14);
+  --bloom-b: rgb(240 132 90 / 0.08);
+}
+
+/* ---------- Scrollbars: thin, owned, quiet ---------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--cn-400)) transparent;
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgb(var(--cn-400));
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover { background-color: rgb(var(--cn-300)); }
+
+/* ---------- Focus rings (keyboard parity, spec §5) ---------- */
+:focus-visible {
+  outline: 2px solid rgb(var(--color-accent) / 0.7);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Zen-Derived Theme Layer — auto-generated accent color variants,
+   compact-mode animation curves, branded surface colors.
+   Adapted from Zen Browser's zen-theme.css (MPL-2.0).
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Brand surfaces (Zen dark/paper palette) ── */
+  --zen-branding-dark: #101010;
+  --zen-branding-paper: #e2e2e2;
+  --zen-branding-bg: light-dark(var(--zen-branding-paper), var(--zen-branding-dark));
+
+  /* ── Accent-derived color generation (Zen primary-color mixer) ── */
+  --zen-primary-color: var(--color-accent-1);
+  --zen-colors-primary: light-dark(
+    color-mix(in srgb, var(--zen-primary-color) 50%, black 50%),
+    color-mix(in srgb, var(--zen-primary-color) 20%, var(--zen-branding-bg) 80%)
+  );
+  --zen-colors-secondary: light-dark(
+    color-mix(in srgb, var(--zen-colors-primary) 20%, white 80%),
+    color-mix(in srgb, var(--zen-primary-color) 30%, var(--zen-branding-bg) 70%)
+  );
+  --zen-colors-tertiary: light-dark(
+    color-mix(in srgb, var(--zen-primary-color) 2%, white 98%),
+    color-mix(in srgb, var(--zen-primary-color) 1%, var(--zen-branding-bg) 99%)
+  );
+  --zen-colors-border: light-dark(
+    color-mix(in srgb, var(--zen-colors-secondary) 50%, transparent),
+    color-mix(in srgb, var(--zen-colors-secondary) 20%, rgb(79, 79, 79))
+  );
+
+  /* ── Compact-mode animation curves ── */
+  --zen-sidebar-transition: 0.15s ease;
+  --zen-toolbar-flash-popup-duration: 800ms;
+  --zen-toolbar-hide-after-hover-duration: 1000ms;
+  --zen-sidebar-keep-hover-duration: 150ms;
+  --zen-workspace-switch-duration: 200ms;
+
+  /* ── Compact-mode geometry ── */
+  --zen-element-separation: 8px;
+  --zen-compact-float: var(--zen-element-separation);
+  --zen-toolbox-max-width: 74px;
+  --zen-outside-window-edge-offset-h: 200px;
+  --zen-outside-window-edge-offset-v: 100px;
+
+  /* ── Workspace navigation ── */
+  --zen-workspace-swipe-delta-multiplier: 100;
+  --zen-workspace-dnd-switch-padding: 20px;
+}
+
+/* ── Light theme (data-theme="light") — warm Hive flip ── */
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Neutral scale — exact hex equivalents of the light .hive* ramp:
+     canvas #F7F2E8, surface1 #FCFAF2, surface2 #EFE8D9, surface3 #E5DBC7 */
+  --hive-canvas:   247 242 232;   /* #F7F2E8 */
+  --hive-surface1: 252 250 242;   /* #FCFAF2 */
+  --hive-surface2: 239 232 217;   /* #EFE8D9 */
+  --hive-surface3: 229 219 199;   /* #E5DBC7 */
+
+  --cn-50:   25 24 23;
+  --cn-75:  35 34 33;
+  --cn-100: 50 49 48;
+  --cn-150: 88 87 86;
+  --cn-200: 118 117 116;
+  --cn-300: 150 149 148;
+  --cn-400: 180 179 178;
+  --cn-500: 200 199 198;
+  --cn-600: 220 219 218;
+  --cn-700: 235 234 233;
+  --cn-800: 245 244 243;
+  --cn-900: 250 249 248;
+  --cn-1000: 255 254 253;
+
+  --color-app: rgb(var(--hive-canvas));
+  --color-canvas: rgb(var(--hive-canvas));
+  --color-canvas-raised: rgb(var(--hive-surface1));
+  --color-card: rgb(var(--hive-surface1));
+  --color-field: rgb(var(--hive-surface1));
+  --color-input: rgb(var(--hive-surface1));
+  --color-input-border: rgb(var(--cn-300));
+
+  --color-text-primary: rgb(var(--cn-50));
+  --color-text-secondary: rgb(var(--cn-100));
+  --color-text-tertiary: rgb(var(--cn-150));
+  --color-text-muted: rgb(var(--cn-200));
+  --color-text-disabled: rgb(var(--cn-300));
+  --color-placeholder: rgb(var(--cn-300));
+
+  --color-border-subtle: rgb(var(--cn-400));
+  --color-border-strong: rgb(var(--cn-300));
+  --color-hairline: rgba(0, 0, 0, 0.06);
+  --color-hairline-strong: rgba(0, 0, 0, 0.11);
+  --color-surface-hover: rgba(0, 0, 0, 0.06);
+  --color-surface-hover-zen: rgba(0, 0, 0, 0.08);
+
+  --shadow-raised: 0 4px 8px rgba(0, 0, 0, 0.06),
+                   0 1px 2px rgba(0, 0, 0, 0.06),
+                   inset 0 1px 0.5px rgba(255, 255, 255, 0.6);
+  --shadow-overlay: 0 16px 48px rgba(0, 0, 0, 0.28);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   UI/UX Pro Max Design Intelligence Layer (R22)
+   ═══════════════════════════════════════════════════════════════════
+   · Micro-interaction timing (hover 50-100ms, exit-faster-than-enter)
+   · AI-lane supplementary palette (purple/pink) — honey stays brand
+   · Line-height discipline (body 1.5, UI 1.35)
+   · Global prefers-reduced-motion compliance (HIGH severity rule)
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Leading (line-height) discipline ── */
+  --leading-tight: 1.3;
+  --leading-ui: 1.35;
+  --leading-body: 1.5;
+  --leading-relaxed: 1.6;
+
+  /* ── Touch/click target floor (44px) ── */
+  --target-min: 44px;
+
+  /* ── AI-lane supplementary palette ── */
+  --color-ai-lane-a: 124 58 237;    /* #7C3AED — deep violet */
+  --color-ai-lane-b: 236 72 153;    /* #EC4899 — generation pink */
+  --color-ai-lane-a-soft: rgb(124 58 237 / 0.14);
+  --color-ai-lane-b-soft: rgb(236 72 153 / 0.12);
+  --ai-lane-gradient: linear-gradient(135deg,
+      rgb(124 58 237 / 0.85), rgb(236 72 153 / 0.85));
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Global reduced-motion compliance (ui-ux-pro-max: HIGH severity).
+   Collapses every animation/transition so motion preferences win over
+   decoration — the browser shell stays fully usable with zero motion.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Pulsing live indicators become static dots — no urgency via motion. */
+  [class*="pulse"]::after,
+  [class*="indicator"]::after {
+    animation: none !important;
+  }
+}
