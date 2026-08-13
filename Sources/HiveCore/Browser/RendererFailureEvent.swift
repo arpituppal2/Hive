@@ -132,10 +132,9 @@ public struct RendererRecoveryPlan: Sendable, Equatable {
 }
 
 /// The narrow contract an engine adapter must satisfy before renderer recovery
-/// can be called end to end. CefSwift's current `CefWebViewModel` owns the
-/// browser delegate and does not expose a render-termination closure, so this
-/// protocol is intentionally an integration boundary rather than a fabricated
-/// callback path.
+/// can be called end to end. `CefWebViewModel` exposes renderer termination
+/// through `onRendererTerminated` (wired in `BrowserState.wireTabHooks`), which
+/// constructs a `RendererFailureEvent` and feeds this classifier.
 public protocol RendererFailureHandling: Sendable {
     func classify(
         _ event: RendererFailureEvent,

@@ -130,6 +130,11 @@ public final class CefWebViewModel {
     /// a human-readable description, and the URL that failed.
     public var onLoadError: ((Int, String, URL?) -> Void)?
 
+    /// The renderer process for this browser terminated unexpectedly (crash,
+    /// out-of-memory, kill, or launch failure). Delivers the termination reason
+    /// and the Chromium error code. The host owns recovery; this only reports.
+    public var onRendererTerminated: ((CefTerminationReason, Int) -> Void)?
+
     /// The main frame encountered a certificate-validation failure.
     /// Returning `true` overrides the failure and continues the load;
     /// returning `false` cancels it (CEF shows its own error page).
@@ -234,6 +239,10 @@ extension CefWebViewModel: CefBrowserDelegate {
 
     public func browser(_ b: CefBrowser, didFailLoad code: Int, errorText: String, failedURL: String) {
         onLoadError?(code, errorText, URL(string: failedURL))
+    }
+
+    public func browser(_ b: CefBrowser, renderProcessDidTerminate reason: CefTerminationReason, errorCode: Int) {
+        onRendererTerminated?(reason, errorCode)
     }
 
     public func browser(_ b: CefBrowser, didEncounterCertificateError url: URL?, errorCode: Int) -> Bool {

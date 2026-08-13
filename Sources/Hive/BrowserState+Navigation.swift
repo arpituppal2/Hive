@@ -67,6 +67,11 @@ extension BrowserState {
         // didEncounterCertificateError, or the successful commit.
         tabLoadErrors[tab.id] = nil
         tabCertificateErrors[tab.id] = nil
+        // A new navigation also supersedes a pending renderer-crash recovery:
+        // clear the surface and invalidate any scheduled auto-retry so a stale
+        // reload can never fire against a newer tab state.
+        tabRendererFailures[tab.id] = nil
+        Task { await rendererRecovery.invalidateAttempt(tabID: tab.id) }
         return attemptID
     }
 
@@ -590,6 +595,55 @@ extension BrowserState {
             )
             self.broadcastWebChromeState()
             return false
+        }
+        // Renderer-process termination: run the crash-loop policy through the
+        // engine-agnostic RendererRecoveryController. A single crash triggers
+        // one bounded automatic reload; a crash loop surfaces a recovery banner
+        // instead of silently hanging the page.
+        tab.model.onRendererTerminated = { [weak self] reason, errorCode in
+            let label: String
+            switch reason {
+            case .abnormal: label = "the page's process exited unexpectedly"
+            case .killed: label = "the page's process was terminated"
+            case .crashed: label = "the page's process crashed"
+            case .outOfMemory: label = "the page ran out of memory"
+            case .launchFailed: label = "the page's process failed to start"
+            case .integrityFailure: label = "the page's process failed an integrity check"
+            }
+            Task { @MainActor [weak self] in
+                guard let self,
+                      let resolvedTab = self.tabs.first(where: { $0.id == tabID })
+                else { return }
+                let event = RendererFailureEvent(
+                    tabID: tabID,
+                    url: resolvedTab.model.url,
+                    reason: label,
+                    errorCode: errorCode
+                )
+                let plan = await self.rendererRecovery.handleFailure(event)
+                if plan.shouldReloadAutomatically {
+                    let attemptID = plan.attemptID
+                    if plan.retryAfter > 0 {
+                        try? await Task.sleep(for: .seconds(plan.retryAfter))
+                    }
+                    guard await self.rendererRecovery.isCurrentAttempt(tabID: tabID, attemptID: attemptID) else { return }
+                    self.reloadTab(id: tabID)
+                } else if plan.requiresRecoverySurface {
+                    let retryAllowed: Bool
+                    if case .showRecovery(let allowed) = plan.decision {
+                        retryAllowed = allowed
+                    } else {
+                        retryAllowed = false
+                    }
+                    self.tabRendererFailures[tabID] = RendererRecoveryNotice(
+                        tabID: tabID,
+                        url: resolvedTab.model.url,
+                        reason: label,
+                        canRetry: retryAllowed
+                    )
+                    self.broadcastWebChromeState()
+                }
+            }
         }
         let model = tab.model
 

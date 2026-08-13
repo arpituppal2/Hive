@@ -1197,8 +1197,10 @@ final class BrowserState {
     @ObservationIgnored var navigationBlockNoticeTask: Task<Void, Never>?
 
     /// A navigation that remained unfinished for the full polling window.
-    /// This is deliberately not called a renderer crash: CefSwiftUI does not
-    /// expose CEF's renderer-termination callback to this target.
+    /// This is deliberately not called a renderer crash: a real renderer
+    /// termination is surfaced separately through `renderProcessDidTerminate`
+    /// and `RendererRecoveryController`, while this notice is a stalled-load
+    /// diagnosis with no termination evidence.
     struct NavigationHealthNotice: Equatable, Sendable {
         let tabID: String
         let url: URL
@@ -1312,6 +1314,51 @@ final class BrowserState {
     func dismissLoadError() {
         guard let notice = loadErrorNotice else { return }
         tabLoadErrors[notice.tabID] = nil
+    }
+
+    /// A renderer-process crash for a tab, keyed by tab id. Surfaced only when
+    /// the crash-loop policy stops automatic retries (three crashes inside five
+    /// minutes) and hands recovery to the user. Not persisted — session-local.
+    struct RendererRecoveryNotice: Equatable, Sendable {
+        let tabID: String
+        let url: URL?
+        let reason: String
+        let canRetry: Bool
+
+        var title: String { "This page crashed" }
+        var detail: String {
+            let host = url?.host ?? "this page"
+            return "\(host) · \(reason)"
+        }
+    }
+
+    /// Renderer-process failures keyed by tab id.
+    var tabRendererFailures: [String: RendererRecoveryNotice] = [:]
+
+    /// Crash-loop policy + recovery coordination (engine-agnostic). The browser
+    /// shell owns the actual reload and the recovery surface; the controller
+    /// only classifies failures and authorizes bounded automatic retries.
+    let rendererRecovery = RendererRecoveryController()
+
+    /// The active tab's renderer-recovery notice, if any.
+    var rendererRecoveryNotice: RendererRecoveryNotice? {
+        guard let tab = activeTab else { return nil }
+        return tabRendererFailures[tab.id]
+    }
+
+    /// Retry action for a crashed renderer: reload the tab and clear the notice.
+    func retryRendererRecovery() {
+        guard let notice = rendererRecoveryNotice else { return }
+        tabRendererFailures[notice.tabID] = nil
+        Task { await rendererRecovery.beginManualRetry(for: notice.tabID) }
+        reloadTab(id: notice.tabID)
+    }
+
+    /// Dismisses the renderer-recovery banner without retrying.
+    func dismissRendererRecovery() {
+        guard let notice = rendererRecoveryNotice else { return }
+        tabRendererFailures[notice.tabID] = nil
+        Task { await rendererRecovery.markRecovered(tabID: notice.tabID) }
     }
 
     /// The active tab's certificate error, if any (drives the security

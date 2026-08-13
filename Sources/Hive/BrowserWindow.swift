@@ -219,6 +219,7 @@ struct BrowserWindow: View {
             if !state.sessionRepairReasons.isEmpty, !state.sessionRepairNoticeDismissed { SessionRepairNotice() }
             if let n = state.navigationHealthNotice { NavigationHealthBanner(notice: n).transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity)) }
             if let n = state.loadErrorNotice { NavigationErrorBanner(notice: n).transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity)) }
+            if let n = state.rendererRecoveryNotice { RendererRecoveryBanner(notice: n).transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity)) }
             if let n = state.sessionRecoveryNotice { SessionRecoveryBanner(notice: n).transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity)) }
             if let n = state.navigationBlockNotice { NavigationBlockBanner(notice: n).transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity)) }
             if let n = state.tabGroupingNotice { HiveToast(message: n, iconName: "square.stack.3d.up.fill").transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity)) }
