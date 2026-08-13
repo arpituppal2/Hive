@@ -3,6 +3,7 @@ name = "hive-adblock-ffi"
 version = "0.1.0"
 edition = "2021"
 description = "C FFI wrapper around Brave's adblock-rust for Hive Browser"
+license = "MIT"
 
 [lib]
 crate-type = ["cdylib", "staticlib"]
