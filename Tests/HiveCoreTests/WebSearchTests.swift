@@ -765,7 +765,7 @@ struct ContextRedactorTests {
 
     @Test func scopeProducesHonestSummary() {
         let scoped = ContextRedactor.scope(
-            "api_key=sk-1234567890abcdef1234567890abcdef and some normal words here",
+            "api_key=this-is-a-test-secret-value-not-a-real-key and some normal words here",
             url: URL(string: "https://example.com"),
             privateBrowsing: false,
             budget: 50)
