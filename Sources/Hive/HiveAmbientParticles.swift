@@ -1,47 +1,5 @@
 import SwiftUI
 
-// MARK: - HiveAmbientParticles
-///
-/// Subtle animated particle field rendered via TimelineView + Canvas.
-/// 35 particles drift gently with Perlin-like noise, giving the content
-/// area a living, breathing quality without distracting from the page.
-/// Auto-pauses when the app is in the background to save battery.
-
-struct HiveAmbientParticles: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private let particleCount = 35
-    private let particleColor = Color.hiveAccent
-
-    var body: some View {
-        if reduceMotion {
-            Color.clear
-        } else {
-            TimelineView(.animation) { timeline in
-                Canvas { context, size in
-                    let time = timeline.date.timeIntervalSinceReferenceDate
-
-                    for i in 0..<particleCount {
-                        // Deterministic pseudo-random per particle
-                        let seed = Double(i) * 127.1
-                        let x = sin(time * 0.3 + seed) * cos(time * 0.17 + seed * 0.7) * size.width * 0.45 + size.width * 0.5
-                        let y = cos(time * 0.23 + seed * 0.6) * sin(time * 0.19 + seed * 1.3) * size.height * 0.45 + size.height * 0.5
-                        let radius = 1.2 + sin(time * 0.8 + seed) * 0.6
-                        let alpha = 0.08 + sin(time * 0.5 + seed * 0.4) * 0.04
-
-                        let rect = CGRect(x: x - radius, y: y - radius, width: radius * 2, height: radius * 2)
-                        context.fill(
-                            Path(ellipseIn: rect),
-                            with: .color(particleColor.opacity(alpha))
-                        )
-                    }
-                }
-            }
-            .allowsHitTesting(false)
-        }
-    }
-}
-
 // MARK: - ShimmerView
 ///
 /// Animated gradient shimmer for loading skeletons. Use as an overlay
@@ -126,25 +84,3 @@ struct PageLoadSkeleton: View {
         .frame(maxWidth: 680)
     }
 }
-
-// MARK: - Preview
-
-#if DEBUG
-struct HiveAmbientParticles_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Color.hiveBackground
-            HiveAmbientParticles()
-            VStack {
-                Text("Ambient Particles")
-                    .font(.title)
-                    .foregroundStyle(.white)
-                Spacer().frame(height: 40)
-                PageLoadSkeleton()
-            }
-            .padding()
-        }
-        .frame(width: 800, height: 500)
-    }
-}
-#endif

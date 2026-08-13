@@ -73,7 +73,10 @@ struct BrowserWindow: View {
     private var baseView: some View {
         HStack(spacing: 0) {
             Color.clear.frame(width: 0, height: 0)
-                .task { state.setupAI() }
+                .task {
+                    state.setupAI()
+                    state.consumePendingNewWindowURL()
+                }
             if state.chromeMode == .sidebar {
                 chromeShell
                     .frame(width: state.chromeDimension)
@@ -104,11 +107,6 @@ struct BrowserWindow: View {
 
     private var contentArea: some View {
         ZStack {
-            // Ambient particle field — subtle living background
-            HiveAmbientParticles()
-                .opacity(state.isNewTab ? 0.5 : 0.15)
-                .allowsHitTesting(false)
-
             Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(GeometryReader { geo in
                     Color.clear

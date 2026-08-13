@@ -4,7 +4,7 @@ One-shot autonomous recovery: repair, verify, document, and ship the Hive
 browser from the state found in the worktree (docs-only git history; product
 source never committed; two live defects).
 
-**Branch:** `mission/recovery-and-ship` — claims are separated into validated local evidence and explicit external/human limitations (`.hive/mission/baseline/`, `.hive/mission/evidence/`, `docs/DECISIONS.md`, `.hive/mission/FINAL_VALIDATION.md`). Current continuation edits are uncommitted; this plan does not claim a clean or coherent final history until they are reviewed and committed.
+**Branch:** `main` (recovery-and-ship mission complete) — claims are separated into validated local evidence and explicit external/human limitations (`.hive/mission/baseline/`, `.hive/mission/evidence/`, `docs/DECISIONS.md`, `.hive/mission/FINAL_VALIDATION.md`). Current continuation edits are uncommitted; this plan does not claim a clean or coherent final history until they are reviewed and committed.
 
 ## Status
 
@@ -14,11 +14,11 @@ source never committed; two live defects).
 | T002 | Delete legacy Hive target | ✅ | `Package.swift`, `Sources/Hive/`; build/test green |
 | T003 | Make HiveChromium the primary Hive target | ✅ | `Package.swift`, `Sources/Hive/`; restructure references fixed |
 | T004 | Complete browser fundamentals | ✅ headless | tabs, workspaces, split view, navigation, persistence, CDP lifecycle |
-| T005 | Fix HiveCore integration | ✅ | `Sources/HiveCore/`; latest suite 1,635/157 |
+| T005 | Fix HiveCore integration | ✅ | `Sources/HiveCore/`; latest suite 1,912/184 |
 | T006 | UI/HIG/accessibility review and polish | ⚠️ human visual sign-off remains | `.hive/mission/evidence/window-t05.png`; headless validation cannot certify pixel fidelity |
 | T007 | Security and privacy review | ✅ | entitlements/debug-port/secrets checks pass |
 | T008 | Swarm/AI graceful degradation | ✅ | honest provider degradation and CDP regression coverage |
-| T009 | Full test suite and validation | ✅ local validation | 1,635 tests / 157 suites; HiveCore/Hive product builds pass; current ad-hoc bundle, preflight, and 60s smoke readiness remain green |
+| T009 | Full test suite and validation | ✅ local validation | 1,912 tests / 184 suites; HiveCore/Hive product builds pass; current ad-hoc bundle, preflight, and 60s smoke readiness remain green |
 | T010 | Documentation and final validation | ✅ docs current / history pending | current validation addenda and release boundary are documented; continuation edits remain uncommitted |
 
 ## Found defects (fixed)

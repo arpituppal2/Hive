@@ -87,7 +87,7 @@ enum HiveDNSPolicy {
 
         guard foundAddress else { throw HiveDNSPolicy.Error.noAddresses }
         #else
-        // HiveChromium currently ships on macOS. Keep non-Darwin builds
+        // Hive currently ships on macOS. Keep non-Darwin builds
         // compilable without pretending a resolver exists in this target.
         throw HiveDNSPolicy.Error.resolutionFailed(host)
         #endif

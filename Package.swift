@@ -21,6 +21,14 @@ let package = Package(
         // back to base/Mock (provider-labelled) — never silent, never fake.
         .package(url: "https://github.com/ml-explore/mlx-swift-examples", from: "2.29.1"),
 
+        // mlx-swift core (the MLX product). Referenced directly so HiveCore can
+        // install a global MLX error handler: mlx-c's default handler calls
+        // exit(-1) on ANY error (e.g. a missing default.metallib in the app
+        // bundle), which would hard-kill the browser. Pinned to the same range
+        // mlx-swift-examples 2.29.1 uses (.upToNextMinor 0.29.x) so resolution
+        // stays at a single shared version.
+        .package(url: "https://github.com/ml-explore/mlx-swift", .upToNextMinor(from: "0.29.1")),
+
         // Chromium Embedded Framework wrapper for the Chromium-backed browser reset.
         // CefSwift downloads and bundles the CEF binaries via a SwiftPM command plugin.
         // VENDORED at Vendor/CefSwift (MIT, pinned upstream 0.1.0 @ 2dca11e) so the
@@ -50,8 +58,16 @@ let package = Package(
             // assets; Bundle.module can then address only this helper.
             resources: [
                 .copy("Resources/AppIcon.icns"),
-                .copy("Resources/ResearchWorker"),
-                .copy("Resources/Swarm_System_Prompts")
+                .copy("Resources/ResearchWorker")
+                // NOTE: Swarm_System_Prompts is intentionally NOT bundled. Its
+                // only loader (CellPromptLoader) is never instantiated with the
+                // real directory at runtime (SwarmOrchestrator/ScribeCoordinator
+                // take `prompts: CellPromptLoader? = nil` and no caller passes
+                // one), so the 1.6 MB of Cell prompt/spec/progress files —
+                // including a 125 KB AI progress log and competitor dossiers —
+                // would ship as dead weight. The files stay in the repo (tests
+                // read them from Sources/Hive/Resources by path) so they can be
+                // wired up later without re-adding them to source control.
             ]
         ),
 
@@ -68,6 +84,7 @@ let package = Package(
             dependencies: [
                 .product(name: "MLXLMCommon", package: "mlx-swift-examples"),
                 .product(name: "MLXLLM", package: "mlx-swift-examples"),
+                .product(name: "MLX", package: "mlx-swift"),
             ],
             path: "Sources/HiveCore"
         ),

@@ -6,8 +6,8 @@ import HiveCore
 // MARK: - HiveSchemeHandler
 //
 // Serves the hand-drawn web chrome (start page) over the custom `hive://`
-// scheme. The HTML/CSS/JS live as real files in Sources/HiveChromium/WebChrome/
-// and are inlined into WebChromeAssets.swift by Scripts/embed_webchrome.py —
+// scheme. The HTML/CSS/JS live as real files in Sources/Hive/WebChrome/
+// and are inlined into WebChromeAssets.swift by scripts/embed_webchrome.py —
 // the same shipping pattern CefSwift uses for its JS bridge shim.
 //
 // Security (AGENTS.md §9): arbitrary web pages can fetch `cefswift://` (CORS
@@ -1122,6 +1122,156 @@ enum WebChromeBridge {
             try Self.authorizeNormalSession(request.token)
             guard let wsID = UUID(uuidString: request.groupID) else { return false }
             await MainActor.run { state.moveTabToWorkspace(tabID: request.tabID, workspaceID: wsID) }
+            return true
+        }
+
+        // MARK: Surface actions — the 19 previously-unregistered UI actions
+        // the web chrome context menus, find bar, and banners invoke. Each is
+        // a thin wrapper over an existing native behavior (see
+        // BrowserState+WebChromeSurface.swift); nothing here fakes success.
+
+        // ---- hive.addBookmark: "Bookmark Link" (context menu) ----
+        bridge.register("hive.addBookmark") { (request: WebChromeBookmarkRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            return await MainActor.run {
+                state.addBookmark(urlString: request.url, title: request.title ?? "")
+            }
+        }
+
+        // ---- hive.autofillCredentials: fill a saved credential ----
+        bridge.register("hive.autofillCredentials") { (request: WebChromeAutofillRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            return await MainActor.run {
+                state.autofillCredentials(host: request.host, username: request.username)
+            }
+        }
+
+        // ---- hive.clearReadingList: empty the reading list ----
+        bridge.register("hive.clearReadingList") { (request: WebChromeToken) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.clearReadingList() }
+            return true
+        }
+
+        // ---- hive.clearSiteData: clear cookies + page storage for the host ----
+        bridge.register("hive.clearSiteData") { (request: WebChromeToken) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.clearSiteDataForActiveHost() }
+            return true
+        }
+
+        // ---- hive.dismissRestore: acknowledge dismissal of the crash-restore
+        // banner. The banner is currently dormant (no native crash state is
+        // populated), so this is a UI-only ack that lets the JS hide it. ----
+        bridge.register("hive.dismissRestore") { (request: WebChromeToken) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            return true
+        }
+
+        // ---- hive.downloadURL: "Save Link/Image As…" (context menu) ----
+        bridge.register("hive.downloadURL") { (request: WebChromeURLRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            guard let url = Self.httpURL(from: request.url) else {
+                throw WebChromeBridgeError.invalidURL
+            }
+            await MainActor.run { state.downloadURL(url) }
+            return true
+        }
+
+        // ---- hive.findInPage / hive.findNext: in-page search ----
+        bridge.register("hive.findInPage") { (request: WebChromeFindRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.findInPage(query: request.query, forward: true) }
+            return true
+        }
+        bridge.register("hive.findNext") { (request: WebChromeFindRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.findInPage(query: request.query, forward: request.forward ?? true) }
+            return true
+        }
+        bridge.register("hive.findInPageDone") { (request: WebChromeToken) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.findInPageDone() }
+            return true
+        }
+
+        // ---- hive.neverSavePassword: "Never for this site" (password banner) ----
+        bridge.register("hive.neverSavePassword") { (request: WebChromeURLRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.neverSavePassword(url: request.url) }
+            return true
+        }
+
+        // ---- hive.newWindowWithURL: "Open in New Window" (context menu) ----
+        bridge.register("hive.newWindowWithURL") { (request: WebChromeURLRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            guard let url = Self.httpURL(from: request.url) else {
+                throw WebChromeBridgeError.invalidURL
+            }
+            await MainActor.run { state.newWindowWithURL(url) }
+            return true
+        }
+
+        // ---- hive.openDevTools: open Chromium DevTools for a tab ----
+        bridge.register("hive.openDevTools") { (request: WebChromeOptionalIDRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.openDevTools(id: request.id) }
+            return true
+        }
+
+        // ---- hive.removeFromReadingList: drop a reading-list entry ----
+        bridge.register("hive.removeFromReadingList") { (request: WebChromeIDRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.removeFromReadingList(id: request.id) }
+            return true
+        }
+
+        // ---- hive.respondPermission: Allow / Block / Dismiss a permission prompt ----
+        bridge.register("hive.respondPermission") { (request: WebChromePermissionResponseRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.respondPermission(response: request.response) }
+            return true
+        }
+
+        // ---- hive.savePage: "Save Page As…" (static HTML) ----
+        bridge.register("hive.savePage") { (request: WebChromeOptionalIDRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.savePageAsHTML() }
+            return true
+        }
+
+        // ---- hive.savePassword: persist a credential the user approved ----
+        bridge.register("hive.savePassword") { (request: WebChromeSavePasswordRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            return await MainActor.run {
+                state.savePassword(url: request.url, username: request.username, password: request.password)
+            }
+        }
+
+        // ---- hive.setSitePermission: toggle a per-site permission ----
+        bridge.register("hive.setSitePermission") { (request: WebChromeSitePermissionRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run {
+                state.setSitePermission(
+                    key: request.permission,
+                    allow: request.value == "allow",
+                    host: nil
+                )
+            }
+            return true
+        }
+
+        // ---- hive.translatePage: hand off to Google Translate ----
+        bridge.register("hive.translatePage") { (request: WebChromeTranslateRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.translatePage(url: request.url, to: request.to) }
+            return true
+        }
+
+        // ---- hive.viewSource: open the view-source: form of the page ----
+        bridge.register("hive.viewSource") { (request: WebChromeOptionalIDRequest) async throws -> Bool in
+            try Self.authorizeNormalSession(request.token)
+            await MainActor.run { state.viewSource(id: request.id) }
             return true
         }
 

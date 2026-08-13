@@ -24,7 +24,13 @@ the feature; `WebChromeBridgeContractTests` guards that direction.
    if it is feature-critical.
 5. Run `swift test --filter WebChromeBridgeContract`.
 
-## Surface inventory (69 methods)
+## Surface inventory (139 registered methods)
+
+The table below is a representative subset. The authoritative list is the set of
+`bridge.register("hive.*")` calls in `Sources/Hive/WebChromeHandler.swift` and
+`Sources/Hive/BrowserState+WebChromeSurface.swift` (139 unique methods at the
+time of writing). `WebChromeBridgeContractTests` enforces the reverse contract —
+every `api('hive.*')` call in `app.js` must have a matching Swift registration.
 
 ### AI — council, agent, action
 

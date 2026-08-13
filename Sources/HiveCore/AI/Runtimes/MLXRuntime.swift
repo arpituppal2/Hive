@@ -45,6 +45,9 @@ public struct MLXRuntime: ModelRuntime {
 
     public func isAvailable() async -> Bool {
         #if canImport(MLXLMCommon)
+        // Install the non-exiting error handler before any MLX call so a
+        // metallib/GPU failure degrades instead of killing the process.
+        MLXErrorSafety.install()
         // MLX framework present in the build. Weight presence is checked per-call.
         return true
         #else
@@ -53,6 +56,7 @@ public struct MLXRuntime: ModelRuntime {
     }
 
     public func generate(_ request: GenerateRequest) async throws -> GenerateResult {
+        MLXErrorSafety.install()
         guard roles.contains(request.role) else {
             throw InferenceError.roleUnsupported(request.role)
         }

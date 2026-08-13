@@ -842,8 +842,9 @@ extension BrowserState {
     }
 
     /// Debounces the match-counter walk while the user is typing; the next
-    /// explicit ⌘G/⇧⌘G counts immediately via its own call.
-    private func scheduleFindCount(_ query: String) {
+    /// explicit ⌘G/⇧⌘G counts immediately via its own call. Internal so the
+    /// web-chrome surface can reuse the same debounced count.
+    func scheduleFindCount(_ query: String) {
         findCountDebounceTask?.cancel()
         findCountDebounceTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(120))

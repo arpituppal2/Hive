@@ -114,8 +114,6 @@ Vendor/
 | `verify-hive-entitlements.sh` | Validate hardened runtime and optional iCloud entitlements |
 | `test-hive-entitlements.sh` | Validate entitlement fixtures (canonical entry point) |
 | `verify-hive-entitlement-application.sh` | Audit signed-bundle entitlement separation (canonical entry point) |
-| `test-hivechromium-entitlements.sh` | Compatibility implementation for legacy callers |
-| `verify-hivechromium-entitlement-application.sh` | Compatibility implementation for legacy callers |
 | `notarize-hive-app.sh` | Submit to Apple notarization |
 
 ## CI/CD

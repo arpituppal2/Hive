@@ -173,33 +173,6 @@ svg { display: block; }
 }
 ::-webkit-scrollbar-track { background: transparent; }
 
-/* ============ AMBIENT ============ */
-
-.ambient {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-/* Arc-style: a single soft bloom, upper-left, as atmosphere */
-.glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: 1;
-}
-.glow--indigo {
-  width: 620px; height: 620px;
-  left: -260px; top: -260px;
-  background: radial-gradient(circle, var(--bloom-a) 0%, transparent 65%);
-}
-.glow--gold {
-  width: 420px; height: 420px;
-  right: -180px; top: -180px;
-  background: radial-gradient(circle, var(--bloom-b) 0%, transparent 65%);
-}
-
 /* ============ CHROME SHELL LAYOUT ============ */
 
 #chrome {
@@ -213,17 +186,6 @@ svg { display: block; }
   overflow: hidden;
 }
 
-/* ambient bloom across the whole sidebar surface, behind content */
-#chrome::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(480px 340px at -60px -120px, var(--bloom-a) 0%, transparent 60%),
-    radial-gradient(320px 260px at 110% -40px, var(--bloom-b) 0%, transparent 60%);
-}
 #chrome > * { position: relative; z-index: 1; }
 
 /* ---------- toolbar ---------- */
@@ -8646,7 +8608,8 @@ body[data-compact-active="true"] #chrome {
   background: rgba(245, 158, 11, 0.10);
   border: 1px solid rgba(245, 158, 11, 0.25);
 }
-.restore-banner__icon { font-size: 18px; flex-shrink: 0; }
+.restore-banner__icon { width: 18px; height: 18px; flex-shrink: 0; color: var(--accent); }
+.restore-banner__icon svg { width: 18px; height: 18px; display: block; }
 .restore-banner__msg { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); }
 .restore-banner__btn {
   padding: 6px 16px;

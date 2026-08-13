@@ -1427,6 +1427,11 @@ final class BrowserState {
     /// via deinit. The banner renders `pendingPermissionRequests.first`.
     var pendingPermissionRequests: [PendingPermissionRequest] = []
 
+    /// A URL to open in a freshly spawned window (web-chrome "Open in New
+    /// Window"). Set just before posting HiveRequestNewWindow; the new
+    /// window's BrowserWindow consumes it on first appearance and navigates.
+    var pendingNewWindowURL: URL? = nil
+
     /// The "Use saved password?" chip for the login form currently detected
     /// on the visible page; nil when no chip is shown. Filling is always an
     /// explicit user click (never automatic).

@@ -149,6 +149,16 @@ RESOURCE_DEST="$APP_PATH/Contents/Resources/$(basename "$RESOURCE_SOURCE")"
 printf '%s\n' '==> Embedding SwiftPM resources and Hive icon'
 mkdir -p "$APP_PATH/Contents/Resources"
 ditto "$RESOURCE_SOURCE" "$RESOURCE_DEST"
+# MLX on-device inference needs its compiled Metal library (default.metallib),
+# shipped inside the mlx-swift_Cmlx.bundle SwiftPM resource bundle. CefSwift's
+# bundler does not stage dependency resource bundles, so copy it explicitly;
+# without it the first GPU inference fails to load the metallib and the local
+# model stack degrades to Mock instead of running on-device.
+MLX_BUNDLE_SOURCE="$BUILD_BIN_DIR/mlx-swift_Cmlx.bundle"
+[[ -d "$MLX_BUNDLE_SOURCE" ]] || fail "MLX resource bundle is missing: $MLX_BUNDLE_SOURCE"
+MLX_BUNDLE_DEST="$APP_PATH/Contents/Resources/mlx-swift_Cmlx.bundle"
+[[ ! -e "$MLX_BUNDLE_DEST" ]] || fail "unexpected pre-existing MLX resource bundle in generated app: $MLX_BUNDLE_DEST"
+ditto "$MLX_BUNDLE_SOURCE" "$MLX_BUNDLE_DEST"
 ICON_SOURCE="$ROOT_DIR/Sources/Hive/Resources/AppIcon.icns"
 [[ -f "$ICON_SOURCE" ]] || fail "Hive app icon is missing: $ICON_SOURCE"
 ditto "$ICON_SOURCE" "$APP_PATH/Contents/Resources/AppIcon.icns"
@@ -322,6 +332,7 @@ if [[ -d "$SPARKLE_DEST" ]]; then
   sign_plain_path "$SPARKLE_DEST" --identifier com.hive.browser.sparkle --sign "$SIGNING_IDENTITY"
 fi
 sign_plain_path "$RESOURCE_DEST" --sign "$SIGNING_IDENTITY"
+sign_plain_path "$MLX_BUNDLE_DEST" --sign "$SIGNING_IDENTITY"
 sign_path "$APP_PATH/Contents/MacOS/Hive" --sign "$SIGNING_IDENTITY"
 sign_path "$APP_PATH" --sign "$SIGNING_IDENTITY"
 

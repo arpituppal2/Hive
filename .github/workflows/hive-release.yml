@@ -119,7 +119,7 @@ jobs:
             scripts/verify-research-worker.sh; do
             [[ -x "$script" ]] || { echo "::error::Release helper is not executable: $script"; exit 1; }
           done
-          scripts/test-hivechromium-entitlements.sh
+          scripts/test-hive-entitlements.sh
           scripts/verify-hive-entitlements.sh "$ENTITLEMENTS"
 
       - name: Import Developer ID certificate into an ephemeral keychain

@@ -433,7 +433,7 @@ extension BrowserState {
                 self.scheduleAutosave()
             } catch {
                 // Quiet honest failure — the fetch or write failed. No toast
-                // infra in HiveChromium; the image simply doesn't save.
+                // infra in Hive; the image simply doesn't save.
                 NSLog("[HiveContextMenu] Save image failed: \(error.localizedDescription)")
             }
         }

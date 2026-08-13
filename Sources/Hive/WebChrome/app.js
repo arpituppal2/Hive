@@ -4041,7 +4041,7 @@ HiveCompactMode.init();
      ------------------------------------------------------------------------
      Real mass-stiffness-damping ODE solved with 4th-order Runge-Kutta.
      CSS cubic-bezier springs are approximations — this is the real thing.
-     
+
      Presets tuned for Hive's material feel:
        - SNAP:    m=1, k=420, d=32   (sharp settle, no bounce)
        - BOUNCE:  m=1, k=180, d=12   (playful overshoot)
@@ -4052,10 +4052,7 @@ HiveCompactMode.init();
   var SpringPresets = {
     snap:   { mass: 1, stiffness: 420, damping: 32 },
     bounce: { mass: 1, stiffness: 180, damping: 12 },
-    smooth: { mass: 1, stiffness: 210, damping: 26 },
-    gentle: { mass: 1, stiffness: 120, damping: 28 },
-    wobbly: { mass: 1, stiffness: 140, damping: 8  },
-    stiff:  { mass: 1, stiffness: 380, damping: 38 }
+    smooth: { mass: 1, stiffness: 210, damping: 26 }
   };
 
   function SpringSolver(config) {
@@ -4126,169 +4123,6 @@ HiveCompactMode.init();
     SpringPresets: SpringPresets,
     animateSpring: animateSpring
   };
-
-  /* ========================================================================
-     CANVAS AMBIENT PARTICLES
-     ------------------------------------------------------------------------
-     Gentle floating particles on the start page. GPU-composited via canvas
-     2d context. Runs only when the start page is visible and the tab is
-     focused — pauses on blur to save battery.
-     ======================================================================== */
-
-  var particleCanvas = document.getElementById('hiveParticles');
-  if (particleCanvas) {
-    var ctx = particleCanvas.getContext('2d');
-    var particles = [];
-    var PARTICLE_COUNT = 35;
-    var animFrame = null;
-    var running = false;
-
-    function resizeCanvas() {
-      var parent = particleCanvas.parentElement;
-      if (!parent) return;
-      particleCanvas.width = parent.offsetWidth;
-      particleCanvas.height = parent.offsetHeight;
-    }
-
-    function createParticle() {
-      var accentRGB = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-      return {
-        x: Math.random() * (particleCanvas.width || 800),
-        y: Math.random() * (particleCanvas.height || 600),
-        r: Math.random() * 1.8 + 0.4,
-        vx: (Math.random() - 0.5) * 0.30,
-        vy: (Math.random() - 0.5) * 0.30 - 0.15,
-        opacity: Math.random() * 0.35 + 0.08,
-        hue: accentRGB || '#F97316',
-        life: Math.random() * 400 + 100
-      };
-    }
-
-    function initParticles() {
-      resizeCanvas();
-      particles = [];
-      for (var i = 0; i < PARTICLE_COUNT; i++) particles.push(createParticle());
-    }
-
-    function drawParticles(ts) {
-      if (!running || document.body.classList.contains('no-motion')) return;
-      ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-      for (var i = 0; i < particles.length; i++) {
-        var p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life--;
-        if (p.life <= 0 || p.x < -20 || p.x > particleCanvas.width + 20 ||
-            p.y < -20 || p.y > particleCanvas.height + 20) {
-          particles[i] = createParticle();
-          p = particles[i];
-          p.x = particleCanvas.width / 2 + (Math.random() - 0.5) * 200;
-          p.y = particleCanvas.height / 2 + (Math.random() - 0.5) * 200;
-        }
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = p.hue;
-        ctx.globalAlpha = p.opacity;
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-      animFrame = requestAnimationFrame(drawParticles);
-    }
-
-    function startParticles() {
-      if (running) return;
-      resizeCanvas();
-      running = true;
-      animFrame = requestAnimationFrame(drawParticles);
-    }
-
-    function stopParticles() {
-      running = false;
-      if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
-    }
-
-    initParticles();
-    window.addEventListener('resize', function () { resizeCanvas(); if (running) stopParticles(); initParticles(); if (running) startParticles(); });
-    window.addEventListener('focus', startParticles);
-    window.addEventListener('blur', stopParticles);
-    // Start on first interaction to avoid painting on invisible start pages
-    document.addEventListener('mousemove', function once() {
-      document.removeEventListener('mousemove', once);
-      if (!IS_CHROME) startParticles();
-    }, { once: true });
-
-    window.HivePhysics.particles = {
-      start: startParticles,
-      stop: stopParticles,
-      init: initParticles
-    };
-  }
-
-  /* ========================================================================
-     CONFETTI BURST — bookmark save, download complete, task done
-     ------------------------------------------------------------------------
-     Lightweight confetti emitter using absolute-positioned divs with
-     spring-driven trajectories. Cleans up after itself. No external lib.
-     ======================================================================== */
-
-  var CONFETTI_COLORS = [
-    '#F97316', '#FB923C', '#FED7AA', '#10B981', '#34D399',
-    '#6366F1', '#818CF8', '#F59E0B', '#FBBF24', '#EC4899'
-  ];
-
-  function burstConfetti(x, y, count) {
-    if (document.body.classList.contains('no-motion')) return;
-    count = count || 28;
-    var container = document.createElement('div');
-    container.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99999;';
-    document.body.appendChild(container);
-
-    for (var i = 0; i < count; i++) {
-      var piece = document.createElement('div');
-      var angle = (Math.random() * Math.PI * 2);
-      var velocity = Math.random() * 400 + 200;
-      var tx = Math.cos(angle) * velocity;
-      var ty = Math.sin(angle) * velocity - Math.random() * 300;
-      var rotation = (Math.random() - 0.5) * 1080;
-      var size = Math.random() * 8 + 4;
-      var color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
-
-      piece.style.cssText =
-        'position:absolute;left:' + x + 'px;top:' + y + 'px;' +
-        'width:' + size + 'px;height:' + (Math.random() * size * 1.6 + size * 0.8) + 'px;' +
-        'background:' + color + ';border-radius:' + (Math.random() > 0.5 ? '50%' : '2px') + ';' +
-        'transform:translate(0,0) rotate(0deg);opacity:1;';
-      container.appendChild(piece);
-
-      var solver = new SpringSolver(SpringPresets.wobbly);
-      solver.setTarget(1);
-      var startTime = null;
-      var duration = Math.random() * 600 + 800;
-
-      function update(ts) {
-        if (!startTime) startTime = ts;
-        var progress = Math.min((ts - startTime) / duration, 1);
-        solver.step((ts - (startTime + 16)) / 1000);
-        var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-        var currentX = tx * progress;
-        var currentY = ty * progress + 500 * progress * progress; // gravity
-        var currentRot = rotation * progress;
-        var currentOpacity = 1 - progress;
-        piece.style.transform = 'translate(' + currentX + 'px,' + currentY + 'px) rotate(' + currentRot + 'deg)';
-        piece.style.opacity = currentOpacity;
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        } else {
-          piece.remove();
-        }
-      }
-      requestAnimationFrame(update);
-    }
-
-    setTimeout(function () { container.remove(); }, 2000);
-  }
-
-  window.HivePhysics.burstConfetti = burstConfetti;
 
   /* ========================================================================
      SWIPE-TO-CLOSE TABS (pointer events + spring physics)

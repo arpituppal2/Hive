@@ -3,26 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hive — The browser that thinks with you</title>
+    <title>Hive — The browser that remembers what you read</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/png" href="favicon.png">
-    <!-- Open Graph / Social -->
-    <meta property="og:title" content="Hive — The browser that thinks with you">
-    <meta property="og:description" content="A Chromium browser with on-device AI, a multi-model council, and agentic browsing. Zero telemetry. Your data stays local.">
+    <meta property="og:title" content="Hive — The browser that remembers what you read">
+    <meta property="og:description" content="A native macOS browser with on-device AI. Every page you read becomes a searchable, citable memory. Free. Zero telemetry.">
     <meta property="og:image" content="https://arpituppal2.github.io/Hive/favicon.png">
     <meta property="og:url" content="https://arpituppal2.github.io/Hive">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Hive — The browser that thinks with you">
-    <meta name="twitter:description" content="Chromium browser with on-device AI, multi-model council, and agentic browsing. Zero telemetry.">
+    <meta name="twitter:title" content="Hive — The browser that remembers what you read">
+    <meta name="twitter:description" content="A native macOS browser with on-device AI and local-first memory. Free. Zero telemetry.">
     <meta name="twitter:image" content="https://arpituppal2.github.io/Hive/favicon.png">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="nav">
         <div class="nav-inner">
             <a href="/" class="logo">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
                     <path d="M16 2L4 8v10c0 7.18 5.13 13.88 12 15.44 6.87-1.56 12-8.26 12-15.44V8L16 2z" fill="#F97316" opacity="0.3"/>
                     <path d="M16 5L6 10v8c0 5.52 3.94 10.68 10 11.88 6.06-1.2 10-6.36 10-11.88v-8L16 5z" fill="#F97316"/>
                 </svg>
@@ -32,7 +30,6 @@
                 <a href="#features">Features</a>
                 <a href="#compare">Compare</a>
                 <a href="#download">Download</a>
-                <a href="#pricing">Pricing</a>
             </div>
             <button class="btn btn-primary btn-sm" onclick="document.getElementById('download').scrollIntoView({behavior:'smooth'})">
                 Download
@@ -40,35 +37,24 @@
         </div>
     </nav>
 
-    <!-- Hero -->
     <section class="hero">
         <div class="hero-content">
-            <p class="hero-eyebrow">⌘A — ask Hive anything</p>
+            <p class="hero-eyebrow">Local-first. On-device AI. Zero telemetry.</p>
             <h1 class="hero-title">
                 The browser that<br>
-                <span class="gradient-text">thinks with you</span>
+                <span class="accent-text">remembers what you read</span>
             </h1>
             <p class="hero-subtitle">
-                Hive combines on-device AI, agentic browsing, and a model council into one browser.
-                No cloud dependency. No telemetry. Just intelligence that respects your privacy.
+                Every page you open becomes a searchable, citable memory. Ask Hive anything about
+                your research and it answers with citations to what you actually read — on your
+                Mac, never on someone else's server.
             </p>
             <div class="hero-actions">
-                <button class="btn btn-primary btn-lg" id="download-btn">
+                <a href="#download" class="btn btn-primary btn-lg">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Download for macOS
-                </button>
-                <p class="hero-trust">Free to use • Apple Silicon &amp; Intel • Chromium-based</p>
-            </div>
-            <div class="waitlist-badge">
-                <div class="waitlist-count">
-                    <span class="count-number" id="waitlist-count">20,000</span>+
-                    <span class="count-label">on the waitlist</span>
-                </div>
-                <form class="waitlist-form" id="waitlist-form">
-                    <input type="email" placeholder="Get early access — enter your email" required>
-                    <button type="submit" class="btn btn-primary">Join</button>
-                </form>
-                <p class="waitlist-note" id="waitlist-note"></p>
+                </a>
+                <p class="hero-trust">Free · Apple Silicon &amp; Intel · Chromium-based</p>
             </div>
         </div>
         <div class="hero-visual">
@@ -79,19 +65,14 @@
                 </div>
                 <div class="mockup-content">
                     <div class="ai-card">
-                        <div class="ai-card-header">Model Council</div>
+                        <div class="ai-card-header">Hive answers with citations</div>
                         <div class="ai-card-body">
                             <div class="model-response">
-                                <span class="model-tag">MLX Local</span>
-                                <p>The best approach is to use Swift actors for thread-safe state...</p>
+                                <p>You read <strong>3 sources</strong> on local-first sync this week. Here's what they agree on…</p>
                             </div>
-                            <div class="model-response">
-                                <span class="model-tag">Tavily</span>
-                                <p>Based on recent research, Swift 6 concurrency model...</p>
-                            </div>
-                            <div class="model-response">
-                                <span class="model-tag">BYOK Claude</span>
-                                <p>I agree with the local model. Additionally, consider...</p>
+                            <div class="citation">
+                                <span class="citation-src">arxiv.org/2506.xxxxx</span>
+                                <span class="citation-quote">"CRDTs win over OT when offline merges are common."</span>
                             </div>
                         </div>
                     </div>
@@ -100,45 +81,37 @@
         </div>
     </section>
 
-    <!-- Features Bento Grid -->
     <section class="features" id="features">
         <h2 class="section-title">Built different</h2>
-        <p class="section-subtitle">Every AI browser promises intelligence. Hive delivers it — on your device, not someone else's server.</p>
-        <div class="bento-grid">
-            <div class="bento-card bento-large">
-                <div class="bento-icon">🧠</div>
-                <h3>Agentic Browsing</h3>
-                <p>Hive reads the live page's accessibility tree, then navigates, clicks, fills forms, and extracts data on your behalf — 28+ tools, grounded in the actual page structure. Tell it what you need, not how to find it.</p>
+        <p class="section-subtitle">Hive doesn't bolt a chatbot onto a browser. It makes the browser itself the memory, the research tool, and the assistant.</p>
+        <div class="feature-list">
+            <div class="feature">
+                <h3>Memory that acts</h3>
+                <p>Capture is automatic and DOM-level — no screen recording, no manual saves. Every page you open becomes a stored, citable source.</p>
             </div>
-            <div class="bento-card">
-                <div class="bento-icon">🔒</div>
-                <h3>On-Device AI</h3>
+            <div class="feature">
+                <h3>Cited answers</h3>
+                <p>Ask "what was I reading about X?" and Hive answers with real citations to the pages you actually opened, never generated labels.</p>
+            </div>
+            <div class="feature">
+                <h3>On-device AI</h3>
                 <p>Models run locally on Apple Silicon via MLX. No internet needed. Your data never leaves your machine.</p>
             </div>
-            <div class="bento-card">
-                <div class="bento-icon">🏛️</div>
-                <h3>Model Council</h3>
-                <p>Multiple AI models deliberate in parallel. A chair model synthesizes agreements and flags disagreements. You get the full picture.</p>
+            <div class="feature">
+                <h3>Deep research</h3>
+                <p>Plan → search → read → synthesize → cite. Multi-step research with inline source links and honest model labels.</p>
             </div>
-            <div class="bento-card">
-                <div class="bento-icon">🔍</div>
-                <h3>Deep Research</h3>
-                <p>Multi-step research queries: plan → search → read → synthesize → cite. All with inline source links.</p>
-            </div>
-            <div class="bento-card">
-                <div class="bento-icon">📂</div>
+            <div class="feature">
                 <h3>Workspaces</h3>
                 <p>Per-workspace cookie and storage isolation. Separate work, personal, and research contexts with one click.</p>
             </div>
-            <div class="bento-card">
-                <div class="bento-icon">🛡️</div>
-                <h3>Three-Layer Adblocking</h3>
-                <p>Pre-request request filtering, Chromium network-level blocking, and cosmetic hiding — the native adblock-rust engine over an EasyList base. Toggle it off for sites that misbehave.</p>
+            <div class="feature">
+                <h3>Built-in adblocking</h3>
+                <p>The Brave adblock-rust engine with network-level filtering and cosmetic blocking, out of the box.</p>
             </div>
         </div>
     </section>
 
-    <!-- Comparison Table -->
     <section class="compare" id="compare">
         <h2 class="section-title">How Hive compares</h2>
         <div class="table-wrapper">
@@ -156,98 +129,44 @@
                     <tr><td>On-device AI</td><td class="hive-col">✔ MLX</td><td>✘ Cloud only</td><td>✘ Cloud only</td><td>✘</td></tr>
                     <tr><td>Agentic browsing</td><td class="hive-col">✔</td><td>Partial</td><td>✔</td><td>✘</td></tr>
                     <tr><td>Model council</td><td class="hive-col">✔</td><td>✘</td><td>✘</td><td>✘</td></tr>
-                    <tr><td>Deep research</td><td class="hive-col">✔</td><td>✘</td><td>✔</td><td>✘</td></tr>
+                    <tr><td>Cited answers from your own tabs</td><td class="hive-col">✔</td><td>✘</td><td>✘</td><td>✘</td></tr>
                     <tr><td>Workspace isolation</td><td class="hive-col">✔</td><td>✔</td><td>✘</td><td>✘</td></tr>
                     <tr><td>Built-in adblocking</td><td class="hive-col">✔ Rust engine</td><td>Partial</td><td>✘</td><td>✘</td></tr>
-                    <tr><td>Chrome extensions</td><td class="hive-col">✔</td><td>✔</td><td>✘</td><td>✔</td></tr>
-                    <tr><td>Cross-device sync</td><td class="hive-col">✔ E2E encrypted</td><td>✔</td><td>✘</td><td>✔</td></tr>
                     <tr><td>No telemetry</td><td class="hive-col">✔</td><td>Partial</td><td>✘</td><td>✘</td></tr>
                     <tr><td>Open source</td><td class="hive-col">✔ MIT</td><td>✘</td><td>✘</td><td>Partial</td></tr>
-                    <tr><td>Auto-update</td><td class="hive-col">✔ Sparkle</td><td>✔</td><td>✘</td><td>✔</td></tr>
                 </tbody>
             </table>
         </div>
     </section>
 
-    <!-- Download -->
+    <section class="free" id="free">
+        <h2 class="section-title">Free, and it costs us nothing too</h2>
+        <p class="section-subtitle">
+            Hive is free. The full browser — workspaces, on-device AI, built-in adblocking — runs
+            on your Mac, so it costs you $0 and costs us $0. Advanced Swarm features (cloud deep
+            research, multi-model council, cross-device sync) come later as an optional layer.
+        </p>
+    </section>
+
     <section class="download" id="download">
-        <h2 class="section-title">Ready to think differently?</h2>
-        <p class="section-subtitle" id="download-subtitle">Available for macOS. Windows and iOS coming soon.</p>
+        <h2 class="section-title">Ready to remember everything?</h2>
+        <p class="section-subtitle">Free for macOS 14+. One download, one browser.</p>
         <div class="download-actions">
-            <a href="https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg" class="btn btn-primary btn-xl" id="main-download-btn">
+            <a href="https://github.com/arpituppal2/Hive/releases/latest" class="btn btn-primary btn-xl" id="main-download-btn">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span id="download-btn-text">Download Hive for macOS</span>
             </a>
-            <div class="download-options" id="download-options">
-                <a href="#" class="download-option" id="dl-arm64">Apple Silicon (.dmg)</a>
-                <span class="download-divider">|</span>
-                <a href="#" class="download-option" id="dl-x64">Intel (.dmg)</a>
-            </div>
         </div>
         <p class="version-info">
-            <span id="version-badge">Version 1.0</span> • macOS 14+ • 
-            <span id="arch-badge"></span> • Free
-        </p>
-        <p class="version-info">
-            <span class="sparkle-badge">✨ Auto-updates via Sparkle — stay current effortlessly</span>
+            <span id="version-badge">Version 1.0</span> · macOS 14+ · Free
         </p>
     </section>
 
-    <!-- Pricing -->
-    <section class="pricing" id="pricing">
-        <h2 class="section-title">Simple pricing</h2>
-        <div class="pricing-grid">
-            <div class="pricing-card">
-                <h3>Hive Free</h3>
-                <div class="price">$0</div>
-                <p class="price-desc">Forever</p>
-                <ul>
-                    <li>Full Chromium browser</li>
-                    <li>Standard AI features</li>
-                    <li>Workspaces & profiles</li>
-                    <li>Built-in adblocking</li>
-                    <li>Local device sync</li>
-                </ul>
-                <button class="btn btn-secondary">Download Free</button>
-            </div>
-            <div class="pricing-card pricing-pro">
-                <div class="pro-badge">Most Popular</div>
-                <h3>Hive Pro</h3>
-                <div class="price">$8<span>/mo</span></div>
-                <p class="price-desc">or $80/year (save 17%)</p>
-                <ul>
-                    <li>Everything in Free</li>
-                    <li>Unlimited deep research</li>
-                    <li>Advanced model council</li>
-                    <li>Cloud sync</li>
-                    <li>Custom themes</li>
-                    <li>Priority support</li>
-                </ul>
-                <button class="btn btn-primary">Start Free Trial</button>
-            </div>
-            <div class="pricing-card">
-                <h3>Enterprise</h3>
-                <div class="price">$20<span>/user/mo</span></div>
-                <p class="price-desc">For teams</p>
-                <ul>
-                    <li>Everything in Pro</li>
-                    <li>SSO (Okta, Azure AD)</li>
-                    <li>Admin dashboard</li>
-                    <li>Custom model deployment</li>
-                    <li>Audit logging</li>
-                    <li>SLA</li>
-                </ul>
-                <button class="btn btn-secondary">Contact Sales</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-inner">
             <div class="footer-brand">
                 <span class="logo-text">Hive</span>
-                <p>The browser that thinks with you.</p>
+                <p>The browser that remembers what you read.</p>
                 <p class="footer-small">© 2026 Hive Browser. All rights reserved.</p>
             </div>
             <div class="footer-links">
@@ -255,69 +174,38 @@
                     <h4>Product</h4>
                     <a href="#features">Features</a>
                     <a href="#download">Download</a>
-                    <a href="#pricing">Pricing</a>
-                </div>
-                <div>
-                    <h4>Company</h4>
-                    <a href="#">Blog</a>
-                    <a href="#">About</a>
-                    <a href="#">Careers</a>
                 </div>
                 <div>
                     <h4>Legal</h4>
                     <a href="privacy.html">Privacy Policy</a>
                     <a href="terms.html">Terms of Service</a>
-                    <a href="#">License</a>
                 </div>
             </div>
         </div>
     </footer>
 
-    <script src="waitlist.js"></script>
     <script>
-        // Architecture detection for download links
         (function() {
-            var isAppleSilicon = (function() {
-                var canvas = document.createElement('canvas');
-                var gl = canvas.getContext('webgl');
-                if (!gl) return false;
-                var debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                if (!debugInfo) return false;
-                var renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-                return /Apple/.test(renderer) && !/Intel/.test(renderer);
-            })();
-            
             var dlBtn = document.getElementById('main-download-btn');
-            var dlText = document.getElementById('download-btn-text');
-            var archBadge = document.getElementById('arch-badge');
-            var dlOptions = document.getElementById('download-options');
-            
-            if (isAppleSilicon) {
-                dlText.textContent = 'Download Hive for Apple Silicon';
-                archBadge.textContent = 'Apple Silicon';
-                dlBtn.href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
-                document.getElementById('dl-arm64').href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
-                document.getElementById('dl-x64').href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
-            } else {
-                dlText.textContent = 'Download Hive for Intel Mac';
-                archBadge.textContent = 'Intel';
-                dlBtn.href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
-                document.getElementById('dl-arm64').href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
-                document.getElementById('dl-x64').href = 'https://github.com/arpituppal2/Hive/releases/download/v1.0.0/Hive.dmg';
-            }
-            
-            // Show download options
-            dlOptions.style.display = 'flex';
-            
-            // Version badge from release
+            var versionBadge = document.getElementById('version-badge');
+
+            // The static href (/releases/latest) always resolves. If the API
+            // returns the actual .dmg asset, link straight to it instead.
             fetch('https://api.github.com/repos/arpituppal2/Hive/releases/latest')
                 .then(function(r) { return r.json(); })
                 .then(function(release) {
                     if (release.tag_name) {
-                        document.getElementById('version-badge').textContent = release.tag_name;
+                        versionBadge.textContent = release.tag_name;
+                    }
+                    var assets = release.assets || [];
+                    for (var i = 0; i < assets.length; i++) {
+                        if (/\.dmg$/i.test(assets[i].name)) {
+                            dlBtn.href = assets[i].browser_download_url;
+                            break;
+                        }
                     }
                 })
-                .catch(function() { /* offline — use default version */ });
+                .catch(function() { /* offline — keep the /releases/latest fallback */ });
         })();
     </script>
 </body>

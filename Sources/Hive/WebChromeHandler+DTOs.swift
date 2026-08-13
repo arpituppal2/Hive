@@ -545,6 +545,66 @@ struct WebChromeActionRequest: Codable, Sendable {
     let action: String
 }
 
+// MARK: - Surface action request types (web-chrome context menu / find / auth)
+
+/// "Bookmark Link" — arbitrary URL + optional display title.
+struct WebChromeBookmarkRequest: Codable, Sendable {
+    let token: String
+    let url: String
+    let title: String?
+}
+
+/// Autofill a saved credential into the active page's form.
+struct WebChromeAutofillRequest: Codable, Sendable {
+    let token: String
+    let host: String
+    let username: String
+}
+
+/// Find-in-page / find-next. `forward` is omitted by `hive.findInPage` and
+/// defaults to true; `hive.findNext` always supplies it.
+struct WebChromeFindRequest: Codable, Sendable {
+    let token: String
+    let query: String
+    let forward: Bool?
+}
+
+/// Save-password decision from the web chrome banner.
+struct WebChromeSavePasswordRequest: Codable, Sendable {
+    let token: String
+    let url: String
+    let username: String
+    let password: String
+}
+
+/// Permission-prompt response (allow / deny / dismiss) from the web banner.
+struct WebChromePermissionResponseRequest: Codable, Sendable {
+    let token: String
+    let type: String?
+    let response: String
+}
+
+/// Site-permission toggle from the web chrome permissions panel.
+struct WebChromeSitePermissionRequest: Codable, Sendable {
+    let token: String
+    let permission: String
+    let value: String
+}
+
+/// Translate-page hand-off (target language + source URL).
+struct WebChromeTranslateRequest: Codable, Sendable {
+    let token: String
+    let url: String
+    let to: String
+}
+
+/// Actions that optionally reference a specific tab id (openDevTools,
+/// viewSource, savePage). `id` is nil when the caller omits it (active tab).
+struct WebChromeOptionalIDRequest: Codable, Sendable {
+    let token: String
+    let id: String?
+}
+
 enum WebChromeBridgeError: Error, LocalizedError {
     case unauthorized
     case invalidURL
