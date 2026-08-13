@@ -60,22 +60,27 @@ future releases can't sign appcasts without it.
   URLs get a `cef_resource_request_handler_t` whose `on_before_resource_load`
   returns `RV_CANCEL`, dropping the request before it hits the network.
   The predicate is installed once at startup by `BrowserState.installNetworkAdBlockFilter()`
-  and ships the static, subdomain-aware `AdBlockPolicy.shouldBlockNetworkHost`
-  matcher over `EasyListBlocklist.domains` (honoring the `HiveAdBlockEnabled`
-  UserDefaults toggle). The Rust engine (`AdblockEngine.shared.check`) remains
-  the cosmetic-selector path.
+  and prefers the native Rust engine (`AdblockEngine.nativeShouldBlock` →
+  `engine_check_url`, guarded by a shared `Mutex` so the engine is readable from
+  the IO thread) before falling back to the static, subdomain-aware
+  `AdBlockPolicy.shouldBlockNetworkHost` matcher over `EasyListBlocklist.domains`
+  (honoring the `HiveAdBlockEnabled` UserDefaults toggle). The native engine is
+  seeded from the same `EasyListBlocklist.domains` via `engine_add_filters`,
+  compiled as `||domain^` network filters, so its verdict is equivalent to the
+  static set — never weaker.
 - **Path B — CDP `Network.setBlockedURLs`:** applied per-browser in
   `applyAdBlockPolicy(to:)` on every `wireCDP` (pre-request at the Chromium
   layer, subdomain patterns from `AdBlockPolicy.cdpURLPatterns`).
 - **Cosmetic hiding:** `applyCosmeticAdBlock` injects the Rust engine's CSS
-  selectors after each navigation via the existing `executeJavaScript` probe
-  path.
+  selectors (`AdblockEngine.shared.cosmeticSelectors` → `engine_cosmetic_selectors`)
+  after each navigation via the existing `executeJavaScript` probe path.
 
 Settings → Privacy → "Block ads & trackers" toggles all three.
 
-**Remaining (optional, later):** consult the Rust engine (`AdblockEngine.shared.check`)
-per request instead of the static set — the `CefResourceFilter` predicate is the
-single seam where that drops in.
+The native engine is now consulted per request as the preferred path; the static
+set is the fallback when the dylib isn't staged (debug builds) or the engine
+reports an error. `adblock` is built with `default-features = false` (dropping
+`single-thread`) so `Engine` is `Send + Sync` and safe to share across threads.
 
 ---
 
