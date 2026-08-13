@@ -9,7 +9,7 @@
 
 > **The Hive Browser turns what you browse into an organized, actionable memory.**
 >
-> It is a native macOS browser where every page you read becomes a searchable, citable source; where Swarm — a local, role-specialized AI — answers with citations to what you actually opened, turns research into projects with next actions, and makes one safe, approved code change. It replaces the browser, the read-later app, the knowledge base, the research tool, and the coding assistant — with one local-first memory your data never leaves.
+> It is a native macOS browser where every page you capture becomes a searchable, citable source; where Swarm — a local, role-specialized AI — answers with citations to what you actually opened, turns research into projects with next actions, and makes one safe, approved code change. It replaces the browser, the read-later app, the knowledge base, the research tool, and the coding assistant — with one local-first memory your data never leaves.
 
 ## 1. The narrow description (the first 10 seconds)
 
@@ -22,13 +22,13 @@ Why this framing (research-verified): YC explicitly advises a narrow, clear desc
 ## 2. Application answers (draft)
 
 ### What does your company do? (2 sentences)
-"The Hive Browser is a native macOS browser with an integrated memory and AI layer (Swarm). Every page you read becomes a citable source; Swarm answers with real citations, builds projects and next actions from your research, and performs one safe, approved, auditable code change — all local-first, with your data never leaving your Mac."
+"The Hive Browser is a native macOS browser with an integrated memory and AI layer (Swarm). Every page you capture becomes a citable source; Swarm answers with real citations, builds projects and next actions from your research, and performs one safe, approved, auditable code change — all local-first, with your data never leaving your Mac."
 
 ### What is the problem?
 "People lose work at every context boundary: browser to notes, notes to research, research to tasks, tasks to code. The average knowledge worker pays ~$1,500/yr across a browser, read-later app, knowledge base, research tool, AI chat, and task app — and none of them talk to each other, and none of them saw the tabs, emails, or research that made the work real."
 
 ### What is your solution?
-"One browser that owns the context. Capture is ambient and DOM-level (no screen-recording permission). Retrieval is hybrid (full-text + semantic + recency) over a local knowledge graph. Answers cite stored Source objects, never generated labels. Projects, tasks, and code runs are typed objects in the same graph. Everything is local-first, reversible, and exportable."
+"One browser that owns the context. Capture is one-click and DOM-level (no screen-recording permission). Retrieval is hybrid (full-text + semantic + recency) over a local knowledge graph. Answers cite stored Source objects, never generated labels. Projects, tasks, and code runs are typed objects in the same graph. Everything is local-first, reversible, and exportable."
 
 ### Who are your competitors? (the war map)
 | Competitor | Bet | Weakness Hive exploits |
@@ -70,7 +70,7 @@ Per `2026-08-11-yc-demo-execution.md` — one compound workflow, no feature tour
 
 1. Import a real profile → a project space opens (0:00)
 2. Research a decision across tabs (0:25)
-3. Sources captured automatically, provenance visible (0:50)
+3. Sources captured in one click, provenance visible (0:50)
 4. "Write a cited brief on what I just read" — every claim cites a stored Source (1:15)
 5. One key: brief → project with decisions, questions, next actions (1:45)
 6. Open a repo; Swarm plans, shows the diff, user approves, test runs, EventLedger records (2:15)
