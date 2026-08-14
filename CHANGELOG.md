@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fix — removed the last undefined tokens in dead "ported feature" CSS
+- A full token sweep found nine `var(--x)` references with no definition and no fallback, all inside never-applied CSS fragments left over from the overhaul: `--arc-start-x`/`--arc-start-y`/`--arc-end-x`/`--arc-end-y`/`--arc-height` (the Zen download-arc animation — no JS ever creates `.download-arc-element` or sets these), `--tab-active-bg`/`--tab-active-shadow` (`.tab.in-urlbar`), `--tab-bg` (`.tab[data-theme-color]` page-bleed), and `--tab-favicon` (`.essential-tab .tab-bg` favicon blur). Removed those four dead blocks so `var()` never references an undefined token.
+- Re-verified: zero undefined tokens remain across `styles.css` + `tokens.css` (the rest are defined, carry fallbacks, or are set inline at runtime).
+
 ### Dead-code removal — stale Zen fragments referencing pre-overhaul DOM
 - Removed `HiveCompactMode` (a `ZenCompactMode.mjs` port) and its `init()` call: it tracked `data-compact-mode` and referenced `#sidebar`/`#toolbar`/`#webviewContainer`, none of which exist in the post-overhaul DOM. The real compact mode is `body[data-compact]` via `setCompactMode` (which uses `#chrome`), so this tracker only ever ran `init()` and its `mouseleave`/`sizemodechange` listeners no-op'd on missing elements.
 - Removed `HiveQuickCommands` (a Vivaldi F2-style palette) plus its `#quick-commands` CSS: `toggle()`/`filter()` were never invoked and the `#quick-commands` element doesn't exist.

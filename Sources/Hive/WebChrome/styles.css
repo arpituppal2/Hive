@@ -2790,17 +2790,6 @@ body[data-theme="light"] .shields-stat {
 }
 
 
-/* ============================================================
-   Zen Tab in-URL bar styling
-   When a tab is dragged into the URL bar area, it gets a
-   selected-tab background to show the drop target
-   ============================================================ */
-
-.tab.in-urlbar {
-  background: var(--tab-active-bg) !important;
-  box-shadow: var(--tab-active-shadow);
-}
-
 /* Zen tab button active press scale */
 .tab:active,
 .tab[open] {
@@ -2834,21 +2823,6 @@ body[data-theme="light"] .shields-stat {
    3. Dia-style rounded corners — ~20px radius on floating
       surfaces for a modern tactile feel.
    ============================================================ */
-
-/* --- 1. Page-Bleed Active Tab --- */
-
-/* When a tab has a theme-color override, bleed it into the active tab bg */
-.tab[data-theme-color] {
-  --tab-theme: var(--data-theme-color, var(--tab-bg));
-}
-
-.tab.active[data-theme-color] {
-  background: color-mix(in srgb, var(--tab-theme) 30%, var(--chrome-bg) 70%);
-  border-left: 3px solid var(--tab-theme);
-  transition:
-    background 0.3s ease,
-    border-color 0.3s ease;
-}
 
 /* --- 2. Auto-Hide URL Bar Controls --- */
 
@@ -3746,45 +3720,6 @@ body[data-theme="light"] {
   transform: translate(-50%, calc(-1 * var(--drag-indicator-h)));
 }
 
-/* --- Essential tab with favicon background blur --- */
-
-.essential-tab .tab-bg {
-  position: relative;
-  overflow: hidden;
-  background: transparent;
-}
-
-.essential-tab .tab-bg::after {
-  content: "";
-  inset: -50%;
-  filter: blur(20px);
-  position: absolute;
-  background-size: contain;
-  background-image: var(--tab-favicon);
-  z-index: -1;
-  background-position: center;
-  opacity: 0.4;
-}
-
-.essential-tab .tab-bg::before {
-  content: "";
-  background: var(--surface);
-  margin: 2px;
-  border-radius: calc(var(--border-radius-medium, 10px) - 2px);
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  transition: background 0.1s ease-in-out;
-}
-
-.essential-tab.active .tab-bg::before {
-  background: color-mix(in srgb, var(--accent) 15%, var(--surface) 85%);
-}
-
-.essential-tab:hover .tab-bg::before {
-  background: color-mix(in srgb, var(--ink) 5%, var(--surface) 95%);
-}
-
 /* --- Topbar auto-hide (collapses to thin strip, reveals on hover) --- */
 
 .topbar-auto-hide {
@@ -4661,44 +4596,6 @@ body[data-theme="light"] {
 
 .privacy-panel .fingerprint-resistance-indicator[data-level="standard"]::before {
   background: var(--warning, #ff9800);
-}
-
-/* ============================================================
-   Zen Download Arc Animation (studied from ZenDownloadAnimation.mjs 545 lines)
-   License: MPL-2.0, reimplemented for Hive
-   ============================================================
-   When a download starts, an element arcs from the click position
-   to the downloads toolbar button. Uses CSS @keyframes for the
-   trajectory with a cubic-bezier curve. */
-
-@keyframes download-arc {
-  0% {
-    transform: translate(var(--arc-start-x), var(--arc-start-y)) scale(1);
-    opacity: 1;
-  }
-  40% {
-    transform: translate(
-      calc(var(--arc-start-x) + (var(--arc-end-x) - var(--arc-start-x)) * 0.5),
-      calc(var(--arc-end-y) - var(--arc-height))
-    ) scale(0.7);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--arc-end-x), var(--arc-end-y)) scale(0.45);
-    opacity: 0;
-  }
-}
-
-.download-arc-element {
-  position: fixed;
-  z-index: 9999;
-  pointer-events: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
-  animation: download-arc 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 /* Download button pulse on arrival */
