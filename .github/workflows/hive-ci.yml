@@ -52,9 +52,15 @@ jobs:
 
       - name: Build research worker
         shell: bash
+        env:
+          # CI has no signing credentials, so stage the worker in the same
+          # ad-hoc mode build-hive-app.sh --allow-adhoc uses (all-zero dummy
+          # Team ID + matching designated requirement).
+          HIVE_WORKER_TEAM_ID: "0000000000"
+          HIVE_WORKER_REQUIREMENT: 'anchor apple generic and certificate leaf[subject.OU] = "0000000000" and identifier "com.hive.browser.research-worker"'
         run: |
           set -euo pipefail
-          bash scripts/build-research-worker.sh
+          bash scripts/build-research-worker.sh --allow-adhoc
 
       - name: Swift Build
         shell: bash
