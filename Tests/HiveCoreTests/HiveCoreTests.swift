@@ -6128,20 +6128,10 @@ struct SmokeTests {
         #expect(result == ["id1", "id2"])
     }
 
-@Test func pageCaptureAdmissionAllowedIsAllowed() {
-        #expect(PageCaptureAdmission.allowed.isAllowed)
-        #expect(!PageCaptureAdmission.deniedPrivateBrowsing.isAllowed)
-    }
-
 @Test func omnibarResolutionPreservesURL() throws {
         let url = try #require(URL(string: "https://example.com"))
         let r = OmnibarResolution.search(url)
         if case .search(let u) = r { #expect(u == url) } else { #expect(Bool(false)) }
-    }
-
-@Test func pageCaptureDeliveryPolicyPreservesFlags() {
-        let d = PageCaptureDeliveryPolicy.decide(disposition: .manual, isPrivate: false, aiContextAllowed: true)
-        #expect(d.persistCapture)
     }
 
 @Test func downloadFilenamePolicySanitizesSlash() {
@@ -6219,11 +6209,6 @@ struct SmokeTests {
         #expect(SwarmResponsePolicy.resolution(responseIsCurrent: true, taskIsCancelled: true, transitionIsCurrent: true) == .drop)
     }
 
-@Test func pageCaptureRequestLedgerInitHasZeroPending() {
-        let l = PageCaptureRequestLedger()
-        #expect(l.pendingCount == 0)
-    }
-
 @Test func tabFocusNavigatorDestinationNextWraps() {
         let ids = ["a", "b", "c"]
         let dest = TabFocusNavigator.destination(in: ids, focusedID: "c", direction: .next)
@@ -6288,10 +6273,6 @@ struct SmokeTests {
         let cases = HostContextPolicy.Decision.allCases
         #expect(cases.count == 3)
         #expect(cases.contains(.allow))
-    }
-
-@Test func pageCaptureAdmissionAllowed() {
-        #expect(PageCaptureAdmission.allowed.isAllowed)
     }
 
 
@@ -6539,10 +6520,6 @@ struct SmokeTests {
         let e = RendererFailureEvent(tabID: "t1", url: nil, reason: "crash", errorCode: 5, occurredAt: Date())
         #expect(e.tabID == "t1")
         #expect(e.reason == "crash")
-    }
-
-@Test func pageCaptureAdmissionDeniedPrivateBrowsing() {
-        #expect(!PageCaptureAdmission.deniedPrivateBrowsing.isAllowed)
     }
 
 
@@ -6822,27 +6799,6 @@ struct SmokeTests {
         )
         #expect(r.sourceIDs.isEmpty)
         #expect(r.briefID == nil)
-    }
-
-@Test func scribeCoordinatorCaptureVerdictEnums() {
-        #expect(ScribeCoordinator.CaptureVerdict.Outcome.keep == .keep)
-        #expect(ScribeCoordinator.CaptureVerdict.SkipReason.parseError == .parseError)
-        #expect(ScribeCoordinator.CaptureVerdict.SkipReason.lowSignal == .lowSignal)
-    }
-
-@Test func scribeCoordinatorPageQaAnswerInit() {
-        let a = ScribeCoordinator.PageQaAnswer(
-            answer: "Yes", answerType: .found, basis: [],
-            pageClaimUnverified: false, confidence: 0.9, providerLabel: "mock"
-        )
-        #expect(a.answer == "Yes")
-        #expect(a.answerType == .found)
-    }
-
-@Test func scribeCoordinatorPageQaAnswerTypes() {
-        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.found == .found)
-        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.pageDoesNotSay == .pageDoesNotSay)
-        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.privateBrowsing == .privateBrowsing)
     }
 
 @Test func pinnedWebAppInit() throws {
@@ -7203,23 +7159,6 @@ struct SmokeTests {
         let n = BrowserSessionNormalization(session: bs, report: report)
         #expect(n.session.windows.isEmpty)
         #expect(n.report == BrowserSessionRepairReport())
-    }
-
-    @Test func captureVerdictOutcomeSkipReasons() {
-        #expect(ScribeCoordinator.CaptureVerdict.Outcome.keep.rawValue == "keep")
-        #expect(ScribeCoordinator.CaptureVerdict.Outcome.skip.rawValue == "skip")
-        #expect(ScribeCoordinator.CaptureVerdict.SkipReason.duplicate.rawValue == "duplicate")
-        #expect(ScribeCoordinator.CaptureVerdict.SkipReason.transient.rawValue == "transient")
-        #expect(ScribeCoordinator.CaptureVerdict.SkipReason.lowSignal.rawValue == "lowSignal")
-    }
-
-    @Test func pageQaAnswerTypeAllCases() {
-        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.found.rawValue == "found")
-        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.pageDoesNotSay.rawValue == "pageDoesNotSay")
-        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.pageClaimUnverified.rawValue == "pageClaimUnverified")
-        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.privateBrowsing.rawValue == "privateBrowsing")
-        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.aiContextDisabled.rawValue == "aiContextDisabled")
-        #expect(ScribeCoordinator.PageQaAnswer.AnswerType.parseError.rawValue == "parseError")
     }
 
 }

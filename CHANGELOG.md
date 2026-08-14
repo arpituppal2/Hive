@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Dead-code removal (unwired ambient-capture machinery)
+- **Removed `ScribeCoordinator` + the `PageCapture*` policies** — the tested but never-wired ambient-capture machinery (`autoCaptureTriage` / `askOnPage` invocation routes, `PageCaptureAdmission`, `PageCaptureDeliveryPolicy`, `PageCaptureRequestLedger`). Capture is the honest one-click feature the copy already describes; the "capture every page automatically" path this code implements was never hooked to any page-load event and would run counter to the zero-cost free tier. Four source files and 46 tests (4 suites) removed; the live page-Q&A route through `SwarmOrchestrator` / `ModelRole.pageQa` is untouched.
+- Suite is now **1,783 tests / 175 suites**.
+
 ### Dead-code removal (superseded T0 intent classifier)
 - **Removed `IntentOrchestrator` + `IntentCategory` / `ClassifiedIntent` / `IntentParams`** — a 510-line deterministic T0 intent classifier that request routing no longer uses. Live routing flows through `SwarmIntentRouter`, `TrustedTurnGateway`, and `VoiceCommandCoordinator` (which use `SwarmResponseRoute` and `ModelRole` instead), so this whole family was dead code validated only by its own smoke tests. Its 6 test functions went with it.
 - Suite is now **1,829 tests / 179 suites**.
@@ -289,7 +293,7 @@ Hive adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Honeycomb revisions, node writes, and FTS replacement now commit transactionally with explicit rollback errors.
 
 ### Validation
-- 1,829 tests / 179 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
+- 1,783 tests / 175 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
 
 
 ## [v1.0.0] — 2026-08-09 (build 100)
