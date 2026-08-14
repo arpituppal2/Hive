@@ -1,6 +1,6 @@
 # Hive Release Pipeline — What's Left, In Order
 
-**Status:** Local validation current — **1,912 tests / 184 suites green**, product build, ad-hoc bundle, preflight, and bootstrap smoke all pass. Distribution-only items below remain credential-gated and are not implied by the local artifact.
+**Status:** Local validation current — **1,783 tests / 175 suites green**, product build, ad-hoc bundle, preflight, and bootstrap smoke all pass. Distribution-only items below remain credential-gated and are not implied by the local artifact.
 
 The remaining work is explicitly split between repository-complete validation and external release provisioning.
 
@@ -89,7 +89,7 @@ reports an error. `adblock` is built with `default-features = false` (dropping
 `BrowserState+<Domain>.swift` extensions (`scripts/split_browser_state.py`,
 commit `eb3506fd`). `GeminiSidePanel` (1,921 → 281), `WebChromeHandler`
 (1,319 → 802, DTOs + agent tools carved), `SheetsPanelView` (938 → ~100 +
-10 extensions), and`SettingsView` (770 → 83 + 7 extensions) followed with `scripts/split_swift_type.py` (commit `371fddcd`). These were pure refactors with zero behavior change; the decomposition checkpoint had 1,567 tests, and the current suite is 1,912 tests / 184 suites.
+10 extensions), and`SettingsView` (770 → 83 + 7 extensions) followed with `scripts/split_swift_type.py` (commit `371fddcd`). These were pure refactors with zero behavior change; the decomposition checkpoint had 1,567 tests, and the current suite is 1,783 tests / 175 suites.
 
 ---
 

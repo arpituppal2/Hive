@@ -14,11 +14,11 @@ source never committed; two live defects).
 | T002 | Delete legacy Hive target | ✅ | `Package.swift`, `Sources/Hive/`; build/test green |
 | T003 | Make HiveChromium the primary Hive target | ✅ | `Package.swift`, `Sources/Hive/`; restructure references fixed |
 | T004 | Complete browser fundamentals | ✅ headless | tabs, workspaces, split view, navigation, persistence, CDP lifecycle |
-| T005 | Fix HiveCore integration | ✅ | `Sources/HiveCore/`; latest suite 1,912/184 |
+| T005 | Fix HiveCore integration | ✅ | `Sources/HiveCore/`; latest suite 1,783/175 |
 | T006 | UI/HIG/accessibility review and polish | ⚠️ human visual sign-off remains | `.hive/mission/evidence/window-t05.png`; headless validation cannot certify pixel fidelity |
 | T007 | Security and privacy review | ✅ | entitlements/debug-port/secrets checks pass |
 | T008 | Swarm/AI graceful degradation | ✅ | honest provider degradation and CDP regression coverage |
-| T009 | Full test suite and validation | ✅ local validation | 1,912 tests / 184 suites; HiveCore/Hive product builds pass; current ad-hoc bundle, preflight, and 60s smoke readiness remain green |
+| T009 | Full test suite and validation | ✅ local validation | 1,783 tests / 175 suites; HiveCore/Hive product builds pass; current ad-hoc bundle, preflight, and 60s smoke readiness remain green |
 | T010 | Documentation and final validation | ✅ docs current / history pending | current validation addenda and release boundary are documented; continuation edits remain uncommitted |
 
 ## Found defects (fixed)

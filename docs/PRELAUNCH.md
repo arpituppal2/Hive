@@ -1,6 +1,6 @@
 # Hive Browser — Pre-Launch Checklist
 
-> **Current local validation (2026-08-13):** 1,912 tests / 184 suites pass; HiveCore and Hive product builds pass; the current ad-hoc bundle, preflight, and 60-second smoke readiness checks pass. Developer ID signing, notarization, and clean-machine installation remain external release checks.
+> **Current local validation (2026-08-13):** 1,783 tests / 175 suites pass; HiveCore and Hive product builds pass; the current ad-hoc bundle, preflight, and 60-second smoke readiness checks pass. Developer ID signing, notarization, and clean-machine installation remain external release checks.
 >
 > The checked boxes in the launch-artifact section below preserve the historical v1.0.0 launch snapshot. They do not certify the current ad-hoc artifact for distribution; use `docs/RELEASE_PIPELINE.md` for the current release boundary.
 
@@ -83,6 +83,6 @@
 ---
 
 **Last updated:** 2026-08-09
-**Latest local tests:** 1,912 / 184 suites PASS
+**Latest local tests:** 1,783 / 175 suites PASS
 **Latest local build:** HiveCore + Hive product builds, ad-hoc bundle, preflight, and 60-second smoke readiness PASS; sync outbox latest-ledger regression coverage included
 **Distribution:** Developer ID signing, notarization, and clean-machine install remain pending
