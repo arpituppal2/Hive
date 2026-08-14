@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Dead-code removal — stale Zen fragments referencing pre-overhaul DOM
+- Removed `HiveCompactMode` (a `ZenCompactMode.mjs` port) and its `init()` call: it tracked `data-compact-mode` and referenced `#sidebar`/`#toolbar`/`#webviewContainer`, none of which exist in the post-overhaul DOM. The real compact mode is `body[data-compact]` via `setCompactMode` (which uses `#chrome`), so this tracker only ever ran `init()` and its `mouseleave`/`sizemodechange` listeners no-op'd on missing elements.
+- Removed `HiveQuickCommands` (a Vivaldi F2-style palette) plus its `#quick-commands` CSS: `toggle()`/`filter()` were never invoked and the `#quick-commands` element doesn't exist.
+- Removed the dead `#chrome__top` CSS — the "Zen Single Toolbar Mode" and "Zen Floating URL Bar" sections styled an element that was never ported, under a `data-layout="toolbar"` attribute the JS never sets (tab layout is `data-mode` = vertical/horizontal).
+- `webviewContainer` lookups are already guarded (fallback to `document.body` / early return), so the native CEF webview living outside the chrome DOM is safe and left in place.
+
 ### Fix — light/dark theme switch flashed dark-on-dark
 - The body carried a vestigial `transition: background-color 0.4s ease` (labeled "workspace transition"), but the workspace color wash is actually applied via `#chrome::before` (opacity + gradient) and `data-workspace-color` is never set by JS. The rule therefore only fired on theme switches: the body's background faded over 0.4s while its text color flipped instantly, so dark→light showed dark text `#191817` on a still-dark `#1A1512` canvas for the first ~0.4s (cream-on-light in the other direction). Removed the dead rule so background and text flip together, instantly.
 - Verified at runtime over the CDP debug bridge: the body background and foreground now resolve in lockstep — dark `#1A1512`/`#F4F1EE` → light `#F7F2E8`/`#191817` — with no transition artifact.
