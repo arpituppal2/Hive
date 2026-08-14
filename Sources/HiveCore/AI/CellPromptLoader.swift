@@ -37,8 +37,8 @@ public struct CellPromptLoader: Sendable {
     ///
     /// Every ModelRole that has a corresponding `.md` prompt file in
     /// `Swarm_System_Prompts/` is listed here. Roles without prompt files
-    /// (embedder, byokFrontier, appleFMF, retrievalRanker, titleGenerator,
-    /// memoryCompressor) use bare model calls or system frameworks.
+    /// (embedder, byokFrontier, appleFMF) use bare model calls or system
+    /// frameworks.
     ///
     /// Multi-tier roles (planner, coder, auditor, librarian) map to their
     /// primary tier variant; the dispatch layer routes up-tier when needed.

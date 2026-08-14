@@ -7,7 +7,7 @@ import Foundation
 // replacing the #if DEBUG-gated remote debugging port (localhost:9223).
 //
 // Phase 2 — P2.1: Foundation for CDP Agent Tools.
-// Phase 3 — Astro alignment: 16 CDP agent tools mirroring BrowserOS's browser
+// Phase 3 — Astro alignment: 28 CDP agent tools mirroring BrowserOS's browser
 // automation surface (tabs, navigation, snapshot, act, read, grep, screenshot,
 // wait, evaluate). See https://github.com/Blueturboguy07/Astro.
 
