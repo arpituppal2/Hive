@@ -183,16 +183,15 @@ public struct ChromeUserPrefs: Sendable, Codable, Equatable {
     /// Persisted alongside bookmarks so pinned apps survive restart.
     public var pinnedWebApps: [PinnedWebApp]
 
-    /// Whether Hive's Automatic-Capture moat (PITCH/competitive-ai-gap-ledger gap 7) is
-    /// opted in. When true, on page-load-finish Hive runs the `captureScribe` Cell over
-    /// the captured page text to decide keep/skip + extract {facts, decisions,
-    /// commitments} into Honeycomb (see `ChromeState.autoCaptureDidFinish`). Defaults
-    /// OFF: the `capture_scribe` prompt mandates per-surface opt-in ("Capture is opt-in
-    /// per surface… absent → default skip"). Private tabs are ALWAYS excluded regardless
-    /// of this flag. This is the backend integration of the scribe invocation route
-    /// (PITCH/backend-completion.md Track A) — it degrades honestly to MockRuntime when
-    /// MLX isn't linked, so the path is complete and correct with or without local
-    /// inference wired.
+    /// Whether Hive's Automatic-Capture moat is
+    /// opted in. NOT YET WIRED: this flag is persisted but nothing reads it yet, so no
+    /// page-load hook runs `captureScribe`. The surrounding machinery is implemented and
+    /// tested as the roadmap for this feature — `ScribeCoordinator.autoCaptureTriage`
+    /// (the captureScribe invocation) plus the `PageCaptureAdmission`/`DeliveryPolicy`/
+    /// `RequestLedger` policies — but the page-load-finish → capture → triage → Honeycomb
+    /// route is still to be built. Defaults OFF: the `capture_scribe` prompt mandates
+    /// per-surface opt-in ("Capture is opt-in per surface… absent → default skip").
+    /// Private tabs will ALWAYS be excluded once wired, regardless of this flag.
     public var autoCaptureEnabled: Bool
 
     /// User's reading list — articles saved for later (⌘⇧L panel).
