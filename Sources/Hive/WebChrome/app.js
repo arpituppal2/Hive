@@ -2074,7 +2074,6 @@
       toggleRow('location', 'Location', 'Allow access to your location') +
       toggleRow('notifications', 'Notifications', 'Show desktop notifications') +
       toggleRow('popups', 'Pop-ups', 'Allow pop-up windows') +
-      toggleRow('autoplay', 'Autoplay', 'Allow media to autoplay') +
       '<div class="panel-section" style="margin-top:12px">Danger Zone</div>' +
       '<button class="le__clear" data-clear-site-data style="margin-top:4px">Clear data for ' + esc(host) + '</button>';
   }

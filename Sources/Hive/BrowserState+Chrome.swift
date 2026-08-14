@@ -339,6 +339,13 @@ extension BrowserState {
                 host: entry.url.host ?? ""
             )
         }
+        // Per-site permission state for the active host, keyed by kind.
+        // Only explicitly-decided kinds are stored; anything missing defaults
+        // to "ask" in the renderer (toggle off).
+        let activeHost = activeModel?.url?.host ?? ""
+        let sitePermissionsMap = sitePermissions
+            .filter { $0.host == activeHost }
+            .reduce(into: [String: String]()) { $0[$1.kind.rawValue] = $1.state.rawValue }
         let spaces = workspacesForCurrentProfile.map { ws -> WebChromeSpace in
             WebChromeSpace(
                 id: ws.id.uuidString,
@@ -483,6 +490,7 @@ extension BrowserState {
             recent: recent,
             recentlyClosed: recentlyClosed,
             readingList: readingListItems,
+            sitePermissions: sitePermissionsMap,
             spaces: spaces,
             accentHex: browserAccentColorHex,
             tabs: chromeTabs,

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fix — site permissions panel now reflects real per-site state
+- The Site Permissions palette rendered every toggle as OFF because `state.sitePermissions` was never sent (the field existed in the JS but not the bridge DTO). Added a per-active-host `sitePermissions` map (kind → `allow`/`deny`/`ask`) to `WebChromeStartData`, empty on private pages, so camera/microphone/location/notifications/pop-ups toggles now show the persisted decision.
+- Removed the dead "Autoplay" toggle row — the native layer explicitly no-ops `autoplay` (engine-level, not a per-site decision in this build), so the control was misleading.
+
 ### Fix — reading list panel now shows saved articles
 - The Reading List palette always rendered "Your reading list is empty" because `state.readingList` was never sent: the field existed in the JS renderer but not in the `WebChromeStartData` bridge DTO. Added `readingList` (id/title/url/host, newest first) populated from the native `BrowserState.readingList`, threaded through both redaction paths (empty on private start pages), so saved articles now appear in the panel.
 

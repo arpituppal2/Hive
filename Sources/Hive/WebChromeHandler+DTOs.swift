@@ -90,6 +90,10 @@ struct WebChromeStartData: Codable, Sendable {
     let recentlyClosed: [WebChromeRecentItem]
     /// Saved reading-list articles (id/title/url/host). Empty on private pages.
     let readingList: [WebChromeReadingListItem]
+    /// Per-site permission state for the active host, keyed by kind
+    /// ("camera", "microphone", "location", "notifications", "popups") →
+    /// "allow" / "deny" / "ask". Empty on private pages.
+    let sitePermissions: [String: String]
     let spaces: [WebChromeSpace]
     let accentHex: String
     // Full browser state for the web chrome shell (hive://start?chrome=1).
@@ -141,6 +145,7 @@ struct WebChromeStartData: Codable, Sendable {
             recent: [],
             recentlyClosed: [],
             readingList: [],
+            sitePermissions: [:],
             spaces: [],
             accentHex: accentHex,
             tabs: tabs.filter(\.isPrivate),
@@ -198,6 +203,7 @@ struct WebChromeStartData: Codable, Sendable {
             recent: recent,
             recentlyClosed: recentlyClosed,
             readingList: readingList,
+            sitePermissions: sitePermissions,
             spaces: visibleSpaces,
             accentHex: accentHex,
             tabs: tabs.filter { !$0.isPrivate },
