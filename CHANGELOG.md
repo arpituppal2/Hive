@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fix — reading list panel now shows saved articles
+- The Reading List palette always rendered "Your reading list is empty" because `state.readingList` was never sent: the field existed in the JS renderer but not in the `WebChromeStartData` bridge DTO. Added `readingList` (id/title/url/host, newest first) populated from the native `BrowserState.readingList`, threaded through both redaction paths (empty on private start pages), so saved articles now appear in the panel.
+
 ### Feature — wire up the "Recently Closed" new-tab section (Chrome NTP parity)
 - The JS renderer for a "Recently Closed" section existed, and `hive.reopenClosedTab` (⌘⇧T) was wired, but the section **never rendered**: the HTML container was missing and the state DTO never carried `recentlyClosed`. Added the field to `WebChromeStartData` (populated from `BrowserState.closedTabs`, newest first, blank/internal URLs filtered), threaded it through both redaction paths (empty on private start pages), and added the NTP section so closing a tab now surfaces a "Reopen" row on the new-tab page.
 

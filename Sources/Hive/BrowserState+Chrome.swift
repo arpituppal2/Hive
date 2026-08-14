@@ -330,6 +330,15 @@ extension BrowserState {
                 historyID: nil
             )
         }
+        // Saved reading-list articles, newest first (Chrome/Safari parity).
+        let readingListItems = readingList.reversed().map { entry -> WebChromeReadingListItem in
+            WebChromeReadingListItem(
+                id: entry.id,
+                title: entry.title,
+                url: entry.url.absoluteString,
+                host: entry.url.host ?? ""
+            )
+        }
         let spaces = workspacesForCurrentProfile.map { ws -> WebChromeSpace in
             WebChromeSpace(
                 id: ws.id.uuidString,
@@ -473,6 +482,7 @@ extension BrowserState {
             topSites: topSites,
             recent: recent,
             recentlyClosed: recentlyClosed,
+            readingList: readingListItems,
             spaces: spaces,
             accentHex: browserAccentColorHex,
             tabs: chromeTabs,
