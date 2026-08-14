@@ -79,7 +79,6 @@ public struct GenerateResult: Sendable {
     public enum Provider: String, Sendable, Codable {
         case mlx           // local MLX inference (real weights)
         case appleFMF      // Apple Foundation Models
-        case systemEmbedder // NLEmbedding baseline
         case byokRemote    // user-supplied remote
         case mock          // honest mock — no real weights present
         case rule          // deterministic, no model

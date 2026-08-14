@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Dead-code removal (unwired embedding/semantic-search scaffold)
+- **Removed the dead `embedder` model role end to end** — the `.embedder` `ModelRole` case, its `ModelManifest` entry, the `.systemEmbedder` `ServingStrategy`/`Provider` cases, the `MockRuntime` branch, and the 560 MB `nomic-embed-text-v2` entry in `ModelDownloader.requiredRepos`. Nothing ever dispatched to it, and Honeycomb retrieval is FTS5 + graph, so the "semantic index" it claimed to power did not exist.
+- **Deleted `EmbeddingRuntime.swift`** — `SystemEmbeddingRuntime` (Apple `NLEmbedding`), the `EmbeddingRuntime` protocol, and `EmbeddingError` were never instantiated in production (only their own test referenced them).
+- **Corrected the false claims** — the Dispatcher's "`.systemEmbedder` handled separately via EmbeddingRuntime" comment, the `ModelManifest` "outputs embeddings for Honeycomb semantic index + retrieval" doc, and the YC pitch's "hybrid (full-text + semantic + recency)" retrieval claim (now "full-text + recency").
+- Role count 21 → 20. Suite is now **1,782 tests / 174 suites**.
+
 ### Dead-code removal (unwired ambient-capture role)
 - **Removed the `captureScribe` model role end to end** — the last trace of the ambient-capture roadmap: the `ModelRole.captureScribe` case, its `ModelManifest` entry, the `CellPromptLoader.cellRoleMapping` entry, and the `MockRuntime` branch. It was already unreachable after `ScribeCoordinator` / `PageCapture*` were removed, and it no-oped at the honest mock. Role count 22 → 21, mapped-role count 19 → 18.
 - **Deleted `scribe/100m_capture_scribe.md`** and updated the Swarm prompt canon to match: the packaged-tree count (60 → 59), the specialist-Cell count (35 → 34), and the `00_INDEX.md` / `VISION_SPEC.md` / `00_PROGRESS.md` references all dropped the removed Cell. The historical `Pass 43` changelog entry is preserved as a dated record.
@@ -305,7 +311,7 @@ Hive adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Honeycomb revisions, node writes, and FTS replacement now commit transactionally with explicit rollback errors.
 
 ### Validation
-- 1,783 tests / 175 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
+- 1,782 tests / 174 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
 
 
 ## [v1.0.0] — 2026-08-09 (build 100)

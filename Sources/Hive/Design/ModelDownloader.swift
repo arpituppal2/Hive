@@ -27,7 +27,6 @@ public final class ModelDownloader: ObservableObject {
     public static let requiredRepos: [(repo: String, sizeMB: Int, label: String)] = [
         ("mlx-community/Qwen2.5-0.5B-Instruct-4bit", 300, "0.5B base model"),
         ("mlx-community/Qwen2.5-1.5B-Instruct-4bit", 900, "1.5B general-purpose"),
-        ("mlx-community/nomic-embed-text-v2-Matryoshka-F16", 560, "Embedding model"),
         ("mlx-community/Qwen2.5-Coder-7B-Instruct-4bit", 4300, "7B coding model"),
     ]
 

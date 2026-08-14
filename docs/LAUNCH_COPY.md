@@ -21,7 +21,7 @@ Hive is different:
 
 Stack: Swift 6, CEF 148 (Chromium 148), MLX Swift, SQLite + FTS5 for Honeycomb memory, CloudKit for E2E encrypted sync.
 
-1,783 tests / 175 suites pass. Builds as a native macOS ad-hoc DMG for local development; Developer ID signing and notarization are still required for a distributable release.
+1,782 tests / 174 suites pass. Builds as a native macOS ad-hoc DMG for local development; Developer ID signing and notarization are still required for a distributable release.
 
 GitHub: https://github.com/arpituppal2/Hive
 Download: https://github.com/arpituppal2/Hive/releases
@@ -42,7 +42,7 @@ The browser that thinks with you — on-device AI, zero telemetry
 
 ### Short Description
 ```
-Hive is a Chromium-based browser with on-device AI (Apple MLX), a multi-model council that deliberates in parallel, agentic browsing via CDP, and deep research with inline citations. Zero telemetry. Zero tracking. The launch snapshot passed 1,783 tests. Current builds are ad-hoc development artifacts until Developer ID signing and notarization are complete.
+Hive is a Chromium-based browser with on-device AI (Apple MLX), a multi-model council that deliberates in parallel, agentic browsing via CDP, and deep research with inline citations. Zero telemetry. Zero tracking. The launch snapshot passed 1,782 tests. Current builds are ad-hoc development artifacts until Developer ID signing and notarization are complete.
 ```
 
 ### Gallery Images
@@ -65,7 +65,7 @@ The three things I'm most proud of:
 2. Agentic Browsing — the browser navigates for you. Ask "find me flights to Tokyo under $800" and it actually opens tabs, fills forms, extracts results.
 3. Zero telemetry — we collect nothing. Not even anonymous usage stats. Your browsing is yours.
 
-The launch snapshot was at 1,783 tests, with a local ad-hoc .dmg ready for development validation—not yet distribution-ready. I'd love feedback on the Model Council flow — does seeing multiple models disagree help or confuse?
+The launch snapshot was at 1,782 tests, with a local ad-hoc .dmg ready for development validation—not yet distribution-ready. I'd love feedback on the Model Council flow — does seeing multiple models disagree help or confuse?
 
 Thanks for checking us out! 🚀
 ```
@@ -91,7 +91,7 @@ It's built on Chromium 148 (via CefSwift), native SwiftUI chrome (not Electron),
 Open source (MIT): https://github.com/arpituppal2/Hive
 Direct download: https://github.com/arpituppal2/Hive/releases
 
-Zero telemetry. Zero tracking. The launch snapshot passed 1,783 tests. The current DMG is ad-hoc for local development; macOS only for now.
+Zero telemetry. Zero tracking. The launch snapshot passed 1,782 tests. The current DMG is ad-hoc for local development; macOS only for now.
 
 Would love feedback from this community — what makes you switch browsers? What would it take for you to try a new one?
 ```
@@ -102,7 +102,7 @@ Would love feedback from this community — what makes you switch browsers? What
 2. **Model Council** — parallel deliberation, not single-model echo chamber
 3. **Agentic browsing** — CDP-powered, the browser acts, not just chats
 4. **Zero telemetry** — we collect nothing, not even anonymous stats
-5. **Open source** — MIT license, 1,783 tests in the launch snapshot, buildable from source (current DMGs are ad-hoc development artifacts)
+5. **Open source** — MIT license, 1,782 tests in the launch snapshot, buildable from source (current DMGs are ad-hoc development artifacts)
 6. **Honest about limits** — macOS only, no extensions store yet, no mobile
 
 ## Launch Day Checklist

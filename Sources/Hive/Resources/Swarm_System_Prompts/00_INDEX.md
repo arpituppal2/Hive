@@ -69,7 +69,7 @@ A given job may have **one or more tier variants**. A tier variant exists only w
 
 **Competitive research:** `RESEARCH/competitive-dossier.md` — analysis of Rewisp (ambient Mac memory), Deep24 (AI brain/coach), and Perplexity Comet (agentic browser) with product insights mapped back to Cell prompt refinements.
 
-**Not retired, extended:** the existing HiveCore `ModelManifest` 19 roles map onto this taxonomy (intent/spam/urgency/linkScorer → router; orchestrator stays; librarian/summarizer/retrievalRanker→linkScorer/titleGenerator/memoryCompressor → librarian/summarizer/router; auditor/planner/coder/deepReasoner/researchSynthesizer → same-named families; actionGuard → guard; embedder → infrastructure not a prompt Cell; byokFrontier/appleFMF → runtime, not Cells). New families the goal introduced: **browser (CDP), council, scribe, and the ram_manager/council-chair/runtime control docs.**
+**Not retired, extended:** the existing HiveCore `ModelManifest` 20 roles map onto this taxonomy (intent/spam/urgency/linkScorer → router; orchestrator stays; librarian/summarizer/retrievalRanker→linkScorer/titleGenerator/memoryCompressor → librarian/summarizer/router; auditor/planner/coder/deepReasoner/researchSynthesizer → same-named families; actionGuard → guard; byokFrontier/appleFMF → runtime, not Cells). New families the goal introduced: **browser (CDP), council, scribe, and the ram_manager/council-chair/runtime control docs.**
 
 ---
 

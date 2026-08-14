@@ -81,8 +81,6 @@ public enum ModelRole: String, Sendable, Codable, CaseIterable {
     case researchSynthesizer
 
     // --- Supporting (separate from the LM ladder) ---
-    /// Outputs embeddings for Honeycomb semantic index + retrieval.
-    case embedder
     /// Not a model — BYOK user-supplied frontier models routed on opt-in.
     case byokFrontier
     /// Apple Foundation Models — narrow low-risk transforms only (macOS 26+).
@@ -102,7 +100,6 @@ public enum ModelRole: String, Sendable, Codable, CaseIterable {
             return .t2
         case .deepReasoner, .coder, .researchSynthesizer:
             return .t3
-        case .embedder:                 return .t0   // encoder, always resident
         case .byokFrontier:             return .byok
         case .appleFMF:                 return .fmf
         }
@@ -152,7 +149,6 @@ public enum ModelRole: String, Sendable, Codable, CaseIterable {
         case .deepReasoner:          return "Deep Reasoner"
         case .coder:                 return "Coder"
         case .researchSynthesizer:   return "Research Synthesizer"
-        case .embedder:              return "Embedder"
         case .byokFrontier:          return "BYOK Frontier"
         case .appleFMF:              return "Apple Foundation Models"
         }
@@ -225,8 +221,6 @@ public struct ManifestEntry: Sendable, Codable {
         case instructOffTheShelf
         /// Base instruct LoRA-fine-tuned on a Hive role dataset (post-v1 upgrade).
         case instructLoRA
-        /// System embedding framework (NLEmbedding). Zero-dep, on-device.
-        case systemEmbedder
         /// Apple Foundation Models, macOS 26+.
         case appleFMF
         /// User-supplied remote (BYOK). Never the default.
@@ -390,16 +384,6 @@ public enum ModelManifest {
             baseModel: "Qwen2.5-Coder-7B-Instruct", quantizedSizeMB: 0,
             license: "Apache-2.0", servingStrategy: .instructOffTheShelf,
             maxOutputTokens: 2048, latencyTargetMS: 4000),
-
-        // Embeddings: system NLEmbedding baseline (zero-dep, on-device) for v1;
-        // nomic-embed-text-v2 (MLX) is the documented upgrade path.
-        .embedder: .init(role: .embedder,
-            hfRepo: "mlx-community/nomic-embed-text-v2-Matryoshka-F16",
-            baseModel: "nomic-embed-text-v2 (upgrade); NLEmbedding (v1)",
-            quantizedSizeMB: 560,
-            license: "MIT",
-            servingStrategy: .systemEmbedder,
-            maxOutputTokens: 0, latencyTargetMS: 10),
 
         .byokFrontier: .init(role: .byokFrontier, hfRepo: nil,
             baseModel: "user-supplied (NIM / DeepSeek / Kimi / Claude / GPT)",

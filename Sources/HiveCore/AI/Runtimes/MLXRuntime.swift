@@ -32,8 +32,8 @@ public struct MLXRuntime: ModelRuntime {
 
     public init(roles: Set<ModelRole>? = nil) {
         // Covers BOTH served-by-MLX strategies: the off-the-shelf instruct base
-        // AND a base+trained-LoRA-adapter. (Ruled out: ruleBased/fmf/byok/
-        // systemEmbedder, which never hit MLX.) Without instructLoRA here, a
+        // AND a base+trained-LoRA-adapter. (Ruled out: ruleBased/fmf/byok,
+        // which never hit MLX.) Without instructLoRA here, a
         // role flipped to .instructLoRA would be excluded from `roles` and the
         // guard below would throw → Dispatcher would silently fall back to Mock,
         // so the trained adapter would never run even with MLX linked.

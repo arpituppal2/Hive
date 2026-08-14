@@ -28,7 +28,7 @@ Why this framing (research-verified): YC explicitly advises a narrow, clear desc
 "People lose work at every context boundary: browser to notes, notes to research, research to tasks, tasks to code. The average knowledge worker pays ~$1,500/yr across a browser, read-later app, knowledge base, research tool, AI chat, and task app — and none of them talk to each other, and none of them saw the tabs, emails, or research that made the work real."
 
 ### What is your solution?
-"One browser that owns the context. Capture is one-click and DOM-level (no screen-recording permission). Retrieval is hybrid (full-text + semantic + recency) over a local knowledge graph. Answers cite stored Source objects, never generated labels. Projects, tasks, and code runs are typed objects in the same graph. Everything is local-first, reversible, and exportable."
+"One browser that owns the context. Capture is one-click and DOM-level (no screen-recording permission). Retrieval is hybrid (full-text + recency) over a local knowledge graph. Answers cite stored Source objects, never generated labels. Projects, tasks, and code runs are typed objects in the same graph. Everything is local-first, reversible, and exportable."
 
 ### Who are your competitors? (the war map)
 | Competitor | Bet | Weakness Hive exploits |
@@ -81,7 +81,7 @@ Per `docs/superpowers/plans/2026-08-11-yc-demo-execution.md` — one compound wo
 ## 4. Why us / the team
 
 - **Vision:** one browser-native workspace that replaces the browser, knowledge, research, coding, task, and desktop-utility stack — "your second brain is the browser, and it acts."
-- **Builder:** this repository is the proof — 167 app files, 1,783 tests, built app, a Swarm spec library, and a 243-app competitive dossier. The product is not a mockup; the demo is scripted against verified code.
+- **Builder:** this repository is the proof — 167 app files, 1,782 tests, built app, a Swarm spec library, and a 243-app competitive dossier. The product is not a mockup; the demo is scripted against verified code.
 - **The Hive/Swarm split:** Hive is the ever-evolving browser; Swarm is its intelligence, like Google inside Chrome — but local, honest, and permissioned.
 
 ## 5. The ask

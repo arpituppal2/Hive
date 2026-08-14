@@ -89,7 +89,7 @@ public struct MockRuntime: ModelRuntime, StreamingModelRuntime {
             return "MOCK REASONING — no real local model loaded yet."
         case .coder:
             return "MOCK CODE — no real local model loaded yet."
-        case .embedder, .byokFrontier, .appleFMF:
+        case .byokFrontier, .appleFMF:
             return "MOCK"
         }
     }

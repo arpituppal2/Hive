@@ -24,7 +24,6 @@ public enum ProviderPreference: String, Sendable, CaseIterable {
 ///   2. `.instructOffTheShelf` roles → MLX (if available) → Apple FMF (narrow
 ///      roles, macOS 26+) → Mock (honestly labelled).
 ///   3. `.byokRemote` role → BYOK (only if configured; otherwise Mock).
-///   4. `.systemEmbedder` handled separately via EmbeddingRuntime.
 ///
 /// No silent fidelity downgrade: every output carries a `provider` label so
 /// Swarm's UI can show "real local model" vs "no local model yet" honestly.
@@ -57,7 +56,7 @@ public actor Dispatcher {
         case .byokRemote:
             guard let byok else { return nil }
             return await byok.isAvailable() ? .byokRemote : nil
-        case .instructOffTheShelf, .instructLoRA, .appleFMF, .systemEmbedder:
+        case .instructOffTheShelf, .instructLoRA, .appleFMF:
             if await mlx.isAvailable(),
                await ModelStore.shared.isPresentOrPendingSupported(role) {
                 return .mlx
@@ -93,7 +92,7 @@ public actor Dispatcher {
         switch entry?.servingStrategy {
         case .ruleBased:
             return try await mock.generate(request)
-        case .instructOffTheShelf, .instructLoRA, .appleFMF, .systemEmbedder:
+        case .instructOffTheShelf, .instructLoRA, .appleFMF:
             return try await generateWithModel(request, preferredProvider: preferredProvider)
         case .byokRemote:
             if let byok, await byok.isAvailable() {
@@ -127,7 +126,7 @@ public actor Dispatcher {
             } else {
                 source = .mock(self.mock, request)
             }
-        case .instructOffTheShelf, .instructLoRA, .appleFMF, .systemEmbedder:
+        case .instructOffTheShelf, .instructLoRA, .appleFMF:
             // Prefer a streaming local runtime when available; otherwise
             // emit the full non-streaming response as one chunk.
             if await self.mlx.isAvailable(),

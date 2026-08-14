@@ -231,8 +231,8 @@ struct ManifestTests {
         // (19 as of 2026-07-28; +1 on 2026-07-29 for the scribe family
         //  (pageQa) — Directive B phase-6 OTS Cells. +1 on 2026-08-02 for
         //  researchGatherer — the §7.3 fetch/extract front half.)
-        #expect(ModelRole.allCases.count == 21)
-        #expect(ModelManifest.entries.count == 21)
+        #expect(ModelRole.allCases.count == 20)
+        #expect(ModelManifest.entries.count == 20)
         // 1:1 — no role without an entry, no entry without a role.
         #expect(Set(ModelManifest.entries.keys) == Set(ModelRole.allCases))
     }
@@ -255,8 +255,6 @@ struct ManifestTests {
             case .instructOffTheShelf, .instructLoRA:
                 #expect([.t0, .t1, .t2, .t3].contains(role.tier),
                         "\(role) is instruct-served but tier=\(role.tier)")
-            case .systemEmbedder:
-                #expect(role == .embedder, "only .embedder uses systemEmbedder")
             }
         }
     }
@@ -287,9 +285,6 @@ struct ManifestTests {
                         "\(role) hfRepo must be an mlx-community repo, got \(entry.hfRepo!)")
                 #expect(entry.loraAdapter != nil,
                         "\(role) is .instructLoRA but has nil loraAdapter — either supply the verified adapter key or demote to .instructOffTheShelf")
-            case .systemEmbedder:
-                // embedder carries the upgrade-path repo. No contract here.
-                continue
             }
         }
     }
@@ -327,8 +322,8 @@ struct ManifestTests {
         let sets = ModelManifest.allWeightSets
         #expect(sets == Set(sets).sorted(), "allWeightSets must be de-duplicated")
         for repo in sets { #expect(repo.hasPrefix("mlx-community/")) }
-        // The four bases: 0.5B, 1.5B, Coder-7B, embedder = 4 distinct repos.
-        #expect(sets.count == 4, "expected 4 distinct weight sets; got \(sets)")
+        // The three bases: 0.5B, 1.5B, Coder-7B = 3 distinct repos.
+        #expect(sets.count == 3, "expected 3 distinct weight sets; got \(sets)")
     }
 
     @Test func sharedRepoGroupsCohort() {
@@ -1173,8 +1168,6 @@ struct HotMemoryStoreTests {
     }
 }
 
-// MARK: - Embedding runtime (real NLEmbedding, zero dep)
-
 // MARK: - SwarmOrchestrator: the agent-mix pipeline
 
 /// Locks the audit contract (AGENTS.md §8.4): EVERY model invocation across all
@@ -1214,18 +1207,6 @@ struct SwarmOrchestratorTests {
         #expect(calls.contains(where: { $0.result == .partial }))
         #expect(calls.contains(where: { $0.result == .success || $0.result == .failure }))
         #expect(!collected.isEmpty, "mock stream must yield tokens")
-    }
-}
-
-@Suite("EmbeddingRuntime")
-struct EmbeddingRuntimeTests {
-
-    @Test func systemEmbedderIsAvailableAndCorrectDimension() async throws {
-        let rt = SystemEmbeddingRuntime()
-        let vec = try await rt.embed("Hive is a local-first browser with memory.")
-        #expect(!vec.isEmpty)
-        #expect(vec.count == rt.dimensionality)
-        #expect(rt.dimensionality == 512)
     }
 }
 
@@ -1325,7 +1306,6 @@ struct CellPromptLoaderTests {
         #expect(CellPromptLoader.cellFile(for: .pageQa)?.fileName == "100m_page_qa")
 
         // Unmapped roles return nil
-        #expect(CellPromptLoader.cellFile(for: .embedder) == nil)
         #expect(CellPromptLoader.cellFile(for: .byokFrontier) == nil)
         #expect(CellPromptLoader.cellFile(for: .appleFMF) == nil)
     }
@@ -1408,8 +1388,8 @@ struct CellPromptLoaderTests {
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
         let loader = CellPromptLoader(promptsDir: tmpDir)
-        // embedder is not in cellRoleMapping — should return nil
-        #expect(loader.loadSystemPrompt(for: .embedder) == nil)
+        // byokFrontier is not in cellRoleMapping — should return nil
+        #expect(loader.loadSystemPrompt(for: .byokFrontier) == nil)
     }
 
     @Test func buildRequestInjectsSystemPrompt() throws {
@@ -6499,7 +6479,7 @@ struct SmokeTests {
     }
 
 @Test func modelRoleAllCasesRoundTrip() {
-        #expect(ModelRole.allCases.count == 21)
+        #expect(ModelRole.allCases.count == 20)
     }
 
 @Test func contextScopeSummaryRowsCount() {
