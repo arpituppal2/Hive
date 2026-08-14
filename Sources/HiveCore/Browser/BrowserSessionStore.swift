@@ -2,9 +2,9 @@ import Foundation
 
 // MARK: - BrowserSessionStore
 //
-// Atomic disk-backed persistence for the restorable session (`BrowserSession`). Mirrors
-// `ChromePrefsStore`'s actor + two-phase atomic write + corrupt-file-quarantine contract
-// (AGENTS.md §15.2), extended with two things the session specifically needs:
+// Atomic disk-backed persistence for the restorable session (`BrowserSession`). Uses an
+// actor + two-phase atomic write + corrupt-file-quarantine contract (AGENTS.md §15.2),
+// extended with two things the session specifically needs:
 //
 //   1. A 2-second *debounced* save (§9 — "on every mutation, debounced 2s") so serializing on
 //      every progress tick doesn't thrash the disk. The debounce lives in the actor: callers
@@ -95,7 +95,7 @@ public actor BrowserSessionStore {
     /// fresh read each call is correct for the launch-time loader; save re-reads nothing.
     public func load() -> SessionLoadResult { Self.read(from: url, prev: prevURL) }
 
-    /// Synchronous, nonisolated launch-time loader (mirrors `ChromePrefsStore.loadSync`),
+    /// Synchronous, nonisolated launch-time loader,
     /// called before the first frame so restored tabs/spaces paint immediately — no "snap" from
     /// a fresh window to the restored session. Applies the same privacy/reference normalizer and
     /// corrupt/quarantine + backup-recovery semantics; does not touch the actor's state.
@@ -205,7 +205,7 @@ public actor BrowserSessionStore {
         }
     }
 
-    // MARK: - Quarantine (mirrors ChromePrefsStore — never delete, never silently discard)
+    // MARK: - Quarantine (never delete, never silently discard)
 
     private nonisolated static func quarantineCorruptFile(at url: URL, reason: String) -> URL? {
         let dir = url.deletingLastPathComponent()
@@ -219,7 +219,7 @@ public actor BrowserSessionStore {
 
 // MARK: - Session JSON coders
 //
-// Stable, pretty-printed, sorted-key encoding (matches ChromePrefsStore's encodePretty) so
+// Stable, pretty-printed, sorted-key encoding so
 // session.json diffs sanely and dates are ISO-8601. Decoding uses the same ISO-8601 strategy so
 // the store's own writes round-trip exactly. The session types' custom `init(from:)` use
 // `decodeIfPresent` for forward-compat with older schemas.

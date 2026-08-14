@@ -7,7 +7,7 @@ import Foundation
 // stays warm in the background. Unlike bookmarks (static URL records), a
 // PinnedWebApp carries its own browsing session and can show unread badges.
 //
-// Persisted in ChromeUserPrefs alongside bookmarks and history so pinned apps
+// Persisted in the session store alongside bookmarks and history so pinned apps
 // survive restart. The actual WKWebView instances are managed by ChromeState's
 // app webview pool, not by this model.
 

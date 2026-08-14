@@ -3,7 +3,7 @@ import Foundation
 // MARK: - ReadingListEntry
 //
 // A lightweight, saved-for-later article — Safari Reading List style. Persisted in
-// ChromeUserPrefs alongside bookmarks and history. Each entry stores the article URL,
+// the session store alongside bookmarks and history. Each entry stores the article URL,
 // title, and metadata so the Reading List panel can display a clean, searchable list
 // of saved-for-later content.
 //
@@ -55,4 +55,11 @@ public struct ReadingListEntry: Sendable, Codable, Identifiable, Equatable {
     public var host: String {
         url.host?.replacingOccurrences(of: "www.", with: "") ?? ""
     }
+}
+
+// MARK: - Reading list cap
+
+public extension Array where Element == ReadingListEntry {
+    /// Maximum reading list entries retained. Oldest entries drop on overflow.
+    static let hiveReadingListCap = 500
 }

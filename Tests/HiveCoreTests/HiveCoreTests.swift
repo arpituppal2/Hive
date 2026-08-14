@@ -3686,15 +3686,6 @@ struct BrowserModelTests {
         #expect(!a.id.isEmpty)
     }
 
-    @Test func closedTabRecordCodableRoundTrips() throws {
-        let rec = ClosedTabRecord(url: URL(string: "https://example.com")!,
-                                  title: "Example",
-                                  closedAt: Date(timeIntervalSince1970: 1_700_000_123))
-        let data = try JSONEncoder().encode(rec)
-        let back = try JSONDecoder().decode(ClosedTabRecord.self, from: data)
-        #expect(back == rec)
-    }
-
     // MARK: Space
 
     @Test func spaceAddTabIsIdempotentAndOrderPreserving() {
@@ -3822,41 +3813,6 @@ struct BrowserModelTests {
         #expect(TabDensity.allCases == [.compact, .standard, .spacious])
     }
 
-    // MARK: ChromeUserPrefs
-
-    @Test func userPrefsDefaultsShipVerticalStandardGoogle() {
-        let d = ChromeUserPrefs.defaults
-        // Fresh installs use the product's Google/Chromium migration path and vertical rail.
-        #expect(d.tabPosition == .vertical)
-        #expect(d.tabDensity == .standard)
-        #expect(d.defaultSearchEngine == "Google")
-        #expect(d.sidebarOpen == false)
-        #expect(d.recentlyClosed.isEmpty)
-        #expect(d.activeSpaceID == nil)
-    }
-
-    @Test func userPrefsCodableRoundTrips() throws {
-        let prefs = ChromeUserPrefs(tabPosition: .vertical,
-                                    tabDensity: .compact,
-                                    sidebarOpen: true,
-                                    defaultSearchEngine: "Brave Search",
-                                    honorReduceMotion: true,
-                                    activeSpaceID: "work",
-                                    recentlyClosed: [
-                                        ClosedTabRecord(url: URL(string: "https://a.com")!,
-                                                        title: "A")
-                                    ])
-        let data = try JSONEncoder().encode(prefs)
-        let back = try JSONDecoder().decode(ChromeUserPrefs.self, from: data)
-        #expect(back == prefs)
-        #expect(back.tabPosition == .vertical)
-        #expect(back.recentlyClosed.count == 1)
-    }
-
-    @Test func hiveClosedTabCapIs25() {
-        #expect(Array<ClosedTabRecord>.hiveClosedTabCap == 25)
-    }
-
     @Test func userDefinedCommandRoundTripsAndValidatesWebURLs() throws {
         let command = UserDefinedCommand(
             title: "GitHub Notifications",
@@ -3892,95 +3848,6 @@ struct BrowserModelTests {
         #expect(UserDefinedCommand(title: "Fallback", url: "https://example.com", icon: "not-a-symbol").icon == "link")
     }
 
-    @Test func userDefinedCommandsDefaultEmptyAndPersistInPrefs() throws {
-        #expect(ChromeUserPrefs.defaults.userDefinedCommands.isEmpty)
-        let command = UserDefinedCommand(title: "Hive", url: "https://hive.example")
-        let prefs = ChromeUserPrefs(userDefinedCommands: [command])
-        let data = try JSONEncoder().encode(prefs)
-        let decoded = try JSONDecoder().decode(ChromeUserPrefs.self, from: data)
-        #expect(decoded.userDefinedCommands == [command])
-    }
-}
-
-// MARK: - ChromePrefsStore (durable prefs: load / save / quarantine / cap)
-
-@Suite("ChromePrefsStore")
-struct ChromePrefsStoreTests {
-
-    /// Makes a throwaway file URL under the system temp dir; cleans it up after the test.
-    private func tmpPrefsURL() throws -> URL {
-        let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("HivePrefsTests-\(UUID().uuidString)", isDirectory: true)
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent("chrome.json")
-    }
-
-    private func cleanup(_ url: URL) {
-        try? FileManager.default.removeItem(at: url.deletingLastPathComponent())
-    }
-
-    @Test func loadReturnsDefaultsWhenNoFileExists() async throws {
-        let url = try tmpPrefsURL()
-        defer { cleanup(url) }
-        let store = ChromePrefsStore(url: url.appendingPathComponent("absent.json"))
-        let prefs = await store.load()
-        #expect(prefs == ChromeUserPrefs.defaults)
-    }
-
-    @Test func saveThenLoadRoundTrips() async throws {
-        let url = try tmpPrefsURL()
-        defer { cleanup(url) }
-        let store = ChromePrefsStore(url: url)
-        let prefs = ChromeUserPrefs(tabPosition: .vertical,
-                                    tabDensity: .compact,
-                                    defaultSearchEngine: "Brave Search",
-                                    activeSpaceID: "work")
-        try await store.save(prefs)
-        // Fresh store (cache-bust via new instance) reads from disk.
-        let reader = ChromePrefsStore(url: url)
-        let back = await reader.load()
-        #expect(back == prefs)
-    }
-
-    @Test func loadQuarantinesCorruptFileAndReturnsDefaults() async throws {
-        let url = try tmpPrefsURL()
-        defer { cleanup(url) }
-        let dir = url.deletingLastPathComponent()
-        // Write garbage where prefs should be.
-        try Data("{ not valid: json !!! ".utf8).write(to: url, options: .atomic)
-        let store = ChromePrefsStore(url: url)
-        let prefs = await store.load()
-        #expect(prefs == ChromeUserPrefs.defaults)
-        // The corrupt file must have been quarantined (renamed), not left in place.
-        #expect(!FileManager.default.fileExists(atPath: url.path))
-        let quarantine = try FileManager.default.contentsOfDirectory(atPath: dir.path)
-            .filter { $0.contains(".corrupt-") }
-        #expect(quarantine.count == 1, "corrupt file should have been quarantined, found: \(quarantine)")
-    }
-
-    @Test func recordClosedTabDedupsByURLAndCapsAt25() async throws {
-        let url = try tmpPrefsURL()
-        defer { cleanup(url) }
-        let store = ChromePrefsStore(url: url)
-
-        // Insert 27 distinct URLs.
-        for i in 0..<27 {
-            let rec = ClosedTabRecord(url: URL(string: "https://t\(i).com")!,
-                                      title: "T\(i)")
-            _ = try await store.recordClosedTab(rec)
-        }
-        let prefs = await store.load()
-        #expect(prefs.recentlyClosed.count == 25)            // capped
-        #expect(prefs.recentlyClosed.first?.url.absoluteString == "https://t26.com")  // most-recent first
-
-        // Re-recording an existing URL dedups & hoists to the front (no duplicate stack).
-        let dup = ClosedTabRecord(url: URL(string: "https://t0.com")!, title: "T0-again")
-        _ = try await store.recordClosedTab(dup)
-        let prefs2 = await store.load()
-        #expect(prefs2.recentlyClosed.count == 25)          // still 25 — t0 moved, not added
-        #expect(prefs2.recentlyClosed.first?.url.absoluteString == "https://t0.com")
-        #expect(prefs2.recentlyClosed.filter { $0.url.absoluteString == "https://t0.com" }.count == 1)
-    }
 }
 
 // MARK: - OmniBar / SearchEngine (Step 3)
@@ -5126,29 +4993,6 @@ struct TreeTabModelTests {
         #expect(back.parentTabID == parent.id)
         #expect(back.title == "Child")
     }
-
-    @Test func chromeUserPrefsDecodeOldJSONDefaultsTreeModeOff() throws {
-        // An older chrome.json that lacks the new tree-mode fields must decode cleanly.
-        let old: [String: AnyHashable] = [
-            "tabPosition": "top",
-            "tabDensity": "standard",
-            "sidebarOpen": false,
-            "defaultSearchEngine": "DuckDuckGo",
-            "honorReduceMotion": true,
-        ]
-        let data = try JSONSerialization.data(withJSONObject: old, options: [])
-        let prefs = try JSONDecoder().decode(ChromeUserPrefs.self, from: data)
-        #expect(!prefs.isTreeMode)
-        #expect(prefs.treeCollapsedParentIDs.isEmpty)
-    }
-
-    @Test func chromeUserPrefsRoundTripsTreeMode() throws {
-        let prefs = ChromeUserPrefs(isTreeMode: true, treeCollapsedParentIDs: ["a", "b"])
-        let data = try JSONEncoder().encode(prefs)
-        let back = try JSONDecoder().decode(ChromeUserPrefs.self, from: data)
-        #expect(back.isTreeMode)
-        #expect(back.treeCollapsedParentIDs == ["a", "b"])
-    }
 }
 
 // MARK: - Promise badges (slice 8)
@@ -5490,39 +5334,6 @@ struct BrowserDownloadTests {
         #expect(decoded.progress == 0.5)
         #expect(decoded.totalBytes == 100)
         #expect(decoded.receivedBytes == 50)
-    }
-}
-
-// MARK: - Onboarding prefs
-
-@Suite("OnboardingPrefs")
-struct OnboardingPrefsTests {
-
-    @Test func hasCompletedOnboardingDefaultsToFalse() {
-        let prefs = ChromeUserPrefs.defaults
-        #expect(!prefs.hasCompletedOnboarding)
-    }
-
-    @Test func hasCompletedOnboardingRoundTripsThroughCodable() throws {
-        var prefs = ChromeUserPrefs.defaults
-        prefs.hasCompletedOnboarding = true
-        let data = try JSONEncoder().encode(prefs)
-        let decoded = try JSONDecoder().decode(ChromeUserPrefs.self, from: data)
-        #expect(decoded.hasCompletedOnboarding)
-    }
-
-    @Test func prefsDecodeWithoutHasCompletedOnboardingDefaultsFalse() throws {
-        // Simulate an older chrome.json that lacks the onboarding flag.
-        let old: [String: AnyHashable] = [
-            "tabPosition": "top",
-            "tabDensity": "standard",
-            "sidebarOpen": false,
-            "defaultSearchEngine": "DuckDuckGo",
-            "honorReduceMotion": true
-        ]
-        let data = try JSONSerialization.data(withJSONObject: old, options: [])
-        let prefs = try JSONDecoder().decode(ChromeUserPrefs.self, from: data)
-        #expect(!prefs.hasCompletedOnboarding)
     }
 }
 
@@ -6350,12 +6161,6 @@ struct BeeQueueTests {
         #expect(w.layout == .vertical)
     }
 
-@Test func browsingHistoryEntryPreservesTitle() {
-        let url = URL(string: "https://example.com")!
-        let e = BrowsingHistoryEntry(url: url, title: "Example", visitDate: Date())
-        #expect(e.title == "Example")
-    }
-
 
 @Test func autoArchivePolicyDefaultThreshold() {
         #expect(AutoArchivePolicy.defaultThreshold == 14 * 86_400)
@@ -6556,10 +6361,6 @@ struct BeeQueueTests {
 
 @Test func tabDensityAllCasesNonEmpty() {
         #expect(!TabDensity.allCases.isEmpty)
-    }
-
-@Test func hiveThemeAllCasesNonEmpty() {
-        #expect(!HiveTheme.allCases.isEmpty)
     }
 
 @Test func hibernationPolicyThresholdsDefaultsAreCorrect() {
@@ -7164,13 +6965,6 @@ struct BeeQueueTests {
         #expect(!r.didRepair)
         #expect(r.removedPrivateTabs == 0)
         #expect(r.repairedActiveReferences == 0)
-    }
-
-@Test func browsingHistoryEntryInit() {
-        let d = Date()
-        let e = BrowsingHistoryEntry(url: URL(string: "https://example.com")!, title: "Test", visitDate: d)
-        #expect(e.title == "Test")
-        #expect(e.visitDate == d)
     }
 
 @Test func preferenceMemoryInit() {

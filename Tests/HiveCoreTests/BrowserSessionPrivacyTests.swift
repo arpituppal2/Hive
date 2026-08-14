@@ -139,11 +139,6 @@ struct BrowserSessionPrivacyTests {
         #expect(s.windows[0].tabs[0].id == "pub")
     }
 
-    @Test func historyEntryHostStripsWWW() {
-        let entry = BrowsingHistoryEntry(url: URL(string: "https://www.example.com/path")!)
-        #expect(entry.host == "example.com")
-    }
-
 @Test func briefTitlePreserved() {
         let b = Brief(title: "Research Notes", content: "# Notes")
         #expect(b.title == "Research Notes")

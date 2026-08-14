@@ -3,7 +3,7 @@ import Foundation
 // MARK: - SitePermissions
 //
 // Tracks per-site permission grants (camera, microphone, location, notifications,
-// popups, downloads). Persisted in ChromeUserPrefs alongside other durable prefs.
+// popups, downloads). Persisted in the session store alongside other durable prefs.
 // By default all permissions require explicit user consent (prompt); once granted
 // or denied, the choice is remembered per (host, permission) pair.
 

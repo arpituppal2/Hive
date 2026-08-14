@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Dead-code removal (unwired persistence layer)
+- **Removed a full Chrome-preference persistence layer that was built and tested but never wired** — `ChromeUserPrefs` (the preferences struct), `ChromePrefsStore` (its disk store), and `BrowsingHistoryEntry` (an unused history model). None had a single production reference; the app persists its own session envelope and never read these types.
+- **Extracted the live pieces before deleting** — `UserDefinedCommand` (used by the command palette) moved out of `ReadingListEntry.swift` into its own file, and the live `hiveReadingListCap` capability constant was preserved.
+- **Removed the dead `ClosedTabRecord` type** and its `BrowserTab` extension.
+- **Corrected seven false "Persisted in ChromeUserPrefs" comments** across `BrowserProfile`, `SearchEngine`, `SitePermissions`, `Bookmark`, `PinnedWebApp`, `BrowserImportEngine`, and `BrowserSessionStore` — these types persist in the app's own session envelope, not the never-wired `ChromeUserPrefs`.
+- **Removed 20 dead tests (2 suites)** that validated the deleted types; the suite is now **1,861 tests / 179 suites**.
+
 ### Dead-code removal (vestigial duplicate implementations)
 - **Removed ~870 lines of dead code** — vestigial duplicate implementations that shipped fully-implemented and unit-tested but were never wired: `PageContextBroker` (an async alternative to the live synchronous `buildPageContext()`) and the `SwarmResearchSession` / `SwarmResearchReducer` / `SwarmResearchPresentation` family (superseded by the wired `DeepResearchPlanner` + `ResearchHandoffCoordinator`). Each had zero production references, so they added compile weight, a duplicate `PageContext` definition, and 31 tests that validated code nothing ever ran.
 - **The live `PageContext` struct was preserved** — it moved to its own `PageContext.swift` (the shared snapshot used by Swarm, capture, Honeycomb, and context assembly); only the dead broker class was deleted.
@@ -271,7 +278,7 @@ Hive adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Honeycomb revisions, node writes, and FTS replacement now commit transactionally with explicit rollback errors.
 
 ### Validation
-- 1,881 tests / 181 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
+- 1,861 tests / 179 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
 
 
 ## [v1.0.0] — 2026-08-09 (build 100)

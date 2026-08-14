@@ -46,8 +46,8 @@ public enum SearchEngineKind: String, Sendable, Codable, CaseIterable {
         }
     }
 
-    /// Resolver for the persistent-pref stored string → kind (ChromeUserPrefs holds the
-    /// display name; this maps it back to the case). Defaults to Google on unknown.
+    /// Resolver for the persistent-pref stored string → kind (the session store holds
+    /// the display name; this maps it back to the case). Defaults to Google on unknown.
     public static func resolve(_ name: String) -> SearchEngineKind {
         SearchEngineKind.allCases.first { $0.displayName == name } ?? .google
     }

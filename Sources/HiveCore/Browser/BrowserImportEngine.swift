@@ -8,7 +8,7 @@ import SQLite3
 // and Firefox/Zen (places.sqlite via system SQLite3).
 //
 // All parsing is read-only — we extract what we can, skip what we can't, and report
-// honest counts. The caller is responsible for merging results into ChromeUserPrefs.
+// honest counts. The caller is responsible for merging results into the session store.
 
 public struct BrowserImportEngine {
 

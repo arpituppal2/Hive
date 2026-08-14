@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Bookmark
 //
-// A single bookmark record. Persisted in ChromeUserPrefs alongside history and prefs.
+// A single bookmark record. Persisted in the session store alongside history and prefs.
 // Supports folders (via parentID) for nested bookmark organization. A nil parentID
 // means the bookmark is a root-level item. Folders have `url == nil` and `isFolder == true`.
 

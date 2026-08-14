@@ -220,25 +220,3 @@ public struct BrowserTab: Sendable, Codable, Identifiable, Equatable, Hashable {
         lastVisitedAt = try c.decodeIfPresent(Date.self, forKey: .lastVisitedAt) ?? Date()
     }
 }
-
-// MARK: - Closed-tab history (for ⌘⇧T reopen)
-
-/// Lightweight record of a recently-closed tab, kept distinct so the closed-tab stack
-/// doesn't keep the full BrowserTab state (pages may have expired). Reopen re-navigates
-/// to `url`; the title/host are best-effort labels.
-public struct ClosedTabRecord: Sendable, Codable, Identifiable, Equatable {
-    public let id: String
-    public let url: URL
-    public var title: String
-    public let closedAt: Date
-
-    public init(id: String = UUID().uuidString,
-                url: URL,
-                title: String = "",
-                closedAt: Date = Date()) {
-        self.id = id
-        self.url = url
-        self.title = title
-        self.closedAt = closedAt
-    }
-}

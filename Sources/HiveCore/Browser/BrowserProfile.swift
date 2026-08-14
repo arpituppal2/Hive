@@ -53,7 +53,6 @@ public struct BrowserProfile: Identifiable, Sendable, Codable, Equatable {
 // so it survives restarts without loading all profile data first.
 //
 // Each profile gets its own:
-//   - {profileDir}/prefs.json          (ChromeUserPrefs)
 //   - {profileDir}/session.json        (BrowserSession)
 //   - {profileDir}/honeycomb.db         (HoneycombStore)
 //   - {profileDir}/eventledger.db       (EventLedgerStore)
