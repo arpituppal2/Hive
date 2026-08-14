@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fix — light/dark theme switch flashed dark-on-dark
+- The body carried a vestigial `transition: background-color 0.4s ease` (labeled "workspace transition"), but the workspace color wash is actually applied via `#chrome::before` (opacity + gradient) and `data-workspace-color` is never set by JS. The rule therefore only fired on theme switches: the body's background faded over 0.4s while its text color flipped instantly, so dark→light showed dark text `#191817` on a still-dark `#1A1512` canvas for the first ~0.4s (cream-on-light in the other direction). Removed the dead rule so background and text flip together, instantly.
+- Verified at runtime over the CDP debug bridge: the body background and foreground now resolve in lockstep — dark `#1A1512`/`#F4F1EE` → light `#F7F2E8`/`#191817` — with no transition artifact.
+
 ### Dead-code removal — duplicate bridge aliases
 - Removed three never-invoked bridge registrations that duplicated live handlers: `hive.goBack`/`hive.goForward` (the web chrome calls `hive.back`/`hive.forward`) and `hive.togglePin` (it calls `hive.pinTab`). Both directions of the bridge contract are now clean — every `api()` call in the chrome is registered, and no registered handler is a redundant alias.
 
