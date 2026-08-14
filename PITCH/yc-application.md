@@ -2,7 +2,7 @@
 
 > **Canonical status:** active draft
 > **Created:** 2026-08-11
-> **Sources:** AGENTS.md (canonical product), `docs/superpowers/specs/2026-08-11-hive-memory-megaphase-design.md`, `RESEARCH/competitive-megadossier.md` (243 apps), `RESEARCH/conversion-playbook.md`, `2026-08-11-yc-demo-execution.md`
+> **Sources:** README.md (canonical product), `docs/superpowers/specs/2026-08-11-hive-memory-megaphase-design.md`, `Sources/Hive/Resources/Swarm_System_Prompts/RESEARCH/competitive-megadossier.md` (243 apps), `Sources/Hive/Resources/Swarm_System_Prompts/RESEARCH/conversion-playbook.md`, `docs/superpowers/plans/2026-08-11-yc-demo-execution.md`
 > **Market research:** AI-browser war (OpenAI Atlas, Perplexity Comet, Dia/Atlassian, Gemini-in-Chrome), DMA choice screens (Firefox +99–111% EU DAU), Manifest V3 fallout, 2026 local-AI hardware (M4/M5, MLX tool-calling)
 
 ## 0. The application in one breath
@@ -48,7 +48,7 @@ Why this framing (research-verified): YC explicitly advises a narrow, clear desc
 5. **Feature convergence emptied the category**: vertical tabs, tab groups, AI assistants, and password managers are now free in every browser. A new browser cannot win on chrome — the only unclaimed differentiator is *memory that acts*.
 
 ### How will you get users? (conversion in brief)
-**Research verdict: import friction is THE switching barrier — the entire browser-switch decision dies in the first hour at the password wall, a broken site, or a muscle-memory clash.** So conversion starts with perfect import: one-click, universal, lossless migration (7 browsers + refugee importers for Pocket/Omnivore/Roam — the orphan cohort is actively looking for a permanent home right now). Then the first-question moment ("what was I reading about X?") which Chrome cannot answer, then the digest (daily return loop), then projects (stickiness), then studio (revenue surface). Eight segment funnels + refugee-response playbook in `RESEARCH/conversion-playbook.md`.
+**Research verdict: import friction is THE switching barrier — the entire browser-switch decision dies in the first hour at the password wall, a broken site, or a muscle-memory clash.** So conversion starts with perfect import: one-click, universal, lossless migration (7 browsers + refugee importers for Pocket/Omnivore/Roam — the orphan cohort is actively looking for a permanent home right now). Then the first-question moment ("what was I reading about X?") which Chrome cannot answer, then the digest (daily return loop), then projects (stickiness), then studio (revenue surface). Eight segment funnels + refugee-response playbook in `Sources/Hive/Resources/Swarm_System_Prompts/RESEARCH/conversion-playbook.md`.
 
 ### How do you make money?
 **The market already answered this question: users will not pay for a browser as a browser.** Arc's $30/mo Arc Max attempt collapsed — consumers treat the browser as OS-level infrastructure, and paywalled AI sidebars are commodity (Chrome/Safari/Edge/Firefox all ship AI wrappers free by 2026; vertical tabs, tab groups, and password managers fully converged). The differentiator can no longer be chrome features — it's memory. So: local-first core **free forever** (browser + memory + local AI). Paid tier gates the **service layer**: multi-device encrypted sync, encrypted backup, team collaboration, and advanced/BYOK model routing — the Obsidian model, research-validated. Anchor pricing against the ~$1,500/yr stack (the Setapp lesson: bundle beats per-tool resistance). Privacy is in the pricing copy (~20% WTP lift, Amex-cliff-respecting).
@@ -66,7 +66,7 @@ Why this framing (research-verified): YC explicitly advises a narrow, clear desc
 
 ## 3. Demo beat sheet (the 3-minute proof)
 
-Per `2026-08-11-yc-demo-execution.md` — one compound workflow, no feature tour:
+Per `docs/superpowers/plans/2026-08-11-yc-demo-execution.md` — one compound workflow, no feature tour:
 
 1. Import a real profile → a project space opens (0:00)
 2. Research a decision across tabs (0:25)
