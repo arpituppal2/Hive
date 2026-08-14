@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fix — web chrome honey accent was silently dropped by malformed CSS
+- The web chrome's `--accent: #F97316`, spring motion curves, and ambient bloom were declared in a **malformed block** — the opening `:root {` was missing, so every one of those custom properties was invalid and ignored by the renderer. The dark chrome had no CSS accent at all, and the light theme still carried the pre-overhaul **Arc violet `#7A4ED4`** accent. Wrapped the orphaned declarations in a proper `:root { }`, switched the light theme to honey, removed the violet-tinted `--accent-ink`, and corrected the "Arc violet" header comment.
+
 ### Fix — brand accent aligned to honey (#F97316) across every surface
 - The brand accent had drifted after the U1 "honey #F97316" decision: the native adaptive accent (`HiveBrand.accentHex`) defaulted to amber `#F5A623`, the `HiveColorToken` system still returned `#FFB84D`/`#9A5A00` amber, the first theme preset was "Hive Amber", and the web chrome fell back to indigo `#6366F1` — while the documented accent, `HiveBrand.accent`, `tokens.css`, and `browserAccentColorHex` all used honey. Every surface now resolves to honey `#F97316` (dark) / `#9A4A0D` (light).
 - **Fixed a relaunch bug** where the user's saved accent color was restored to the browser chrome (`browserAccentColorHex`) but never re-synced to `HiveBrand.accentHex`, so native SwiftUI views fell back to the default honey after every launch and diverged from the saved theme.

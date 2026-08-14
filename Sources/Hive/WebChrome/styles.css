@@ -4,7 +4,7 @@
    Principles (researched from Arc / Zen / Polar / Comet / Brave):
    1. The chrome is scenery, not decoration. Recessive, quiet,
       frosted; the page is the star.
-   2. ONE accent (Arc violet #8E5FEB) used sparingly — active
+   2. ONE accent (Hive honey #F97316) used sparingly — active
       state, focus, selection. Never rainbow.
    3. Surfaces: translucent washes + hairline borders instead of
       heavy borders. Frosted glass via backdrop-filter.
@@ -46,6 +46,7 @@
   border-width: 0;
 }
 
+:root {
   /* motion */
   --spring: cubic-bezier(0.22, 1, 0.36, 1);
   --spring-soft: cubic-bezier(0.3, 0.8, 0.4, 1);
@@ -97,7 +98,7 @@ body[data-theme="dark"], body:not([data-theme]) {
               inset 0 1px 0.5px rgba(255, 255, 255, 0.32);
   --shadow-2: 0 16px 48px rgba(0, 0, 0, 0.55);
   --shadow-3: 0 16px 48px rgba(0, 0, 0, 0.55);
-  --accent-ink: #F4F1FF;
+  --accent-ink: #FFFFFF;
   color-scheme: dark;
 }
 
@@ -119,12 +120,12 @@ body[data-theme="light"] {
               inset 0 1px 0.5px rgba(255, 255, 255, 0.6);
   --shadow-2: 0 16px 48px rgba(0, 0, 0, 0.28);
   --shadow-3: 0 16px 48px rgba(0, 0, 0, 0.28);
-  --accent: #7A4ED4;
-  --accent-hover: #8E63E3;
-  --accent-soft: rgba(122, 78, 212, 0.14);
+  --accent: #F97316;
+  --accent-hover: #FB923C;
+  --accent-soft: rgba(249, 115, 22, 0.16);
   --accent-ink: #FFFFFF;
-  --bloom-a: rgba(122, 78, 212, 0.10);
-  --bloom-b: rgba(240, 132, 90, 0.06);
+  --bloom-a: rgba(249, 115, 22, 0.16);
+  --bloom-b: rgba(240, 132, 90, 0.10);
   color-scheme: light;
 }
 
