@@ -44,9 +44,14 @@ generate_appcast --download-url-prefix \
 # Paste the printed sparkle:edSignature into web/appcast.xml, then redeploy.
 ```
 
-The Sparkle EdDSA private key lives in the keychain item **"Sparkle 2 Private Key"**
-on whatever machine runs `generate_appcast`. Back it up with the release owner —
-future releases can't sign appcasts without it.
+The Sparkle EdDSA private key is **already generated** and lives in the macOS
+Keychain under account **`hive`** (`generate_keys --account hive`), on whatever
+machine runs `generate_appcast` — back it up with the release owner, because
+future releases can't sign appcasts without it. The matching public key
+(`UHZYbCs0hcPnDHjmmFmFMzfEV5LEbA6yU6xg+jVN5ss=`) is already stamped as
+`SUPublicEDKey` into release `Info.plist` by `build-hive-app.sh`, so the app will
+accept a correctly-signed appcast — only the `sparkle:edSignature` value (filled
+by the `generate_appcast` step below) remains.
 
 ### 3. ✅ Adblock at the network layer — IMPLEMENTED (request + cosmetic + CDP)
 
@@ -160,6 +165,7 @@ generate_appcast --download-url-prefix https://github.com/arpituppal2/Hive/relea
 | `HIVE_VERSION` | CFBundleShortVersionString (e.g. 1.0.1) |
 | `HIVE_BUILD` | CFBundleVersion — must match `sparkle:version` |
 | `HIVE_APPCAST_URL` | overrides the default GitHub Pages appcast URL |
+| `HIVE_SU_PUBLIC_ED_KEY` | overrides the `SUPublicEDKey` stamped into release `Info.plist` (for key rotation) |
 | `HIVE_CLOUDKIT_CONTAINER` | optional; enables sync only in a non-ad-hoc build when `--entitlements` contains the same `iCloud.*` identifier |
 | `HIVE_WORKER_REQUIREMENT` / `HIVE_WORKER_TEAM_ID` | release worker auth |
 | `DEVELOPER_ID_APPLICATION`, `APPLE_ID`, `APPLE_APP_PASSWORD`, `APPLE_TEAM_ID` | signing + notarization |
