@@ -52,6 +52,10 @@
   --spring-soft: cubic-bezier(0.3, 0.8, 0.4, 1);
   --dur: 180ms;
 
+  /* legacy easing aliases (pre-overhaul names still referenced by components) */
+  --ease-out-quick: var(--spring);
+  --ease-in-exit: cubic-bezier(0.4, 0, 1, 1);
+
   /* one accent — Hive honey (approved U1 token decision) */
   --accent: #F97316;
   --accent-hover: #FB923C;
@@ -99,6 +103,23 @@ body[data-theme="dark"], body:not([data-theme]) {
   --shadow-2: 0 16px 48px rgba(0, 0, 0, 0.55);
   --shadow-3: 0 16px 48px rgba(0, 0, 0, 0.55);
   --accent-ink: #FFFFFF;
+
+  /* legacy token aliases — reconcile pre-overhaul names to the warm ramp */
+  --ink: var(--text);
+  --ink-secondary: var(--text-muted);
+  --mist: var(--text-faint);
+  --paper: var(--bg-elev);
+  --chrome-bg: var(--bg);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-muted);
+  --text-tertiary: var(--text-faint);
+  --surface-hover-subtle: rgba(255, 255, 255, 0.04);
+  --color-field-hover: var(--surface-hover);
+  --border: var(--hairline-strong);
+  --shadow-lg: var(--shadow-2);
+  --success: #34D399;
+  --warning: #FBBF24;
+  --on-accent: var(--accent-ink);
   color-scheme: dark;
 }
 
@@ -126,6 +147,23 @@ body[data-theme="light"] {
   --accent-ink: #FFFFFF;
   --bloom-a: rgba(249, 115, 22, 0.16);
   --bloom-b: rgba(240, 132, 90, 0.10);
+
+  /* legacy token aliases — reconcile pre-overhaul names to the warm ramp */
+  --ink: var(--text);
+  --ink-secondary: var(--text-muted);
+  --mist: var(--text-faint);
+  --paper: var(--bg-elev);
+  --chrome-bg: var(--bg);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-muted);
+  --text-tertiary: var(--text-faint);
+  --surface-hover-subtle: rgba(20, 20, 25, 0.04);
+  --color-field-hover: var(--surface-hover);
+  --border: var(--hairline-strong);
+  --shadow-lg: var(--shadow-2);
+  --success: #34D399;
+  --warning: #FBBF24;
+  --on-accent: var(--accent-ink);
   color-scheme: light;
 }
 

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fix — undefined legacy tokens were silently blanking chrome text and surfaces
+- A whole pre-overhaul token set was referenced by dozens of components but **never defined anywhere** — `--ink` (24 refs), `--ink-secondary` (14), `--mist` (6), `--paper` (3), `--chrome-bg` (3), `--text-primary`/`--text-secondary`/`--text-tertiary`, `--surface-hover-subtle`, `--border`, `--shadow-lg`, `--success`/`--warning`, and the `--ease-out-quick`/`--ease-in-exit` easings. Because CSS treats an undefined `var()` as invalid-at-computed-value-time, every rule using them fell back to `unset` — the sidebar and sidecar had **no background**, split-view tiles and the quick-commands input had **no paper surface**, and text reverted to inherited color instead of the warm cream ramp.
+- Added a legacy-alias block to both theme layers (dark + light) mapping each name to its canonical warm-ramp token (`--ink`→`--text`, `--paper`→`--bg-elev`, `--chrome-bg`→`--bg`, `--mist`→`--text-faint`, `--border`→`--hairline-strong`, `--shadow-lg`→`--shadow-2`, `--success`→`#34D399`, `--warning`→`#FBBF24`) plus `--ease-out-quick`/`--ease-in-exit` in the motion block. Per-tab/geometry tokens (`--arc-*`, `--tab-*`, `--ws-color-*`, `--workspace-gradient*`, `--data-theme-color`) were intentionally left alone — they are set inline at runtime, not global theme tokens.
+
 ### Fix — Zen accent-mixer chain was broken by a missing token
 - The Zen-derived theme layer in `tokens.css` resolved `--zen-primary-color` from `var(--color-accent-1)`, but that token was never defined — so `--zen-colors-primary` / `--zen-colors-secondary` / `--zen-colors-tertiary` (and everything derived from them, including the workspace drop-target glow in `styles.css`) collapsed to invalid values. Added the missing `--color-accent-1: rgb(var(--color-accent))` full-color honey token so the `color-mix()` chain has a real color to blend from.
 
