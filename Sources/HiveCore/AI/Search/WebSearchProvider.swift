@@ -6,8 +6,7 @@ import Foundation
 /// self-hosted (Vane/Perplexica), remote APIs (Perplexity), or a local-only
 /// mock for tests.
 ///
-/// The protocol is `Sendable` so the Hive `Bee` job queue can hold it and the
-/// `Dispatcher` can resolve it safely under Swift 6.
+/// The protocol is `Sendable` so the `Dispatcher` can resolve it safely under Swift 6.
 public protocol WebSearchProvider: Sendable {
     /// Human-readable provider name shown in the Swarm UI.
     var displayName: String { get }

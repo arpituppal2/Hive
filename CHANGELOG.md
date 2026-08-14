@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Dead-code removal (Bee job queue + duplicate profile system)
+- **Removed the `BeeQueue` / `BeeJob` job-orchestration subsystem** — an in-memory actor queue (enqueue/start/cancel/retry/verify + auto-retry) with an EventLedger integration that was fully implemented and tested but never instantiated in production. The plan docs themselves flagged it as "code-present but not a durable Flow runtime" (in-memory only, jobs lost on restart, honest-stub `perform` methods). ~14 KB of dead code plus its 25 tests are gone.
+- **Removed the duplicate `BrowserProfile` + `ProfileManager` system** — a second profile model with per-profile data directories (`~/Library/Application Support/Hive/Profiles/<id>/`) that no code path ever used; the app's live profile feature is `BrowserState.Profile`, which persists in the session envelope. Its one test went with it.
+- **Renamed the trailing test container** — the file's last `@Suite` was mislabeled `BeeQueueTests` even though it held hundreds of unrelated enum/type smoke tests; it is now `SmokeTests`.
+- **Corrected a stale `WebSearchProvider` comment** that referenced the removed `Bee` queue.
+- Suite is now **1,835 tests / 179 suites**.
+
 ### Dead-code removal (unwired persistence layer)
 - **Removed a full Chrome-preference persistence layer that was built and tested but never wired** — `ChromeUserPrefs` (the preferences struct), `ChromePrefsStore` (its disk store), and `BrowsingHistoryEntry` (an unused history model). None had a single production reference; the app persists its own session envelope and never read these types.
 - **Extracted the live pieces before deleting** — `UserDefinedCommand` (used by the command palette) moved out of `ReadingListEntry.swift` into its own file, and the live `hiveReadingListCap` capability constant was preserved.
@@ -278,7 +285,7 @@ Hive adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Honeycomb revisions, node writes, and FTS replacement now commit transactionally with explicit rollback errors.
 
 ### Validation
-- 1,861 tests / 179 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
+- 1,835 tests / 179 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
 
 
 ## [v1.0.0] — 2026-08-09 (build 100)

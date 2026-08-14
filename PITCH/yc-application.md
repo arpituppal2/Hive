@@ -81,7 +81,7 @@ Per `docs/superpowers/plans/2026-08-11-yc-demo-execution.md` — one compound wo
 ## 4. Why us / the team
 
 - **Vision:** one browser-native workspace that replaces the browser, knowledge, research, coding, task, and desktop-utility stack — "your second brain is the browser, and it acts."
-- **Builder:** this repository is the proof — 168 app files, 1,861 tests, built app, a Swarm spec library, and a 243-app competitive dossier. The product is not a mockup; the demo is scripted against verified code.
+- **Builder:** this repository is the proof — 168 app files, 1,835 tests, built app, a Swarm spec library, and a 243-app competitive dossier. The product is not a mockup; the demo is scripted against verified code.
 - **The Hive/Swarm split:** Hive is the ever-evolving browser; Swarm is its intelligence, like Google inside Chrome — but local, honest, and permissioned.
 
 ## 5. The ask
