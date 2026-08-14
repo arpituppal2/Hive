@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Dead-code removal — duplicate bridge aliases
+- Removed three never-invoked bridge registrations that duplicated live handlers: `hive.goBack`/`hive.goForward` (the web chrome calls `hive.back`/`hive.forward`) and `hive.togglePin` (it calls `hive.pinTab`). Both directions of the bridge contract are now clean — every `api()` call in the chrome is registered, and no registered handler is a redundant alias.
+
 ### Fix — site permissions panel now reflects real per-site state
 - The Site Permissions palette rendered every toggle as OFF because `state.sitePermissions` was never sent (the field existed in the JS but not the bridge DTO). Added a per-active-host `sitePermissions` map (kind → `allow`/`deny`/`ask`) to `WebChromeStartData`, empty on private pages, so camera/microphone/location/notifications/pop-ups toggles now show the persisted decision.
 - Removed the dead "Autoplay" toggle row — the native layer explicitly no-ops `autoplay` (engine-level, not a per-site decision in this build), so the control was misleading.

@@ -770,25 +770,6 @@ enum WebChromeBridge {
             return true
         }
 
-        // ---- hive.goBack / hive.goForward: history navigation ----
-        bridge.register("hive.goBack") { (request: WebChromeToken) async throws -> Bool in
-            try Self.authorizeNormalSession(request.token)
-            await MainActor.run { state.goBack() }
-            return true
-        }
-        bridge.register("hive.goForward") { (request: WebChromeToken) async throws -> Bool in
-            try Self.authorizeNormalSession(request.token)
-            await MainActor.run { state.goForward() }
-            return true
-        }
-
-        // ---- hive.togglePin: pin/unpin a tab ----
-        bridge.register("hive.togglePin") { (request: WebChromeIDRequest) async throws -> Bool in
-            try Self.authorizeNormalSession(request.token)
-            await MainActor.run { state.togglePinTab(id: request.id) }
-            return true
-        }
-
         // ---- hive.toggleEssential: mark/unmark a tab as essential ----
         bridge.register("hive.toggleEssential") { (request: WebChromeIDRequest) async throws -> Bool in
             try Self.authorizeNormalSession(request.token)
