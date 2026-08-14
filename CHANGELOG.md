@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Dead-code removal (unused extensions toolbar)
+- **Removed `ExtensionsToolbar`** — the dead "pinned extension icons next to the address bar" view; the live extension UI is `ExtensionsManagerSheet`. The README project-structure listing and the app-file count (168 → 167) were corrected to match.
+
 ### Dead-code removal (unused session persistence + sidecar DTOs)
 - **Removed `SessionPersistenceManager`** — a second session-persistence actor (save/load/clear plus a crash counter) that was never instantiated; the live path is `BrowserSessionStore` / `SessionRestoration`.
 - **Removed the vestigial `SessionSnapshot` struct** from `SessionStore.swift` (superseded by `SessionRecord`) and corrected its stale comment.

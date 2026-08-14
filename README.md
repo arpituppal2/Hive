@@ -85,7 +85,6 @@ Sources/
 │   ├── WebChrome/            # Web chrome HTML/CSS/JS assets
 │   ├── AdblockEngine.swift   # Brave adblock-rust FFI wrapper
 │   ├── CrashReporter.swift   # Signal handlers + crash submission
-│   ├── ExtensionsToolbar.swift # Extension icon + menu
 │   ├── ExtensionsManagerSheet.swift # Extension install/management
 │   ├── GeminiSidePanel.swift # AI chat UI and domain extensions
 │   └── ...
