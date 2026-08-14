@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Feature — wire up the "Recently Closed" new-tab section (Chrome NTP parity)
+- The JS renderer for a "Recently Closed" section existed, and `hive.reopenClosedTab` (⌘⇧T) was wired, but the section **never rendered**: the HTML container was missing and the state DTO never carried `recentlyClosed`. Added the field to `WebChromeStartData` (populated from `BrowserState.closedTabs`, newest first, blank/internal URLs filtered), threaded it through both redaction paths (empty on private start pages), and added the NTP section so closing a tab now surfaces a "Reopen" row on the new-tab page.
+
 ### Fix — undefined legacy tokens were silently blanking chrome text and surfaces
 - A whole pre-overhaul token set was referenced by dozens of components but **never defined anywhere** — `--ink` (24 refs), `--ink-secondary` (14), `--mist` (6), `--paper` (3), `--chrome-bg` (3), `--text-primary`/`--text-secondary`/`--text-tertiary`, `--surface-hover-subtle`, `--border`, `--shadow-lg`, `--success`/`--warning`, and the `--ease-out-quick`/`--ease-in-exit` easings. Because CSS treats an undefined `var()` as invalid-at-computed-value-time, every rule using them fell back to `unset` — the sidebar and sidecar had **no background**, split-view tiles and the quick-commands input had **no paper surface**, and text reverted to inherited color instead of the warm cream ramp.
 - Added a legacy-alias block to both theme layers (dark + light) mapping each name to its canonical warm-ramp token (`--ink`→`--text`, `--paper`→`--bg-elev`, `--chrome-bg`→`--bg`, `--mist`→`--text-faint`, `--border`→`--hairline-strong`, `--shadow-lg`→`--shadow-2`, `--success`→`#34D399`, `--warning`→`#FBBF24`) plus `--ease-out-quick`/`--ease-in-exit` in the motion block. Per-tab/geometry tokens (`--arc-*`, `--tab-*`, `--ws-color-*`, `--workspace-gradient*`, `--data-theme-color`) were intentionally left alone — they are set inline at runtime, not global theme tokens.

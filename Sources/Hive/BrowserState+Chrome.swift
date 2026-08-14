@@ -314,6 +314,22 @@ extension BrowserState {
                 historyID: item.id.uuidString
             )
         }
+        // Recently closed non-private tabs, newest first (Chrome NTP parity).
+        // closedTabs is oldest→newest and already excludes private tabs, so
+        // reverse it and skip blank/internal pages that have nothing to reopen.
+        let recentlyClosed = closedTabs.reversed().compactMap { tab -> WebChromeRecentItem? in
+            guard let url = tab.model.url, url.absoluteString != "about:blank",
+                  !Self.isInternalWebChromeURL(url) else { return nil }
+            return WebChromeRecentItem(
+                title: tab.customTitle ?? tab.model.title ?? "Untitled",
+                url: url.absoluteString,
+                host: url.host ?? "",
+                faviconURL: tab.model.faviconURL?.absoluteString,
+                timeLabel: "Recently closed",
+                dayLabel: nil,
+                historyID: nil
+            )
+        }
         let spaces = workspacesForCurrentProfile.map { ws -> WebChromeSpace in
             WebChromeSpace(
                 id: ws.id.uuidString,
@@ -456,6 +472,7 @@ extension BrowserState {
         let snapshot = WebChromeStartData(
             topSites: topSites,
             recent: recent,
+            recentlyClosed: recentlyClosed,
             spaces: spaces,
             accentHex: browserAccentColorHex,
             tabs: chromeTabs,

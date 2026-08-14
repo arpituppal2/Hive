@@ -78,6 +78,9 @@ struct WebChromeSpace: Codable, Sendable {
 struct WebChromeStartData: Codable, Sendable {
     let topSites: [WebChromeTopSite]
     let recent: [WebChromeRecentItem]
+    /// Recently closed non-private tabs (Chrome NTP parity), newest first.
+    /// Always empty on private start pages.
+    let recentlyClosed: [WebChromeRecentItem]
     let spaces: [WebChromeSpace]
     let accentHex: String
     // Full browser state for the web chrome shell (hive://start?chrome=1).
@@ -127,6 +130,7 @@ struct WebChromeStartData: Codable, Sendable {
         WebChromeStartData(
             topSites: [],
             recent: [],
+            recentlyClosed: [],
             spaces: [],
             accentHex: accentHex,
             tabs: tabs.filter(\.isPrivate),
@@ -182,6 +186,7 @@ struct WebChromeStartData: Codable, Sendable {
         return WebChromeStartData(
             topSites: topSites,
             recent: recent,
+            recentlyClosed: recentlyClosed,
             spaces: visibleSpaces,
             accentHex: accentHex,
             tabs: tabs.filter { !$0.isPrivate },
