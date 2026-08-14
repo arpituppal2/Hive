@@ -18,7 +18,6 @@
 |---|---|---|---|
 | `browser/100m_dom_scout` | Page screenshot classification (purpose, layout class) | Gatekeeper (Florence-2-Large / SmolVLM-500M) | <1s |
 | `browser/8b_nav_reasoner` | Ambiguous-state resolution (unlabelled icon, error ring, disabled button) | Reasoner (Qwen2-VL-2B int4 / moondream2) | 1.5–3s, conditional only |
-| `scribe/100m_capture_scribe` | OCR of non-DOM content (canvas, images, PDFs, screenshots the user saved) | Gatekeeper OCR (Florence-2 / SmolVLM-2B) | 0.8–2s |
 | Media analysis (P3 Sheets/Photos) | Photo/video content tagging, document scans | Reasoner, batch, idle-time | async |
 | Form understanding (autofill parity) | Field detection on complex/JS-rendered forms | DOM-first; vision only when DOM insufficient | <1s gatekeeper |
 | Computer-use (PC-002, opt-in) | Per-window observation | Reasoner, screen-capture permissioned | 1.5–3s, user-approved |

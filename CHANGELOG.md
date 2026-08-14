@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Dead-code removal (unwired ambient-capture role)
+- **Removed the `captureScribe` model role end to end** — the last trace of the ambient-capture roadmap: the `ModelRole.captureScribe` case, its `ModelManifest` entry, the `CellPromptLoader.cellRoleMapping` entry, and the `MockRuntime` branch. It was already unreachable after `ScribeCoordinator` / `PageCapture*` were removed, and it no-oped at the honest mock. Role count 22 → 21, mapped-role count 19 → 18.
+- **Deleted `scribe/100m_capture_scribe.md`** and updated the Swarm prompt canon to match: the packaged-tree count (60 → 59), the specialist-Cell count (35 → 34), and the `00_INDEX.md` / `VISION_SPEC.md` / `00_PROGRESS.md` references all dropped the removed Cell. The historical `Pass 43` changelog entry is preserved as a dated record.
+
 ### Dead-code removal (unused extensions toolbar)
 - **Removed `ExtensionsToolbar`** — the dead "pinned extension icons next to the address bar" view; the live extension UI is `ExtensionsManagerSheet`. The README project-structure listing and the app-file count (168 → 167) were corrected to match.
 

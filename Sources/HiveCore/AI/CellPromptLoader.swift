@@ -52,8 +52,7 @@ public struct CellPromptLoader: Sendable {
         .urgencyDetector:      ("router",       "100m_urgency_detector"),
         .linkScorer:           ("router",       "1b_link_scorer"),
 
-        // T0 scribe family — capture→Honeycomb triage + grounded page Q&A
-        .captureScribe:        ("scribe",       "100m_capture_scribe"),
+        // T0 scribe family — grounded page Q&A
         .pageQa:              ("scribe",       "100m_page_qa"),
 
         // T1 always/frequently resident

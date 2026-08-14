@@ -62,11 +62,10 @@ A given job may have **one or more tier variants**. A tier variant exists only w
 | 31 | tutor | `100m_tutor_specialist.md` | 100m | Guided learning with Socratic scaffolding, quizzes, flashcards |
 | 32 | voice | `100m_voice_specialist.md` | 100m | Natural voice conversation — turn-taking, prosody, emotional tone |
 | 33 | conversation | `8b_conversation.md` | 8b | Multi-turn dialogue management — persona, delegation, natural language |
-| 34 | scribe | `100m_capture_scribe.md` | 100m | Capture triage — keep/skip + extract {facts, decisions, commitments} with spans → Honeycomb write-ops |
-| 35 | scribe | `100m_page_qa.md` | 100m | Grounded Q&A over the current page's dom_scout capture — or honest "page doesn't say" |
+| 34 | scribe | `100m_page_qa.md` | 100m | Grounded Q&A over the current page's dom_scout capture — or honest "page doesn't say" |
 | — | eval | `punch_up_tests.md` | DOC | How the 1B coder is tested vs the ~30B class on the same jobs |
 
-**Canonical packaged-tree count:** `Sources/Hive/Resources/Swarm_System_Prompts/` currently contains **60 Markdown files**. That count includes the 35 specialist Cells, control/runtime contracts, training specs, product/runtime specs, research dossiers, index/progress log, and planning artifacts stored in this packaged tree. The separate root `Swarm_System_Prompts/` corpus currently contains 41 Markdown source-prompt files and is not included in the packaged-tree count. The M0/M1 execution specs and M2A/M2B implementation plans live under `docs/superpowers/plans/` and are intentionally outside this packaged-tree count. Do not use historical totals below; update this line whenever the packaged tree changes.
+**Canonical packaged-tree count:** `Sources/Hive/Resources/Swarm_System_Prompts/` currently contains **59 Markdown files**. That count includes the 34 specialist Cells, control/runtime contracts, training specs, product/runtime specs, research dossiers, index/progress log, and planning artifacts stored in this packaged tree. The separate root `Swarm_System_Prompts/` corpus currently contains 41 Markdown source-prompt files and is not included in the packaged-tree count. The M0/M1 execution specs and M2A/M2B implementation plans live under `docs/superpowers/plans/` and are intentionally outside this packaged-tree count. Do not use historical totals below; update this line whenever the packaged tree changes.
 
 **Competitive research:** `RESEARCH/competitive-dossier.md` — analysis of Rewisp (ambient Mac memory), Deep24 (AI brain/coach), and Perplexity Comet (agentic browser) with product insights mapped back to Cell prompt refinements.
 
@@ -96,7 +95,6 @@ orchestrator/1b_orchestrator
   ├─► researcher/8b_research_synthesizer (rare, research route; consumes gatherer evidence)
   ├─► guard/rule_action_guard         (BEFORE every privileged action — absolute veto)
   ├─► auditor/{1b|8b}_auditor        (AFTER state-changing actions + periodic Honeycomb integrity)
-  ├─► scribe/100m_capture_scribe       (capture keep/skip triage → Honeycomb write-ops via librarian/guard)
   ├─► scribe/100m_page_qa              (grounded Q&A over current-tab dom_scout capture)
   └─► council/1b_council_chair        (when confidence < threshold; orchestrator never silently picks a size)
 
@@ -106,7 +104,7 @@ librarian/1b_librarian ──► summarizer/1b_compressor (compact → Honeycomb
 researcher/1b_research_gatherer ──► researcher/8b_research_synthesizer (verified sources + spans in, brief out; fetch ops dispatched by orchestrator via browser family)
 council/1b_council_chair ──► may vote across {router/1b, planner/1b, auditor/1b, reasoner/8b}; ──► orchestrator with verdict
    (council may also request BYOK frontier escalation — the ONE path data can leave the device, opt-in only)
-browser/100m_dom_scout ──► scribe/100m_capture_scribe (capture triage) ──► scribe/100m_page_qa (grounded Q&A)
+browser/100m_dom_scout ──► scribe/100m_page_qa (grounded Q&A)
 
 ram_manager (gates EVERY load/unload) — reads from council/orchestrator, never initiates work itself.
 guard/rule_action_guard — a hard veto that overrides any council vote. Safety > consensus.

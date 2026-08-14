@@ -69,8 +69,6 @@ public struct MockRuntime: ModelRuntime, StreamingModelRuntime {
             return "{\"urgency\":\"normal\"}"
         case .linkScorer:
             return "[{\"url\":\"_\",\"score\":0.5}]"
-        case .captureScribe:
-            return "{\"verdict\":\"skip\",\"reason\":\"mock\",\"facts\":[],\"decisions\":[],\"commitments\":[]}"
         case .pageQa:
             return "{\"answer\":\"mock — no real model loaded\",\"answer_type\":\"page_does_not_say\",\"basis\":[],\"page_claim_unverified\":false,\"confidence\":0.0,\"status\":\"complete\"}"
         case .orchestrator, .planner:

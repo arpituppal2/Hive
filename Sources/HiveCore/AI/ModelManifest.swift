@@ -42,10 +42,6 @@ public enum ModelRole: String, Sendable, Codable, CaseIterable {
     case linkScorer
 
     // --- T0 scribe family (~100M, always resident) ---
-    /// Capture→Honeycomb keep/skip + {facts,decisions,commitments} extraction +
-    /// dedup. The §10.2 Automatic-Capture moat. Ships OTS (rule-rich×complex →
-    /// expected NO_GAIN, like retrievalRanker). See capture_scribe.md.
-    case captureScribe
     /// Grounded "ask on this page" Q&A over the tab's captured `dom_scout`
     /// excerpt — Arc/Comet parity. Ships OTS; distill-candidate pending a
     /// held-out verdict. See page_qa.md.
@@ -97,7 +93,7 @@ public enum ModelRole: String, Sendable, Codable, CaseIterable {
         switch self {
         case .actionGuard:             return .rule
         case .intentClassifier, .spamDetector, .urgencyDetector, .linkScorer,
-             .captureScribe, .pageQa:
+             .pageQa:
             return .t0
         case .orchestrator, .librarian, .summarizer, .retrievalRanker,
              .titleGenerator, .memoryCompressor:
@@ -143,7 +139,6 @@ public enum ModelRole: String, Sendable, Codable, CaseIterable {
         case .spamDetector:           return "Spam Detector"
         case .urgencyDetector:       return "Urgency Detector"
         case .linkScorer:            return "Link Scorer"
-        case .captureScribe:         return "Capture Scribe"
         case .pageQa:               return "Page Q&A"
         case .orchestrator:          return "Orchestrator"
         case .librarian:             return "Librarian"
@@ -300,21 +295,13 @@ public enum ModelManifest {
             baseModel: "Qwen2.5-0.5B-Instruct", quantizedSizeMB: 0,
             license: "Apache-2.0", servingStrategy: .instructOffTheShelf,
             maxOutputTokens: 16, latencyTargetMS: 50),
-        // T0 scribe family — capture_scribe (gap-7 Automatic-Capture moat) +
-        // page_qa (gap-8 Arc/Comet "ask on this page" parity). Both ship
-        // OFF-THE-SHELF, no loraAdapter (honest default — the
+        // T0 scribe family — page_qa (gap-8 Arc/Comet "ask on this page"
+        // parity). Ships OFF-THE-SHELF, no loraAdapter (honest default — the
         // loraRolesHaveVerifiedHeldOutVerdict build gate forbids flipping
-        // unverified roles; capture_scribe is rule-rich×complex → expected
-        // NO_GAIN like retrievalRanker; page_qa is a held-out-distill
-        // candidate that stays OTS until an eval proves gain). Share the
-        // 0.5B base with the T0 classifier cohort. Prompt files:
-        //   scribe/100m_capture_scribe.md, scribe/100m_page_qa.md
+        // unverified roles; page_qa is a held-out-distill candidate that
+        // stays OTS until an eval proves gain). Shares the 0.5B base with the
+        // T0 classifier cohort. Prompt file: scribe/100m_page_qa.md
         // See PITCH/competitive-ai-gap-ledger.md (Directive B phase-6).
-        .captureScribe: .init(role: .captureScribe,
-            hfRepo: "mlx-community/Qwen2.5-0.5B-Instruct-4bit",
-            baseModel: "Qwen2.5-0.5B-Instruct", quantizedSizeMB: 0,
-            license: "Apache-2.0", servingStrategy: .instructOffTheShelf,
-            maxOutputTokens: 256, latencyTargetMS: 80),
         .pageQa: .init(role: .pageQa,
             hfRepo: "mlx-community/Qwen2.5-0.5B-Instruct-4bit",
             baseModel: "Qwen2.5-0.5B-Instruct", quantizedSizeMB: 0,

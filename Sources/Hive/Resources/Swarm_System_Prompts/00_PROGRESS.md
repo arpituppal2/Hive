@@ -260,18 +260,17 @@
 | tutor | 100M | `tutor/100m_tutor_specialist.md` | filled (new) |
 | voice | 100M | `voice/100m_voice_specialist.md` | filled (new) |
 | conversation | 8B | `conversation/8b_conversation.md` | filled |
-| scribe | 100M | `scribe/100m_capture_scribe.md` | filled |
 | scribe | 100M | `scribe/100m_page_qa.md` | filled |
 | index | n/a | `00_INDEX.md` | current |
 | progress | n/a | `00_PROGRESS.md` | current |
 
 **Historical inventory note:** the older 49-file total is obsolete. Use the packaged `00_INDEX.md` canonical count above.
 
-### Status (current): **35 Cell prompts filled** — zero stubs. **4 control docs present.** Training and product/runtime specs, research dossiers, conversion/YC planning, and the dependency-ordered memory-wedge execution plan are present. Current packaged-tree count is maintained in `00_INDEX.md`; historical line totals are not release evidence.
+### Status (current): **34 Cell prompts filled** — zero stubs. **4 control docs present.** Training and product/runtime specs, research dossiers, conversion/YC planning, and the dependency-ordered memory-wedge execution plan are present. Current packaged-tree count is maintained in `00_INDEX.md`; historical line totals are not release evidence.
 
 | Category | Count | Status |
 |----------|-------|--------|
-| Specialist Cell .md files | 35 | All filled, zero stubs |
+| Specialist Cell .md files | 34 | All filled, zero stubs |
 | Control documents | 4 | RAM, council, orchestrator, eval |
 | Model training specs | 3 | MODEL_SPEC, TRAINING_DATA_GUIDE, MODEL_QUALITY |
 | Seed intent plan | 1 | seed_intent_plan.md — 830 lines |

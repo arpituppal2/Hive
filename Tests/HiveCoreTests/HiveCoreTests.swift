@@ -227,12 +227,12 @@ struct SessionFileStoreTests {
 struct ManifestTests {
 
     @Test func everyRoleHasAnEntry() {
-        // 22 roles = the defined roster. Changing this number is a deliberate act.
-        // (19 as of 2026-07-28; +2 on 2026-07-29 for the scribe family:
-        //  captureScribe, pageQa — Directive B phase-6 OTS Cells. +1 on
-        //  2026-08-02 for researchGatherer — the §7.3 fetch/extract front half.)
-        #expect(ModelRole.allCases.count == 22)
-        #expect(ModelManifest.entries.count == 22)
+        // 21 roles = the defined roster. Changing this number is a deliberate act.
+        // (19 as of 2026-07-28; +1 on 2026-07-29 for the scribe family
+        //  (pageQa) — Directive B phase-6 OTS Cells. +1 on 2026-08-02 for
+        //  researchGatherer — the §7.3 fetch/extract front half.)
+        #expect(ModelRole.allCases.count == 21)
+        #expect(ModelManifest.entries.count == 21)
         // 1:1 — no role without an entry, no entry without a role.
         #expect(Set(ModelManifest.entries.keys) == Set(ModelRole.allCases))
     }
@@ -1285,7 +1285,6 @@ struct CellPromptLoaderTests {
         #expect(mappedRoles.contains(.urgencyDetector))
         #expect(mappedRoles.contains(.linkScorer))
         // T0 scribe family (Directive B phase-6 OTS Cells)
-        #expect(mappedRoles.contains(.captureScribe))
         #expect(mappedRoles.contains(.pageQa))
         // T1
         #expect(mappedRoles.contains(.orchestrator))
@@ -1304,10 +1303,10 @@ struct CellPromptLoaderTests {
         // researcher family — gatherer (1B tier fetch/extract front half)
         #expect(mappedRoles.contains(.researchGatherer))
 
-        // 19 mapped roles (16 as of 2026-07-28; +2 on 2026-07-29 for the
-        // scribe family: captureScribe, pageQa — Directive B phase-6 OTS Cells;
+        // 18 mapped roles (16 as of 2026-07-28; +1 on 2026-07-29 for the
+        // scribe family: pageQa — Directive B phase-6 OTS Cells;
         // +1 on 2026-08-02 for researchGatherer.)
-        #expect(mappedRoles.count == 19, "expected 19 mapped roles, got \(mappedRoles.count)")
+        #expect(mappedRoles.count == 18, "expected 18 mapped roles, got \(mappedRoles.count)")
     }
 
     @Test func cellFileReturnsCorrectSubdirAndFileName() {
@@ -1322,8 +1321,6 @@ struct CellPromptLoaderTests {
         #expect(CellPromptLoader.cellFile(for: .researchSynthesizer)?.subdir == "researcher")
         #expect(CellPromptLoader.cellFile(for: .researchSynthesizer)?.fileName == "8b_research_synthesizer")
         // T0 scribe family (Directive B phase-6)
-        #expect(CellPromptLoader.cellFile(for: .captureScribe)?.subdir == "scribe")
-        #expect(CellPromptLoader.cellFile(for: .captureScribe)?.fileName == "100m_capture_scribe")
         #expect(CellPromptLoader.cellFile(for: .pageQa)?.subdir == "scribe")
         #expect(CellPromptLoader.cellFile(for: .pageQa)?.fileName == "100m_page_qa")
 
@@ -6502,7 +6499,7 @@ struct SmokeTests {
     }
 
 @Test func modelRoleAllCasesRoundTrip() {
-        #expect(ModelRole.allCases.count == 22)
+        #expect(ModelRole.allCases.count == 21)
     }
 
 @Test func contextScopeSummaryRowsCount() {
@@ -7084,7 +7081,7 @@ struct SmokeTests {
     }
 
     @Test func cellPromptAllMappedRolesPresent() {
-        #expect(CellPromptLoader.cellRoleMapping.count == 19)
+        #expect(CellPromptLoader.cellRoleMapping.count == 18)
     }
 
     @Test func preferenceMemoryBridgeIsHiveCoreEnum() {
