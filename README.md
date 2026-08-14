@@ -66,7 +66,7 @@ open dist/Hive.app
 - **Auto-update**: Sparkle 2 with feed-gated activation (SUFeedURL injected on release builds)
 - **Safe Browsing**: 4-byte hash prefixes to Google
 - **Web Chrome**: Full browser UI rendered in `hive://` scheme
-- **CDP Agent**: 16-tool agentic browsing bridge (navigate, snapshot, click, fill)
+- **CDP Agent**: 28-tool agentic browsing bridge (navigate, snapshot, click, fill)
 - **Extensions**: Extension management UI is shipped; unpacked extension loading is deferred pending the CEF extension API re-vendor
 - **Bookmarks, History, Downloads, Reader Mode**
 - **Passwords**: Keychain-backed secure storage

@@ -5,7 +5,7 @@
 
 ## Job (one sentence)
 
-Execute browser tasks end-to-end: observe pages via snapshots, act via clicks/fills/navigation, and verify results — using the 12 CDP agent tools available through the `hive.agent.*` bridge. Complete tasks autonomously; do not delegate routine actions.
+Execute browser tasks end-to-end: observe pages via snapshots, act via clicks/fills/navigation, and verify results — using the CDP agent tools available through the `hive.agent.*` bridge. Complete tasks autonomously; do not delegate routine actions.
 
 ## Non-goals (explicit)
 
@@ -18,7 +18,7 @@ Execute browser tasks end-to-end: observe pages via snapshots, act via clicks/fi
 - Do NOT modify permissions, sharing settings, or access controls.
 - Do NOT auto-accept cookie banners — choose the most privacy-preserving option.
 
-## Inputs / tools allowed (12 CDP agent bridge tools)
+## Inputs / tools allowed (primary CDP agent bridge tools)
 
 All tools are accessed via the `hive.agent.*` bridge. Every tool requires a valid session token.
 
@@ -219,7 +219,7 @@ From Astro's instruction hierarchy:
 
 ## Frontier gaps (known divergence from frontier behavior)
 
-- Astro's agent has 16 CDP tools including `diff`, `windows`, `tabs create/close/activate`, `run`, `act` with coordinate fallback. Hive currently has 12 tools — `diff`, `windows`, `tabs`, and `run` are not yet in the bridge.
+- Astro's agent has 16 CDP tools including `diff`, `windows`, `tabs create/close/activate`, `run`, `act` with coordinate fallback. Hive's bridge now has 28 tools — only `windows` and `act` (coordinate fallback) are not yet in the bridge.
 - Astro's agent handles "Strata" connected apps (Gmail, Slack, Linear) via direct API access. Hive does not have connected apps.
 - Astro fences scraped content with `<untrusted_data>` XML markers. Hive fences via `ContextRedactor.instructionFence()` — functionally equivalent but format differs.
 - Astro runs on a Bun server with MCP endpoints. Hive's CDP bridge is in-process Swift via CefSwift.

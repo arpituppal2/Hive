@@ -124,7 +124,7 @@ extension WebChromeBridge {
             return true
         }
 
-        // ---- Tab management (completes the 16-tool agent surface) ----
+        // ---- Tab management (completes the 28-tool agent surface) ----
 
         bridge.register("hive.agent.tabs") { (request: WebChromeToken) async throws -> WebChromeAgentTabsResult in
             try Self.authorizeNormalSession(request.token)
