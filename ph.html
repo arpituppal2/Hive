@@ -1,106 +1,70 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hive Browser — On Product Hunt</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/png" href="favicon.png">
-<meta property="og:title" content="Hive Browser — The browser that thinks with you">
-<meta property="og:description" content="Chromium browser with on-device AI, multi-model council, and agentic browsing. Featured on Product Hunt.">
+<meta property="og:title" content="Hive Browser — The browser that remembers what you read">  <meta property="og:description" content="A native macOS browser with on-device AI. Capture pages in one click into a searchable, citable memory. Free. Zero telemetry.">
 <meta property="og:image" content="https://arpituppal2.github.io/Hive/favicon.png">
 <meta name="twitter:card" content="summary_large_image">
-<style>
-  .ph-hero { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px 24px; position: relative; overflow: hidden; }
-  .ph-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(249,115,22,0.15), transparent 70%); pointer-events: none; }
-  .ph-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,97,84,0.12); border: 1px solid rgba(255,97,84,0.3); border-radius: 100px; padding: 8px 20px; font-size: 14px; font-weight: 600; color: #ff6154; margin-bottom: 28px; }
-  .ph-h1 { font-size: clamp(40px, 8vw, 72px); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 20px; max-width: 800px; }
-  .ph-h1 span { background: linear-gradient(135deg, #f97316 0%, #fb923c 40%, #fbbf24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .ph-sub { font-size: 20px; color: var(--text-muted); max-width: 600px; margin: 0 0 40px; line-height: 1.6; }
-  .ph-cta { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
-  .btn-ph { padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 700; text-decoration: none; transition: all 0.2s; }
-  .btn-ph--primary { background: #f97316; color: #fff; box-shadow: 0 4px 20px rgba(249,115,22,0.3); }
-  .btn-ph--primary:hover { background: #ea580c; transform: translateY(-1px); }
-  .btn-ph--outline { background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,0.15); }
-  .btn-ph--outline:hover { border-color: rgba(255,255,255,0.3); }
-  .ph-features { max-width: 1000px; margin: 80px auto; padding: 0 24px; }
-  .ph-features h2 { text-align: center; font-size: 32px; font-weight: 700; margin-bottom: 48px; letter-spacing: -0.02em; }
-  .ph-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-  .ph-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 28px; transition: transform 0.2s, border-color 0.2s; }
-  .ph-card:hover { transform: translateY(-2px); border-color: rgba(249,115,22,0.2); }
-  .ph-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
-  .ph-card p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
-  .ph-social { max-width: 1000px; margin: 80px auto; padding: 0 24px; }
-  .ph-stats { display: flex; justify-content: space-around; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 40px; flex-wrap: wrap; gap: 24px; }
-  .ph-stat h4 { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, #f97316, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
-  .ph-stat p { color: var(--text-muted); font-size: 14px; }
-  .ph-founder { max-width: 700px; margin: 80px auto; padding: 0 24px; }
-  .ph-founder-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 36px; display: flex; gap: 24px; align-items: flex-start; }
-  .ph-founder-card blockquote { color: var(--text-muted); font-style: italic; font-size: 15px; line-height: 1.7; margin: 0; }
-  .ph-founder-card .name { font-weight: 600; color: var(--text); margin-top: 12px; font-style: normal; }
-</style>
 </head>
 <body>
+<nav class="nav"><div class="nav-inner">
+  <a href="/" class="logo">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+      <path d="M16 2L4 8v10c0 7.18 5.13 13.88 12 15.44 6.87-1.56 12-8.26 12-15.44V8L16 2z" fill="#F97316" opacity="0.3"/>
+      <path d="M16 5L6 10v8c0 5.52 3.94 10.68 10 11.88 6.06-1.2 10-6.36 10-11.88v-8L16 5z" fill="#F97316"/>
+    </svg>
+    <span class="logo-text">Hive</span>
+  </a>
+  <div class="nav-links"><a href="index.html" class="btn btn-primary btn-sm">Learn More</a></div>
+</div></nav>
 
-<div class="ph-hero">
-  <div class="ph-badge">🚀 Featured on Product Hunt</div>
-  <h1 class="ph-h1">The browser that <span>thinks with you</span></h1>
-  <p class="ph-sub">Chromium-based, on-device AI, multi-model council, agentic browsing. Zero telemetry. Your data stays local. Built for macOS on Apple Silicon.</p>
-  <div class="ph-cta">
-    <a href="https://www.producthunt.com" class="btn-ph btn-ph--primary">View on Product Hunt</a>
-    <a href="index.html" class="btn-ph btn-ph--outline">Learn More</a>
-  </div>
-</div>
+<main style="max-width:900px;margin:120px auto;padding:0 24px;">
+  <h1 style="font-size:44px;font-weight:800;letter-spacing:-1.5px;margin-bottom:16px;">
+    The browser that <span class="accent-text">remembers what you read</span>
+  </h1>
+  <p style="color:var(--text-secondary);font-size:18px;line-height:1.6;margin-bottom:48px;max-width:640px;">
+    A native macOS browser with on-device AI. Capture pages in one click into a
+    searchable, citable memory — never on someone else's server.
+  </p>
 
-<section class="ph-features">
-  <h2>Why makers are switching to Hive</h2>
-  <div class="ph-grid">
-    <div class="ph-card">
-      <h3>🧠 Model Council</h3>
-      <p>Multiple AI models deliberate in parallel — MLX-local, Tavily, BYOK. A chair model synthesizes their responses. Your data never leaves your machine.</p>
+  <div class="feature-list">
+    <div class="feature">
+      <h3>Memory that acts</h3>
+      <p>Capture any page in one click — no screen recording, no account. Pages you capture become stored, citable sources your AI answers from.</p>
     </div>
-    <div class="ph-card">
-      <h3>🤖 Agentic Browsing</h3>
-      <p>CDP-powered — the browser navigates, extracts, and acts on your behalf. 16 tools across tabs, pages, and research. Like having a research assistant in every tab.</p>
+    <div class="feature">
+      <h3>Cited answers</h3>
+      <p>Ask "what was I reading about X?" and Hive answers with real citations to the pages you actually opened.</p>
     </div>
-    <div class="ph-card">
-      <h3>🔍 Deep Research</h3>
-      <p>Multi-step plan → search → read → synthesize with live streaming progress and inline citations. Goes deep while you stay in flow.</p>
+    <div class="feature">
+      <h3>On-device AI</h3>
+      <p>Models run locally on Apple Silicon via MLX. No internet needed. Your data never leaves your machine.</p>
     </div>
-    <div class="ph-card">
-      <h3>🛡️ Brave-Level Adblocking</h3>
-      <p>Rust-powered adblock engine with CNAME uncloaking and cosmetic filtering. Blocks 1500+ ad/tracker domains by default.</p>
+    <div class="feature">
+      <h3>Deep research</h3>
+      <p>Plan → search → read → synthesize → cite. Multi-step research with inline source links and honest model labels.</p>
     </div>
-    <div class="ph-card">
-      <h3>🎨 Zen + Arc DNA</h3>
-      <p>Compact mode with buttery-smooth sidebar, workspace color gradients, tab peek previews, spring physics animations. Premium feel, open source.</p>
+    <div class="feature">
+      <h3>Workspaces</h3>
+      <p>Per-workspace cookie and storage isolation. Separate work, personal, and research contexts with one click.</p>
     </div>
-    <div class="ph-card">
-      <h3>🔒 Zero Telemetry</h3>
-      <p>We collect nothing. No analytics, no crash reports, no usage data. Your browsing is yours alone. Open source, auditable, verifiable.</p>
-    </div>
-  </div>
-</section>
-
-<section class="ph-social">
-  <div class="ph-stats">
-    <div class="ph-stat"><h4>1,302</h4><p>Tests Passing</p></div>
-    <div class="ph-stat"><h4>144</h4><p>Test Suites</p></div>
-    <div class="ph-stat"><h4>91</h4><p>Commits in v1.0</p></div>
-    <div class="ph-stat"><h4>44</h4><p>Features Shipped</p></div>
-  </div>
-</section>
-
-<section class="ph-founder">
-  <div class="ph-founder-card">
-    <div>
-      <blockquote>
-        "I built Hive because every browser either shoves AI into a sidebar chatbot or sends every keystroke to a cloud model. I wanted something that thinks <em>with</em> me, not <em>at</em> me — native, fast, and private. This is the browser I wished existed."
-        <div class="name">— Arpit, solo maker</div>
-      </blockquote>
+    <div class="feature">
+      <h3>Built-in adblocking</h3>
+      <p>The Brave adblock-rust engine with network-level filtering and cosmetic blocking, out of the box.</p>
     </div>
   </div>
-</section>
 
+  <div style="text-align:center;margin:64px 0;">
+    <a href="index.html#download" class="btn btn-primary btn-xl">Download for macOS</a>
+  </div>
+</main>
+
+<footer class="footer"><div class="footer-inner">
+  <p class="footer-small">© 2026 Hive Browser</p>
+</div></footer>
 </body>
 </html>
