@@ -13,7 +13,7 @@ import Foundation
 public struct Space: Sendable, Codable, Identifiable, Equatable, Hashable {
     public let id: String
     public var name: String
-    /// Accent tint hint (optional; defaults to hive amber). Stored as a HiveColorToken
+    /// Accent tint hint (optional; defaults to hive honey). Stored as a HiveColorToken
     /// case name so it round-trips without Color. `.accent` is the default.
     public var accentTokenName: String
     /// SFSymbol icon name for the space (e.g. "briefcase.fill", "gamecontroller.fill").

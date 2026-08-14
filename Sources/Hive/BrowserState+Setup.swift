@@ -537,6 +537,12 @@ extension BrowserState {
         enableProactiveBriefing = chromePreferences.enableProactiveBriefing
         includeCalendarInBrief = chromePreferences.includeCalendarInBrief
         browserAccentColorHex = saved.accentColorHex
+        // Keep the native SwiftUI adaptive accent (hiveAccent) in lockstep with
+        // the browser chrome accent — otherwise native views fall back to the
+        // default honey after relaunch and diverge from the saved theme.
+        HiveBrand.accentHex = saved.accentColorHex
+            .trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+            .replacingOccurrences(of: "#", with: "")
             searchEngine = SearchEngine(rawValue: saved.searchEngine) ?? .google
             // Restore the user's model preference — it was persisted but never
             // read back, silently resetting to auto on every launch.

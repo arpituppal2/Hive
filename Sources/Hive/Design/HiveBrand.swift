@@ -75,7 +75,7 @@ enum HiveBrand {
 
     // Global theme hook — mutating this rebuilds accent-dependent views.
     // All accesses are main-thread; nonisolated(unsafe) silences Swift 6.
-    nonisolated(unsafe) static var accentHex: String = "F5A623"
+    nonisolated(unsafe) static var accentHex: String = "F97316"
 
     /// A darkened variant of the current accent for light-mode foreground use.
     /// Scales RGB toward 55% so accent text/icons keep AA contrast on warm paper

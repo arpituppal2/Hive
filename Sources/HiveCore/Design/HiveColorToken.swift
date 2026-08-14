@@ -9,7 +9,7 @@ import Foundation
 // Source of truth: SPEC.md §2 "Color System". Anti-slop rules (SPEC §2.5):
 //   - Never pure black (#000000) — the canvas is a deep, warm mahogany #1A1512.
 //   - Never pure white (#FFFFFF) for dark-mode text — use candlelight cream #F0EBE2.
-//   - Accent is honey gold (#D8A43D) — a single lamplight accent. No blue/purple/sparkle.
+//   - Accent is honey (#F97316) — a single lamplight accent. No blue/purple/sparkle.
 
 /// Semantic color tokens for Hive. The `rawValue` is the **case name** (not the hex) so
 /// it stays unique even when two semantically-distinct tokens share a hex across modes —
@@ -22,7 +22,7 @@ public enum HiveColorToken: String, Sendable, Codable, CaseIterable {
     case graphite         // secondary text
     case paper            // primary background
     case mist             // tertiary text, subtle fills
-    case accent           // warm amber — interactive elements only (Brand: #F5A623)
+    case accent           // honey — interactive elements only (Brand: #F97316)
     case background       // window background (warm near-black)
     case surface          // card / panel backgrounds
     case surfaceElevated  // floating panels, popovers
@@ -32,7 +32,7 @@ public enum HiveColorToken: String, Sendable, Codable, CaseIterable {
     case inkLight         // primary text (light) — same #171716 as dark `background`
     case backgroundLight  // window background (light)
     case surfaceLight     // cards / panels (light)
-    case accentLight      // amber for light mode (Brand: #FFB84D)
+    case accentLight      // honey for light mode (Brand: #9A4A0D)
     case swarmAccentLight // Swarm violet for light mode (#9B7FC7)
 
     // MARK: Custom accent colors — SPEC §23.2
@@ -57,7 +57,7 @@ public enum HiveColorToken: String, Sendable, Codable, CaseIterable {
         case .graphite:        return "#B8B0A0"
         case .paper:           return "#2A221D"
         case .mist:            return "#4D443D"
-        case .accent:          return "#FFB84D"  // Brand: Hive Amber (dark mode)
+        case .accent:          return "#F97316"  // Brand: Hive Honey (dark mode)
         case .background:      return "#1A1512"
         case .surface:         return "#241E19"
         case .surfaceElevated: return "#322A23"
@@ -65,7 +65,7 @@ public enum HiveColorToken: String, Sendable, Codable, CaseIterable {
         case .inkLight:        return "#1A1512"
         case .backgroundLight: return "#F7F2E9"
         case .surfaceLight:    return "#FFFDF8"
-        case .accentLight:     return "#9A5A00"  // Brand: Hive Amber (light mode) — deep amber, AA on warm paper
+        case .accentLight:     return "#9A4A0D"  // Brand: Hive Honey (light mode) — deep honey, AA on warm paper
         case .swarmAccentLight:return "#7B5EA7"  // Brand: Swarm Violet (light mode)
         case .gold:            return "#D4AF37"
         case .ruby:            return "#E0115F"

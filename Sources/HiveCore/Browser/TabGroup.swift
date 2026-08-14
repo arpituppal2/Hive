@@ -17,7 +17,7 @@ public struct TabGroup: Sendable, Codable, Identifiable, Equatable, Hashable {
     public let id: String
     public var name: String
     /// Accent tint dot, stored as a HiveColorToken case name so it round-trips without Color.
-    /// Defaults to hive amber.
+    /// Defaults to hive honey.
     public var colorDot: String
     /// Tab IDs in display order within this group. The model never duplicates.
     public var tabIDs: [String]

@@ -177,7 +177,7 @@
   /* ---------------- state ---------------- */
 
   var state = {
-    tabs: [], activeTabID: null, spaces: [], sessions: [], accentHex: '#6366F1',
+    tabs: [], activeTabID: null, spaces: [], sessions: [], accentHex: '#F97316',
     topSites: [], recent: [], history: [], bookmarks: [], downloads: [],
     layout: 'vertical', isPrivateBrowsing: false, isSplitActive: false,
     isChromePanelOpen: null, chromeMode: 'sidebar', chromeDimension: 270,
@@ -2113,7 +2113,7 @@
 
   var ACCENT_PRESETS = ['#F97316', '#F59E0B', '#22C55E', '#10B981', '#06B6D4', '#3B82F6', '#6366F1', '#8B5CF6', '#EC4899', '#EF4444'];
   function accentSwatches() {
-    var cur = state.accentHex || '#6366F1';
+    var cur = state.accentHex || '#F97316';
     var html = '<div class="accent-row" role="radiogroup" aria-label="Accent color">';
     ACCENT_PRESETS.forEach(function (hex) {
       html += '<button type="button" class="accent-swatch' + (hex === cur ? ' accent-swatch--active' : '') +

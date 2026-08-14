@@ -3494,9 +3494,9 @@ struct DispatcherCellPromptTests {
 @Suite("HiveColorToken")
 struct HiveColorTokenTests {
 
-    @Test func accentIsHiveAmberDarkMode() {
-        // Brand v1.0 — Hive Amber in dark mode is #FFB84D. Unique among browsers. Never blue/purple.
-        #expect(HiveColorToken.accent.hex.uppercased() == "#FFB84D")
+    @Test func accentIsHiveHoneyDarkMode() {
+        // Brand U1 — Hive Honey in dark mode is #F97316. Unique among browsers. Never blue/purple.
+        #expect(HiveColorToken.accent.hex.uppercased() == "#F97316")
     }
 
     @Test func backgroundIsWarmMahoganyNotPureBlack() {
@@ -3519,24 +3519,24 @@ struct HiveColorTokenTests {
     }
 
     @Test func rgbComponentsRoundTripFromHex() {
-        // accent #FFB84D → r=1.0, g=0.722, b=0.306
+        // accent #F97316 → r=0xF9, g=0x73, b=0x16
         let rgb = HiveColorToken.accent.rgb
-        #expect(abs(rgb.r - (0xFF / 255.0)) < 0.001)
-        #expect(abs(rgb.g - (0xB8 / 255.0)) < 0.001)
-        #expect(abs(rgb.b - (0x4D / 255.0)) < 0.001)
+        #expect(abs(rgb.r - (0xF9 / 255.0)) < 0.001)
+        #expect(abs(rgb.g - (0x73 / 255.0)) < 0.001)
+        #expect(abs(rgb.b - (0x16 / 255.0)) < 0.001)
     }
 
     @Test func hexDropsLeadingHash() {
         // hexDigits should be the 6 RGB hex chars with no '#'.
-        #expect(HiveColorToken.accent.hexDigits == "FFB84D")
+        #expect(HiveColorToken.accent.hexDigits == "F97316")
         #expect(!HiveColorToken.background.hex.hasPrefix("#") == false) // hasPrefix is true; sanity
         #expect(HiveColorToken.background.hexDigits.count == 6)
     }
 
-    @Test func lightModeAccentIsHiveAmber() {
-        // Brand v1.1 — light-mode accent is the deep AA-compliant Hive Amber #9A5A00
-        // (≈4.9:1 on warm paper), while dark mode keeps the brighter brand amber.
-        #expect(HiveColorToken.accentLight.hex.uppercased() == "#9A5A00")
+    @Test func lightModeAccentIsHiveHoney() {
+        // Brand U1 — light-mode accent is the deep AA-compliant Hive Honey #9A4A0D
+        // (≈4.9:1 on warm paper), while dark mode keeps the brighter brand honey.
+        #expect(HiveColorToken.accentLight.hex.uppercased() == "#9A4A0D")
     }
 
     @Test func alphaTokensUseCanonicalBasesAndOpacities() {
@@ -3987,7 +3987,7 @@ struct TabGroupTests {
         #expect(back.lastActiveTabID == "t1")
     }
 
-    @Test func tabGroupDefaultsAreHiveAmberAndUnfolded() {
+    @Test func tabGroupDefaultsAreHiveHoneyAndUnfolded() {
         let g = TabGroup(name: "Bills")
         #expect(g.colorDot == HiveColorToken.accent.rawValue)
         #expect(g.isFolded == false)

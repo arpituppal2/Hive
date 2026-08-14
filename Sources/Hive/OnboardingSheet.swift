@@ -301,7 +301,7 @@ struct OnboardingSheet: View {
             VStack(spacing: 8) {
                 summaryRow("checkmark.circle.fill", "Bookmarks imported: \(importedBookmarkCount)")
                 summaryRow("clock.arrow.circlepath", "History imported: \(importedHistoryCount)")
-                summaryRow("paintpalette.fill", "Theme: \(ThemePreset.presets.first(where: { $0.colorHex == selectedColorHex })?.name ?? "Hive Amber")")
+                summaryRow("paintpalette.fill", "Theme: \(ThemePreset.presets.first(where: { $0.colorHex == selectedColorHex })?.name ?? "Hive Honey")")
                 summaryRow("shield.checkered", "Tracker blocking and Safe Browsing are enabled")
             }
             .padding(.horizontal, 48)

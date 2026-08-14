@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Fix — brand accent aligned to honey (#F97316) across every surface
+- The brand accent had drifted after the U1 "honey #F97316" decision: the native adaptive accent (`HiveBrand.accentHex`) defaulted to amber `#F5A623`, the `HiveColorToken` system still returned `#FFB84D`/`#9A5A00` amber, the first theme preset was "Hive Amber", and the web chrome fell back to indigo `#6366F1` — while the documented accent, `HiveBrand.accent`, `tokens.css`, and `browserAccentColorHex` all used honey. Every surface now resolves to honey `#F97316` (dark) / `#9A4A0D` (light).
+- **Fixed a relaunch bug** where the user's saved accent color was restored to the browser chrome (`browserAccentColorHex`) but never re-synced to `HiveBrand.accentHex`, so native SwiftUI views fell back to the default honey after every launch and diverged from the saved theme.
+- Amber `#F5A623` remains a **selectable color option** for profiles, workspaces, tab groups, and skills — it is no longer the brand default.
+
 ### Dead-code removal (unwired embedding/semantic-search scaffold)
 - **Removed the dead `embedder` model role end to end** — the `.embedder` `ModelRole` case, its `ModelManifest` entry, the `.systemEmbedder` `ServingStrategy`/`Provider` cases, the `MockRuntime` branch, and the 560 MB `nomic-embed-text-v2` entry in `ModelDownloader.requiredRepos`. Nothing ever dispatched to it, and Honeycomb retrieval is FTS5 + graph, so the "semantic index" it claimed to power did not exist.
 - **Deleted `EmbeddingRuntime.swift`** — `SystemEmbeddingRuntime` (Apple `NLEmbedding`), the `EmbeddingRuntime` protocol, and `EmbeddingError` were never instantiated in production (only their own test referenced them).

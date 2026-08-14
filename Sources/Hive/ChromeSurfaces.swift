@@ -276,7 +276,7 @@ struct ThemePreset: Identifiable, Sendable {
     var iconName: String
 
     static let presets: [ThemePreset] = [
-        ThemePreset(name: "Hive Amber", colorHex: "#F5A623", iconName: "circle.fill"),
+        ThemePreset(name: "Hive Honey", colorHex: "#F97316", iconName: "circle.fill"),
         ThemePreset(name: "Chrome Classic", colorHex: "#4285F4", iconName: "circle.fill"),
         ThemePreset(name: "Rose", colorHex: "#E11D48", iconName: "circle.fill"),
         ThemePreset(name: "Emerald", colorHex: "#10B981", iconName: "circle.fill"),
