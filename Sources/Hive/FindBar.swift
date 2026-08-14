@@ -87,9 +87,9 @@ struct FindBar: View {
             Button(action: { state.toggleFindCaseSensitivity() }) {
                 Text("Aa")
                     .font(HiveDesign.Typography.body)
-                    .foregroundStyle(state.findMatchCaseSensitive ? Color.accentColor : Color.secondary)
+                    .foregroundStyle(state.findMatchCaseSensitive ? Color.hiveAccent : Color.secondary)
                     .frame(width: 24, height: 22)
-                    .background(state.findMatchCaseSensitive ? Color.accentColor.opacity(0.14) : Color.clear)
+                    .background(state.findMatchCaseSensitive ? Color.hiveAccent.opacity(0.14) : Color.clear)
                     .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
             }
             .buttonStyle(.plain)

@@ -4,7 +4,7 @@ import Foundation
 //
 // The canonical color values for The Hive Browser. Defined in HiveCore (Foundation-only,
 // no SwiftUI) so they are fully testable and usable by any target. SwiftUI Color mapping
-// lives in the Hive target (`HivePalette.swift`).
+// lives in the Hive target (`HiveBrand.swift` extension Color + `init(hex:)`).
 //
 // Source of truth: SPEC.md §2 "Color System". Anti-slop rules (SPEC §2.5):
 //   - Never pure black (#000000) — the canvas is a deep, warm mahogany #1A1512.
