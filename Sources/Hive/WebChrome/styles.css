@@ -78,18 +78,18 @@
 }
 
 body[data-theme="dark"], body:not([data-theme]) {
-  --bg: #17171B;
-  --bg-elev: #1D1D22;
+  --bg: #1A1512;
+  --bg-elev: #241E18;
   --surface: rgba(255, 255, 255, 0.045);
   /* Spec §3/§5: chrome-mode hover 8% white, press 12%. One contract. */
   --surface-hover: rgba(255, 255, 255, 0.08);
   --surface-active: rgba(255, 255, 255, 0.12);
   --hairline: rgba(255, 255, 255, 0.07);
   --hairline-strong: rgba(255, 255, 255, 0.13);
-  --text: #EDEDF1;
-  --text-muted: rgba(237, 237, 241, 0.56);
-  --text-faint: rgba(237, 237, 241, 0.34);
-  --glass: rgba(26, 26, 31, 0.78);
+  --text: #F4F1EE;
+  --text-muted: rgba(244, 241, 238, 0.56);
+  --text-faint: rgba(244, 241, 238, 0.34);
+  --glass: rgba(26, 21, 18, 0.78);
   --glass-border: rgba(255, 255, 255, 0.09);
   --glass-blur: saturate(180%) blur(20px);
   /* Spec §Depth (Brave Leo): menus/popovers two-layer + top inner highlight;
@@ -104,17 +104,17 @@ body[data-theme="dark"], body:not([data-theme]) {
 
 /* ---------- light ---------- */
 body[data-theme="light"] {
-  --bg: #FAFAF8;
-  --bg-elev: #F3F2EC;
+  --bg: #F7F2E8;
+  --bg-elev: #FCFAF2;
   --surface: rgba(20, 20, 25, 0.035);
   --surface-hover: rgba(20, 20, 25, 0.055);
   --surface-active: rgba(20, 20, 25, 0.09);
   --hairline: rgba(20, 20, 25, 0.08);
   --hairline-strong: rgba(20, 20, 25, 0.16);
-  --text: #1C1C20;
-  --text-muted: rgba(28, 28, 32, 0.56);
-  --text-faint: rgba(28, 28, 32, 0.35);
-  --glass: rgba(252, 251, 248, 0.85);
+  --text: #191817;
+  --text-muted: rgba(25, 24, 23, 0.56);
+  --text-faint: rgba(25, 24, 23, 0.35);
+  --glass: rgba(252, 250, 242, 0.85);
   --glass-border: rgba(20, 20, 25, 0.10);
   --shadow-1: 0 4px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.06),
               inset 0 1px 0.5px rgba(255, 255, 255, 0.6);
@@ -3950,7 +3950,7 @@ body[data-theme="light"] {
 /* --- SigmaOS Magic Theme: dynamic accent from active page --- */
 
 .magic-theme {
-  --page-accent: var(--accent, #F5A623);
+  --page-accent: var(--accent, #F97316);
   transition: --page-accent 0.5s ease;
 }
 

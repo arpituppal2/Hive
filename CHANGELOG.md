@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fix — web chrome surfaces aligned to the warm honey ramp
+- The web chrome's base palette was still the pre-overhaul cool gray (`--bg: #17171B`, `--text: #EDEDF1`, cool light paper) while the brand — and `tokens.css` / `HiveDesign.swift` — specify a warm editorial ramp (`#1A1512` canvas, `#F4F1EE` cream, `#F7F2E8` paper). Reconciled both dark and light themes to the warm ramp so the chrome matches the native panels instead of reading as a translucent cool-gray utility.
+- Corrected the SigmaOS magic-theme `--page-accent` fallback from amber `#F5A623` to honey `#F97316`.
+
 ### Fix — web chrome honey accent was silently dropped by malformed CSS
 - The web chrome's `--accent: #F97316`, spring motion curves, and ambient bloom were declared in a **malformed block** — the opening `:root {` was missing, so every one of those custom properties was invalid and ignored by the renderer. The dark chrome had no CSS accent at all, and the light theme still carried the pre-overhaul **Arc violet `#7A4ED4`** accent. Wrapped the orphaned declarations in a proper `:root { }`, switched the light theme to honey, removed the violet-tinted `--accent-ink`, and corrected the "Arc violet" header comment.
 
