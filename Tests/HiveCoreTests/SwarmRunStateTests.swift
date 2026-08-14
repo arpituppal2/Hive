@@ -64,10 +64,6 @@ struct DispatcherStreamingAvailabilityTests {
         #expect(await dispatcher.availableStreamingProvider(for: .byokFrontier) == .byokRemote)
     }
 
-@Test func intentCategoriesAreNonEmpty() {
-        #expect(!IntentCategory.allCases.isEmpty)
-    }
-
 @Test func modelTiersAreNonEmpty() {
         #expect(!ModelTier.allCases.isEmpty)
     }

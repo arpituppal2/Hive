@@ -6480,11 +6480,6 @@ struct SmokeTests {
         #expect(back.windows.isEmpty)
     }
 
-@Test func intentCategoryCases() {
-        #expect(IntentCategory.allCases.count >= 5)
-        #expect(IntentCategory.genericQuestion != .webResearch)
-    }
-
 @Test func modelTierCases() {
         #expect(ModelTier.allCases.count >= 4)
         #expect(ModelTier.t0 != .t3)
@@ -6850,14 +6845,6 @@ struct SmokeTests {
         #expect(ScribeCoordinator.PageQaAnswer.AnswerType.privateBrowsing == .privateBrowsing)
     }
 
-@Test func classifiedIntentInit() throws {
-        let url = try #require(URL(string: "https://example.com"))
-        let params = IntentParams(targetURL: url, searchQuery: nil, filePath: nil, nodeID: nil, spaceName: nil, commandVerb: nil, commandArg: nil)
-        let intent = ClassifiedIntent(category: .webResearch, confidence: 0.9, rawInput: "search the web", params: params, suggestedCell: .summarizer)
-        #expect(intent.category == .webResearch)
-        #expect(intent.confidence == 0.9)
-    }
-
 @Test func pinnedWebAppInit() throws {
         let url = try #require(URL(string: "https://example.com"))
         let app = PinnedWebApp(name: "Test App", url: url, fallbackIcon: "globe", accentColor: "#FF0000")
@@ -7105,20 +7092,6 @@ struct SmokeTests {
 
 @Test func researchHandoffPrivacyScope() {
         #expect(ResearchHandoffAdapter.PrivacyScope.nonPrivate == .nonPrivate)
-    }
-
-    @Test func intentParamsDefaultInitAllNil() {
-        let p = IntentParams()
-        #expect(p.targetURL == nil)
-        #expect(p.searchQuery == nil)
-        #expect(p.filePath == nil)
-        #expect(p.nodeID == nil)
-    }
-
-    @Test func intentParamsSearchQueryInit() {
-        let p = IntentParams(searchQuery: "swift concurrency")
-        #expect(p.searchQuery == "swift concurrency")
-        #expect(p.targetURL == nil)
     }
 
     @Test func contextRedactorSensitivityPublicAndPrivate() {

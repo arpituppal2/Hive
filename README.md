@@ -19,7 +19,7 @@ bash scripts/build-research-worker.sh
 # Build the browser
 swift build --product Hive
 
-# Run tests (1,835 tests, 179 suites)
+# Run tests (1,829 tests, 179 suites)
 swift test
 
 # Create a local ad-hoc bundle
@@ -95,7 +95,7 @@ Sources/
 │   ├── Honeycomb/           # SQLite + FTS5 memory store
 │   └── ...
 Tests/
-├── HiveCoreTests/           # 1,835 tests, 179 suites
+├── HiveCoreTests/           # 1,829 tests, 179 suites
 native/
 ├── hive-fetch-boundary/     # Rust research fetch worker
 └── adblock-ffi/             # Brave adblock-rust C FFI

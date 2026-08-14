@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Dead-code removal (superseded T0 intent classifier)
+- **Removed `IntentOrchestrator` + `IntentCategory` / `ClassifiedIntent` / `IntentParams`** — a 510-line deterministic T0 intent classifier that request routing no longer uses. Live routing flows through `SwarmIntentRouter`, `TrustedTurnGateway`, and `VoiceCommandCoordinator` (which use `SwarmResponseRoute` and `ModelRole` instead), so this whole family was dead code validated only by its own smoke tests. Its 6 test functions went with it.
+- Suite is now **1,829 tests / 179 suites**.
+
 ### Dead-code removal (Bee job queue + duplicate profile system)
 - **Removed the `BeeQueue` / `BeeJob` job-orchestration subsystem** — an in-memory actor queue (enqueue/start/cancel/retry/verify + auto-retry) with an EventLedger integration that was fully implemented and tested but never instantiated in production. The plan docs themselves flagged it as "code-present but not a durable Flow runtime" (in-memory only, jobs lost on restart, honest-stub `perform` methods). ~14 KB of dead code plus its 25 tests are gone.
 - **Removed the duplicate `BrowserProfile` + `ProfileManager` system** — a second profile model with per-profile data directories (`~/Library/Application Support/Hive/Profiles/<id>/`) that no code path ever used; the app's live profile feature is `BrowserState.Profile`, which persists in the session envelope. Its one test went with it.
@@ -285,7 +289,7 @@ Hive adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Honeycomb revisions, node writes, and FTS replacement now commit transactionally with explicit rollback errors.
 
 ### Validation
-- 1,835 tests / 179 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
+- 1,829 tests / 179 suites pass; HiveCore and Hive product builds pass; ad-hoc bundle, preflight, and smoke readiness all green.
 
 
 ## [v1.0.0] — 2026-08-09 (build 100)

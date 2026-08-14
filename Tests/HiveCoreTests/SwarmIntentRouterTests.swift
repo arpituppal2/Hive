@@ -147,8 +147,4 @@ struct SwarmIntentRouterTests {
 
         #expect(first == second)
     }
-
-@Test func intentCategoryWebResearchIsWebResearch() {
-        #expect(IntentCategory.webResearch == .webResearch)
-    }
 }
