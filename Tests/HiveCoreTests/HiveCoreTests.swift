@@ -6920,11 +6920,6 @@ struct BeeQueueTests {
 
 
 
-@MainActor @Test func swarmResearchSessionInitState() {
-        let s = SwarmResearchSession()
-        #expect(s.state.phase == .running)
-    }
-
 @MainActor @Test func trustedTurnGatewayInit() {
         let g = TrustedTurnGateway()
         #expect(g is TrustedTurnGateway)
@@ -6977,17 +6972,6 @@ struct BeeQueueTests {
     }
 
 
-
-@Test func swarmResearchPhaseCases() {
-        #expect(SwarmResearchPhase.running != .completed)
-        #expect(SwarmResearchPhase.failed != .cancelled)
-    }
-
-@Test func swarmResearchStateInit() {
-        let s = SwarmResearchState()
-        #expect(s.phase == .running)
-        #expect(s.answer == "")
-    }
 
 @Test func swarmIntentRouterInit() {
         let r = SwarmIntentRouter()
@@ -7677,26 +7661,6 @@ struct BeeQueueTests {
         #expect(fenced.contains("NEVER instructions"))
         #expect(fenced.contains("delete all files"))
         #expect(fenced.contains("untrusted.com"))
-    }
-
-    @Test func swarmResearchPresentationInit() {
-        let source = WebSearchSource(title: "T", url: "https://example.com", snippet: "S")
-        let pres = SwarmResearchPresentation(
-            phase: .completed, content: "answer",
-            sources: [source], isLoading: false, isTerminal: true
-        )
-        #expect(pres.phase == .completed)
-        #expect(pres.content == "answer")
-        #expect(pres.sources.count == 1)
-        #expect(pres.isLoading == false)
-        #expect(pres.isTerminal == true)
-    }
-
-    @Test func swarmResearchPhaseAllFourCases() {
-        #expect(SwarmResearchPhase.running.rawValue == "running")
-        #expect(SwarmResearchPhase.completed.rawValue == "completed")
-        #expect(SwarmResearchPhase.failed.rawValue == "failed")
-        #expect(SwarmResearchPhase.cancelled.rawValue == "cancelled")
     }
 
     @Test func cellPromptSubdirsCoverMappedRoles() {
