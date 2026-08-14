@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Dead-code removal (unused session persistence + sidecar DTOs)
+- **Removed `SessionPersistenceManager`** — a second session-persistence actor (save/load/clear plus a crash counter) that was never instantiated; the live path is `BrowserSessionStore` / `SessionRestoration`.
+- **Removed the vestigial `SessionSnapshot` struct** from `SessionStore.swift` (superseded by `SessionRecord`) and corrected its stale comment.
+- **Removed the unwired `WebChromeSidecarStep` / `WebChromeSidecarChain` DTOs** — sidecar bridge payloads that no handler ever decoded.
+
 ### Dead-code removal (unwired ambient-capture machinery)
 - **Removed `ScribeCoordinator` + the `PageCapture*` policies** — the tested but never-wired ambient-capture machinery (`autoCaptureTriage` / `askOnPage` invocation routes, `PageCaptureAdmission`, `PageCaptureDeliveryPolicy`, `PageCaptureRequestLedger`). Capture is the honest one-click feature the copy already describes; the "capture every page automatically" path this code implements was never hooked to any page-load event and would run counter to the zero-cost free tier. Four source files and 46 tests (4 suites) removed; the live page-Q&A route through `SwarmOrchestrator` / `ModelRole.pageQa` is untouched.
 - Suite is now **1,783 tests / 175 suites**.

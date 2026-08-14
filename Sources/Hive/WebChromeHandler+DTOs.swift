@@ -345,19 +345,6 @@ struct WebChromePanelRequest: Codable, Sendable {
     let panel: String
 }
 
-struct WebChromeSidecarStep: Codable, Sendable {
-    let token: String
-    let text: String
-    let kind: String?
-}
-
-struct WebChromeSidecarChain: Codable, Sendable {
-    let token: String
-    let label: String
-    let steps: [String]
-    let kind: String?
-}
-
 struct WebChromeDimensionRequest: Codable, Sendable {
     let token: String
     let dimension: Double

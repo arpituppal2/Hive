@@ -20,17 +20,6 @@ import AppKit
 // so the restore action is a one-click "open window" that the OS window
 // manager materializes in the normal SwiftUI lifecycle.
 
-/// A persisted, web-renderable session snapshot.
-struct SessionSnapshot: Codable, Sendable, Identifiable {
-    let id: UUID
-    let title: String
-    let windowCount: Int
-    let tabCount: Int
-    let faviconURL: String?
-    let startedAt: String
-    let lastActiveAt: String
-}
-
 /// One tab worth of a snapshot — enough for the chrome to render a preview
 /// without touching the live Tab/CefWebViewModel graph.
 struct SessionSnapshotTab: Codable, Sendable {
@@ -152,7 +141,7 @@ final class SessionStore {
     }
 }
 
-/// Bridges a SessionSnapshot over the WebChromeSession DTO shape consumed by JS.
+/// Bridges a session record into the WebChromeSession DTO shape consumed by JS.
 /// Formatting happens here (single source of truth for labels).
 extension SessionRecord {
     func formatted() -> (startedAt: String, lastActiveAt: String) {
