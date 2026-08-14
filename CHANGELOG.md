@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Release — generate the Sparkle EdDSA signing key and wire SUPublicEDKey into release builds
+- Generated the Sparkle EdDSA signing key with `generate_keys --account hive`: the **private key lives in the macOS Keychain** (never in the repo), and the public key is `UHZYbCs0hcPnDHjmmFmFMzfEV5LEbA6yU6xg+jVN5ss=`.
+- `build-hive-app.sh` now stamps `SUPublicEDKey` into the app's `Info.plist` whenever a Sparkle feed URL is configured (release builds), alongside the existing `SUFeedURL`/`SUEnableAutomaticChecks`/`SUScheduledCheckInterval`. Without it, Sparkle silently rejects every signed appcast, so updates could never fire. Overridable via `HIVE_SU_PUBLIC_ED_KEY` for key rotation.
+- Corrected the stale `UpdateManager.swift` doc comment that pointed `SUFeedURL` at the unowned `hivebrowser.com` domain; the real default is `https://arpituppal2.github.io/Hive/appcast.xml` (the `web/appcast.xml` `FILL-ME` signature placeholder remains, to be filled by `generate_appcast` at release time).
+
 ### Fix — removed the last undefined tokens in dead "ported feature" CSS
 - A full token sweep found nine `var(--x)` references with no definition and no fallback, all inside never-applied CSS fragments left over from the overhaul: `--arc-start-x`/`--arc-start-y`/`--arc-end-x`/`--arc-end-y`/`--arc-height` (the Zen download-arc animation — no JS ever creates `.download-arc-element` or sets these), `--tab-active-bg`/`--tab-active-shadow` (`.tab.in-urlbar`), `--tab-bg` (`.tab[data-theme-color]` page-bleed), and `--tab-favicon` (`.essential-tab .tab-bg` favicon blur). Removed those four dead blocks so `var()` never references an undefined token.
 - Re-verified: zero undefined tokens remain across `styles.css` + `tokens.css` (the rest are defined, carry fallbacks, or are set inline at runtime).

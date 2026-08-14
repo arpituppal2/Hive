@@ -9,7 +9,8 @@ import Sparkle
 // item triggers initialization.
 //
 // Sparkle reads its configuration from the app's Info.plist:
-//   SUFeedURL          — the appcast URL (https://hivebrowser.com/appcast.xml)
+//   SUFeedURL          — the appcast URL (https://arpituppal2.github.io/Hive/appcast.xml)
+//   SUPublicEDKey      — EdDSA public key for verifying the appcast signature
 //   SUEnableAutomaticChecks — defaults to true
 //   SUScheduledCheckInterval — seconds between checks (default 86400 = daily)
 //

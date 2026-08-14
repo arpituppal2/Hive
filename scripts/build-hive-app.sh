@@ -236,6 +236,10 @@ fi
 # skip by default; release builds default to the GitHub Pages appcast and can
 # be overridden with HIVE_APPCAST_URL.
 FEED_URL="${HIVE_APPCAST_URL:-}"
+# EdDSA public key for Sparkle update verification. Generated once with
+# `generate_keys --account hive`; the private key lives in the macOS Keychain
+# (never in the repo). Overridable for key rotation.
+SU_PUBLIC_ED_KEY="${HIVE_SU_PUBLIC_ED_KEY:-UHZYbCs0hcPnDHjmmFmFMzfEV5LEbA6yU6xg+jVN5ss=}"
 if [[ "$ALLOW_ADHOC" -eq 1 && -z "$FEED_URL" ]]; then
   printf '%s\n' '  Sparkle feed: skipped (ad-hoc build, set HIVE_APPCAST_URL to test updates)'
 elif [[ -z "$FEED_URL" ]]; then
@@ -270,7 +274,11 @@ fi
 if [[ -n "$FEED_URL" ]]; then
   /usr/libexec/PlistBuddy -c 'Add :SUEnableAutomaticChecks bool true' "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
   /usr/libexec/PlistBuddy -c 'Add :SUScheduledCheckInterval integer 86400' "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
-  printf '  Sparkle feed injected: %s (SUEnableAutomaticChecks=true, 24h interval)\n' "$FEED_URL"
+  # SUPublicEDKey lets Sparkle verify the EdDSA signature on the appcast.
+  # Without it updates are silently rejected; stamp it for release builds.
+  /usr/libexec/PlistBuddy -c "Add :SUPublicEDKey string $SU_PUBLIC_ED_KEY" "$APP_PATH/Contents/Info.plist" 2>/dev/null || \
+    /usr/libexec/PlistBuddy -c "Set :SUPublicEDKey $SU_PUBLIC_ED_KEY" "$APP_PATH/Contents/Info.plist" 2>/dev/null || true
+  printf '  Sparkle feed injected: %s (SUEnableAutomaticChecks=true, 24h interval, SUPublicEDKey set)\n' "$FEED_URL"
 fi
 
 printf '%s\n' '==> Signing embedded worker, CEF nested code, SwiftPM resources, and outer app'
