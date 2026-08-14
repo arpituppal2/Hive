@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fix — Zen accent-mixer chain was broken by a missing token
+- The Zen-derived theme layer in `tokens.css` resolved `--zen-primary-color` from `var(--color-accent-1)`, but that token was never defined — so `--zen-colors-primary` / `--zen-colors-secondary` / `--zen-colors-tertiary` (and everything derived from them, including the workspace drop-target glow in `styles.css`) collapsed to invalid values. Added the missing `--color-accent-1: rgb(var(--color-accent))` full-color honey token so the `color-mix()` chain has a real color to blend from.
+
 ### Fix — web chrome surfaces aligned to the warm honey ramp
 - The web chrome's base palette was still the pre-overhaul cool gray (`--bg: #17171B`, `--text: #EDEDF1`, cool light paper) while the brand — and `tokens.css` / `HiveDesign.swift` — specify a warm editorial ramp (`#1A1512` canvas, `#F4F1EE` cream, `#F7F2E8` paper). Reconciled both dark and light themes to the warm ramp so the chrome matches the native panels instead of reading as a translucent cool-gray utility.
 - Corrected the SigmaOS magic-theme `--page-accent` fallback from amber `#F5A623` to honey `#F97316`.

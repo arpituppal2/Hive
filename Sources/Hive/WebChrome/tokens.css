@@ -73,7 +73,8 @@
   --color-surface-hover-subtle: rgba(255, 255, 255, 0.04);
 
   /* ---------- Accent (Hive signature: honey) ---------- */
-  --color-accent: 249 115 22;       /* #F97316 */
+  --color-accent: 249 115 22;       /* #F97316 — RGB triplet for rgb() compositing */
+  --color-accent-1: rgb(var(--color-accent)); /* full-color honey for color-mix consumers */
   --color-accent-hover: 251 146 60; /* #FB923C */
   --color-accent-soft: rgb(249 115 22 / 0.16);
   --color-accent-ink: 255 255 255;
