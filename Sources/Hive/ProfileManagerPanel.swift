@@ -56,6 +56,21 @@ struct ProfileManagerPanel: View {
     }
 
     var body: some View {
+        mainContent
+            .alert("Rename Profile", isPresented: renameBinding) {
+                TextField("Profile name", text: $renameText)
+                Button("Rename") { commitRename() }
+                Button("Cancel", role: .cancel) { renameTargetID = nil }
+            }
+            .alert("Delete Profile?", isPresented: deleteBinding) {
+                Button("Delete", role: .destructive) { confirmDeleteProfile() }
+                Button("Cancel", role: .cancel) { pendingDelete = nil }
+            } message: {
+                Text(deleteMessageText)
+            }
+    }
+
+    private var mainContent: some View {
         VStack(spacing: 0) {
             header
             Divider()
@@ -69,33 +84,33 @@ struct ProfileManagerPanel: View {
         }
         .background(HiveDesign.Material.panel)
         .frame(width: 480, height: 420)
-        .alert("Rename Profile", isPresented: Binding(
+    }
+
+    private var renameBinding: Binding<Bool> {
+        Binding(
             get: { renameTargetID != nil },
             set: { if !$0 { renameTargetID = nil } }
-        )) {
-            TextField("Profile name", text: $renameText)
-            Button("Rename") { commitRename() }
-            Button("Cancel", role: .cancel) { renameTargetID = nil }
-        }
-        .alert("Delete Profile?", isPresented: Binding(
+        )
+    }
+
+    private var deleteBinding: Binding<Bool> {
+        Binding(
             get: { pendingDelete != nil },
             set: { if !$0 { pendingDelete = nil } }
-        )) {
-            Button("Delete", role: .destructive) {
-                if let profile = pendingDelete {
-                    state.deleteProfile(id: profile.id)
-                }
-                pendingDelete = nil
-            }
-            Button("Cancel", role: .cancel) { pendingDelete = nil }
-        } message: {
-            if let profile = pendingDelete {
-                let count = state.workspaces.filter { $0.profileID == profile.id }.count
-                Text("Delete profile \"" + profile.name + "\"? Its " + String(count) + " workspace" + (count == 1 ? "" : "s") + " and their cookies will be permanently removed. This cannot be undone.")
-            } else {
-                Text("")
-            }
+        )
+    }
+
+    private var deleteMessageText: String {
+        guard let profile = pendingDelete else { return "" }
+        let count = state.workspaces.filter { $0.profileID == profile.id }.count
+        return "Delete profile \"\(profile.name)\"? Its \(count) workspace\(count == 1 ? "" : "s") and their cookies will be permanently removed. This cannot be undone."
+    }
+
+    private func confirmDeleteProfile() {
+        if let profile = pendingDelete {
+            state.deleteProfile(id: profile.id)
         }
+        pendingDelete = nil
     }
 
     // MARK: - Header

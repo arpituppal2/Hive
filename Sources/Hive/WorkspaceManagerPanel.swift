@@ -68,6 +68,21 @@ struct WorkspaceManagerPanel: View {
     }
 
     var body: some View {
+        mainContent
+            .alert("Rename Workspace", isPresented: renameBinding) {
+                TextField("Workspace name", text: $renameText)
+                Button("Rename") { commitRename() }
+                Button("Cancel", role: .cancel) { renameTargetID = nil }
+            }
+            .alert("Delete Workspace?", isPresented: deleteBinding) {
+                Button("Delete", role: .destructive) { confirmDeleteWorkspace() }
+                Button("Cancel", role: .cancel) { pendingDelete = nil }
+            } message: {
+                Text(deleteMessageText)
+            }
+    }
+
+    private var mainContent: some View {
         VStack(spacing: 0) {
             header
             Divider()
@@ -81,32 +96,33 @@ struct WorkspaceManagerPanel: View {
         }
         .background(HiveDesign.Material.panel)
         .frame(width: 460, height: 460)
-        .alert("Rename Workspace", isPresented: Binding(
+    }
+
+    private var renameBinding: Binding<Bool> {
+        Binding(
             get: { renameTargetID != nil },
             set: { if !$0 { renameTargetID = nil } }
-        )) {
-            TextField("Workspace name", text: $renameText)
-            Button("Rename") { commitRename() }
-            Button("Cancel", role: .cancel) { renameTargetID = nil }
-        }
-        .alert("Delete Workspace?", isPresented: Binding(
+        )
+    }
+
+    private var deleteBinding: Binding<Bool> {
+        Binding(
             get: { pendingDelete != nil },
             set: { if !$0 { pendingDelete = nil } }
-        )) {
-            Button("Delete", role: .destructive) {
-                if let workspace = pendingDelete {
-                    state.deleteWorkspace(id: workspace.id)
-                }
-                pendingDelete = nil
-            }
-            Button("Cancel", role: .cancel) { pendingDelete = nil }
-        } message: {
-            if let workspace = pendingDelete {
-                Text("Move \(tabCount(for: workspace)) tab\(tabCount(for: workspace) == 1 ? "" : "s") to the current workspace and remove \(workspace.name)? Its cookies and site data are deleted.")
-            } else {
-                Text("")
-            }
+        )
+    }
+
+    private var deleteMessageText: String {
+        guard let workspace = pendingDelete else { return "" }
+        let count = tabCount(for: workspace)
+        return "Move \(count) tab\(count == 1 ? "" : "s") to the current workspace and remove \(workspace.name)? Its cookies and site data are deleted."
+    }
+
+    private func confirmDeleteWorkspace() {
+        if let workspace = pendingDelete {
+            state.deleteWorkspace(id: workspace.id)
         }
+        pendingDelete = nil
     }
 
     // MARK: - Header

@@ -29,6 +29,21 @@ struct TabGroupManagerPanel: View {
     }
 
     var body: some View {
+        mainContent
+            .alert("Rename Group", isPresented: renameBinding) {
+                TextField("Group name", text: $renameText)
+                Button("Rename") { commitRename() }
+                Button("Cancel", role: .cancel) { renameTargetID = nil }
+            }
+            .alert("Delete Group?", isPresented: deleteBinding) {
+                Button("Delete", role: .destructive) { confirmDeleteGroup() }
+                Button("Cancel", role: .cancel) { pendingDelete = nil }
+            } message: {
+                Text(deleteMessageText)
+            }
+    }
+
+    private var mainContent: some View {
         VStack(spacing: 0) {
             header
             Divider()
@@ -42,33 +57,33 @@ struct TabGroupManagerPanel: View {
         }
         .background(HiveDesign.Material.panel)
         .frame(width: 460, height: 380)
-        .alert("Rename Group", isPresented: Binding(
+    }
+
+    private var renameBinding: Binding<Bool> {
+        Binding(
             get: { renameTargetID != nil },
             set: { if !$0 { renameTargetID = nil } }
-        )) {
-            TextField("Group name", text: $renameText)
-            Button("Rename") { commitRename() }
-            Button("Cancel", role: .cancel) { renameTargetID = nil }
-        }
-        .alert("Delete Group?", isPresented: Binding(
+        )
+    }
+
+    private var deleteBinding: Binding<Bool> {
+        Binding(
             get: { pendingDelete != nil },
             set: { if !$0 { pendingDelete = nil } }
-        )) {
-            Button("Delete", role: .destructive) {
-                if let group = pendingDelete {
-                    state.deleteTabGroup(id: group.id)
-                }
-                pendingDelete = nil
-            }
-            Button("Cancel", role: .cancel) { pendingDelete = nil }
-        } message: {
-            if let group = pendingDelete {
-                let count = tabCount(for: group)
-                Text("Delete \"" + group.name + "\"? Its " + String(count) + " tab" + (count == 1 ? "" : "s") + " will be ungrouped (not closed).")
-            } else {
-                Text("")
-            }
+        )
+    }
+
+    private var deleteMessageText: String {
+        guard let group = pendingDelete else { return "" }
+        let count = tabCount(for: group)
+        return "Delete \"\(group.name)\"? Its \(count) tab\(count == 1 ? "" : "s") will be ungrouped (not closed)."
+    }
+
+    private func confirmDeleteGroup() {
+        if let group = pendingDelete {
+            state.deleteTabGroup(id: group.id)
         }
+        pendingDelete = nil
     }
 
     // MARK: - Header

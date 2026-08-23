@@ -20,6 +20,20 @@ struct SiteSettingsSheet: View {
     /// popover (read once in onAppear).
     @State private var initialFocusHost: String? = nil
 
+    private var resetBinding: Binding<Bool> {
+        Binding(
+            get: { resetHost != nil },
+            set: { if !$0 { resetHost = nil } }
+        )
+    }
+
+    private var deleteDataBinding: Binding<Bool> {
+        Binding(
+            get: { deleteDataHost != nil },
+            set: { if !$0 { deleteDataHost = nil } }
+        )
+    }
+
     private var entries: [SiteSettingsEntry] {
         let all = state.siteSettingsEntries()
         let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -51,10 +65,7 @@ struct SiteSettingsSheet: View {
         }
         .confirmationDialog(
             "Reset settings for \(resetHost ?? "")?",
-            isPresented: Binding(
-                get: { resetHost != nil },
-                set: { if !$0 { resetHost = nil } }
-            ),
+            isPresented: resetBinding,
             titleVisibility: .visible
         ) {
             Button("Reset", role: .destructive) {
@@ -69,10 +80,7 @@ struct SiteSettingsSheet: View {
         }
         .confirmationDialog(
             "Delete data for \(deleteDataHost ?? "")?",
-            isPresented: Binding(
-                get: { deleteDataHost != nil },
-                set: { if !$0 { deleteDataHost = nil } }
-            ),
+            isPresented: deleteDataBinding,
             titleVisibility: .visible
         ) {
             Button("Delete", role: .destructive) {

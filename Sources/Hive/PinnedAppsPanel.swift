@@ -16,6 +16,13 @@ struct PinnedAppsPanel: View {
     @State private var renameDraft: String = ""
     @State private var pinFeedback: String? = nil
 
+    private var renameBinding: Binding<Bool> {
+        Binding(
+            get: { renameTarget != nil },
+            set: { if !$0 { renameTarget = nil } }
+        )
+    }
+
     private var railApps: [PinnedWebApp] { PinnedWebAppPolicy.sortedForRail(state.pinnedWebApps) }
 
     private var filteredApps: [PinnedWebApp] {
@@ -127,10 +134,7 @@ struct PinnedAppsPanel: View {
         }
         .frame(width: 420, height: 460)
         .background(HiveDesign.Material.panel)
-        .alert("Rename App", isPresented: Binding(
-            get: { renameTarget != nil },
-            set: { if !$0 { renameTarget = nil } }
-        )) {
+        .alert("Rename App", isPresented: renameBinding) {
             TextField("App name", text: $renameDraft)
             Button("Rename") {
                 if let target = renameTarget {

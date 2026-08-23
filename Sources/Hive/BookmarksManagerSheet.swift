@@ -65,6 +65,27 @@ struct BookmarksManagerSheet: View {
         return state.bookmarks.filter { $0.isFolder && !excluded.contains($0.id) }
     }
 
+    private var renameBinding: Binding<Bool> {
+        Binding(
+            get: { renameTarget != nil },
+            set: { if !$0 { renameTarget = nil } }
+        )
+    }
+
+    private var deleteFolderBinding: Binding<Bool> {
+        Binding(
+            get: { deleteFolderTarget != nil },
+            set: { if !$0 { deleteFolderTarget = nil } }
+        )
+    }
+
+    private var exportErrorBinding: Binding<Bool> {
+        Binding(
+            get: { exportError != nil },
+            set: { if !$0 { exportError = nil } }
+        )
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -247,10 +268,7 @@ struct BookmarksManagerSheet: View {
                  ? "Create a folder at the top level."
                  : "Create a folder inside the current folder.")
         }
-        .alert("Rename Folder", isPresented: Binding(
-            get: { renameTarget != nil },
-            set: { if !$0 { renameTarget = nil } }
-        )) {
+        .alert("Rename Folder", isPresented: renameBinding) {
             TextField("Folder name", text: $renameDraft)
             Button("Rename") {
                 if let target = renameTarget { state.renameBookmarkFolder(id: target.id, to: renameDraft) }
@@ -259,10 +277,7 @@ struct BookmarksManagerSheet: View {
         } message: {
             Text("Rename this folder.")
         }
-        .alert("Delete Folder?", isPresented: Binding(
-            get: { deleteFolderTarget != nil },
-            set: { if !$0 { deleteFolderTarget = nil } }
-        )) {
+        .alert("Delete Folder?", isPresented: deleteFolderBinding) {
             Button("Delete", role: .destructive) {
                 if let target = deleteFolderTarget { state.deleteBookmarkFolder(id: target.id) }
             }
@@ -270,10 +285,7 @@ struct BookmarksManagerSheet: View {
         } message: {
             Text("Deleting “\(deleteFolderTarget?.title ?? "")” also deletes everything inside it. This can't be undone.")
         }
-        .alert("Export Failed", isPresented: Binding(
-            get: { exportError != nil },
-            set: { if !$0 { exportError = nil } }
-        )) {
+        .alert("Export Failed", isPresented: exportErrorBinding) {
             Button("OK", role: .cancel) { exportError = nil }
         } message: {
             Text(exportError ?? "")
