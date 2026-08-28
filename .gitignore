@@ -8,3 +8,20 @@ dist/
 dist-debug/
 node_modules/
 .cef/
+
+# Reference + recovered prior-art — study material, never commit
+references/zen-desktop/
+references/brave-core/
+references/brave-adblock-rust/
+RECOVERED*/
+#
+
+# Build outputs
+.build/
+.swiftpm/
+DerivedData/
+dist/
+dist-debug/
+node_modules/
+.cef/
+native/
