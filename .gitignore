@@ -1,0 +1,10 @@
+# Hive — fresh start 
+
+.DS_Store
+.build/
+.swiftpm/
+DerivedData/
+dist/
+dist-debug/
+node_modules/
+.cef/
