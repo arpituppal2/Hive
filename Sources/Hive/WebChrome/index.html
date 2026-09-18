@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>Hive</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-rail="false" data-orientation="vertical" data-pane="full">
+<script>
+(function(){
+  var params=new URLSearchParams(location.search);
+  document.body.dataset.pane=params.get('pane')||'full';
+  window.__HIVE_TOKEN='__HIVE_TOKEN__';
+  window.hive={
+    call:function(method,payload){
+      payload=payload||{};payload.token=window.__HIVE_TOKEN;
+      try{
+        var pr=window.cefSwift.invoke(method,payload);
+        return (pr&&typeof pr.then==='function'?pr:Promise.resolve(pr));
+      }catch(e){return Promise.resolve({ok:false,err:{code:'bridge',message:String(e)}});}
+    }
+  };
+})();
+</script>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-back" viewBox="0 0 16 16"><path d="M10 3 5 8l5 5"/></symbol>
+      <symbol id="i-fwd" viewBox="0 0 16 16"><path d="m6 3 5 5-5 5"/></symbol>
+      <symbol id="i-reload" viewBox="0 0 16 16"><path d="M13.5 8a5.5 5.5 0 1 1-1.61-3.89M13.5 2.5v2.7h-2.7"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></symbol>
+      <symbol id="i-close" viewBox="0 0 16 16"><path d="m4.5 4.5 7 7m0-7-7 7"/></symbol>
+      <symbol id="i-capture" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.75"/><path d="M2 5.5v-2A1.5 1.5 0 0 1 3.5 2h2M10.5 2h2A1.5 1.5 0 0 1 14 3.5v2M14 10.5v2a1.5 1.5 0 0 1-1.5 1.5h-2M5.5 14h-2A1.5 1.5 0 0 1 2 12.5v-2"/></symbol>
+      <symbol id="i-ask" viewBox="0 0 16 16"><path d="M8 1.8 9.6 6.4 14.2 8 9.6 9.6 8 14.2 6.4 9.6 1.8 8l4.6-1.6Z"/></symbol>
+      <symbol id="i-star" viewBox="0 0 16 16"><path d="m8 2.6 1.7 3.4 3.8.6-2.7 2.7.6 3.8L8 11.3l-3.4 1.8.6-3.8-2.7-2.7 3.8-.6Z"/></symbol>
+      <symbol id="i-rail" viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" rx="1.5"/><path d="M6.5 3v10"/></symbol>
+      <symbol id="i-send" viewBox="0 0 16 16"><path d="M3 8h9.5M9 4.5 12.5 8 9 11.5"/></symbol>
+      <symbol id="i-stop" viewBox="0 0 16 16"><rect x="4.5" y="4.5" width="7" height="7" rx="1.2" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="i-check" viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-6.5"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3.6M8 10.9v.1"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.2V8l2 1.4"/></symbol>
+      <symbol id="i-doc" viewBox="0 0 16 16"><path d="M4.5 2.5H9l3 3v8H4.5Z"/><path d="M9 2.5v3h3"/></symbol>
+      <symbol id="i-globe" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M2.5 8h11M8 2.5c2.4 2.6 2.4 8.4 0 11-2.4-2.6-2.4-8.4 0-11Z"/></symbol>
+      <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></symbol>
+    </defs>
+  </svg>
+
+  <aside id="chrome-sidebar" data-testid="sidebar" aria-label="Sidebar">
+    <header class="sb-header"><span class="sb-brand">Hive</span></header>
+    <button id="new-tab-btn" data-testid="new-tab-btn" class="side-btn" type="button" aria-label="New tab">
+      <svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg><span class="lbl">New tab</span>
+    </button>
+    <div id="tab-slot-side" class="tab-slot-side"></div>
+    <footer class="sb-footer">
+      <button id="rail-toggle" data-testid="rail-toggle" class="side-btn" type="button" aria-expanded="true" aria-label="Collapse sidebar">
+        <svg class="ic" aria-hidden="true"><use href="#i-rail"/></svg><span class="lbl">Collapse</span>
+      </button>
+    </footer>
+  </aside>
+
+  <div id="chrome-toolbar" role="toolbar" aria-label="Browser toolbar">
+    <div class="nav-group">
+      <button id="back-btn" data-testid="back-btn" class="icon-btn" type="button" aria-label="Back"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg></button>
+      <button id="fwd-btn" data-testid="fwd-btn" class="icon-btn" type="button" aria-label="Forward"><svg class="ic" aria-hidden="true"><use href="#i-fwd"/></svg></button>
+      <button id="reload-btn" data-testid="reload-btn" class="icon-btn" type="button" aria-label="Reload"><svg class="ic" aria-hidden="true"><use href="#i-reload"/></svg></button>
+    </div>
+
+    <div id="tab-slot-bar" class="tab-slot-bar"></div>
+
+    <div id="omnibox-shell" class="omnibox-shell">
+      <div id="omnibox-box" class="omnibox">
+        <svg class="ic omni-glyph" aria-hidden="true"><use href="#i-search"/></svg>
+        <input id="omnibox" data-testid="omnibox" type="text" spellcheck="false" autocomplete="off"
+               placeholder="Search or enter address" aria-label="Search or enter address"
+               role="combobox" aria-expanded="false" aria-controls="omnibox-suggestions" aria-autocomplete="list">
+        <button id="bookmark-btn" data-testid="bookmark-btn" class="icon-btn star" type="button"
+                data-bookmarked="false" aria-pressed="false" aria-label="Bookmark this page">
+          <svg class="ic" aria-hidden="true"><use href="#i-star"/></svg>
+        </button>
+      </div>
+      <div id="nav-progress" class="nav-progress" hidden aria-hidden="true"><span class="nav-progress-bar"></span></div>
+      <div id="omnibox-suggestions" data-testid="omnibox-suggestions" class="suggestions" role="listbox" hidden></div>
+    </div>
+
+    <div class="actions">
+      <button id="capture-btn" data-testid="capture-btn" class="tool-btn" type="button" data-state="idle">
+        <svg class="ic ic-idle" aria-hidden="true"><use href="#i-capture"/></svg>
+        <span class="spinner" hidden aria-hidden="true"></span>
+        <svg class="ic ic-ok" hidden aria-hidden="true"><use href="#i-check"/></svg>
+        <svg class="ic ic-fail" hidden aria-hidden="true"><use href="#i-alert"/></svg>
+        <span class="tool-lbl">Capture</span>
+      </button>
+      <button id="ask-toggle" data-testid="ask-toggle" class="icon-btn" type="button"
+              aria-pressed="false" aria-label="Toggle Ask panel">
+        <svg class="ic" aria-hidden="true"><use href="#i-ask"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <main id="content-hole" aria-hidden="true"></main>
+
+  <section id="ask-panel" data-testid="ask-panel" aria-label="Ask" aria-hidden="true">
+    <header class="ask-head">
+      <h2>Ask</h2>
+      <button id="ask-close" class="icon-btn" type="button" aria-label="Close Ask"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </header>
+    <div id="ask-body" class="ask-body">
+      <div id="ask-empty" class="ask-state">
+        <p class="warm">Ask anything about what you&rsquo;ve captured.</p>
+        <button id="ask-capture-page" class="btn-primary" type="button">Capture a page</button>
+      </div>
+      <div id="ask-stream" class="ask-state" hidden>
+        <div id="ask-answer" data-testid="ask-answer" class="answer" aria-live="polite"></div>
+        <div id="ask-dropped" class="dropped" hidden></div>
+        <div id="ask-citations" class="cite-row" hidden></div>
+      </div>
+      <div id="ask-refused" class="ask-state" hidden>
+        <p id="ask-refused-msg" class="warm"></p>
+        <p id="ask-refused-note" class="note" hidden>Answers run on this Mac; ~2.3GB download on first ask</p>
+        <button id="ask-refused-capture" class="btn-primary" type="button" hidden>Capture a page</button>
+      </div>
+      <div id="ask-error" class="ask-state" hidden>
+        <p class="warm">Generation failed</p>
+        <button id="ask-retry" class="btn-primary" type="button">Try again</button>
+      </div>
+    </div>
+    <form id="ask-form" class="composer">
+      <input id="ask-input" data-testid="ask-input" type="text" placeholder="Ask about your captures&hellip;"
+             autocomplete="off" spellcheck="false" aria-label="Ask a question">
+      <button id="ask-send" data-testid="ask-send" class="icon-btn go" type="submit" aria-label="Send question">
+        <svg class="ic" aria-hidden="true"><use href="#i-send"/></svg>
+      </button>
+      <button id="ask-stop" data-testid="ask-stop" class="icon-btn halt" type="button" aria-label="Stop generating" hidden>
+        <svg class="ic" aria-hidden="true"><use href="#i-stop"/></svg>
+      </button>
+    </form>
+  </section>
+
+  <div id="scrim"></div>
+  <div id="toast" data-testid="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
